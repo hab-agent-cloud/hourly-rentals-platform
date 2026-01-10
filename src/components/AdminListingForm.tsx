@@ -111,7 +111,7 @@ function SortableRoomItem({ room, index, onEdit, onRemove, onDuplicate }: Sortab
         </div>
       </div>
       
-      {room.images && room.images.length > 0 && (
+      {room.images && Array.isArray(room.images) && room.images.length > 0 && (
         <div className="flex gap-2 overflow-x-auto mb-3 ml-8">
           {room.images.map((img: string, imgIdx: number) => (
             <div key={imgIdx} className="relative flex-shrink-0">
@@ -128,7 +128,7 @@ function SortableRoomItem({ room, index, onEdit, onRemove, onDuplicate }: Sortab
         </div>
       )}
 
-      {room.features && room.features.length > 0 && (
+      {room.features && Array.isArray(room.features) && room.features.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-2">
           {room.features.map((feature: string, fIdx: number) => (
             <Badge key={fIdx} variant="outline" className="text-xs">
