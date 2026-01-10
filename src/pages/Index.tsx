@@ -10,12 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import InteractiveMap from '@/components/InteractiveMap';
 
 const mockListings = [
-  { id: 1, title: 'Студия в центре Москвы', city: 'Москва', district: 'Арбат', price: 2500, rating: 4.9, reviews: 124, auction: 1, image: '🏙️', metro: 'Арбатская', features: ['Wi-Fi', 'Кондиционер', 'Кухня'], lat: 55.7522, lng: 37.6156 },
-  { id: 2, title: 'Апартаменты у Невского', city: 'Санкт-Петербург', district: 'Центральный', price: 2200, rating: 4.8, reviews: 89, auction: 2, image: '🏛️', metro: 'Невский проспект', features: ['Wi-Fi', 'Кухня', 'Джакузи'], lat: 59.9343, lng: 30.3351 },
-  { id: 3, title: 'Люкс на Красной Поляне', city: 'Сочи', district: 'Красная Поляна', price: 4500, rating: 5.0, reviews: 201, auction: 3, image: '🏔️', metro: '-', features: ['Вид на горы', 'Сауна', 'Парковка'], lat: 43.6850, lng: 40.2645 },
-  { id: 4, title: 'Уютная квартира на Тверской', city: 'Москва', district: 'ЦАО', price: 1800, rating: 4.7, reviews: 56, auction: 5, image: '🌆', metro: 'Тверская', features: ['Wi-Fi', 'Кондиционер'], lat: 55.7658, lng: 37.6050 },
-  { id: 5, title: 'Апарт-отель Деловой центр', city: 'Екатеринбург', district: 'Центр', price: 1600, rating: 4.6, reviews: 43, auction: 8, image: '🏢', metro: 'Площадь 1905 года', features: ['Фитнес', 'Кухня', 'Wi-Fi'], lat: 56.8389, lng: 60.6057 },
-  { id: 6, title: 'Панорамные апартаменты', city: 'Казань', district: 'Вахитовский', price: 2000, rating: 4.9, reviews: 78, auction: 4, image: '🌃', metro: 'Кремлёвская', features: ['Вид на Кремль', 'Wi-Fi', 'Паркинг'], lat: 55.7887, lng: 49.1221 },
+  { id: 1, title: 'Отель «Арбат Плаза»', city: 'Москва', district: 'Арбат', price: 2500, rating: 4.9, reviews: 124, auction: 1, image: '🏙️', metro: 'Арбатская', features: ['Wi-Fi', 'Кондиционер', 'Кухня'], lat: 55.7522, lng: 37.6156, rooms: [{type: 'Стандарт', price: 2500}, {type: 'Улучшенный', price: 3200}, {type: 'Полулюкс', price: 4500}] },
+  { id: 2, title: 'Апарт-отель «Невский»', city: 'Санкт-Петербург', district: 'Центральный', price: 2200, rating: 4.8, reviews: 89, auction: 2, image: '🏛️', metro: 'Невский проспект', features: ['Wi-Fi', 'Кухня', 'Джакузи'], lat: 59.9343, lng: 30.3351, rooms: [{type: 'Стандарт', price: 2200}, {type: 'Улучшенный', price: 2900}, {type: 'Полулюкс', price: 3800}] },
+  { id: 3, title: 'Гостиница «Горный приют»', city: 'Сочи', district: 'Красная Поляна', price: 4500, rating: 5.0, reviews: 201, auction: 3, image: '🏔️', metro: '-', features: ['Вид на горы', 'Сауна', 'Парковка'], lat: 43.6850, lng: 40.2645, rooms: [{type: 'Стандарт', price: 4500}, {type: 'Улучшенный', price: 5500}, {type: 'Люкс', price: 7500}] },
+  { id: 4, title: 'Отель «Тверская»', city: 'Москва', district: 'ЦАО', price: 1800, rating: 4.7, reviews: 56, auction: 5, image: '🌆', metro: 'Тверская', features: ['Wi-Fi', 'Кондиционер'], lat: 55.7658, lng: 37.6050, rooms: [{type: 'Стандарт', price: 1800}, {type: 'Улучшенный', price: 2400}] },
+  { id: 5, title: 'Бизнес-отель «Центр»', city: 'Екатеринбург', district: 'Центр', price: 1600, rating: 4.6, reviews: 43, auction: 8, image: '🏢', metro: 'Площадь 1905 года', features: ['Фитнес', 'Кухня', 'Wi-Fi'], lat: 56.8389, lng: 60.6057, rooms: [{type: 'Стандарт', price: 1600}, {type: 'Полулюкс', price: 2500}] },
+  { id: 6, title: 'Апартаменты «Кремлевские»', city: 'Казань', district: 'Вахитовский', price: 2000, rating: 4.9, reviews: 78, auction: 4, image: '🌃', metro: 'Кремлёвская', features: ['Вид на Кремль', 'Wi-Fi', 'Паркинг'], lat: 55.7887, lng: 49.1221, rooms: [{type: 'Стандарт', price: 2000}, {type: 'Улучшенный', price: 2700}, {type: 'Полулюкс', price: 3500}] },
 ];
 
 const cities = ['Все города', 'Москва', 'Санкт-Петербург', 'Сочи', 'Екатеринбург', 'Казань'];
@@ -80,12 +80,35 @@ export default function Index() {
           <>
             <section className="mb-12 text-center animate-fade-in">
               <div className="max-w-4xl mx-auto">
-                <h2 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
-                  Аренда жилья на час
+                <h2 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
+                  ПОЧАСОВАЯ АРЕНДА<br/>ОТЕЛЕЙ И АПАРТАМЕНТОВ
                 </h2>
-                <p className="text-xl text-muted-foreground mb-8">
-                  Найди идеальное место для встречи, работы или отдыха в любом городе России
-                </p>
+                <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-6">
+                  <div className="flex items-center gap-2 text-lg md:text-xl font-semibold text-purple-700">
+                    <Icon name="CheckCircle2" size={24} className="text-green-500" />
+                    <span>БЕЗ ПОСРЕДНИКОВ</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-lg md:text-xl font-semibold text-purple-700">
+                    <Icon name="CheckCircle2" size={24} className="text-green-500" />
+                    <span>БЕЗ РЕГИСТРАЦИИ НА САЙТЕ</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center gap-3 md:gap-6 mb-8 text-base md:text-lg font-medium">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold">1</div>
+                    <span>ВЫБИРАЕТЕ</span>
+                  </div>
+                  <Icon name="ArrowRight" size={20} className="text-purple-600" />
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold">2</div>
+                    <span>СВЯЗЫВАЕТЕСЬ</span>
+                  </div>
+                  <Icon name="ArrowRight" size={20} className="text-purple-600" />
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold">3</div>
+                    <span>БРОНИРУЕТЕ</span>
+                  </div>
+                </div>
 
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-purple-100">
                   <div className="flex flex-col md:flex-row gap-4">
@@ -212,9 +235,9 @@ export default function Index() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredListings.map((listing, index) => (
-                  <Card key={listing.id} className="overflow-hidden hover-scale cursor-pointer border-2 border-purple-100 hover:border-purple-300 transition-all animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
-                    <div className="relative">
-                      <div className="h-48 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-6xl">
+                  <Card key={listing.id} className="group overflow-hidden cursor-pointer border-2 border-purple-100 hover:border-purple-300 transition-all animate-fade-in hover:shadow-xl" style={{ animationDelay: `${index * 100}ms` }}>
+                    <div className="relative overflow-hidden">
+                      <div className="h-48 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-300">
                         {listing.image}
                       </div>
                       {listing.auction <= 3 && (
@@ -226,11 +249,14 @@ export default function Index() {
                       <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-semibold">
                         🎯 Место #{listing.auction}
                       </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
+                        <span className="text-white font-bold text-lg animate-fade-in">Посмотреть все предложения</span>
+                      </div>
                     </div>
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-bold text-lg mb-1">{listing.title}</h4>
+                        <div className="flex-1">
+                          <h4 className="font-bold text-lg mb-1 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 group-hover:bg-clip-text transition-all duration-300">{listing.title}</h4>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Icon name="MapPin" size={14} />
                             <span>{listing.city}, {listing.district}</span>
@@ -245,13 +271,25 @@ export default function Index() {
                       </div>
                     </CardHeader>
                     <CardContent>
+                      <div className="mb-4">
+                        <div className="text-xs font-semibold text-muted-foreground mb-2">Категории номеров:</div>
+                        <div className="space-y-2">
+                          {listing.rooms.map((room, idx) => (
+                            <div key={idx} className="flex items-center justify-between p-2 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                              <span className="text-sm font-medium">{room.type}</span>
+                              <span className="text-sm font-bold text-purple-600">{room.price} ₽/час</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                       <div className="flex flex-wrap gap-1 mb-3">
                         {listing.features.map(feature => (
                           <Badge key={feature} variant="outline" className="text-xs">{feature}</Badge>
                         ))}
                       </div>
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-3">
                         <div>
+                          <div className="text-xs text-muted-foreground">от</div>
                           <div className="text-2xl font-bold text-purple-600">{listing.price} ₽</div>
                           <div className="text-xs text-muted-foreground">за час</div>
                         </div>
@@ -263,7 +301,7 @@ export default function Index() {
                           <div className="text-xs text-muted-foreground">{listing.reviews} отзывов</div>
                         </div>
                       </div>
-                      <Button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
                         Забронировать
                       </Button>
                     </CardContent>
