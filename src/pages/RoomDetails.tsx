@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function RoomDetails() {
   const { listingId, roomIndex } = useParams();
@@ -19,6 +20,7 @@ export default function RoomDetails() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
+  const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
 
   useEffect(() => {
     const loadListing = async () => {
@@ -88,133 +90,224 @@ export default function RoomDetails() {
     );
   }
 
+  const roomImages = room.images && Array.isArray(room.images) && room.images.length > 0 
+    ? room.images 
+    : [listing.image_url];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" onClick={() => navigate(`/listing/${listingId}`)}>
+            <Button variant="outline" size="icon" onClick={() => navigate(`/`)}>
               <Icon name="ArrowLeft" size={20} />
             </Button>
             <div className="flex-1">
               <h1 className="text-2xl font-bold">{listing.title}</h1>
               <p className="text-sm text-muted-foreground">{listing.city}, {listing.district}</p>
             </div>
-            {listing.logo && (
+            {listing.logo_url && (
               <div className="w-16 h-16 border rounded-lg bg-white p-1 flex items-center justify-center">
-                <img src={listing.logo} alt={`${listing.title} logo`} className="max-w-full max-h-full object-contain" />
+                <img src={listing.logo_url} alt={`${listing.title} logo`} className="max-w-full max-h-full object-contain" />
               </div>
             )}
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="grid md:grid-cols-2 gap-8 p-8">
-            <div>
-              <div className="mb-4">
-                {room.images && room.images.length > 0 ? (
+      <main className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Левая колонка: Фото */}
+          <div className="lg:col-span-2">
+            <Card className="overflow-hidden">
+              <CardContent className="p-0">
+                <div className="relative">
                   <img
-                    src={room.images[selectedImageIndex]}
+                    src={roomImages[selectedImageIndex]}
                     alt={room.type}
-                    className="w-full h-96 object-cover rounded-xl"
+                    className="w-full h-[400px] object-cover cursor-pointer"
+                    onClick={() => setImageGalleryOpen(true)}
                   />
-                ) : (
-                  <div className="w-full h-96 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
-                    <Icon name="Image" size={64} className="text-purple-300" />
+                  {roomImages.length > 1 && (
+                    <div className="absolute top-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      {selectedImageIndex + 1} / {roomImages.length}
+                    </div>
+                  )}
+                  <button
+                    onClick={() => setImageGalleryOpen(true)}
+                    className="absolute bottom-4 right-4 bg-white/90 hover:bg-white px-4 py-2 rounded-lg shadow-lg font-medium flex items-center gap-2 transition-all"
+                  >
+                    <Icon name="Maximize2" size={18} />
+                    Смотреть все фото
+                  </button>
+                </div>
+
+                {roomImages.length > 1 && (
+                  <div className="p-4 flex gap-2 overflow-x-auto">
+                    {roomImages.map((img: string, idx: number) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSelectedImageIndex(idx)}
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                          selectedImageIndex === idx ? 'border-purple-600 scale-105' : 'border-gray-200 hover:border-purple-400'
+                        }`}
+                      >
+                        <img src={img} alt={`${room.type} ${idx + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
                   </div>
                 )}
-              </div>
+              </CardContent>
+            </Card>
 
-              {room.images && room.images.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto">
-                  {room.images.map((img: string, idx: number) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedImageIndex(idx)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                        selectedImageIndex === idx ? 'border-purple-600' : 'border-transparent'
-                      }`}
-                    >
-                      <img src={img} alt={`${room.type} ${idx + 1}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-4xl font-bold mb-2">{room.type}</h2>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="text-3xl font-bold text-purple-600">{room.price} ₽/час</div>
-                  {room.square_meters > 0 && (
-                    <Badge variant="secondary" className="text-lg px-4 py-1">
-                      <Icon name="Square" size={16} className="mr-1" />
-                      {room.square_meters} м²
-                    </Badge>
-                  )}
-                </div>
-              </div>
-
-              {room.description && (
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">Описание</h3>
-                  <p className="text-muted-foreground">{room.description}</p>
-                </div>
-              )}
-
-              {room.features && room.features.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-lg mb-3">Удобства</h3>
-                  <div className="grid grid-cols-3 gap-3">
+            {/* Удобства */}
+            {room.features && room.features.length > 0 && (
+              <Card className="mt-6">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-xl mb-4 flex items-center gap-2">
+                    <Icon name="Sparkles" size={20} className="text-purple-600" />
+                    Удобства в номере
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {room.features.map((feature: string, idx: number) => {
                       const iconName = featureIcons[feature] || 'Check';
                       return (
                         <div
                           key={idx}
-                          className="group relative flex flex-col items-center justify-center p-3 border rounded-lg hover:bg-purple-50 transition-colors cursor-pointer"
-                          title={feature}
+                          className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
                         >
-                          <Icon name={iconName} size={24} className="text-purple-600 mb-1" />
-                          <span className="text-xs text-center opacity-0 group-hover:opacity-100 transition-opacity absolute -bottom-8 bg-gray-900 text-white px-2 py-1 rounded whitespace-nowrap z-10">
-                            {feature}
-                          </span>
+                          <Icon name={iconName} size={20} className="text-purple-600 flex-shrink-0" />
+                          <span className="text-sm font-medium">{feature}</span>
                         </div>
                       );
                     })}
                   </div>
-                </div>
-              )}
+                </CardContent>
+              </Card>
+            )}
 
-              <div className="flex gap-3">
-                {listing.phone && (
-                  <Button 
-                    onClick={() => setPhoneModalOpen(true)}
-                    className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-lg py-6"
-                  >
-                    <Icon name="Phone" size={20} className="mr-2" />
-                    Позвонить
-                  </Button>
-                )}
-                {listing.telegram && (
-                  <Button 
-                    asChild
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-lg py-6"
-                  >
-                    <a href={listing.telegram.startsWith('http') ? listing.telegram : `https://t.me/${listing.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer">
-                      <Icon name="Send" size={20} className="mr-2" />
-                      Написать в Telegram
-                    </a>
-                  </Button>
-                )}
-              </div>
+            {/* Описание */}
+            {room.description && (
+              <Card className="mt-6">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-xl mb-3">Описание</h3>
+                  <p className="text-muted-foreground leading-relaxed">{room.description}</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Правая колонка: Информация и бронирование */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 space-y-4">
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-3xl font-bold mb-3">{room.type}</h2>
+                  
+                  <div className="flex items-center gap-3 mb-4">
+                    {room.square_meters > 0 && (
+                      <Badge variant="secondary" className="text-base px-3 py-1">
+                        <Icon name="Square" size={16} className="mr-1" />
+                        {room.square_meters} м²
+                      </Badge>
+                    )}
+                    {room.min_hours > 0 && (
+                      <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-base px-3 py-1">
+                        <Icon name="Clock" size={16} className="mr-1" />
+                        от {room.min_hours}ч
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 mb-4">
+                    <div className="text-sm text-muted-foreground mb-1">Стоимость</div>
+                    <div className="text-4xl font-bold text-purple-600">{room.price} ₽</div>
+                    <div className="text-sm text-muted-foreground">за час</div>
+                  </div>
+
+                  <div className="space-y-3 mb-6">
+                    {room.payment_methods && (
+                      <div className="flex gap-3">
+                        <Icon name="CreditCard" size={20} className="text-purple-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-semibold text-sm">Оплата</div>
+                          <div className="text-sm text-muted-foreground">{room.payment_methods}</div>
+                        </div>
+                      </div>
+                    )}
+                    {room.cancellation_policy && (
+                      <div className="flex gap-3">
+                        <Icon name="CalendarX" size={20} className="text-purple-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-semibold text-sm">Отмена</div>
+                          <div className="text-sm text-muted-foreground">{room.cancellation_policy}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    {listing.phone && (
+                      <Button 
+                        onClick={() => setPhoneModalOpen(true)}
+                        className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-lg py-6"
+                      >
+                        <Icon name="Phone" size={20} className="mr-2" />
+                        Позвонить
+                      </Button>
+                    )}
+                    {listing.telegram && (
+                      <Button 
+                        asChild
+                        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-lg py-6"
+                      >
+                        <a href={listing.telegram.startsWith('http') ? listing.telegram : `https://t.me/${listing.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer">
+                          <Icon name="Send" size={20} className="mr-2" />
+                          Написать в Telegram
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Информация об отеле */}
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Icon name="MapPin" size={18} className="text-purple-600" />
+                    Местоположение
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-muted-foreground">{listing.city}</p>
+                    <p className="text-muted-foreground">{listing.district}</p>
+                    {listing.metro && listing.metro !== '-' && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <span className="text-blue-600">Ⓜ️</span>
+                        <span>{listing.metro}</span>
+                        {listing.metroWalk > 0 && (
+                          <>
+                            <Icon name="PersonStanding" size={14} className="ml-1" />
+                            <span>{listing.metroWalk} мин</span>
+                          </>
+                        )}
+                      </div>
+                    )}
+                    {listing.hasParking && (
+                      <div className="flex items-center gap-2 text-green-600 font-semibold">
+                        <Icon name="Car" size={16} />
+                        <span>Есть парковка</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
       </main>
 
+      {/* Модальное окно с телефоном */}
       <Dialog open={phoneModalOpen} onOpenChange={setPhoneModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -236,6 +329,51 @@ export default function RoomDetails() {
                 Позвонить сейчас
               </a>
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Галерея фото */}
+      <Dialog open={imageGalleryOpen} onOpenChange={setImageGalleryOpen}>
+        <DialogContent className="max-w-6xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">{room.type} - Фото {selectedImageIndex + 1} из {roomImages.length}</DialogTitle>
+          </DialogHeader>
+          <div className="relative">
+            <img
+              src={roomImages[selectedImageIndex]}
+              alt={`${room.type} ${selectedImageIndex + 1}`}
+              className="w-full max-h-[70vh] object-contain rounded-lg"
+            />
+            {roomImages.length > 1 && (
+              <>
+                <button
+                  onClick={() => setSelectedImageIndex((prev) => (prev === 0 ? roomImages.length - 1 : prev - 1))}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all"
+                >
+                  <Icon name="ChevronLeft" size={24} />
+                </button>
+                <button
+                  onClick={() => setSelectedImageIndex((prev) => (prev === roomImages.length - 1 ? 0 : prev + 1))}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all"
+                >
+                  <Icon name="ChevronRight" size={24} />
+                </button>
+              </>
+            )}
+          </div>
+          <div className="flex gap-2 overflow-x-auto py-2">
+            {roomImages.map((img: string, idx: number) => (
+              <button
+                key={idx}
+                onClick={() => setSelectedImageIndex(idx)}
+                className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition-all ${
+                  selectedImageIndex === idx ? 'border-purple-600 scale-105' : 'border-gray-200 hover:border-purple-400'
+                }`}
+              >
+                <img src={img} alt={`${room.type} ${idx + 1}`} className="w-full h-full object-cover" />
+              </button>
+            ))}
           </div>
         </DialogContent>
       </Dialog>

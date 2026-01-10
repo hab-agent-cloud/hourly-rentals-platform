@@ -5,8 +5,14 @@
       "method": "GET",
       "path": "/",
       "expectedStatus": 200,
-      "expectedBody": [],
-      "bodyMatcher": "type"
+      "expectedBody": [
+        {
+          "id": "number",
+          "title": "string",
+          "rooms": "array"
+        }
+      ],
+      "bodyMatcher": "partial"
     }
   ]
 }

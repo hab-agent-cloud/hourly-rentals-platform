@@ -101,14 +101,19 @@ def handler(event: dict, context) -> dict:
             new_listing = cur.fetchone()
             listing_id = new_listing['id']
             
-            # Добавление комнат
+            # Удаление старых комнат и добавление новых
             if 'rooms' in body:
+                cur.execute("DELETE FROM rooms WHERE listing_id = %s", (listing_id,))
                 for room in body['rooms']:
                     cur.execute("""
-                        INSERT INTO rooms (listing_id, type, price, description, image_url)
-                        VALUES (%s, %s, %s, %s, %s)
+                        INSERT INTO rooms (listing_id, type, price, description, images, 
+                                         square_meters, features, min_hours, payment_methods, cancellation_policy)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """, (listing_id, room['type'], room['price'], 
-                          room.get('description'), room.get('image_url')))
+                          room.get('description'), room.get('images', []),
+                          room.get('square_meters', 0), room.get('features', []),
+                          room.get('min_hours', 1), room.get('payment_methods', 'Наличные, банковская карта при заселении'),
+                          room.get('cancellation_policy', 'Бесплатная отмена за 1 час до заселения')))
             
             conn.commit()
             cur.close()
@@ -154,6 +159,21 @@ def handler(event: dict, context) -> dict:
             ))
             
             updated_listing = cur.fetchone()
+            
+            # Обновление комнат
+            if 'rooms' in body:
+                cur.execute("DELETE FROM rooms WHERE listing_id = %s", (listing_id,))
+                for room in body['rooms']:
+                    cur.execute("""
+                        INSERT INTO rooms (listing_id, type, price, description, images, 
+                                         square_meters, features, min_hours, payment_methods, cancellation_policy)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """, (listing_id, room['type'], room['price'], 
+                          room.get('description'), room.get('images', []),
+                          room.get('square_meters', 0), room.get('features', []),
+                          room.get('min_hours', 1), room.get('payment_methods', 'Наличные, банковская карта при заселении'),
+                          room.get('cancellation_policy', 'Бесплатная отмена за 1 час до заселения')))
+            
             conn.commit()
             cur.close()
             conn.close()

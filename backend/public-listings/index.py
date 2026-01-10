@@ -45,14 +45,16 @@ def handler(event: dict, context) -> dict:
         
         listings = cur.fetchall()
         
-        # Получаем комнаты для каждого объекта
+        # Получаем комнаты для каждого объекта со всеми полями
         for listing in listings:
             cur.execute(
-                "SELECT type, price, description, image_url FROM rooms WHERE listing_id = %s",
+                """SELECT type, price, description, images, square_meters, features, 
+                          min_hours, payment_methods, cancellation_policy 
+                   FROM rooms WHERE listing_id = %s""",
                 (listing['id'],)
             )
             rooms = cur.fetchall()
-            listing['rooms'] = [{'type': r['type'], 'price': r['price']} for r in rooms]
+            listing['rooms'] = rooms
         
         cur.close()
         conn.close()
