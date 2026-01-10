@@ -969,13 +969,13 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                         size="sm"
                         onClick={() => applyTemplate(template.name)}
                         className="h-auto py-3 flex flex-col items-start gap-1 hover:bg-purple-100 hover:border-purple-400 transition-all relative group"
-                        title={`${template.features.length} удобств`}
+                        title={`${template.features?.length || 0} удобств`}
                       >
                         <span className="font-semibold text-sm">{template.name}</span>
                         <div className="flex items-center gap-2 w-full">
                           <span className="text-xs text-muted-foreground">{template.square_meters} м²</span>
                           <Badge variant="secondary" className="text-xs h-4 px-1">
-                            {template.features.length}
+                            {template.features?.length || 0}
                           </Badge>
                         </div>
                       </Button>
