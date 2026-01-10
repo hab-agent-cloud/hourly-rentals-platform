@@ -266,19 +266,51 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     'Кухня',
   ];
 
+  const geocodeAddress = async (city: string, address: string): Promise<{ lat: number; lng: number } | null> => {
+    try {
+      const fullAddress = `${city}, ${address}`;
+      const response = await fetch(
+        `https://geocode-maps.yandex.ru/1.x/?apikey=99b1f0e4-c9e6-4e09-b735-29881250fb58&geocode=${encodeURIComponent(fullAddress)}&format=json`
+      );
+      const data = await response.json();
+      const geoObject = data.response.GeoObjectCollection.featureMember[0];
+      if (geoObject) {
+        const coords = geoObject.GeoObject.Point.pos.split(' ');
+        return { lat: parseFloat(coords[1]), lng: parseFloat(coords[0]) };
+      }
+      return null;
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      return null;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      let finalData = { ...formData };
+
+      if (formData.city && formData.district) {
+        const coords = await geocodeAddress(formData.city, formData.district);
+        if (coords) {
+          finalData = { ...finalData, lat: coords.lat, lng: coords.lng };
+          toast({
+            title: 'Координаты определены',
+            description: `Объект размещён на карте`,
+          });
+        }
+      }
+
       if (listing) {
-        await api.updateListing(token, listing.id, formData);
+        await api.updateListing(token, listing.id, finalData);
         toast({
           title: 'Успешно',
           description: 'Объект обновлён',
         });
       } else {
-        await api.createListing(token, formData);
+        await api.createListing(token, finalData);
         toast({
           title: 'Успешно',
           description: 'Объект создан',
@@ -821,35 +853,6 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                     type="number"
                     value={formData.metro_walk}
                     onChange={(e) => setFormData({ ...formData, metro_walk: parseInt(e.target.value) })}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Координаты</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Широта</label>
-                  <Input
-                    type="number"
-                    step="0.000001"
-                    value={formData.lat}
-                    onChange={(e) => setFormData({ ...formData, lat: parseFloat(e.target.value) })}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Долгота</label>
-                  <Input
-                    type="number"
-                    step="0.000001"
-                    value={formData.lng}
-                    onChange={(e) => setFormData({ ...formData, lng: parseFloat(e.target.value) })}
                   />
                 </div>
               </div>
