@@ -917,16 +917,19 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                     items={formData.rooms.map((_: any, idx: number) => `room-${idx}`)}
                     strategy={verticalListSortingStrategy}
                   >
-                    {formData.rooms.map((room: any, index: number) => (
-                      <SortableRoomItem
-                        key={`room-${index}`}
-                        room={room}
-                        index={index}
-                        onEdit={startEditRoom}
-                        onRemove={removeRoom}
-                        onDuplicate={duplicateRoom}
-                      />
-                    ))}
+                    {formData.rooms.map((room: any, index: number) => {
+                      if (editingRoomIndex === index) return null;
+                      return (
+                        <SortableRoomItem
+                          key={`room-${index}`}
+                          room={room}
+                          index={index}
+                          onEdit={startEditRoom}
+                          onRemove={removeRoom}
+                          onDuplicate={duplicateRoom}
+                        />
+                      );
+                    })}
                   </SortableContext>
                 </DndContext>
               ) : (
