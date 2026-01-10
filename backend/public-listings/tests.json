@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Test get public listings",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": [],
+      "bodyMatcher": "type"
+    }
+  ]
+}
