@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { api } from '@/lib/api';
 
 export default function RoomDetails() {
   const { listingId, roomIndex } = useParams();
@@ -13,47 +14,22 @@ export default function RoomDetails() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const mockListings = [
-      {
-        id: 1,
-        title: 'Luxury Suite 120',
-        city: 'Москва',
-        district: 'Центральный',
-        logo: '',
-        rooms: [
-          {
-            type: 'Стандарт',
-            price: 2500,
-            square_meters: 25,
-            description: 'Уютный номер с современным дизайном и всеми удобствами',
-            images: [
-              'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800',
-              'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800',
-              'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800',
-            ],
-            features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Халаты'],
-          },
-          {
-            type: 'Люкс',
-            price: 3500,
-            square_meters: 35,
-            description: 'Просторный номер с джакузи и панорамным видом',
-            images: [
-              'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800',
-              'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800',
-            ],
-            features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Бар', 'Сейф'],
-          },
-        ],
-      },
-    ];
+    const loadListing = async () => {
+      try {
+        const listings = await api.getPublicListings();
+        const foundListing = listings.find((l: any) => l.id === parseInt(listingId || '0'));
+        const foundRoom = foundListing?.rooms?.[parseInt(roomIndex || '0')];
+        
+        setListing(foundListing);
+        setRoom(foundRoom);
+      } catch (error) {
+        console.error('Failed to load listing:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    const foundListing = mockListings.find((l) => l.id === parseInt(listingId || '0'));
-    const foundRoom = foundListing?.rooms[parseInt(roomIndex || '0')];
-    
-    setListing(foundListing);
-    setRoom(foundRoom);
-    setIsLoading(false);
+    loadListing();
   }, [listingId, roomIndex]);
 
   const featureIcons: Record<string, string> = {
@@ -205,13 +181,30 @@ export default function RoomDetails() {
                 </div>
               )}
 
-              <Button
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg py-6"
-                onClick={() => window.open('https://t.me/yourusername', '_blank')}
-              >
-                <Icon name="MessageCircle" size={20} className="mr-2" />
-                Забронировать
-              </Button>
+              <div className="flex gap-3">
+                {listing.phone && (
+                  <Button 
+                    asChild
+                    className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-lg py-6"
+                  >
+                    <a href={`tel:${listing.phone}`}>
+                      <Icon name="Phone" size={20} className="mr-2" />
+                      Позвонить
+                    </a>
+                  </Button>
+                )}
+                {listing.telegram && (
+                  <Button 
+                    asChild
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-lg py-6"
+                  >
+                    <a href={listing.telegram.startsWith('http') ? listing.telegram : `https://t.me/${listing.telegram.replace('@', '')}`} target="_blank" rel="noopener noreferrer">
+                      <Icon name="Send" size={20} className="mr-2" />
+                      Написать в Telegram
+                    </a>
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -750,6 +750,25 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Телефон</label>
+                  <Input
+                    placeholder="+79991234567"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Telegram (username или ссылка)</label>
+                  <Input
+                    placeholder="@username или https://t.me/username"
+                    value={formData.telegram}
+                    onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Цена (₽/час)</label>
