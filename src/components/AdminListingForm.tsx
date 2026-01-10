@@ -40,8 +40,34 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     rooms: listing?.rooms || [],
   });
 
-  const [newFeature, setNewFeature] = useState('');
   const [newRoom, setNewRoom] = useState({ type: '', price: 0, description: '', image_url: '' });
+
+  const availableFeatures = [
+    'WiFi',
+    'Двуспальная кровать',
+    '2 односпальные кровати',
+    'Смарт ТВ',
+    'Кондиционер',
+    'Джакузи',
+    'Душевая кабина',
+    'Фен',
+    'Халаты',
+    'Тапочки',
+    'Холодильник',
+    'Микроволновка',
+    'Чайник',
+    'Посуда',
+    'Сейф',
+    'Зеркала',
+    'Музыкальная система',
+    'Настольные игры',
+    'PlayStation',
+    'Бар',
+    'Косметика',
+    'Полотенца',
+    'Постельное бельё',
+    'Кухня',
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,21 +138,18 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     }
   };
 
-  const addFeature = () => {
-    if (newFeature.trim()) {
+  const toggleFeature = (feature: string) => {
+    if (formData.features.includes(feature)) {
       setFormData({
         ...formData,
-        features: [...formData.features, newFeature.trim()],
+        features: formData.features.filter((f: string) => f !== feature),
       });
-      setNewFeature('');
+    } else {
+      setFormData({
+        ...formData,
+        features: [...formData.features, feature],
+      });
     }
-  };
-
-  const removeFeature = (index: number) => {
-    setFormData({
-      ...formData,
-      features: formData.features.filter((_: any, i: number) => i !== index),
-    });
   };
 
   const addRoom = () => {
@@ -349,32 +372,22 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
             <CardHeader>
               <CardTitle>Удобства</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex flex-wrap gap-2 mb-4">
-                {formData.features.map((feature: string, index: number) => (
-                  <Badge key={index} variant="secondary" className="text-sm">
-                    {feature}
-                    <button
-                      type="button"
-                      onClick={() => removeFeature(index)}
-                      className="ml-2 hover:text-red-500"
-                    >
-                      ×
-                    </button>
-                  </Badge>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {availableFeatures.map((feature) => (
+                  <label
+                    key={feature}
+                    className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-purple-50 transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.features.includes(feature)}
+                      onChange={() => toggleFeature(feature)}
+                      className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                    />
+                    <span className="text-sm font-medium">{feature}</span>
+                  </label>
                 ))}
-              </div>
-
-              <div className="flex gap-2">
-                <Input
-                  value={newFeature}
-                  onChange={(e) => setNewFeature(e.target.value)}
-                  placeholder="Добавить удобство"
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
-                />
-                <Button type="button" onClick={addFeature} variant="outline">
-                  <Icon name="Plus" size={18} />
-                </Button>
               </div>
             </CardContent>
           </Card>
