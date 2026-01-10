@@ -16,6 +16,7 @@ type Listing = {
   auction: number;
   image: string;
   metro: string;
+  metroWalk: number;
   features: string[];
   lat: number;
   lng: number;
@@ -155,12 +156,11 @@ export default function ListingsView({
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                       <span className="text-blue-600">Ⓜ️</span>
                       <span>{listing.metro}</span>
+                      <Icon name="PersonStanding" size={14} className="ml-1" />
+                      <span>{listing.metroWalk} мин</span>
                     </div>
                   )}
                 </div>
-                <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold">
-                  от {listing.minHours}ч
-                </Badge>
               </div>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
@@ -185,15 +185,11 @@ export default function ListingsView({
                 <div>
                   <div className="text-xs text-muted-foreground">от</div>
                   <div className="text-2xl font-bold text-purple-600">{listing.price} ₽</div>
-                  <div className="text-xs text-muted-foreground">за час · мин. {listing.minHours}ч</div>
+                  <div className="text-xs text-muted-foreground">за час</div>
                 </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1">
-                    <Icon name="Star" size={16} className="text-orange-500 fill-orange-500" />
-                    <span className="font-bold">{listing.rating}</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground">{listing.reviews} отзывов</div>
-                </div>
+                <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold">
+                  от {listing.minHours}ч
+                </Badge>
               </div>
               <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
                 Забронировать
