@@ -4,6 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { api } from '@/lib/api';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function RoomDetails() {
   const { listingId, roomIndex } = useParams();
@@ -12,6 +18,7 @@ export default function RoomDetails() {
   const [room, setRoom] = useState<any>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [phoneModalOpen, setPhoneModalOpen] = useState(false);
 
   useEffect(() => {
     const loadListing = async () => {
@@ -184,13 +191,11 @@ export default function RoomDetails() {
               <div className="flex gap-3">
                 {listing.phone && (
                   <Button 
-                    asChild
+                    onClick={() => setPhoneModalOpen(true)}
                     className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-lg py-6"
                   >
-                    <a href={`tel:${listing.phone}`}>
-                      <Icon name="Phone" size={20} className="mr-2" />
-                      Позвонить
-                    </a>
+                    <Icon name="Phone" size={20} className="mr-2" />
+                    Позвонить
                   </Button>
                 )}
                 {listing.telegram && (
@@ -209,6 +214,31 @@ export default function RoomDetails() {
           </div>
         </div>
       </main>
+
+      <Dialog open={phoneModalOpen} onOpenChange={setPhoneModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center">Номер телефона</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-xl p-6 text-center">
+              <Icon name="Phone" size={48} className="mx-auto mb-3 text-green-600" />
+              <a href={`tel:${listing.phone}`} className="text-3xl font-bold text-green-600 hover:text-green-700 transition-colors">
+                {listing.phone}
+              </a>
+            </div>
+            <Button 
+              asChild
+              className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-lg py-6"
+            >
+              <a href={`tel:${listing.phone}`}>
+                <Icon name="Phone" size={20} className="mr-2" />
+                Позвонить сейчас
+              </a>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -32,6 +33,7 @@ interface HotelModalProps {
 
 export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProps) {
   const navigate = useNavigate();
+  const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   
   if (!hotel) return null;
 
@@ -150,13 +152,11 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
           <div className="flex gap-3">
             {hotel.phone && (
               <Button 
-                asChild
+                onClick={() => setPhoneModalOpen(true)}
                 className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-lg py-6"
               >
-                <a href={`tel:${hotel.phone}`}>
-                  <Icon name="Phone" size={20} className="mr-2" />
-                  Позвонить
-                </a>
+                <Icon name="Phone" size={20} className="mr-2" />
+                Позвонить
               </Button>
             )}
             {hotel.telegram && (
@@ -173,6 +173,31 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
           </div>
         </div>
       </DialogContent>
+
+      <Dialog open={phoneModalOpen} onOpenChange={setPhoneModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center">Номер телефона</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-xl p-6 text-center">
+              <Icon name="Phone" size={48} className="mx-auto mb-3 text-green-600" />
+              <a href={`tel:${hotel.phone}`} className="text-3xl font-bold text-green-600 hover:text-green-700 transition-colors">
+                {hotel.phone}
+              </a>
+            </div>
+            <Button 
+              asChild
+              className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-lg py-6"
+            >
+              <a href={`tel:${hotel.phone}`}>
+                <Icon name="Phone" size={20} className="mr-2" />
+                Позвонить сейчас
+              </a>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
