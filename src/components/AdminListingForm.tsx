@@ -36,9 +36,10 @@ interface SortableRoomItemProps {
   index: number;
   onEdit: (index: number) => void;
   onRemove: (index: number) => void;
+  onDuplicate: (index: number) => void;
 }
 
-function SortableRoomItem({ room, index, onEdit, onRemove }: SortableRoomItemProps) {
+function SortableRoomItem({ room, index, onEdit, onRemove, onDuplicate }: SortableRoomItemProps) {
   const {
     attributes,
     listeners,
@@ -85,6 +86,7 @@ function SortableRoomItem({ room, index, onEdit, onRemove }: SortableRoomItemPro
             variant="ghost"
             size="sm"
             onClick={() => onEdit(index)}
+            title="Редактировать"
           >
             <Icon name="Edit" size={16} />
           </Button>
@@ -92,7 +94,17 @@ function SortableRoomItem({ room, index, onEdit, onRemove }: SortableRoomItemPro
             type="button"
             variant="ghost"
             size="sm"
+            onClick={() => onDuplicate(index)}
+            title="Дублировать"
+          >
+            <Icon name="Copy" size={16} />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => onRemove(index)}
+            title="Удалить"
           >
             <Icon name="Trash2" size={16} />
           </Button>
@@ -479,6 +491,19 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     });
   };
 
+  const duplicateRoom = (index: number) => {
+    const roomToDuplicate = { ...formData.rooms[index] };
+    roomToDuplicate.type = `${roomToDuplicate.type} (копия)`;
+    setFormData({
+      ...formData,
+      rooms: [...formData.rooms.slice(0, index + 1), roomToDuplicate, ...formData.rooms.slice(index + 1)],
+    });
+    toast({
+      title: 'Успешно',
+      description: 'Категория дублирована',
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
@@ -772,6 +797,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                         index={index}
                         onEdit={startEditRoom}
                         onRemove={removeRoom}
+                        onDuplicate={duplicateRoom}
                       />
                     ))}
                   </SortableContext>

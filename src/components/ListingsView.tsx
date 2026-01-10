@@ -63,9 +63,25 @@ export default function ListingsView({
         return b.rating - a.rating;
       case 'auction':
       default:
+        if (a.city !== b.city) {
+          return a.city.localeCompare(b.city);
+        }
         return a.auction - b.auction;
     }
   });
+
+  const getPositionInCity = (listing: Listing, index: number): number => {
+    const sameCity = sortedListings.filter(l => l.city === listing.city);
+    return sameCity.findIndex(l => l.id === listing.id) + 1;
+  };
+
+  const groupedByCity = sortedListings.reduce((acc, listing) => {
+    if (!acc[listing.city]) {
+      acc[listing.city] = [];
+    }
+    acc[listing.city].push(listing);
+    return acc;
+  }, {} as Record<string, Listing[]>);
 
   return (
     <section>
@@ -116,9 +132,9 @@ export default function ListingsView({
                     <div className="w-full h-full bg-gradient-to-br from-purple-200 to-pink-200 rounded-lg flex items-center justify-center text-3xl">
                       {listing.image}
                     </div>
-                    {listing.auction <= 3 && (
+                    {getPositionInCity(listing, index) <= 3 && (
                       <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold text-xs">
-                        ТОП-{listing.auction}
+                        ТОП-{getPositionInCity(listing, index)}
                       </Badge>
                     )}
                   </div>
@@ -150,8 +166,20 @@ export default function ListingsView({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedListings.map((listing, index) => (
+        <div className="space-y-12">
+          {Object.entries(groupedByCity).map(([city, cityListings]) => (
+            <div key={city}>
+              <div className="flex items-center gap-3 mb-6">
+                <Icon name="MapPin" size={24} className="text-purple-600" />
+                <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  {city}
+                </h3>
+                <Badge variant="outline" className="text-base px-3 py-1">
+                  {cityListings.length} {cityListings.length === 1 ? 'объект' : cityListings.length < 5 ? 'объекта' : 'объектов'}
+                </Badge>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {cityListings.map((listing, index) => (
           <Card 
             key={listing.id} 
             className="group overflow-hidden cursor-pointer border-2 border-purple-100 hover:border-purple-300 transition-all animate-fade-in hover:shadow-xl flex flex-col" 
@@ -162,14 +190,14 @@ export default function ListingsView({
               <div className="h-48 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-300">
                 {listing.image}
               </div>
-              {listing.auction <= 3 && (
+              {getPositionInCity(listing, index) <= 3 && (
                 <Badge className="absolute top-3 right-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold">
                   <Icon name="Trophy" size={14} className="mr-1" />
-                  ТОП-{listing.auction}
+                  ТОП-{getPositionInCity(listing, index)}
                 </Badge>
               )}
               <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-semibold">
-                🎯 Место #{listing.auction}
+                🎯 {listing.city}: #{getPositionInCity(listing, index)}
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
                 <span className="text-white font-bold text-lg animate-fade-in">Посмотреть все предложения</span>
@@ -243,7 +271,10 @@ export default function ListingsView({
               </Button>
             </CardContent>
           </Card>
-        ))}
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </section>

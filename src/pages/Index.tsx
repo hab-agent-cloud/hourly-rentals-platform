@@ -40,12 +40,12 @@ export default function Index() {
   const uniqueCities = ['Все города', ...new Set(allListings.map(l => l.city))];
 
   const filteredListings = allListings
+    .filter(l => !l.is_archived)
     .filter(l => selectedCity === 'Все города' || l.city === selectedCity)
     .filter(l => selectedType === 'all' || l.type === selectedType)
     .filter(l => !hasParking || l.hasParking)
     .filter(l => minHours === null || l.minHours <= minHours)
-    .filter(l => l.title.toLowerCase().includes(searchCity.toLowerCase()) || l.city.toLowerCase().includes(searchCity.toLowerCase()))
-    .sort((a, b) => a.auction - b.auction);
+    .filter(l => l.title.toLowerCase().includes(searchCity.toLowerCase()) || l.city.toLowerCase().includes(searchCity.toLowerCase()));
 
   const handleCardClick = (listing: typeof mockListings[0]) => {
     setSelectedHotel(listing);
