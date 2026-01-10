@@ -935,15 +935,244 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                     strategy={verticalListSortingStrategy}
                   >
                     {formData.rooms.map((room: any, index: number) => (
-                      <SortableRoomItem
-                        key={`room-${index}`}
-                        room={room}
-                        index={index}
-                        onEdit={startEditRoom}
-                        onRemove={removeRoom}
-                        onDuplicate={duplicateRoom}
-                        isEditing={editingRoomIndex === index}
-                      />
+                      <div key={`room-${index}`} className="space-y-4">
+                        <SortableRoomItem
+                          room={room}
+                          index={index}
+                          onEdit={startEditRoom}
+                          onRemove={removeRoom}
+                          onDuplicate={duplicateRoom}
+                          isEditing={editingRoomIndex === index}
+                        />
+                        
+                        {editingRoomIndex === index && (
+                          <div className="ml-8 space-y-4 p-4 border-2 border-purple-300 rounded-lg bg-purple-50 animate-fade-in">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-lg flex items-center gap-2">
+                                <Icon name="Edit" size={20} className="text-purple-600" />
+                                Редактирование категории
+                              </h3>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={cancelEditRoom}
+                              >
+                                <Icon name="X" size={16} className="mr-1" />
+                                Отмена
+                              </Button>
+                            </div>
+
+                            <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Icon name="Sparkles" size={18} className="text-purple-600" />
+                                <label className="text-sm font-semibold">Выберите готовый шаблон</label>
+                              </div>
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                {roomTemplates.map((template) => (
+                                  <Button
+                                    key={template.name}
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => applyTemplate(template.name)}
+                                    className="h-auto py-3 flex flex-col items-start gap-1 hover:bg-purple-100 hover:border-purple-400 transition-all relative group"
+                                    title={`${template.features?.length || 0} удобств`}
+                                  >
+                                    <span className="font-semibold text-sm">{template.name}</span>
+                                    <div className="flex items-center gap-2 w-full">
+                                      <span className="text-xs text-muted-foreground">{template.square_meters} м²</span>
+                                      <Badge variant="secondary" className="text-xs h-4 px-1">
+                                        {template.features?.length || 0}
+                                      </Badge>
+                                    </div>
+                                  </Button>
+                                ))}
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                Шаблон загрузит настройки, площадь и удобства. Цена и фото не изменятся.
+                              </p>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                              <Input
+                                placeholder="Тип номера (например: Стандарт)"
+                                value={newRoom.type}
+                                onChange={(e) => setNewRoom({ ...newRoom, type: e.target.value })}
+                              />
+                              <Input
+                                type="number"
+                                placeholder="Цена за час"
+                                value={newRoom.price || ''}
+                                onChange={(e) => setNewRoom({ ...newRoom, price: parseInt(e.target.value) })}
+                              />
+                            </div>
+
+                            <Input
+                              type="number"
+                              placeholder="Площадь, м²"
+                              value={newRoom.square_meters || ''}
+                              onChange={(e) => setNewRoom({ ...newRoom, square_meters: parseInt(e.target.value) })}
+                            />
+
+                            <Input
+                              placeholder="Описание (опционально)"
+                              value={newRoom.description}
+                              onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
+                            />
+
+                            <div>
+                              <label className="text-sm font-medium mb-2 block">Фото номера (до 10 шт)</label>
+                              
+                              {newRoom.images && newRoom.images.length > 0 && (
+                                <div className="mb-3">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Icon name="GripVertical" size={16} className="text-muted-foreground" />
+                                    <span className="text-xs text-muted-foreground">
+                                      Перетащите фото для изменения порядка
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {newRoom.images.map((url, idx) => (
+                                      <div
+                                        key={idx}
+                                        draggable
+                                        onDragStart={() => handlePhotoDragStart(idx)}
+                                        onDragOver={(e) => handlePhotoDragOver(e, idx)}
+                                        onDragEnd={handlePhotoDragEnd}
+                                        className={`relative group cursor-move transition-all ${
+                                          draggingPhotoIndex === idx ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
+                                        }`}
+                                      >
+                                        <div className="relative w-24 h-24 rounded border-2 border-purple-200 hover:border-purple-400 transition-colors overflow-hidden">
+                                          <img 
+                                            src={url} 
+                                            alt={`Room ${idx + 1}`} 
+                                            className="w-full h-full object-cover" 
+                                          />
+                                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                            <Icon 
+                                              name="GripVertical" 
+                                              size={24} 
+                                              className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                            />
+                                          </div>
+                                          <div className="absolute top-1 left-1 bg-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                            {idx + 1}
+                                          </div>
+                                        </div>
+                                        <button
+                                          type="button"
+                                          onClick={() => removeNewRoomPhoto(idx)}
+                                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                        >
+                                          ×
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              <div
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                                className={`border-2 border-dashed rounded-lg p-8 transition-all ${
+                                  isDragging 
+                                    ? 'border-purple-500 bg-purple-50 scale-[1.02]' 
+                                    : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50/50'
+                                } ${uploadingRoomPhotos || (newRoom.images && newRoom.images.length >= 10) ? 'opacity-50 pointer-events-none' : ''}`}
+                              >
+                                <div className="flex flex-col items-center justify-center gap-3">
+                                  <div className={`p-4 rounded-full ${isDragging ? 'bg-purple-200' : 'bg-gray-100'} transition-colors`}>
+                                    <Icon 
+                                      name={isDragging ? "Download" : "Upload"} 
+                                      size={32} 
+                                      className={isDragging ? 'text-purple-600' : 'text-gray-400'}
+                                    />
+                                  </div>
+                                  
+                                  {uploadingRoomPhotos ? (
+                                    <div className="text-center">
+                                      <Icon name="Loader2" size={24} className="mx-auto mb-2 animate-spin text-purple-600" />
+                                      <p className="text-sm font-medium text-purple-600">Загрузка фото...</p>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <div className="text-center">
+                                        <p className="text-base font-semibold mb-1">
+                                          {isDragging ? 'Отпустите для загрузки' : 'Перетащите фото сюда'}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground mb-1">
+                                          или нажмите кнопку ниже
+                                        </p>
+                                        <p className="text-xs text-muted-foreground mb-3">
+                                          JPG, PNG, WebP • Можно загружать несколько файлов сразу
+                                        </p>
+                                      </div>
+                                      
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handleNewRoomPhotosUpload}
+                                        className="hidden"
+                                        id={`room-photos-input-${index}`}
+                                      />
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => document.getElementById(`room-photos-input-${index}`)?.click()}
+                                        disabled={newRoom.images && newRoom.images.length >= 10}
+                                        className="border-purple-300 hover:bg-purple-100"
+                                      >
+                                        <Icon name="FolderOpen" size={18} className="mr-2" />
+                                        Выбрать файлы ({newRoom.images?.length || 0}/10)
+                                      </Button>
+                                    </>
+                                  )}
+
+                                  {newRoom.images && newRoom.images.length >= 10 && (
+                                    <p className="text-sm text-amber-600 font-medium">
+                                      Достигнут лимит: 10 фото
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="text-sm font-medium mb-2 block">Удобства в номере</label>
+                              <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 border rounded">
+                                {availableFeatures.map((feature) => (
+                                  <label
+                                    key={feature}
+                                    className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-purple-50 transition-colors"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={newRoom.features && newRoom.features.includes(feature)}
+                                      onChange={() => toggleNewRoomFeature(feature)}
+                                      className="w-4 h-4 text-purple-600 rounded"
+                                    />
+                                    <span className="text-sm">{feature}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+
+                            <Button 
+                              type="button" 
+                              onClick={saveEditedRoom} 
+                              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                            >
+                              <Icon name="Check" size={18} className="mr-2" />
+                              Сохранить изменения
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </SortableContext>
                 </DndContext>
@@ -955,22 +1184,12 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                 </div>
               )}
 
-              <div className={`space-y-4 p-4 border rounded-lg transition-colors ${editingRoomIndex !== null ? 'bg-purple-50 border-purple-300' : 'bg-white'}`}>
+              {editingRoomIndex === null && (
+                <div className="space-y-4 p-4 border rounded-lg bg-white">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-lg">
-                    {editingRoomIndex !== null ? 'Редактировать категорию' : 'Добавить категорию номера'}
+                    Добавить категорию номера
                   </h3>
-                  {editingRoomIndex !== null && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={cancelEditRoom}
-                    >
-                      <Icon name="X" size={16} className="mr-1" />
-                      Отмена
-                    </Button>
-                  )}
                 </div>
 
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
@@ -1172,22 +1391,12 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                   </div>
                 </div>
 
-                {editingRoomIndex !== null ? (
-                  <Button 
-                    type="button" 
-                    onClick={saveEditedRoom} 
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                  >
-                    <Icon name="Check" size={18} className="mr-2" />
-                    Сохранить изменения
-                  </Button>
-                ) : (
-                  <Button type="button" onClick={addRoom} variant="outline" className="w-full">
-                    <Icon name="Plus" size={18} className="mr-2" />
-                    Добавить категорию
-                  </Button>
-                )}
+                <Button type="button" onClick={addRoom} variant="outline" className="w-full">
+                  <Icon name="Plus" size={18} className="mr-2" />
+                  Добавить категорию
+                </Button>
               </div>
+              )}
             </CardContent>
           </Card>
 
