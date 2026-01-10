@@ -84,17 +84,18 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
               </div>
             </div>
 
-          <div>
-            <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-              <Icon name="Sparkles" size={20} className="text-purple-600" />
-              Удобства
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {hotel.features.map(feature => (
-                <Badge key={feature} variant="secondary" className="text-sm px-3 py-1">
-                  {feature}
-                </Badge>
-              ))}
+            <div>
+              <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
+                <Icon name="Sparkles" size={20} className="text-purple-600" />
+                Удобства
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {hotel.features.map(feature => (
+                  <Badge key={feature} variant="secondary" className="text-sm px-3 py-1">
+                    {feature}
+                  </Badge>
+                ))}
+              </div>
             </div>
           </div>
 
