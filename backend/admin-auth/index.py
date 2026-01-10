@@ -4,6 +4,7 @@ import jwt
 import psycopg2
 from datetime import datetime, timedelta
 
+# Admin authentication handler
 def handler(event: dict, context) -> dict:
     '''API для авторизации администраторов'''
     method = event.get('httpMethod', 'POST')

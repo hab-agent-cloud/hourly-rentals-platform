@@ -4,6 +4,7 @@ import jwt
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+# Admin listings management
 def verify_token(token: str) -> dict:
     '''Проверка JWT токена администратора'''
     if not token:

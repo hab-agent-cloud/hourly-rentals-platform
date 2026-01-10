@@ -5,6 +5,7 @@ import boto3
 import base64
 import uuid
 
+# Photo upload handler
 def verify_token(token: str) -> dict:
     '''Проверка JWT токена администратора'''
     if not token:
