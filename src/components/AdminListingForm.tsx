@@ -143,6 +143,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -312,8 +313,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     }
   };
 
-  const handleNewRoomPhotosUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  const uploadRoomPhotosFiles = async (files: File[]) => {
     if (files.length === 0) return;
     if (newRoom.images.length + files.length > 10) {
       toast({
@@ -368,6 +368,37 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       });
     } finally {
       setUploadingRoomPhotos(false);
+    }
+  };
+
+  const handleNewRoomPhotosUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    await uploadRoomPhotosFiles(files);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = Array.from(e.dataTransfer.files).filter(file => 
+      file.type.startsWith('image/')
+    );
+
+    if (files.length > 0) {
+      await uploadRoomPhotosFiles(files);
     }
   };
 
@@ -857,46 +888,90 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
                 <div>
                   <label className="text-sm font-medium mb-2 block">Фото номера (до 10 шт)</label>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {newRoom.images.map((url, idx) => (
-                      <div key={idx} className="relative">
-                        <img src={url} alt={`Room ${idx + 1}`} className="w-20 h-20 object-cover rounded" />
-                        <button
-                          type="button"
-                          onClick={() => removeNewRoomPhoto(idx)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleNewRoomPhotosUpload}
-                    className="hidden"
-                    id="room-photos-input"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => document.getElementById('room-photos-input')?.click()}
-                    disabled={uploadingRoomPhotos || newRoom.images.length >= 10}
+                  
+                  {newRoom.images.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {newRoom.images.map((url, idx) => (
+                        <div key={idx} className="relative group">
+                          <img src={url} alt={`Room ${idx + 1}`} className="w-24 h-24 object-cover rounded border-2 border-purple-200" />
+                          <button
+                            type="button"
+                            onClick={() => removeNewRoomPhoto(idx)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`border-2 border-dashed rounded-lg p-8 transition-all ${
+                      isDragging 
+                        ? 'border-purple-500 bg-purple-50 scale-[1.02]' 
+                        : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50/50'
+                    } ${uploadingRoomPhotos || newRoom.images.length >= 10 ? 'opacity-50 pointer-events-none' : ''}`}
                   >
-                    {uploadingRoomPhotos ? (
-                      <>
-                        <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                        Загрузка...
-                      </>
-                    ) : (
-                      <>
-                        <Icon name="Upload" size={18} className="mr-2" />
-                        Загрузить фото ({newRoom.images.length}/10)
-                      </>
-                    )}
-                  </Button>
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className={`p-4 rounded-full ${isDragging ? 'bg-purple-200' : 'bg-gray-100'} transition-colors`}>
+                        <Icon 
+                          name={isDragging ? "Download" : "Upload"} 
+                          size={32} 
+                          className={isDragging ? 'text-purple-600' : 'text-gray-400'}
+                        />
+                      </div>
+                      
+                      {uploadingRoomPhotos ? (
+                        <div className="text-center">
+                          <Icon name="Loader2" size={24} className="mx-auto mb-2 animate-spin text-purple-600" />
+                          <p className="text-sm font-medium text-purple-600">Загрузка фото...</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="text-center">
+                            <p className="text-base font-semibold mb-1">
+                              {isDragging ? 'Отпустите для загрузки' : 'Перетащите фото сюда'}
+                            </p>
+                            <p className="text-sm text-muted-foreground mb-1">
+                              или нажмите кнопку ниже
+                            </p>
+                            <p className="text-xs text-muted-foreground mb-3">
+                              JPG, PNG, WebP • Можно загружать несколько файлов сразу
+                            </p>
+                          </div>
+                          
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleNewRoomPhotosUpload}
+                            className="hidden"
+                            id="room-photos-input"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => document.getElementById('room-photos-input')?.click()}
+                            disabled={newRoom.images.length >= 10}
+                            className="border-purple-300 hover:bg-purple-100"
+                          >
+                            <Icon name="FolderOpen" size={18} className="mr-2" />
+                            Выбрать файлы ({newRoom.images.length}/10)
+                          </Button>
+                        </>
+                      )}
+
+                      {newRoom.images.length >= 10 && (
+                        <p className="text-sm text-amber-600 font-medium">
+                          Достигнут лимит: 10 фото
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <div>
