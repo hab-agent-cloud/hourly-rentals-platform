@@ -255,7 +255,7 @@ export default function Index() {
                 {filteredListings.map((listing, index) => (
                   <Card 
                     key={listing.id} 
-                    className="group overflow-hidden cursor-pointer border-2 border-purple-100 hover:border-purple-300 transition-all animate-fade-in hover:shadow-xl" 
+                    className="group overflow-hidden cursor-pointer border-2 border-purple-100 hover:border-purple-300 transition-all animate-fade-in hover:shadow-xl flex flex-col" 
                     style={{ animationDelay: `${index * 100}ms` }}
                     onClick={() => {
                       setSelectedHotel(listing);
@@ -296,7 +296,7 @@ export default function Index() {
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="flex-1 flex flex-col">
                       <div className="mb-4">
                         <div className="text-xs font-semibold text-muted-foreground mb-2">Категории номеров:</div>
                         <div className="space-y-2">
@@ -313,6 +313,7 @@ export default function Index() {
                           <Badge key={feature} variant="outline" className="text-xs">{feature}</Badge>
                         ))}
                       </div>
+                      <div className="flex-1"></div>
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <div className="text-xs text-muted-foreground">от</div>
