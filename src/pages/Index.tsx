@@ -11,12 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import InteractiveMap from '@/components/InteractiveMap';
 
 const mockListings = [
-  { id: 1, title: 'Отель «Арбат Плаза»', city: 'Москва', district: 'Арбат', price: 2500, rating: 4.9, reviews: 124, auction: 1, image: '🏙️', metro: 'Арбатская', features: ['Wi-Fi', 'Кондиционер', 'Кухня'], lat: 55.7522, lng: 37.6156, rooms: [{type: 'Стандарт', price: 2500}, {type: 'Улучшенный', price: 3200}, {type: 'Полулюкс', price: 4500}] },
-  { id: 2, title: 'Апарт-отель «Невский»', city: 'Санкт-Петербург', district: 'Центральный', price: 2200, rating: 4.8, reviews: 89, auction: 2, image: '🏛️', metro: 'Невский проспект', features: ['Wi-Fi', 'Кухня', 'Джакузи'], lat: 59.9343, lng: 30.3351, rooms: [{type: 'Стандарт', price: 2200}, {type: 'Улучшенный', price: 2900}, {type: 'Полулюкс', price: 3800}] },
-  { id: 3, title: 'Гостиница «Горный приют»', city: 'Сочи', district: 'Красная Поляна', price: 4500, rating: 5.0, reviews: 201, auction: 3, image: '🏔️', metro: '-', features: ['Вид на горы', 'Сауна', 'Парковка'], lat: 43.6850, lng: 40.2645, rooms: [{type: 'Стандарт', price: 4500}, {type: 'Улучшенный', price: 5500}, {type: 'Люкс', price: 7500}] },
-  { id: 4, title: 'Отель «Тверская»', city: 'Москва', district: 'ЦАО', price: 1800, rating: 4.7, reviews: 56, auction: 5, image: '🌆', metro: 'Тверская', features: ['Wi-Fi', 'Кондиционер'], lat: 55.7658, lng: 37.6050, rooms: [{type: 'Стандарт', price: 1800}, {type: 'Улучшенный', price: 2400}] },
-  { id: 5, title: 'Бизнес-отель «Центр»', city: 'Екатеринбург', district: 'Центр', price: 1600, rating: 4.6, reviews: 43, auction: 8, image: '🏢', metro: 'Площадь 1905 года', features: ['Фитнес', 'Кухня', 'Wi-Fi'], lat: 56.8389, lng: 60.6057, rooms: [{type: 'Стандарт', price: 1600}, {type: 'Полулюкс', price: 2500}] },
-  { id: 6, title: 'Апартаменты «Кремлевские»', city: 'Казань', district: 'Вахитовский', price: 2000, rating: 4.9, reviews: 78, auction: 4, image: '🌃', metro: 'Кремлёвская', features: ['Вид на Кремль', 'Wi-Fi', 'Паркинг'], lat: 55.7887, lng: 49.1221, rooms: [{type: 'Стандарт', price: 2000}, {type: 'Улучшенный', price: 2700}, {type: 'Полулюкс', price: 3500}] },
+  { id: 1, title: 'Отель «Арбат Плаза»', type: 'hotel', city: 'Москва', district: 'Арбат', price: 2500, rating: 4.9, reviews: 124, auction: 1, image: '🏙️', metro: 'Арбатская', features: ['Wi-Fi', 'Кондиционер', 'Кухня'], lat: 55.7522, lng: 37.6156, minHours: 2, rooms: [{type: 'Стандарт', price: 2500}, {type: 'Улучшенный', price: 3200}, {type: 'Полулюкс', price: 4500}] },
+  { id: 2, title: 'Апарт-отель «Невский»', type: 'apartment', city: 'Санкт-Петербург', district: 'Центральный', price: 2200, rating: 4.8, reviews: 89, auction: 2, image: '🏛️', metro: 'Невский проспект', features: ['Wi-Fi', 'Кухня', 'Джакузи'], lat: 59.9343, lng: 30.3351, minHours: 3, rooms: [{type: 'Стандарт', price: 2200}, {type: 'Улучшенный', price: 2900}, {type: 'Полулюкс', price: 3800}] },
+  { id: 3, title: 'Гостиница «Горный приют»', type: 'hotel', city: 'Сочи', district: 'Красная Поляна', price: 4500, rating: 5.0, reviews: 201, auction: 3, image: '🏔️', metro: '-', features: ['Вид на горы', 'Сауна', 'Парковка'], lat: 43.6850, lng: 40.2645, minHours: 4, rooms: [{type: 'Стандарт', price: 4500}, {type: 'Улучшенный', price: 5500}, {type: 'Люкс', price: 7500}] },
+  { id: 4, title: 'Отель «Тверская»', type: 'hotel', city: 'Москва', district: 'ЦАО', price: 1800, rating: 4.7, reviews: 56, auction: 5, image: '🌆', metro: 'Тверская', features: ['Wi-Fi', 'Кондиционер'], lat: 55.7658, lng: 37.6050, minHours: 1, rooms: [{type: 'Стандарт', price: 1800}, {type: 'Улучшенный', price: 2400}] },
+  { id: 5, title: 'Бизнес-отель «Центр»', type: 'hotel', city: 'Екатеринбург', district: 'Центр', price: 1600, rating: 4.6, reviews: 43, auction: 8, image: '🏢', metro: 'Площадь 1905 года', features: ['Фитнес', 'Кухня', 'Wi-Fi'], lat: 56.8389, lng: 60.6057, minHours: 2, rooms: [{type: 'Стандарт', price: 1600}, {type: 'Полулюкс', price: 2500}] },
+  { id: 6, title: 'Апартаменты «Кремлевские»', type: 'apartment', city: 'Казань', district: 'Вахитовский', price: 2000, rating: 4.9, reviews: 78, auction: 4, image: '🌃', metro: 'Кремлёвская', features: ['Вид на Кремль', 'Wi-Fi', 'Паркинг'], lat: 55.7887, lng: 49.1221, minHours: 3, rooms: [{type: 'Стандарт', price: 2000}, {type: 'Улучшенный', price: 2700}, {type: 'Полулюкс', price: 3500}] },
 ];
 
 const cities = ['Все города', 'Москва', 'Санкт-Петербург', 'Сочи', 'Екатеринбург', 'Казань'];
@@ -24,6 +24,7 @@ const cities = ['Все города', 'Москва', 'Санкт-Петерб�
 export default function Index() {
   const [searchCity, setSearchCity] = useState('');
   const [selectedCity, setSelectedCity] = useState('Все города');
+  const [selectedType, setSelectedType] = useState('all');
   const [activeTab, setActiveTab] = useState('catalog');
   const [showMap, setShowMap] = useState(false);
   const [selectedListing, setSelectedListing] = useState<number | null>(null);
@@ -32,6 +33,7 @@ export default function Index() {
 
   const filteredListings = mockListings
     .filter(l => selectedCity === 'Все города' || l.city === selectedCity)
+    .filter(l => selectedType === 'all' || l.type === selectedType)
     .filter(l => l.title.toLowerCase().includes(searchCity.toLowerCase()) || l.city.toLowerCase().includes(searchCity.toLowerCase()))
     .sort((a, b) => a.auction - b.auction);
 
@@ -141,6 +143,16 @@ export default function Index() {
                         />
                       </div>
                     </div>
+                    <Select value={selectedType} onValueChange={setSelectedType}>
+                      <SelectTrigger className="w-full md:w-[180px] h-12 border-purple-200">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Все типы</SelectItem>
+                        <SelectItem value="hotel">Отели</SelectItem>
+                        <SelectItem value="apartment">Апартаменты</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <Select value={selectedCity} onValueChange={setSelectedCity}>
                       <SelectTrigger className="w-full md:w-[200px] h-12 border-purple-200">
                         <SelectValue />
@@ -280,9 +292,14 @@ export default function Index() {
                       </div>
                     </div>
                     <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
+                      <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <h4 className="font-bold text-lg mb-1 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 group-hover:bg-clip-text transition-all duration-300">{listing.title}</h4>
+                          <div className="group/title relative">
+                            <h4 className="font-bold text-lg mb-1 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 group-hover:bg-clip-text transition-all duration-300">{listing.title}</h4>
+                            <div className="opacity-0 group-hover/title:opacity-100 transition-opacity text-xs text-purple-600 font-semibold">
+                              Смотреть все предложения отеля
+                            </div>
+                          </div>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Icon name="MapPin" size={14} />
                             <span>{listing.city}, {listing.district}</span>
@@ -294,6 +311,9 @@ export default function Index() {
                             </div>
                           )}
                         </div>
+                        <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold">
+                          от {listing.minHours}ч
+                        </Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="flex-1 flex flex-col">
@@ -318,7 +338,7 @@ export default function Index() {
                         <div>
                           <div className="text-xs text-muted-foreground">от</div>
                           <div className="text-2xl font-bold text-purple-600">{listing.price} ₽</div>
-                          <div className="text-xs text-muted-foreground">за час</div>
+                          <div className="text-xs text-muted-foreground">за час · мин. {listing.minHours}ч</div>
                         </div>
                         <div className="text-right">
                           <div className="flex items-center gap-1">
