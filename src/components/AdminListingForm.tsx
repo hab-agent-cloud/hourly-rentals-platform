@@ -112,9 +112,18 @@ function SortableRoomItem({ room, index, onEdit, onRemove, onDuplicate }: Sortab
       </div>
       
       {room.images && room.images.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto mb-3">
+        <div className="flex gap-2 overflow-x-auto mb-3 ml-8">
           {room.images.map((img: string, imgIdx: number) => (
-            <img key={imgIdx} src={img} alt={`${room.type} ${imgIdx + 1}`} className="w-24 h-24 object-cover rounded" />
+            <div key={imgIdx} className="relative flex-shrink-0">
+              <img 
+                src={img} 
+                alt={`${room.type} ${imgIdx + 1}`} 
+                className="w-24 h-24 object-cover rounded border-2 border-purple-200" 
+              />
+              <div className="absolute top-1 left-1 bg-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {imgIdx + 1}
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -183,6 +192,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   });
   const [uploadingRoomPhotos, setUploadingRoomPhotos] = useState(false);
   const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
+  const [draggingPhotoIndex, setDraggingPhotoIndex] = useState<number | null>(null);
 
   const availableFeatures = [
     'WiFi',
@@ -407,6 +417,27 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       ...newRoom,
       images: newRoom.images.filter((_, i) => i !== index),
     });
+  };
+
+  const handlePhotoDragStart = (index: number) => {
+    setDraggingPhotoIndex(index);
+  };
+
+  const handlePhotoDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggingPhotoIndex === null || draggingPhotoIndex === index) return;
+
+    const newImages = [...newRoom.images];
+    const draggedImage = newImages[draggingPhotoIndex];
+    newImages.splice(draggingPhotoIndex, 1);
+    newImages.splice(index, 0, draggedImage);
+
+    setNewRoom({ ...newRoom, images: newImages });
+    setDraggingPhotoIndex(index);
+  };
+
+  const handlePhotoDragEnd = () => {
+    setDraggingPhotoIndex(null);
   };
 
   const toggleFeature = (feature: string) => {
@@ -890,19 +921,52 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                   <label className="text-sm font-medium mb-2 block">Фото номера (до 10 шт)</label>
                   
                   {newRoom.images.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {newRoom.images.map((url, idx) => (
-                        <div key={idx} className="relative group">
-                          <img src={url} alt={`Room ${idx + 1}`} className="w-24 h-24 object-cover rounded border-2 border-purple-200" />
-                          <button
-                            type="button"
-                            onClick={() => removeNewRoomPhoto(idx)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                    <div className="mb-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Icon name="GripVertical" size={16} className="text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          Перетащите фото для изменения порядка
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {newRoom.images.map((url, idx) => (
+                          <div
+                            key={idx}
+                            draggable
+                            onDragStart={() => handlePhotoDragStart(idx)}
+                            onDragOver={(e) => handlePhotoDragOver(e, idx)}
+                            onDragEnd={handlePhotoDragEnd}
+                            className={`relative group cursor-move transition-all ${
+                              draggingPhotoIndex === idx ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
+                            }`}
                           >
-                            ×
-                          </button>
-                        </div>
-                      ))}
+                            <div className="relative w-24 h-24 rounded border-2 border-purple-200 hover:border-purple-400 transition-colors overflow-hidden">
+                              <img 
+                                src={url} 
+                                alt={`Room ${idx + 1}`} 
+                                className="w-full h-full object-cover" 
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                <Icon 
+                                  name="GripVertical" 
+                                  size={24} 
+                                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                />
+                              </div>
+                              <div className="absolute top-1 left-1 bg-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                {idx + 1}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeNewRoomPhoto(idx)}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
