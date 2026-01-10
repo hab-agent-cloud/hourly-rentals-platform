@@ -415,7 +415,8 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
   const uploadRoomPhotosFiles = async (files: File[]) => {
     if (files.length === 0) return;
-    if (newRoom.images.length + files.length > 10) {
+    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
+    if (currentImages.length + files.length > 10) {
       toast({
         title: 'Ошибка',
         description: 'Максимум 10 фото на номер',
@@ -455,7 +456,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
         uploadedUrls.push(result);
       }
 
-      setNewRoom({ ...newRoom, images: [...newRoom.images, ...uploadedUrls] });
+      setNewRoom({ ...newRoom, images: [...currentImages, ...uploadedUrls] });
       toast({
         title: 'Успешно',
         description: `Загружено ${uploadedUrls.length} фото`,
@@ -503,9 +504,10 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   };
 
   const removeNewRoomPhoto = (index: number) => {
+    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
     setNewRoom({
       ...newRoom,
-      images: newRoom.images.filter((_, i) => i !== index),
+      images: currentImages.filter((_, i) => i !== index),
     });
   };
 
@@ -517,7 +519,8 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     e.preventDefault();
     if (draggingPhotoIndex === null || draggingPhotoIndex === index) return;
 
-    const newImages = [...newRoom.images];
+    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
+    const newImages = [...currentImages];
     const draggedImage = newImages[draggingPhotoIndex];
     newImages.splice(draggingPhotoIndex, 1);
     newImages.splice(index, 0, draggedImage);
@@ -531,15 +534,16 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   };
 
   const toggleNewRoomFeature = (feature: string) => {
-    if (newRoom.features.includes(feature)) {
+    const features = Array.isArray(newRoom.features) ? newRoom.features : [];
+    if (features.includes(feature)) {
       setNewRoom({
         ...newRoom,
-        features: newRoom.features.filter((f) => f !== feature),
+        features: features.filter((f) => f !== feature),
       });
     } else {
       setNewRoom({
         ...newRoom,
-        features: [...newRoom.features, feature],
+        features: [...features, feature],
       });
     }
   };
@@ -582,7 +586,14 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
   const startEditRoom = (index: number) => {
     const room = formData.rooms[index];
-    setNewRoom(room);
+    setNewRoom({
+      type: room.type || '',
+      price: room.price || 0,
+      description: room.description || '',
+      images: Array.isArray(room.images) ? room.images : [],
+      square_meters: room.square_meters || 0,
+      features: Array.isArray(room.features) ? room.features : []
+    });
     setEditingRoomIndex(index);
   };
 
@@ -626,11 +637,12 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     const template = roomTemplates.find(t => t.name === templateName);
     if (!template) return;
 
+    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
     setNewRoom({
       type: template.type,
-      price: 0,
+      price: newRoom.price || 0,
       description: template.description,
-      images: newRoom.images,
+      images: currentImages,
       square_meters: template.square_meters,
       features: template.features,
     });
