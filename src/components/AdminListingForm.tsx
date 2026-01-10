@@ -752,19 +752,39 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Телефон</label>
+                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                    <Icon name="Phone" size={16} className="text-green-600" />
+                    Телефон
+                    {formData.phone && (
+                      <Badge variant="secondary" className="ml-auto">
+                        <Icon name="Check" size={12} className="mr-1 text-green-600" />
+                        Заполнено
+                      </Badge>
+                    )}
+                  </label>
                   <Input
                     placeholder="+79991234567"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className={formData.phone ? 'border-green-300 bg-green-50' : ''}
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Telegram (username или ссылка)</label>
+                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                    <Icon name="Send" size={16} className="text-blue-600" />
+                    Telegram (username или ссылка)
+                    {formData.telegram && (
+                      <Badge variant="secondary" className="ml-auto">
+                        <Icon name="Check" size={12} className="mr-1 text-green-600" />
+                        Заполнено
+                      </Badge>
+                    )}
+                  </label>
                   <Input
                     placeholder="@username или https://t.me/username"
                     value={formData.telegram}
                     onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
+                    className={formData.telegram ? 'border-blue-300 bg-blue-50' : ''}
                   />
                 </div>
               </div>
@@ -1064,34 +1084,68 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                               onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
                             />
 
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <label className="text-sm font-medium mb-2 block">Минимальное бронирование (часов)</label>
-                                <Input
-                                  type="number"
-                                  placeholder="1"
-                                  value={newRoom.min_hours || ''}
-                                  onChange={(e) => setNewRoom({ ...newRoom, min_hours: parseInt(e.target.value) || 1 })}
-                                />
+                            <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Icon name="Settings" size={18} className="text-purple-600" />
+                                <label className="text-sm font-semibold">Дополнительные параметры бронирования</label>
                               </div>
-                            </div>
+                              
+                              <div className="space-y-3">
+                                <div>
+                                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                                    <Icon name="Clock" size={14} className="text-purple-600" />
+                                    Минимальное бронирование (часов)
+                                    {newRoom.min_hours && newRoom.min_hours > 0 && (
+                                      <Badge variant="secondary" className="ml-auto text-xs">
+                                        {newRoom.min_hours}ч
+                                      </Badge>
+                                    )}
+                                  </label>
+                                  <Input
+                                    type="number"
+                                    placeholder="1"
+                                    value={newRoom.min_hours || ''}
+                                    onChange={(e) => setNewRoom({ ...newRoom, min_hours: parseInt(e.target.value) || 1 })}
+                                    className={newRoom.min_hours ? 'border-purple-300 bg-white' : ''}
+                                  />
+                                </div>
 
-                            <div>
-                              <label className="text-sm font-medium mb-2 block">Методы оплаты</label>
-                              <Input
-                                placeholder="Наличные, банковская карта при заселении"
-                                value={newRoom.payment_methods}
-                                onChange={(e) => setNewRoom({ ...newRoom, payment_methods: e.target.value })}
-                              />
-                            </div>
+                                <div>
+                                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                                    <Icon name="CreditCard" size={14} className="text-purple-600" />
+                                    Методы оплаты
+                                    {newRoom.payment_methods && (
+                                      <Badge variant="secondary" className="ml-auto">
+                                        <Icon name="Check" size={10} className="mr-1 text-green-600" />
+                                      </Badge>
+                                    )}
+                                  </label>
+                                  <Input
+                                    placeholder="Наличные, банковская карта при заселении"
+                                    value={newRoom.payment_methods}
+                                    onChange={(e) => setNewRoom({ ...newRoom, payment_methods: e.target.value })}
+                                    className={newRoom.payment_methods ? 'border-purple-300 bg-white' : ''}
+                                  />
+                                </div>
 
-                            <div>
-                              <label className="text-sm font-medium mb-2 block">Условия отмены</label>
-                              <Input
-                                placeholder="Бесплатная отмена за 1 час до заселения"
-                                value={newRoom.cancellation_policy}
-                                onChange={(e) => setNewRoom({ ...newRoom, cancellation_policy: e.target.value })}
-                              />
+                                <div>
+                                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                                    <Icon name="CalendarX" size={14} className="text-purple-600" />
+                                    Условия отмены
+                                    {newRoom.cancellation_policy && (
+                                      <Badge variant="secondary" className="ml-auto">
+                                        <Icon name="Check" size={10} className="mr-1 text-green-600" />
+                                      </Badge>
+                                    )}
+                                  </label>
+                                  <Input
+                                    placeholder="Бесплатная отмена за 1 час до заселения"
+                                    value={newRoom.cancellation_policy}
+                                    onChange={(e) => setNewRoom({ ...newRoom, cancellation_policy: e.target.value })}
+                                    className={newRoom.cancellation_policy ? 'border-purple-300 bg-white' : ''}
+                                  />
+                                </div>
+                              </div>
                             </div>
 
                             <div>
@@ -1323,34 +1377,68 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                   onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
                 />
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Минимальное бронирование (часов)</label>
-                    <Input
-                      type="number"
-                      placeholder="1"
-                      value={newRoom.min_hours || ''}
-                      onChange={(e) => setNewRoom({ ...newRoom, min_hours: parseInt(e.target.value) || 1 })}
-                    />
+                <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Icon name="Settings" size={18} className="text-purple-600" />
+                    <label className="text-sm font-semibold">Дополнительные параметры бронирования</label>
                   </div>
-                </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                        <Icon name="Clock" size={14} className="text-purple-600" />
+                        Минимальное бронирование (часов)
+                        {newRoom.min_hours && newRoom.min_hours > 0 && (
+                          <Badge variant="secondary" className="ml-auto text-xs">
+                            {newRoom.min_hours}ч
+                          </Badge>
+                        )}
+                      </label>
+                      <Input
+                        type="number"
+                        placeholder="1"
+                        value={newRoom.min_hours || ''}
+                        onChange={(e) => setNewRoom({ ...newRoom, min_hours: parseInt(e.target.value) || 1 })}
+                        className={newRoom.min_hours ? 'border-purple-300 bg-white' : ''}
+                      />
+                    </div>
 
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Методы оплаты</label>
-                  <Input
-                    placeholder="Наличные, банковская карта при заселении"
-                    value={newRoom.payment_methods}
-                    onChange={(e) => setNewRoom({ ...newRoom, payment_methods: e.target.value })}
-                  />
-                </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                        <Icon name="CreditCard" size={14} className="text-purple-600" />
+                        Методы оплаты
+                        {newRoom.payment_methods && (
+                          <Badge variant="secondary" className="ml-auto">
+                            <Icon name="Check" size={10} className="mr-1 text-green-600" />
+                          </Badge>
+                        )}
+                      </label>
+                      <Input
+                        placeholder="Наличные, банковская карта при заселении"
+                        value={newRoom.payment_methods}
+                        onChange={(e) => setNewRoom({ ...newRoom, payment_methods: e.target.value })}
+                        className={newRoom.payment_methods ? 'border-purple-300 bg-white' : ''}
+                      />
+                    </div>
 
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Условия отмены</label>
-                  <Input
-                    placeholder="Бесплатная отмена за 1 час до заселения"
-                    value={newRoom.cancellation_policy}
-                    onChange={(e) => setNewRoom({ ...newRoom, cancellation_policy: e.target.value })}
-                  />
+                    <div>
+                      <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                        <Icon name="CalendarX" size={14} className="text-purple-600" />
+                        Условия отмены
+                        {newRoom.cancellation_policy && (
+                          <Badge variant="secondary" className="ml-auto">
+                            <Icon name="Check" size={10} className="mr-1 text-green-600" />
+                          </Badge>
+                        )}
+                      </label>
+                      <Input
+                        placeholder="Бесплатная отмена за 1 час до заселения"
+                        value={newRoom.cancellation_policy}
+                        onChange={(e) => setNewRoom({ ...newRoom, cancellation_policy: e.target.value })}
+                        className={newRoom.cancellation_policy ? 'border-purple-300 bg-white' : ''}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>

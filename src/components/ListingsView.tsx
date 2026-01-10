@@ -30,6 +30,8 @@ type Listing = {
   lng: number;
   minHours: number;
   rooms: { type: string; price: number }[];
+  phone?: string;
+  telegram?: string;
 };
 
 interface ListingsViewProps {
