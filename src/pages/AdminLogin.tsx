@@ -35,10 +35,11 @@ export default function AdminLogin() {
           variant: 'destructive',
         });
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Detailed login error:', error);
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось подключиться к серверу',
+        title: 'Ошибка подключения',
+        description: error?.message || 'Не удалось подключиться к серверу. Проверьте консоль браузера (F12)',
         variant: 'destructive',
       });
     } finally {
