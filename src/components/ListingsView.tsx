@@ -20,8 +20,8 @@ type Listing = {
   district: string;
   price: number;
   auction: number;
-  image: string;
-  logo?: string;
+  image_url: string;
+  logo_url?: string;
   metro: string;
   metroWalk: number;
   hasParking: boolean;
@@ -126,9 +126,13 @@ export default function ListingsView({
               >
                 <div className="flex gap-4 p-4">
                   <div className="relative w-24 h-24 flex-shrink-0">
-                    <div className="w-full h-full bg-gradient-to-br from-purple-200 to-pink-200 rounded-lg flex items-center justify-center text-3xl">
-                      {listing.image}
-                    </div>
+                    {listing.image_url ? (
+                      <img src={listing.image_url} alt={listing.title} className="w-full h-full object-cover rounded-lg" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-purple-200 to-pink-200 rounded-lg flex items-center justify-center text-3xl">
+                        🏨
+                      </div>
+                    )}
                     {getPositionInCity(listing, index) <= 3 && (
                       <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold text-xs">
                         ТОП-{getPositionInCity(listing, index)}
@@ -178,9 +182,13 @@ export default function ListingsView({
             onClick={() => onCardClick(listing)}
           >
             <div className="relative overflow-hidden">
-              <div className="h-48 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-300">
-                {listing.image}
-              </div>
+              {listing.image_url ? (
+                <img src={listing.image_url} alt={listing.title} className="h-48 w-full object-cover group-hover:scale-110 transition-transform duration-300" />
+              ) : (
+                <div className="h-48 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-300">
+                  🏨
+                </div>
+              )}
               {getPositionInCity(listing, index) <= 3 && (
                 <Badge className="absolute top-3 right-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold">
                   <Icon name="Trophy" size={14} className="mr-1" />
@@ -222,9 +230,9 @@ export default function ListingsView({
                     </div>
                   )}
                 </div>
-                {listing.logo && (
+                {listing.logo_url && (
                   <div className="flex-shrink-0 w-16 h-16 border rounded-lg bg-white p-1 flex items-center justify-center">
-                    <img src={listing.logo} alt={`${listing.title} logo`} className="max-w-full max-h-full object-contain" />
+                    <img src={listing.logo_url} alt={`${listing.title} logo`} className="max-w-full max-h-full object-contain" />
                   </div>
                 )}
               </div>

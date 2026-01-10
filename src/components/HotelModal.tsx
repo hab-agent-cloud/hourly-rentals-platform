@@ -12,8 +12,8 @@ type Hotel = {
   district: string;
   price: number;
   auction: number;
-  image: string;
-  logo?: string;
+  image_url: string;
+  logo_url?: string;
   metro: string;
   features: string[];
   lat: number;
@@ -43,9 +43,9 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
             <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
               {hotel.title}
             </DialogTitle>
-            {hotel.logo && (
+            {hotel.logo_url && (
               <div className="w-20 h-20 border rounded-lg bg-white p-2 flex items-center justify-center flex-shrink-0">
-                <img src={hotel.logo} alt={`${hotel.title} logo`} className="max-w-full max-h-full object-contain" />
+                <img src={hotel.logo_url} alt={`${hotel.title} logo`} className="max-w-full max-h-full object-contain" />
               </div>
             )}
           </div>
@@ -53,9 +53,13 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
         
         <div className="space-y-6 mt-4">
           <div className="relative">
-            <div className="h-64 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-9xl rounded-xl">
-              {hotel.image}
-            </div>
+            {hotel.image_url ? (
+              <img src={hotel.image_url} alt={hotel.title} className="h-64 w-full object-cover rounded-xl" />
+            ) : (
+              <div className="h-64 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-9xl rounded-xl">
+                🏨
+              </div>
+            )}
             {hotel.auction <= 3 && (
               <Badge className="absolute top-4 right-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold text-lg px-4 py-2">
                 <Icon name="Trophy" size={20} className="mr-2" />

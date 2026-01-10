@@ -51,7 +51,6 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing }
                 <div style="padding: 8px;">
                   <p style="margin: 4px 0;">📍 ${listing.city}</p>
                   <p style="margin: 4px 0;">💰 <strong>${listing.price} ₽</strong> / час</p>
-                  <p style="margin: 4px 0;">⭐ ${listing.rating}</p>
                   ${listing.auction <= 3 ? `<p style="margin: 4px 0; color: #f97316;"><strong>🏆 ТОП-${listing.auction}</strong></p>` : ''}
                 </div>
               `,
