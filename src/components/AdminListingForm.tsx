@@ -7,11 +7,121 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface AdminListingFormProps {
   listing: any;
   token: string;
   onClose: () => void;
+}
+
+interface SortableRoomItemProps {
+  room: any;
+  index: number;
+  onEdit: (index: number) => void;
+  onRemove: (index: number) => void;
+}
+
+function SortableRoomItem({ room, index, onEdit, onRemove }: SortableRoomItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: `room-${index}` });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="p-4 border rounded-lg bg-purple-50"
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start gap-3 flex-1">
+          <div
+            {...attributes}
+            {...listeners}
+            className="mt-1 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-purple-600 transition-colors"
+          >
+            <Icon name="GripVertical" size={20} />
+          </div>
+          <div>
+            <div className="font-semibold text-lg">{room.type}</div>
+            <div className="text-purple-600 font-bold text-xl">{room.price} ₽/час</div>
+            {room.square_meters > 0 && (
+              <Badge variant="secondary" className="mt-1">
+                {room.square_meters} м²
+              </Badge>
+            )}
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onEdit(index)}
+          >
+            <Icon name="Edit" size={16} />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onRemove(index)}
+          >
+            <Icon name="Trash2" size={16} />
+          </Button>
+        </div>
+      </div>
+      
+      {room.images && room.images.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto mb-3">
+          {room.images.map((img: string, imgIdx: number) => (
+            <img key={imgIdx} src={img} alt={`${room.type} ${imgIdx + 1}`} className="w-24 h-24 object-cover rounded" />
+          ))}
+        </div>
+      )}
+
+      {room.features && room.features.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2">
+          {room.features.map((feature: string, fIdx: number) => (
+            <Badge key={fIdx} variant="outline" className="text-xs">
+              {feature}
+            </Badge>
+          ))}
+        </div>
+      )}
+
+      {room.description && (
+        <p className="text-sm text-muted-foreground ml-8">{room.description}</p>
+      )}
+    </div>
+  );
 }
 
 export default function AdminListingForm({ listing, token, onClose }: AdminListingFormProps) {
@@ -21,6 +131,13 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const [formData, setFormData] = useState({
     title: listing?.title || '',
@@ -290,6 +407,25 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
         images: [], 
         square_meters: 0,
         features: []
+      });
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = parseInt(active.id.toString().replace('room-', ''));
+      const newIndex = parseInt(over.id.toString().replace('room-', ''));
+
+      setFormData({
+        ...formData,
+        rooms: arrayMove(formData.rooms, oldIndex, newIndex),
+      });
+
+      toast({
+        title: 'Порядок изменён',
+        description: 'Перетащите номера в нужном порядке',
       });
     }
   };
@@ -608,64 +744,45 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
           <Card>
             <CardHeader>
-              <CardTitle>Категории номеров</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Категории номеров</CardTitle>
+                {formData.rooms.length > 0 && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    <Icon name="GripVertical" size={14} />
+                    Перетащите для сортировки
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {formData.rooms.map((room: any, index: number) => (
-                <div key={index} className="p-4 border rounded-lg bg-purple-50">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="font-semibold text-lg">{room.type}</div>
-                      <div className="text-purple-600 font-bold text-xl">{room.price} ₽/час</div>
-                      {room.square_meters > 0 && (
-                        <Badge variant="secondary" className="mt-1">
-                          {room.square_meters} м²
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => startEditRoom(index)}
-                      >
-                        <Icon name="Edit" size={16} />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeRoom(index)}
-                      >
-                        <Icon name="Trash2" size={16} />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {room.images && room.images.length > 0 && (
-                    <div className="flex gap-2 overflow-x-auto mb-3">
-                      {room.images.map((img: string, imgIdx: number) => (
-                        <img key={imgIdx} src={img} alt={`${room.type} ${imgIdx + 1}`} className="w-24 h-24 object-cover rounded" />
-                      ))}
-                    </div>
-                  )}
-
-                  {room.features && room.features.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {room.features.map((feature: string, fIdx: number) => (
-                        <Badge key={fIdx} variant="outline" className="text-xs">
-                          {feature}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-
-                  {room.description && (
-                    <p className="text-sm text-muted-foreground">{room.description}</p>
-                  )}
+              {formData.rooms.length > 0 ? (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={formData.rooms.map((_: any, idx: number) => `room-${idx}`)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {formData.rooms.map((room: any, index: number) => (
+                      <SortableRoomItem
+                        key={`room-${index}`}
+                        room={room}
+                        index={index}
+                        onEdit={startEditRoom}
+                        onRemove={removeRoom}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Icon name="BedDouble" size={48} className="mx-auto mb-2 opacity-50" />
+                  <p>Категории номеров не добавлены</p>
+                  <p className="text-sm">Добавьте первую категорию ниже</p>
                 </div>
-              ))}
+              )}
 
               <div className={`space-y-4 p-4 border rounded-lg transition-colors ${editingRoomIndex !== null ? 'bg-purple-50 border-purple-300' : 'bg-white'}`}>
                 <div className="flex items-center justify-between">
