@@ -204,7 +204,7 @@ export default function ListingsView({
                 <div className="flex-1 min-w-0">
                   <div className="group/title">
                     <h4 className="font-bold text-lg mb-1 group-hover/title:text-purple-600 transition-colors">{listing.title}</h4>
-                    <div className="text-xs text-muted-foreground opacity-0 group-hover/title:opacity-100 transition-opacity">
+                    <div className="text-xs text-muted-foreground opacity-0 group-hover/title:opacity-100 translate-y-1 group-hover/title:translate-y-0 transition-all duration-300">
                       Посмотреть все предложения отеля
                     </div>
                   </div>
