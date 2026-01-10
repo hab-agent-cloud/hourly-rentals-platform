@@ -8,12 +8,12 @@ import ListingsView from '@/components/ListingsView';
 import HotelModal from '@/components/HotelModal';
 
 const mockListings = [
-  { id: 1, title: 'Отель «Арбат Плаза»', type: 'hotel', city: 'Москва', district: 'Арбат', price: 2500, rating: 4.9, reviews: 124, auction: 1, image: '🏙️', metro: 'Арбатская', metroWalk: 5, features: ['Wi-Fi', 'Кондиционер', 'Кухня'], lat: 55.7522, lng: 37.6156, minHours: 2, rooms: [{type: 'Стандарт', price: 2500}, {type: 'Улучшенный', price: 3200}, {type: 'Полулюкс', price: 4500}] },
-  { id: 2, title: 'Апарт-отель «Невский»', type: 'apartment', city: 'Санкт-Петербург', district: 'Центральный', price: 2200, rating: 4.8, reviews: 89, auction: 2, image: '🏛️', metro: 'Невский проспект', metroWalk: 3, features: ['Wi-Fi', 'Кухня', 'Джакузи'], lat: 59.9343, lng: 30.3351, minHours: 3, rooms: [{type: 'Стандарт', price: 2200}, {type: 'Улучшенный', price: 2900}, {type: 'Полулюкс', price: 3800}] },
-  { id: 3, title: 'Гостиница «Горный приют»', type: 'hotel', city: 'Сочи', district: 'Красная Поляна', price: 4500, rating: 5.0, reviews: 201, auction: 3, image: '🏔️', metro: '-', metroWalk: 0, features: ['Вид на горы', 'Сауна', 'Парковка'], lat: 43.6850, lng: 40.2645, minHours: 4, rooms: [{type: 'Стандарт', price: 4500}, {type: 'Улучшенный', price: 5500}, {type: 'Люкс', price: 7500}] },
-  { id: 4, title: 'Отель «Тверская»', type: 'hotel', city: 'Москва', district: 'ЦАО', price: 1800, rating: 4.7, reviews: 56, auction: 5, image: '🌆', metro: 'Тверская', metroWalk: 7, features: ['Wi-Fi', 'Кондиционер'], lat: 55.7658, lng: 37.6050, minHours: 1, rooms: [{type: 'Стандарт', price: 1800}, {type: 'Улучшенный', price: 2400}] },
-  { id: 5, title: 'Бизнес-отель «Центр»', type: 'hotel', city: 'Екатеринбург', district: 'Центр', price: 1600, rating: 4.6, reviews: 43, auction: 8, image: '🏢', metro: 'Площадь 1905 года', metroWalk: 10, features: ['Фитнес', 'Кухня', 'Wi-Fi'], lat: 56.8389, lng: 60.6057, minHours: 2, rooms: [{type: 'Стандарт', price: 1600}, {type: 'Полулюкс', price: 2500}] },
-  { id: 6, title: 'Апартаменты «Кремлевские»', type: 'apartment', city: 'Казань', district: 'Вахитовский', price: 2000, rating: 4.9, reviews: 78, auction: 4, image: '🌃', metro: 'Кремлёвская', metroWalk: 2, features: ['Вид на Кремль', 'Wi-Fi', 'Паркинг'], lat: 55.7887, lng: 49.1221, minHours: 3, rooms: [{type: 'Стандарт', price: 2000}, {type: 'Улучшенный', price: 2700}, {type: 'Полулюкс', price: 3500}] },
+  { id: 1, title: 'Отель «Арбат Плаза»', type: 'hotel', city: 'Москва', district: 'Арбат', price: 2500, rating: 4.9, reviews: 124, auction: 1, image: '🏙️', metro: 'Арбатская', metroWalk: 5, hasParking: true, features: ['Wi-Fi', 'Кондиционер', 'Кухня'], lat: 55.7522, lng: 37.6156, minHours: 2, rooms: [{type: 'Стандарт', price: 2500}, {type: 'Улучшенный', price: 3200}, {type: 'Полулюкс', price: 4500}] },
+  { id: 2, title: 'Апарт-отель «Невский»', type: 'apartment', city: 'Санкт-Петербург', district: 'Центральный', price: 2200, rating: 4.8, reviews: 89, auction: 2, image: '🏛️', metro: 'Невский проспект', metroWalk: 3, hasParking: false, features: ['Wi-Fi', 'Кухня', 'Джакузи'], lat: 59.9343, lng: 30.3351, minHours: 3, rooms: [{type: 'Стандарт', price: 2200}, {type: 'Улучшенный', price: 2900}, {type: 'Полулюкс', price: 3800}] },
+  { id: 3, title: 'Гостиница «Горный приют»', type: 'hotel', city: 'Сочи', district: 'Красная Поляна', price: 4500, rating: 5.0, reviews: 201, auction: 3, image: '🏔️', metro: '-', metroWalk: 0, hasParking: true, features: ['Вид на горы', 'Сауна', 'Парковка'], lat: 43.6850, lng: 40.2645, minHours: 4, rooms: [{type: 'Стандарт', price: 4500}, {type: 'Улучшенный', price: 5500}, {type: 'Люкс', price: 7500}] },
+  { id: 4, title: 'Отель «Тверская»', type: 'hotel', city: 'Москва', district: 'ЦАО', price: 1800, rating: 4.7, reviews: 56, auction: 5, image: '🌆', metro: 'Тверская', metroWalk: 7, hasParking: false, features: ['Wi-Fi', 'Кондиционер'], lat: 55.7658, lng: 37.6050, minHours: 1, rooms: [{type: 'Стандарт', price: 1800}, {type: 'Улучшенный', price: 2400}] },
+  { id: 5, title: 'Бизнес-отель «Центр»', type: 'hotel', city: 'Екатеринбург', district: 'Центр', price: 1600, rating: 4.6, reviews: 43, auction: 8, image: '🏢', metro: 'Площадь 1905 года', metroWalk: 10, hasParking: true, features: ['Фитнес', 'Кухня', 'Wi-Fi'], lat: 56.8389, lng: 60.6057, minHours: 2, rooms: [{type: 'Стандарт', price: 1600}, {type: 'Полулюкс', price: 2500}] },
+  { id: 6, title: 'Апартаменты «Кремлевские»', type: 'apartment', city: 'Казань', district: 'Вахитовский', price: 2000, rating: 4.9, reviews: 78, auction: 4, image: '🌃', metro: 'Кремлёвская', metroWalk: 2, hasParking: true, features: ['Вид на Кремль', 'Wi-Fi', 'Паркинг'], lat: 55.7887, lng: 49.1221, minHours: 3, rooms: [{type: 'Стандарт', price: 2000}, {type: 'Улучшенный', price: 2700}, {type: 'Полулюкс', price: 3500}] },
 ];
 
 const cities = ['Все города', 'Москва', 'Санкт-Петербург', 'Сочи', 'Екатеринбург', 'Казань'];
@@ -22,6 +22,7 @@ export default function Index() {
   const [searchCity, setSearchCity] = useState('');
   const [selectedCity, setSelectedCity] = useState('Все города');
   const [selectedType, setSelectedType] = useState('all');
+  const [hasParking, setHasParking] = useState(false);
   const [activeTab, setActiveTab] = useState('catalog');
   const [showMap, setShowMap] = useState(false);
   const [selectedListing, setSelectedListing] = useState<number | null>(null);
@@ -31,6 +32,7 @@ export default function Index() {
   const filteredListings = mockListings
     .filter(l => selectedCity === 'Все города' || l.city === selectedCity)
     .filter(l => selectedType === 'all' || l.type === selectedType)
+    .filter(l => !hasParking || l.hasParking)
     .filter(l => l.title.toLowerCase().includes(searchCity.toLowerCase()) || l.city.toLowerCase().includes(searchCity.toLowerCase()))
     .sort((a, b) => a.auction - b.auction);
 
@@ -110,6 +112,8 @@ export default function Index() {
               cities={cities}
               showMap={showMap}
               setShowMap={setShowMap}
+              hasParking={hasParking}
+              setHasParking={setHasParking}
             />
             <ListingsView
               filteredListings={filteredListings}

@@ -17,6 +17,7 @@ type Listing = {
   image: string;
   metro: string;
   metroWalk: number;
+  hasParking: boolean;
   features: string[];
   lat: number;
   lng: number;

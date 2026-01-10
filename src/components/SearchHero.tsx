@@ -14,6 +14,8 @@ interface SearchHeroProps {
   cities: string[];
   showMap: boolean;
   setShowMap: (value: boolean) => void;
+  hasParking: boolean;
+  setHasParking: (value: boolean) => void;
 }
 
 export default function SearchHero({
@@ -26,6 +28,8 @@ export default function SearchHero({
   cities,
   showMap,
   setShowMap,
+  hasParking,
+  setHasParking,
 }: SearchHeroProps) {
   return (
     <section className="mb-12 text-center animate-fade-in">
@@ -114,6 +118,14 @@ export default function SearchHero({
             <Badge variant="secondary" className="cursor-pointer hover:bg-purple-100">
               <Icon name="Wifi" size={14} className="mr-1" />
               С Wi-Fi
+            </Badge>
+            <Badge 
+              variant={hasParking ? "default" : "secondary"} 
+              className={`cursor-pointer ${hasParking ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
+              onClick={() => setHasParking(!hasParking)}
+            >
+              <Icon name="Car" size={14} className="mr-1" />
+              С парковкой
             </Badge>
             <Badge variant="secondary" className="cursor-pointer hover:bg-purple-100" onClick={() => setShowMap(!showMap)}>
               <Icon name="Map" size={14} className="mr-1" />
