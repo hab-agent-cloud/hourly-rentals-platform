@@ -98,30 +98,30 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
               {hotel.rooms.map((room, idx) => (
                 <div 
                   key={idx} 
-                  className="border-2 border-purple-100 rounded-xl p-4 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer"
-                  onClick={() => {
-                    onOpenChange(false);
-                    navigate(`/listing/${hotel.id}/room/${idx}`);
-                  }}
+                  className="border-2 border-purple-100 rounded-xl p-4"
                 >
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-lg font-bold">{room.type}</h4>
-                      <p className="text-sm text-muted-foreground">Нажмите для просмотра деталей</p>
                     </div>
                     <div className="text-right">
                       <div className="text-3xl font-bold text-purple-600">{room.price} ₽</div>
                       <div className="text-sm text-muted-foreground">за час</div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-center gap-2 text-purple-600 font-medium">
-                    <Icon name="Eye" size={18} />
-                    <span>Смотреть детали номера</span>
-                    <Icon name="ArrowRight" size={18} />
-                  </div>
                 </div>
               ))}
             </div>
+            <Button 
+              onClick={() => {
+                onOpenChange(false);
+                navigate(`/listing/${hotel.id}`);
+              }}
+              className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg py-6"
+            >
+              <Icon name="Eye" size={20} className="mr-2" />
+              Смотреть все категории номеров
+            </Button>
           </div>
 
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-100">
