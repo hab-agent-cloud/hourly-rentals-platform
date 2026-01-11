@@ -199,6 +199,7 @@ function SortableRoomItem({ room, index, onEdit, onRemove, onDuplicate, isEditin
 }
 
 export default function AdminListingForm({ listing, token, onClose }: AdminListingFormProps) {
+  console.log('✅ AdminListingForm component loaded - VERSION 2.0');
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
