@@ -1517,6 +1517,27 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
                             <div>
                               <label className="text-sm font-medium mb-2 block">Удобства в номере</label>
+                              
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                {['WiFi', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Холодильник', 'Двуспальная кровать'].map((quickFeature) => {
+                                  const isSelected = newRoom.features && newRoom.features.includes(quickFeature);
+                                  const iconName = featureIcons[quickFeature] || 'Check';
+                                  return (
+                                    <Button
+                                      key={quickFeature}
+                                      type="button"
+                                      variant={isSelected ? "default" : "outline"}
+                                      size="sm"
+                                      onClick={() => toggleNewRoomFeature(quickFeature)}
+                                      className={isSelected ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-purple-50'}
+                                    >
+                                      <Icon name={iconName} size={14} className="mr-1" />
+                                      {quickFeature}
+                                    </Button>
+                                  );
+                                })}
+                              </div>
+                              
                               <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-gray-50">
                                 {availableFeatures.map((feature) => {
                                   const iconName = featureIcons[feature] || 'Check';
@@ -1823,6 +1844,27 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
                 <div>
                   <label className="text-sm font-medium mb-2 block">Удобства в номере</label>
+                  
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {['WiFi', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Холодильник', 'Двуспальная кровать'].map((quickFeature) => {
+                      const isSelected = newRoom.features && newRoom.features.includes(quickFeature);
+                      const iconName = featureIcons[quickFeature] || 'Check';
+                      return (
+                        <Button
+                          key={quickFeature}
+                          type="button"
+                          variant={isSelected ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => toggleNewRoomFeature(quickFeature)}
+                          className={isSelected ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-purple-50'}
+                        >
+                          <Icon name={iconName} size={14} className="mr-1" />
+                          {quickFeature}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  
                   <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-gray-50">
                     {availableFeatures.map((feature) => {
                       const iconName = featureIcons[feature] || 'Check';
