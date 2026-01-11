@@ -299,6 +299,28 @@ export default function ListingPage() {
                           <div className="text-sm text-muted-foreground">за час</div>
                         </div>
 
+                        {/* Предупреждения о ценах */}
+                        {(listing?.price_warning_holidays || listing?.price_warning_daytime) && (
+                          <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3 space-y-2">
+                            {listing.price_warning_holidays && (
+                              <div className="flex items-start gap-2">
+                                <Icon name="AlertCircle" size={14} className="text-red-600 flex-shrink-0 mt-0.5" />
+                                <p className="text-xs font-semibold text-red-700">
+                                  Внимание: Цены в праздничные и выходные дни могут отличаться
+                                </p>
+                              </div>
+                            )}
+                            {listing.price_warning_daytime && (
+                              <div className="flex items-start gap-2">
+                                <Icon name="AlertCircle" size={14} className="text-red-600 flex-shrink-0 mt-0.5" />
+                                <p className="text-xs font-semibold text-red-700">
+                                  Цены указаны на дневной тариф
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         {room.description && (
                           <div>
                             <h4 className="font-bold text-lg mb-2">Описание</h4>

@@ -85,8 +85,9 @@ def handler(event: dict, context) -> dict:
             cur.execute("""
                 INSERT INTO listings (title, type, city, district, price, rating, reviews, 
                                      auction, image_url, metro, metro_walk, has_parking, 
-                                     features, lat, lng, min_hours, phone, telegram, logo_url)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                     features, lat, lng, min_hours, phone, telegram, logo_url,
+                                     price_warning_holidays, price_warning_daytime)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
             """, (
                 body['title'], body['type'], body['city'], body['district'], 
@@ -95,7 +96,8 @@ def handler(event: dict, context) -> dict:
                 body.get('metro_walk', 0), body.get('has_parking', False),
                 body.get('features', []), body.get('lat'), body.get('lng'),
                 body.get('min_hours', 1), body.get('phone'), body.get('telegram'),
-                body.get('logo_url')
+                body.get('logo_url'), body.get('price_warning_holidays', False),
+                body.get('price_warning_daytime', False)
             ))
             
             new_listing = cur.fetchone()
@@ -151,7 +153,8 @@ def handler(event: dict, context) -> dict:
                     title=%s, type=%s, city=%s, district=%s, price=%s, rating=%s, 
                     reviews=%s, auction=%s, image_url=%s, metro=%s, metro_walk=%s, 
                     has_parking=%s, features=%s, lat=%s, lng=%s, min_hours=%s, 
-                    phone=%s, telegram=%s, logo_url=%s, is_archived=%s, updated_at=CURRENT_TIMESTAMP
+                    phone=%s, telegram=%s, logo_url=%s, is_archived=%s,
+                    price_warning_holidays=%s, price_warning_daytime=%s, updated_at=CURRENT_TIMESTAMP
                 WHERE id=%s
                 RETURNING *
             """, (
@@ -162,6 +165,7 @@ def handler(event: dict, context) -> dict:
                 body.get('features', []), body.get('lat'), body.get('lng'),
                 body.get('min_hours', 1), body.get('phone'), body.get('telegram'),
                 body.get('logo_url'), body.get('is_archived', False),
+                body.get('price_warning_holidays', False), body.get('price_warning_daytime', False),
                 listing_id
             ))
             

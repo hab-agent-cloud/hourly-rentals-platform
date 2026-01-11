@@ -37,7 +37,8 @@ def handler(event: dict, context) -> dict:
                 id, title, type, city, district, price, rating, reviews, 
                 auction, image_url, logo_url, metro, metro_walk as "metroWalk", 
                 has_parking as "hasParking", features, lat, lng, 
-                min_hours as "minHours", phone, telegram
+                min_hours as "minHours", phone, telegram,
+                price_warning_holidays, price_warning_daytime
             FROM listings 
             WHERE is_archived = false 
             ORDER BY auction ASC

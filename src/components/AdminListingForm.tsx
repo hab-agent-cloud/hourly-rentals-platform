@@ -242,6 +242,8 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       rooms: listing?.rooms || [],
       phone: listing?.phone || '',
       telegram: listing?.telegram || '',
+      price_warning_holidays: listing?.price_warning_holidays || false,
+      price_warning_daytime: listing?.price_warning_daytime || false,
     };
   });
 
@@ -1125,15 +1127,53 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="parking"
-                  checked={formData.has_parking}
-                  onChange={(e) => setFormData({ ...formData, has_parking: e.target.checked })}
-                  className="w-4 h-4"
-                />
-                <label htmlFor="parking" className="text-sm font-medium">Есть парковка</label>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="parking"
+                    checked={formData.has_parking}
+                    onChange={(e) => setFormData({ ...formData, has_parking: e.target.checked })}
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor="parking" className="text-sm font-medium">Есть парковка</label>
+                </div>
+                
+                <div className="p-4 border-2 border-red-200 rounded-lg bg-red-50 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold text-red-800">⚠️ Важные уведомления о ценах</label>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="priceWarningHolidays"
+                      checked={formData.price_warning_holidays}
+                      onChange={(e) => setFormData({ ...formData, price_warning_holidays: e.target.checked })}
+                      className="w-5 h-5 mt-0.5 cursor-pointer"
+                    />
+                    <label htmlFor="priceWarningHolidays" className="text-sm font-medium text-red-700 cursor-pointer flex-1">
+                      Внимание: Цены в праздничные и выходные дни могут отличаться
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="priceWarningDaytime"
+                      checked={formData.price_warning_daytime}
+                      onChange={(e) => setFormData({ ...formData, price_warning_daytime: e.target.checked })}
+                      className="w-5 h-5 mt-0.5 cursor-pointer"
+                    />
+                    <label htmlFor="priceWarningDaytime" className="text-sm font-medium text-red-700 cursor-pointer flex-1">
+                      Цены указаны на дневной тариф
+                    </label>
+                  </div>
+                  
+                  <p className="text-xs text-red-600">
+                    Эти отметки будут показаны красным цветом на странице объекта
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>

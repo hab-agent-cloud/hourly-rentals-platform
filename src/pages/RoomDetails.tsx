@@ -231,6 +231,28 @@ export default function RoomDetails() {
                     <div className="text-sm text-muted-foreground">за час</div>
                   </div>
 
+                  {/* Предупреждения о ценах */}
+                  {(listing?.price_warning_holidays || listing?.price_warning_daytime) && (
+                    <div className="bg-red-50 border-2 border-red-200 rounded-lg p-3 mb-4 space-y-2">
+                      {listing.price_warning_holidays && (
+                        <div className="flex items-start gap-2">
+                          <Icon name="AlertCircle" size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
+                          <p className="text-sm font-semibold text-red-700">
+                            Внимание: Цены в праздничные и выходные дни могут отличаться
+                          </p>
+                        </div>
+                      )}
+                      {listing.price_warning_daytime && (
+                        <div className="flex items-start gap-2">
+                          <Icon name="AlertCircle" size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
+                          <p className="text-sm font-semibold text-red-700">
+                            Цены указаны на дневной тариф
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="space-y-3 mb-6">
                     {room.payment_methods && (
                       <div className="flex gap-3">
