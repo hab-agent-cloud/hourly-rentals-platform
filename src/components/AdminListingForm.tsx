@@ -553,10 +553,23 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
   const addRoom = () => {
     if (newRoom.type && newRoom.price > 0) {
+      const roomToAdd = {
+        type: newRoom.type,
+        price: newRoom.price,
+        description: newRoom.description,
+        images: [...(Array.isArray(newRoom.images) ? newRoom.images : [])],
+        square_meters: newRoom.square_meters,
+        features: [...(Array.isArray(newRoom.features) ? newRoom.features : [])],
+        min_hours: newRoom.min_hours,
+        payment_methods: newRoom.payment_methods,
+        cancellation_policy: newRoom.cancellation_policy
+      };
+      
       setFormData({
         ...formData,
-        rooms: [...formData.rooms, newRoom],
+        rooms: [...formData.rooms, roomToAdd],
       });
+      
       setNewRoom({ 
         type: '', 
         price: 0, 
@@ -567,6 +580,17 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
         min_hours: 1,
         payment_methods: 'Наличные, банковская карта при заселении',
         cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
+      });
+      
+      toast({
+        title: 'Успешно',
+        description: `Категория "${roomToAdd.type}" добавлена`,
+      });
+    } else {
+      toast({
+        title: 'Ошибка',
+        description: 'Заполните название категории и цену',
+        variant: 'destructive',
       });
     }
   };
@@ -609,7 +633,17 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   const saveEditedRoom = () => {
     if (editingRoomIndex !== null && newRoom.type && newRoom.price > 0) {
       const updatedRooms = [...formData.rooms];
-      updatedRooms[editingRoomIndex] = newRoom;
+      updatedRooms[editingRoomIndex] = {
+        type: newRoom.type,
+        price: newRoom.price,
+        description: newRoom.description,
+        images: [...(Array.isArray(newRoom.images) ? newRoom.images : [])],
+        square_meters: newRoom.square_meters,
+        features: [...(Array.isArray(newRoom.features) ? newRoom.features : [])],
+        min_hours: newRoom.min_hours,
+        payment_methods: newRoom.payment_methods,
+        cancellation_policy: newRoom.cancellation_policy
+      };
       setFormData({
         ...formData,
         rooms: updatedRooms,
@@ -641,7 +675,10 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       description: '', 
       images: [], 
       square_meters: 0,
-      features: []
+      features: [],
+      min_hours: 1,
+      payment_methods: 'Наличные, банковская карта при заселении',
+      cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
     });
   };
 
@@ -654,9 +691,12 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       type: template.type,
       price: newRoom.price || 0,
       description: template.description,
-      images: currentImages,
+      images: [...currentImages],
       square_meters: template.square_meters,
-      features: template.features,
+      features: [...template.features],
+      min_hours: newRoom.min_hours || 1,
+      payment_methods: newRoom.payment_methods || 'Наличные, банковская карта при заселении',
+      cancellation_policy: newRoom.cancellation_policy || 'Бесплатная отмена за 1 час до заселения'
     });
 
     toast({
