@@ -40,12 +40,7 @@ export default function SearchHero({
   setSelectedFeatures,
 }: SearchHeroProps) {
   const popularFeatures = [
-    { name: 'WiFi', icon: 'Wifi' },
     { name: 'Джакузи', icon: 'Bath' },
-    { name: 'Кондиционер', icon: 'Wind' },
-    { name: 'Двуспальная кровать', icon: 'BedDouble' },
-    { name: 'Смарт ТВ', icon: 'Tv' },
-    { name: 'Холодильник', icon: 'Refrigerator' },
     { name: 'Кухня', icon: 'ChefHat' },
     { name: 'PlayStation', icon: 'Gamepad2' },
   ];
