@@ -21,6 +21,7 @@ export default function Index() {
   const [selectedHotel, setSelectedHotel] = useState<any>(null);
   const [allListings, setAllListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
   useEffect(() => {
     loadListings();
@@ -45,7 +46,13 @@ export default function Index() {
     .filter(l => selectedType === 'all' || l.type === selectedType)
     .filter(l => !hasParking || l.hasParking)
     .filter(l => minHours === null || l.minHours <= minHours)
-    .filter(l => l.title.toLowerCase().includes(searchCity.toLowerCase()) || l.city.toLowerCase().includes(searchCity.toLowerCase()));
+    .filter(l => l.title.toLowerCase().includes(searchCity.toLowerCase()) || l.city.toLowerCase().includes(searchCity.toLowerCase()))
+    .filter(l => {
+      if (selectedFeatures.length === 0) return true;
+      return l.rooms && l.rooms.some((room: any) => 
+        selectedFeatures.every((feature) => room.features && room.features.includes(feature))
+      );
+    });
 
   const handleCardClick = (listing: any) => {
     window.location.href = `/listing/${listing.id}`;
@@ -126,20 +133,55 @@ export default function Index() {
               setHasParking={setHasParking}
               minHours={minHours}
               setMinHours={setMinHours}
+              selectedFeatures={selectedFeatures}
+              setSelectedFeatures={setSelectedFeatures}
             />
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
                 <Icon name="Loader2" size={48} className="animate-spin text-purple-600" />
               </div>
             ) : (
-              <ListingsView
-                filteredListings={filteredListings}
-                showMap={showMap}
-                setShowMap={setShowMap}
-                selectedListing={selectedListing}
-                setSelectedListing={setSelectedListing}
-                onCardClick={handleCardClick}
-              />
+              <>
+                {(selectedCity !== 'Все города' || selectedType !== 'all' || hasParking || minHours !== null || selectedFeatures.length > 0 || searchCity) && (
+                  <div className="mb-6 flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-purple-100">
+                    <div className="flex items-center gap-3">
+                      <Icon name="Filter" size={20} className="text-purple-600" />
+                      <span className="text-sm font-medium">
+                        Найдено объектов: <span className="text-lg font-bold text-purple-600">{filteredListings.length}</span>
+                      </span>
+                      {selectedFeatures.length > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          • С удобствами: {selectedFeatures.join(', ')}
+                        </span>
+                      )}
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedCity('Все города');
+                        setSelectedType('all');
+                        setHasParking(false);
+                        setMinHours(null);
+                        setSelectedFeatures([]);
+                        setSearchCity('');
+                      }}
+                      className="text-purple-600 hover:text-purple-800"
+                    >
+                      <Icon name="X" size={16} className="mr-1" />
+                      Сбросить фильтры
+                    </Button>
+                  </div>
+                )}
+                <ListingsView
+                  filteredListings={filteredListings}
+                  showMap={showMap}
+                  setShowMap={setShowMap}
+                  selectedListing={selectedListing}
+                  setSelectedListing={setSelectedListing}
+                  onCardClick={handleCardClick}
+                />
+              </>
             )}
           </>
         )}

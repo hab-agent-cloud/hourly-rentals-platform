@@ -121,7 +121,26 @@ export default function ListingsView({
         </div>
       </div>
 
-      {showMap ? (
+      {filteredListings.length === 0 ? (
+        <div className="text-center py-20">
+          <div className="text-8xl mb-6">🔍</div>
+          <h3 className="text-3xl font-bold mb-3 text-purple-600">Ничего не найдено</h3>
+          <p className="text-muted-foreground text-lg mb-6">
+            Попробуйте изменить параметры поиска или фильтры
+          </p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Badge variant="secondary" className="text-sm px-4 py-2">
+              Попробуйте выбрать другой город
+            </Badge>
+            <Badge variant="secondary" className="text-sm px-4 py-2">
+              Уберите часть фильтров
+            </Badge>
+            <Badge variant="secondary" className="text-sm px-4 py-2">
+              Измените тип объекта
+            </Badge>
+          </div>
+        </div>
+      ) : showMap ? (
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="space-y-4 max-h-[700px] overflow-y-auto pr-2">
             {sortedListings.map((listing) => (

@@ -18,6 +18,8 @@ interface SearchHeroProps {
   setHasParking: (value: boolean) => void;
   minHours: number | null;
   setMinHours: (value: number | null) => void;
+  selectedFeatures: string[];
+  setSelectedFeatures: (value: string[]) => void;
 }
 
 export default function SearchHero({
@@ -34,7 +36,27 @@ export default function SearchHero({
   setHasParking,
   minHours,
   setMinHours,
+  selectedFeatures,
+  setSelectedFeatures,
 }: SearchHeroProps) {
+  const popularFeatures = [
+    { name: 'WiFi', icon: 'Wifi' },
+    { name: 'Джакузи', icon: 'Bath' },
+    { name: 'Кондиционер', icon: 'Wind' },
+    { name: 'Двуспальная кровать', icon: 'BedDouble' },
+    { name: 'Смарт ТВ', icon: 'Tv' },
+    { name: 'Холодильник', icon: 'Refrigerator' },
+    { name: 'Кухня', icon: 'ChefHat' },
+    { name: 'PlayStation', icon: 'Gamepad2' },
+  ];
+
+  const toggleFeature = (feature: string) => {
+    setSelectedFeatures(prev => 
+      prev.includes(feature) 
+        ? prev.filter(f => f !== feature)
+        : [...prev, feature]
+    );
+  };
   return (
     <section className="mb-12 text-center animate-fade-in">
       <div className="max-w-4xl mx-auto">
@@ -110,55 +132,81 @@ export default function SearchHero({
             </Button>
           </div>
 
-          <div className="flex flex-wrap gap-2 mt-4">
-            <Badge variant="secondary" className="cursor-pointer hover:bg-purple-100">
-              <Icon name="MapPin" size={14} className="mr-1" />
-              Рядом с метро
-            </Badge>
-            <Badge variant="secondary" className="cursor-pointer hover:bg-purple-100">
-              <Icon name="Star" size={14} className="mr-1" />
-              Высокий рейтинг
-            </Badge>
-            <Badge variant="secondary" className="cursor-pointer hover:bg-purple-100">
-              <Icon name="Wifi" size={14} className="mr-1" />
-              С Wi-Fi
-            </Badge>
-            <Badge 
-              variant={hasParking ? "default" : "secondary"} 
-              className={`cursor-pointer ${hasParking ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
-              onClick={() => setHasParking(!hasParking)}
-            >
-              <Icon name="Car" size={14} className="mr-1" />
-              С парковкой
-            </Badge>
-            <Badge 
-              variant={minHours === 2 ? "default" : "secondary"} 
-              className={`cursor-pointer ${minHours === 2 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
-              onClick={() => setMinHours(minHours === 2 ? null : 2)}
-            >
-              <Icon name="Clock" size={14} className="mr-1" />
-              От 2 часов
-            </Badge>
-            <Badge 
-              variant={minHours === 3 ? "default" : "secondary"} 
-              className={`cursor-pointer ${minHours === 3 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
-              onClick={() => setMinHours(minHours === 3 ? null : 3)}
-            >
-              <Icon name="Clock" size={14} className="mr-1" />
-              От 3 часов
-            </Badge>
-            <Badge 
-              variant={minHours === 4 ? "default" : "secondary"} 
-              className={`cursor-pointer ${minHours === 4 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
-              onClick={() => setMinHours(minHours === 4 ? null : 4)}
-            >
-              <Icon name="Clock" size={14} className="mr-1" />
-              От 4 часов
-            </Badge>
-            <Badge variant="secondary" className="cursor-pointer hover:bg-purple-100" onClick={() => setShowMap(!showMap)}>
-              <Icon name="Map" size={14} className="mr-1" />
-              {showMap ? 'Показать списком' : 'Показать на карте'}
-            </Badge>
+          <div className="space-y-3 mt-4">
+            <div className="flex items-center gap-2">
+              <Icon name="Filter" size={16} className="text-purple-600" />
+              <span className="text-sm font-semibold text-purple-700">Фильтры:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Badge 
+                variant={hasParking ? "default" : "secondary"} 
+                className={`cursor-pointer ${hasParking ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
+                onClick={() => setHasParking(!hasParking)}
+              >
+                <Icon name="Car" size={14} className="mr-1" />
+                С парковкой
+              </Badge>
+              <Badge 
+                variant={minHours === 2 ? "default" : "secondary"} 
+                className={`cursor-pointer ${minHours === 2 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
+                onClick={() => setMinHours(minHours === 2 ? null : 2)}
+              >
+                <Icon name="Clock" size={14} className="mr-1" />
+                От 2 часов
+              </Badge>
+              <Badge 
+                variant={minHours === 3 ? "default" : "secondary"} 
+                className={`cursor-pointer ${minHours === 3 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
+                onClick={() => setMinHours(minHours === 3 ? null : 3)}
+              >
+                <Icon name="Clock" size={14} className="mr-1" />
+                От 3 часов
+              </Badge>
+              <Badge 
+                variant={minHours === 4 ? "default" : "secondary"} 
+                className={`cursor-pointer ${minHours === 4 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
+                onClick={() => setMinHours(minHours === 4 ? null : 4)}
+              >
+                <Icon name="Clock" size={14} className="mr-1" />
+                От 4 часов
+              </Badge>
+              <Badge variant="secondary" className="cursor-pointer hover:bg-purple-100" onClick={() => setShowMap(!showMap)}>
+                <Icon name="Map" size={14} className="mr-1" />
+                {showMap ? 'Показать списком' : 'Показать на карте'}
+              </Badge>
+            </div>
+
+            <div className="flex items-center gap-2 mt-2">
+              <Icon name="Sparkles" size={16} className="text-purple-600" />
+              <span className="text-sm font-semibold text-purple-700">Удобства в номере:</span>
+              {selectedFeatures.length > 0 && (
+                <button
+                  onClick={() => setSelectedFeatures([])}
+                  className="text-xs text-purple-600 hover:text-purple-800 underline"
+                >
+                  Очистить ({selectedFeatures.length})
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {popularFeatures.map((feature) => {
+                const isSelected = selectedFeatures.includes(feature.name);
+                return (
+                  <Badge
+                    key={feature.name}
+                    variant={isSelected ? "default" : "secondary"}
+                    className={`cursor-pointer group relative ${isSelected ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
+                    onClick={() => toggleFeature(feature.name)}
+                  >
+                    <Icon name={feature.icon} size={14} className="mr-1" />
+                    {feature.name}
+                    {isSelected && (
+                      <Icon name="X" size={12} className="ml-1" />
+                    )}
+                  </Badge>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
