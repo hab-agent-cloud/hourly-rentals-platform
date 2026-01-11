@@ -388,11 +388,47 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
     try {
       let finalData = { ...formData };
+      
+      // ⚠️ ВАЖНО: Автоматически добавляем незавершенную комнату перед сохранением
+      if (newRoom.type && newRoom.price > 0) {
+        const roomToAdd = {
+          type: newRoom.type,
+          price: newRoom.price,
+          description: newRoom.description,
+          images: [...(Array.isArray(newRoom.images) ? newRoom.images : [])],
+          square_meters: newRoom.square_meters,
+          features: [...(Array.isArray(newRoom.features) ? newRoom.features : [])],
+          min_hours: newRoom.min_hours,
+          payment_methods: newRoom.payment_methods,
+          cancellation_policy: newRoom.cancellation_policy
+        };
+        
+        finalData = {
+          ...finalData,
+          rooms: [...finalData.rooms, roomToAdd]
+        };
+        
+        console.log('⚠️ Auto-added unsaved room before submit:', roomToAdd.type);
+        
+        toast({
+          title: 'Внимание',
+          description: `Категория "${roomToAdd.type}" автоматически добавлена при сохранении`,
+        });
+      }
 
       console.log('=== SAVING LISTING ===');
       console.log('formData.rooms:', formData.rooms);
       console.log('formData.rooms length:', formData.rooms?.length);
       console.log('Full formData:', finalData);
+      
+      if (formData.rooms && formData.rooms.length > 0) {
+        console.log('Rooms to save:');
+        formData.rooms.forEach((room, idx) => {
+          console.log(`  ${idx + 1}. ${room.type} - ${room.price} ₽`);
+        });
+      } else {
+        console.warn('⚠️ NO ROOMS TO SAVE!');
+      }
 
       if (formData.city && formData.district) {
         const coords = await geocodeAddress(formData.city, formData.district);
