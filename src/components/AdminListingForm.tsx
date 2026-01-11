@@ -565,9 +565,13 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
         cancellation_policy: newRoom.cancellation_policy
       };
       
+      const updatedRooms = [...formData.rooms, roomToAdd];
+      console.log('Adding room. Current rooms:', formData.rooms.length, 'After add:', updatedRooms.length);
+      console.log('Room added:', roomToAdd);
+      
       setFormData({
         ...formData,
-        rooms: [...formData.rooms, roomToAdd],
+        rooms: updatedRooms,
       });
       
       setNewRoom({ 
@@ -584,7 +588,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       
       toast({
         title: 'Успешно',
-        description: `Категория "${roomToAdd.type}" добавлена`,
+        description: `Категория "${roomToAdd.type}" добавлена (всего: ${updatedRooms.length})`,
       });
     } else {
       toast({
@@ -1027,6 +1031,11 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
+              {(() => {
+                console.log('Rendering rooms list. Total rooms:', formData.rooms?.length || 0);
+                console.log('Rooms array:', formData.rooms);
+                return null;
+              })()}
               {formData.rooms && formData.rooms.length > 0 ? (
                 <DndContext
                   sensors={sensors}
