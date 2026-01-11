@@ -385,10 +385,21 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const debugInfo = {
+      editingRoomIndex,
+      newRoomType: newRoom.type,
+      newRoomPrice: newRoom.price,
+      currentRoomsCount: formData.rooms.length,
+      willAutoAdd: !!(newRoom.type && newRoom.price > 0)
+    };
+    
     console.log('🚀 HANDLE SUBMIT CALLED - START');
     console.log('🔍 editingRoomIndex:', editingRoomIndex);
     console.log('🔍 newRoom state:', JSON.stringify(newRoom));
     console.log('🔍 formData.rooms.length:', formData.rooms.length);
+    console.table(debugInfo);
+    
     setIsLoading(true);
 
     try {
