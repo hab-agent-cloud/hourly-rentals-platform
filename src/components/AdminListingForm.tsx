@@ -142,12 +142,52 @@ function SortableRoomItem({ room, index, onEdit, onRemove, onDuplicate, isEditin
       )}
 
       {room.features && Array.isArray(room.features) && room.features.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-2">
-          {room.features.map((feature: string, fIdx: number) => (
-            <Badge key={fIdx} variant="outline" className="text-xs">
-              {feature}
-            </Badge>
-          ))}
+        <div className="flex flex-wrap gap-2 mb-2 ml-8">
+          {room.features.map((feature: string, fIdx: number) => {
+            const featureIcons: Record<string, string> = {
+              'WiFi': 'Wifi',
+              'Двуспальная кровать': 'BedDouble',
+              '2 односпальные кровати': 'BedSingle',
+              'Смарт ТВ': 'Tv',
+              'Кондиционер': 'Wind',
+              'Джакузи': 'Bath',
+              'Душевая кабина': 'ShowerHead',
+              'Фен': 'Wind',
+              'Халаты': 'Shirt',
+              'Тапочки': 'Footprints',
+              'Холодильник': 'Refrigerator',
+              'Микроволновка': 'Microwave',
+              'Чайник': 'Coffee',
+              'Посуда': 'UtensilsCrossed',
+              'Сейф': 'Lock',
+              'Зеркала': 'Sparkles',
+              'Музыкальная система': 'Music',
+              'Настольные игры': 'Dices',
+              'PlayStation': 'Gamepad2',
+              'Бар': 'Wine',
+              'Косметика': 'Sparkles',
+              'Полотенца': 'Sheet',
+              'Постельное бельё': 'Bed',
+              'Кухня': 'ChefHat',
+              'Обеденный стол': 'Utensils',
+              'Диван': 'Sofa',
+              'Ароматерапия': 'Flower',
+            };
+            const iconName = featureIcons[feature] || 'Check';
+            return (
+              <div
+                key={fIdx}
+                className="group relative inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 transition-all cursor-help"
+                title={feature}
+              >
+                <Icon name={iconName} size={14} className="text-purple-600" />
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  {feature}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -245,21 +285,21 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       type: 'Студия',
       description: 'Просторный номер с кухонной зоной',
       square_meters: 30,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Фен', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Обеденный стол', 'Диван'],
+      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Фен', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Обеденный стол', 'Диван', 'Кухня'],
     },
     {
       name: 'Романтик',
       type: 'Романтик',
       description: 'Номер с романтической атмосферой для пар',
       square_meters: 28,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Чайник', 'Зеркала', 'Музыкальная система', 'Ароматерапия'],
+      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Чайник', 'Зеркала', 'Музыкальная система', 'Ароматерапия', 'Косметика'],
     },
     {
       name: 'VIP',
       type: 'VIP',
       description: 'Эксклюзивный номер с максимальным комфортом',
       square_meters: 45,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Сейф', 'Зеркала', 'Музыкальная система', 'PlayStation', 'Настольные игры', 'Диван', 'Обеденный стол'],
+      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Сейф', 'Зеркала', 'Музыкальная система', 'PlayStation', 'Настольные игры', 'Диван', 'Обеденный стол', 'Бар', 'Косметика', 'Полотенца', 'Постельное бельё'],
     },
   ];
 
@@ -288,7 +328,40 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     'Полотенца',
     'Постельное бельё',
     'Кухня',
+    'Обеденный стол',
+    'Диван',
+    'Ароматерапия',
   ];
+
+  const featureIcons: Record<string, string> = {
+    'WiFi': 'Wifi',
+    'Двуспальная кровать': 'BedDouble',
+    '2 односпальные кровати': 'BedSingle',
+    'Смарт ТВ': 'Tv',
+    'Кондиционер': 'Wind',
+    'Джакузи': 'Bath',
+    'Душевая кабина': 'ShowerHead',
+    'Фен': 'Wind',
+    'Халаты': 'Shirt',
+    'Тапочки': 'Footprints',
+    'Холодильник': 'Refrigerator',
+    'Микроволновка': 'Microwave',
+    'Чайник': 'Coffee',
+    'Посуда': 'UtensilsCrossed',
+    'Сейф': 'Lock',
+    'Зеркала': 'Sparkles',
+    'Музыкальная система': 'Music',
+    'Настольные игры': 'Dices',
+    'PlayStation': 'Gamepad2',
+    'Бар': 'Wine',
+    'Косметика': 'Sparkles',
+    'Полотенца': 'Sheet',
+    'Постельное бельё': 'Bed',
+    'Кухня': 'ChefHat',
+    'Обеденный стол': 'Utensils',
+    'Диван': 'Sofa',
+    'Ароматерапия': 'Flower',
+  };
 
   const geocodeAddress = async (city: string, address: string): Promise<{ lat: number; lng: number } | null> => {
     try {
@@ -1347,21 +1420,34 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
                             <div>
                               <label className="text-sm font-medium mb-2 block">Удобства в номере</label>
-                              <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 border rounded">
-                                {availableFeatures.map((feature) => (
-                                  <label
-                                    key={feature}
-                                    className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-purple-50 transition-colors"
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={newRoom.features && newRoom.features.includes(feature)}
-                                      onChange={() => toggleNewRoomFeature(feature)}
-                                      className="w-4 h-4 text-purple-600 rounded"
-                                    />
-                                    <span className="text-sm">{feature}</span>
-                                  </label>
-                                ))}
+                              <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-gray-50">
+                                {availableFeatures.map((feature) => {
+                                  const iconName = featureIcons[feature] || 'Check';
+                                  const isChecked = newRoom.features && newRoom.features.includes(feature);
+                                  return (
+                                    <div
+                                      key={feature}
+                                      onClick={() => toggleNewRoomFeature(feature)}
+                                      className={`group relative inline-flex items-center justify-center w-12 h-12 rounded-full cursor-pointer transition-all hover:scale-110 ${
+                                        isChecked 
+                                          ? 'bg-purple-600 text-white shadow-lg' 
+                                          : 'bg-white hover:bg-purple-100 text-purple-600'
+                                      }`}
+                                      title={feature}
+                                    >
+                                      <Icon name={iconName} size={20} />
+                                      {isChecked && (
+                                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                          <Icon name="Check" size={12} className="text-white" />
+                                        </div>
+                                      )}
+                                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                                        {feature}
+                                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             </div>
 
@@ -1640,21 +1726,34 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
                 <div>
                   <label className="text-sm font-medium mb-2 block">Удобства в номере</label>
-                  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 border rounded">
-                    {availableFeatures.map((feature) => (
-                      <label
-                        key={feature}
-                        className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-purple-50 transition-colors"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={newRoom.features && newRoom.features.includes(feature)}
-                          onChange={() => toggleNewRoomFeature(feature)}
-                          className="w-4 h-4 text-purple-600 rounded"
-                        />
-                        <span className="text-sm">{feature}</span>
-                      </label>
-                    ))}
+                  <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-gray-50">
+                    {availableFeatures.map((feature) => {
+                      const iconName = featureIcons[feature] || 'Check';
+                      const isChecked = newRoom.features && newRoom.features.includes(feature);
+                      return (
+                        <div
+                          key={feature}
+                          onClick={() => toggleNewRoomFeature(feature)}
+                          className={`group relative inline-flex items-center justify-center w-12 h-12 rounded-full cursor-pointer transition-all hover:scale-110 ${
+                            isChecked 
+                              ? 'bg-purple-600 text-white shadow-lg' 
+                              : 'bg-white hover:bg-purple-100 text-purple-600'
+                          }`}
+                          title={feature}
+                        >
+                          <Icon name={iconName} size={20} />
+                          {isChecked && (
+                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                              <Icon name="Check" size={12} className="text-white" />
+                            </div>
+                          )}
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                            {feature}
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 

@@ -42,8 +42,8 @@ export default function ListingPage() {
 
   const featureIcons: Record<string, string> = {
     'WiFi': 'Wifi',
-    'Двуспальная кровать': 'Bed',
-    '2 односпальные кровати': 'BedDouble',
+    'Двуспальная кровать': 'BedDouble',
+    '2 односпальные кровати': 'BedSingle',
     'Смарт ТВ': 'Tv',
     'Кондиционер': 'Wind',
     'Джакузи': 'Bath',
@@ -65,6 +65,9 @@ export default function ListingPage() {
     'Полотенца': 'Sheet',
     'Постельное бельё': 'Bed',
     'Кухня': 'ChefHat',
+    'Обеденный стол': 'Utensils',
+    'Диван': 'Sofa',
+    'Ароматерапия': 'Flower',
   };
 
   if (isLoading) {
@@ -309,16 +312,20 @@ export default function ListingPage() {
                               <Icon name="Sparkles" size={18} className="text-purple-600" />
                               Удобства
                             </h4>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="flex flex-wrap gap-2">
                               {room.features.map((feature: string, idx: number) => {
                                 const iconName = featureIcons[feature] || 'Check';
                                 return (
                                   <div
                                     key={idx}
-                                    className="flex items-center gap-2 p-2 bg-purple-50 rounded-lg text-sm"
+                                    className="group relative inline-flex items-center justify-center w-12 h-12 rounded-full bg-purple-100 hover:bg-purple-200 transition-all cursor-help hover:scale-110"
+                                    title={feature}
                                   >
-                                    <Icon name={iconName} size={16} className="text-purple-600 flex-shrink-0" />
-                                    <span className="font-medium">{feature}</span>
+                                    <Icon name={iconName} size={20} className="text-purple-600" />
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg">
+                                      {feature}
+                                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                    </div>
                                   </div>
                                 );
                               })}
