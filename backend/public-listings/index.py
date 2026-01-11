@@ -46,7 +46,7 @@ def handler(event: dict, context) -> dict:
         
         listings = cur.fetchall()
         
-        # Получаем комнаты для каждого объекта со всеми полями
+        # Получаем комнаты и станции метро для каждого объекта
         for listing in listings:
             cur.execute(
                 """SELECT type, price, description, images, square_meters, features, 
@@ -56,6 +56,13 @@ def handler(event: dict, context) -> dict:
             )
             rooms = cur.fetchall()
             listing['rooms'] = rooms
+            
+            cur.execute(
+                """SELECT station_name, walk_minutes FROM metro_stations WHERE listing_id = %s""",
+                (listing['id'],)
+            )
+            metro_stations = cur.fetchall()
+            listing['metro_stations'] = metro_stations
         
         cur.close()
         conn.close()

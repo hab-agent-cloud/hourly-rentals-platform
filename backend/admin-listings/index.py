@@ -60,13 +60,16 @@ def handler(event: dict, context) -> dict:
             
             listings = cur.fetchall()
             
-            # Получаем комнаты для каждого объекта
+            # Получаем комнаты и станции метро для каждого объекта
             for listing in listings:
                 cur.execute("SELECT * FROM rooms WHERE listing_id = %s", (listing['id'],))
                 listing['rooms'] = cur.fetchall()
                 
                 cur.execute("SELECT * FROM listing_photos WHERE listing_id = %s", (listing['id'],))
                 listing['photos'] = cur.fetchall()
+                
+                cur.execute("SELECT station_name, walk_minutes FROM metro_stations WHERE listing_id = %s", (listing['id'],))
+                listing['metro_stations'] = cur.fetchall()
             
             cur.close()
             conn.close()
@@ -102,6 +105,14 @@ def handler(event: dict, context) -> dict:
             
             new_listing = cur.fetchone()
             listing_id = new_listing['id']
+            
+            # Добавление станций метро
+            if 'metro_stations' in body and body['metro_stations']:
+                for station in body['metro_stations']:
+                    cur.execute(
+                        "INSERT INTO metro_stations (listing_id, station_name, walk_minutes) VALUES (%s, %s, %s)",
+                        (listing_id, station['station_name'], station['walk_minutes'])
+                    )
             
             # Удаление старых комнат и добавление новых
             if 'rooms' in body:
@@ -170,6 +181,15 @@ def handler(event: dict, context) -> dict:
             ))
             
             updated_listing = cur.fetchone()
+            
+            # Обновление станций метро
+            if 'metro_stations' in body:
+                cur.execute("DELETE FROM metro_stations WHERE listing_id = %s", (listing_id,))
+                for station in body['metro_stations']:
+                    cur.execute(
+                        "INSERT INTO metro_stations (listing_id, station_name, walk_minutes) VALUES (%s, %s, %s)",
+                        (listing_id, station['station_name'], station['walk_minutes'])
+                    )
             
             # Обновление комнат
             if 'rooms' in body:

@@ -148,7 +148,18 @@ export default function ListingPage() {
                   <div className="space-y-2 text-sm">
                     <p className="text-muted-foreground">{listing.city}</p>
                     <p className="text-muted-foreground">{listing.district}</p>
-                    {listing.metro && listing.metro !== '-' && (
+                    {listing.metro_stations && listing.metro_stations.length > 0 ? (
+                      <div className="space-y-1">
+                        {listing.metro_stations.map((station: any, idx: number) => (
+                          <div key={idx} className="flex items-center gap-2 text-muted-foreground">
+                            <span className="text-blue-600">Ⓜ️</span>
+                            <span>{station.station_name}</span>
+                            <Icon name="PersonStanding" size={14} className="ml-1" />
+                            <span>{station.walk_minutes} мин</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : listing.metro && listing.metro !== '-' && (
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <span className="text-blue-600">Ⓜ️</span>
                         <span>{listing.metro}</span>

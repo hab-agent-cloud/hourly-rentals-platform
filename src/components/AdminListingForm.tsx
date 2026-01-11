@@ -234,6 +234,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       logo_url: listing?.logo_url || '',
       metro: listing?.metro || '',
       metro_walk: listing?.metro_walk || 0,
+      metro_stations: listing?.metro_stations || [],
       has_parking: listing?.has_parking || false,
       features: listing?.features || [],
       lat: listing?.lat || 0,
@@ -1180,27 +1181,86 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
           <Card>
             <CardHeader>
-              <CardTitle>Метро</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="Train" size={20} />
+                Станции метро
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Станция метро</label>
-                  <Input
-                    value={formData.metro}
-                    onChange={(e) => setFormData({ ...formData, metro: e.target.value })}
-                    placeholder="Арбатская"
-                  />
+              {/* Список добавленных станций */}
+              {formData.metro_stations && formData.metro_stations.length > 0 && (
+                <div className="space-y-2">
+                  {formData.metro_stations.map((station: any, idx: number) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="flex items-center gap-3">
+                        <Icon name="Train" size={16} className="text-purple-600" />
+                        <div>
+                          <div className="font-medium">{station.station_name}</div>
+                          <div className="text-xs text-muted-foreground">{station.walk_minutes} мин пешком</div>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const updated = formData.metro_stations.filter((_: any, i: number) => i !== idx);
+                          setFormData({ ...formData, metro_stations: updated });
+                          toast({ title: 'Станция удалена' });
+                        }}
+                      >
+                        <Icon name="Trash2" size={16} className="text-red-600" />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
+              )}
 
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Минут пешком</label>
-                  <Input
-                    type="number"
-                    value={formData.metro_walk}
-                    onChange={(e) => setFormData({ ...formData, metro_walk: parseInt(e.target.value) })}
-                  />
+              {/* Форма добавления новой станции */}
+              <div className="p-4 border-2 border-dashed border-purple-200 rounded-lg bg-purple-50/50 space-y-3">
+                <div className="font-medium text-sm flex items-center gap-2">
+                  <Icon name="Plus" size={16} />
+                  Добавить станцию метро
                 </div>
+                <div className="grid grid-cols-[1fr_120px_auto] gap-3">
+                  <Input
+                    id="new-metro-station"
+                    placeholder="Название станции"
+                  />
+                  <Input
+                    id="new-metro-walk"
+                    type="number"
+                    placeholder="Мин"
+                    defaultValue="5"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      const stationInput = document.getElementById('new-metro-station') as HTMLInputElement;
+                      const walkInput = document.getElementById('new-metro-walk') as HTMLInputElement;
+                      const stationName = stationInput?.value.trim();
+                      const walkMinutes = parseInt(walkInput?.value || '5');
+                      
+                      if (stationName) {
+                        const newStation = { station_name: stationName, walk_minutes: walkMinutes };
+                        setFormData({
+                          ...formData,
+                          metro_stations: [...(formData.metro_stations || []), newStation]
+                        });
+                        stationInput.value = '';
+                        walkInput.value = '5';
+                        toast({ title: 'Станция добавлена', description: stationName });
+                      } else {
+                        toast({ title: 'Ошибка', description: 'Введите название станции', variant: 'destructive' });
+                      }
+                    }}
+                  >
+                    <Icon name="Plus" size={16} />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Можно добавить несколько станций метро, если объект находится рядом с ними
+                </p>
               </div>
             </CardContent>
           </Card>

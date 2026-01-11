@@ -241,7 +241,18 @@ export default function ListingsView({
                     <Icon name="MapPin" size={14} />
                     <span>{listing.city}, {listing.district}</span>
                   </div>
-                  {listing.metro !== '-' && (
+                  {listing.metro_stations && listing.metro_stations.length > 0 ? (
+                    <div className="flex flex-col gap-1 mt-1">
+                      {listing.metro_stations.map((station: any, idx: number) => (
+                        <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span className="text-blue-600">Ⓜ️</span>
+                          <span>{station.station_name}</span>
+                          <Icon name="PersonStanding" size={14} className="ml-1" />
+                          <span>{station.walk_minutes} мин</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : listing.metro !== '-' && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                       <span className="text-blue-600">Ⓜ️</span>
                       <span>{listing.metro}</span>
