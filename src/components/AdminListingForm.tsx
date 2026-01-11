@@ -198,9 +198,9 @@ function SortableRoomItem({ room, index, onEdit, onRemove, onDuplicate, isEditin
   );
 }
 
-// BUILD VERSION: dbcd469-CACHE-BUSTER-2025-01-11-v3
+// BUILD VERSION: 6f87249-QUICK-BUTTONS-v4
 export default function AdminListingForm({ listing, token, onClose }: AdminListingFormProps) {
-  console.log('✅ AdminListingForm component loaded - VERSION 3.0 - BUILD dbcd469');
+  console.log('✅ AdminListingForm component loaded - VERSION 4.0 - BUILD 6f87249 - Быстрые ярлыки добавлены');
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
