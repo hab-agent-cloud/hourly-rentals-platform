@@ -390,6 +390,14 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       let finalData = { ...formData };
       
       // ⚠️ ВАЖНО: Автоматически добавляем незавершенную комнату перед сохранением
+      console.log('🔍 Checking newRoom:', {
+        type: newRoom.type,
+        price: newRoom.price,
+        hasType: !!newRoom.type,
+        hasPrice: newRoom.price > 0,
+        willAutoAdd: !!(newRoom.type && newRoom.price > 0)
+      });
+      
       if (newRoom.type && newRoom.price > 0) {
         const roomToAdd = {
           type: newRoom.type,
