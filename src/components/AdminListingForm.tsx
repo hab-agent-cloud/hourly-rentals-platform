@@ -198,8 +198,9 @@ function SortableRoomItem({ room, index, onEdit, onRemove, onDuplicate, isEditin
   );
 }
 
+// BUILD VERSION: dbcd469-CACHE-BUSTER-2025-01-11-v3
 export default function AdminListingForm({ listing, token, onClose }: AdminListingFormProps) {
-  console.log('✅ AdminListingForm component loaded - VERSION 2.0');
+  console.log('✅ AdminListingForm component loaded - VERSION 3.0 - BUILD dbcd469');
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
