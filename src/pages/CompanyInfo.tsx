@@ -84,25 +84,6 @@ export default function CompanyInfo() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="FileText" size={24} />
-                Правовая информация
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <div className="text-sm text-muted-foreground mb-1">Вид деятельности</div>
-                <div className="font-semibold">Деятельность по предоставлению прочих вспомогательных услуг для бизнеса</div>
-              </div>
-              <div>
-                <div className="text-sm text-muted-foreground mb-1">ОКВЭД</div>
-                <div className="font-semibold">82.99 - Деятельность по предоставлению прочих вспомогательных услуг для бизнеса</div>
-              </div>
-            </CardContent>
-          </Card>
-
           <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -120,7 +101,7 @@ export default function CompanyInfo() {
               </p>
               <p>
                 Все договоры заключаются напрямую между клиентом и собственником объекта. 
-                Платформа взимает комиссию с владельцев за размещение и продвижение их предложений.
+                Платформа взимает ежемесячную плату с владельцев за размещение и продвижение их предложений.
               </p>
               <div className="pt-3 border-t">
                 <p className="text-xs text-muted-foreground">
