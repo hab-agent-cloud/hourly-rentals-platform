@@ -126,12 +126,29 @@ export default function Index() {
                           <p className="text-sm text-muted-foreground mb-4">
                             Управляйте своими объектами и бронированиями
                           </p>
-                          <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-md hover:shadow-lg transition-all">
+                          <Button 
+                            onClick={() => window.location.href = '/owner/login'}
+                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-md hover:shadow-lg transition-all"
+                          >
                             Войти
                           </Button>
                         </div>
                       </CardContent>
                     </Card>
+                    <div className="pt-4 border-t space-y-2 text-center text-sm text-muted-foreground">
+                      <a href="/company-info" className="block hover:text-purple-600 transition-colors">
+                        <Icon name="Building2" size={16} className="inline mr-1" />
+                        Реквизиты компании
+                      </a>
+                      <a href="/company-info" className="block hover:text-purple-600 transition-colors">
+                        <Icon name="FileText" size={16} className="inline mr-1" />
+                        Политика конфиденциальности
+                      </a>
+                      <a href="/company-info" className="block hover:text-purple-600 transition-colors">
+                        <Icon name="Scale" size={16} className="inline mr-1" />
+                        Пользовательское соглашение
+                      </a>
+                    </div>
                   </div>
                 </SheetContent>
               </Sheet>
