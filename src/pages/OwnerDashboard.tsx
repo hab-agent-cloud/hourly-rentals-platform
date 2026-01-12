@@ -260,6 +260,10 @@ export default function OwnerDashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle>Пополнить баланс</CardTitle>
+                  <CardDescription className="flex items-center gap-1 text-xs">
+                    <Icon name="CreditCard" size={14} />
+                    Оплата картой через T-Pay (Тинькофф)
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -289,6 +293,9 @@ export default function OwnerDashboard() {
                         </Button>
                       ))}
                     </div>
+                  </div>
+                  <div className="pt-2 border-t text-xs text-muted-foreground text-center">
+                    Безопасная оплата банковской картой
                   </div>
                 </CardContent>
               </Card>
