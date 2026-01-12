@@ -103,10 +103,12 @@ export default function CompanyInfo() {
                 Все договоры заключаются напрямую между клиентом и собственником объекта. 
                 Платформа взимает ежемесячную плату с владельцев за размещение и продвижение их предложений.
               </p>
-              <div className="pt-3 border-t">
-                <p className="text-xs text-muted-foreground">
-                  Политика конфиденциальности | Пользовательское соглашение | Публичная оферта
-                </p>
+              <div className="pt-3 border-t text-center">
+                <a href="/offer" className="text-xs text-purple-600 hover:underline">
+                  Публичная оферта
+                </a>
+                <span className="text-xs text-muted-foreground mx-2">|</span>
+                <span className="text-xs text-muted-foreground">Политика конфиденциальности</span>
               </div>
             </CardContent>
           </Card>

@@ -140,13 +140,13 @@ export default function Index() {
                         <Icon name="Building2" size={16} className="inline mr-1" />
                         Реквизиты компании
                       </a>
-                      <a href="/company-info" className="block hover:text-purple-600 transition-colors">
+                      <a href="/offer" className="block hover:text-purple-600 transition-colors">
                         <Icon name="FileText" size={16} className="inline mr-1" />
-                        Политика конфиденциальности
+                        Публичная оферта
                       </a>
                       <a href="/company-info" className="block hover:text-purple-600 transition-colors">
-                        <Icon name="Scale" size={16} className="inline mr-1" />
-                        Пользовательское соглашение
+                        <Icon name="Shield" size={16} className="inline mr-1" />
+                        Политика конфиденциальности
                       </a>
                     </div>
                   </div>
