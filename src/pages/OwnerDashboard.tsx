@@ -627,11 +627,9 @@ export default function OwnerDashboard() {
             </div>
 
             <div className="lg:col-span-2 space-y-6">
-              {selectedListing ? (
-                <>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Бронирование позиций - {selectedListing.city}</CardTitle>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Бронирование позиций - {selectedListing.city}</CardTitle>
                       <CardDescription>
                         Забронируйте позицию вашего отеля. Обновление в 00:00 МСК
                       </CardDescription>
@@ -785,15 +783,16 @@ export default function OwnerDashboard() {
                       )}
                     </CardContent>
                   </Card>
-                </>
-              ) : (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <p className="text-muted-foreground">Выберите отель в разделе "Мои объекты"</p>
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
+                </div>
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-muted-foreground">Выберите отель в разделе "Мои объекты"</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
           </Tabs>
         )}
       </main>
