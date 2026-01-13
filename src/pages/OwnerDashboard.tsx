@@ -5,9 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import HotelSubscriptionCard from '@/components/HotelSubscriptionCard';
 
 interface Owner {
   id: number;
@@ -23,6 +25,20 @@ interface Listing {
   title: string;
   city: string;
   auction: number;
+  type: string;
+  image_url: string;
+  district: string;
+  subscription_expires_at: string | null;
+  is_archived: boolean;
+}
+
+interface SubscriptionInfo {
+  days_left: number | null;
+  price_per_month: number;
+  prices: {
+    '30_days': number;
+    '90_days': number;
+  };
 }
 
 interface AuctionInfo {
@@ -79,10 +95,12 @@ export default function OwnerDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
+  const [subscriptionInfo, setSubscriptionInfo] = useState<Map<number, SubscriptionInfo>>(new Map());
   const [topupAmount, setTopupAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTopupLoading, setIsTopupLoading] = useState(false);
   const [timeUntilReset, setTimeUntilReset] = useState('');
+  const [activeTab, setActiveTab] = useState<'overview' | 'auction'>('overview');
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -133,6 +151,17 @@ export default function OwnerDashboard() {
       const ownerListings = await api.getOwnerListings(token!, parseInt(ownerId!));
       console.log('Received listings:', ownerListings);
       setListings(ownerListings);
+
+      const subMap = new Map<number, SubscriptionInfo>();
+      for (const listing of ownerListings) {
+        try {
+          const subInfo = await api.getSubscriptionInfo(listing.id);
+          subMap.set(listing.id, subInfo);
+        } catch (error) {
+          console.error(`Failed to load subscription for listing ${listing.id}:`, error);
+        }
+      }
+      setSubscriptionInfo(subMap);
 
       if (ownerListings.length > 0) {
         setSelectedListing(ownerListings[0]);
@@ -276,6 +305,39 @@ export default function OwnerDashboard() {
     }
   };
 
+  const handleExtendSubscription = async (listingId: number, days: number) => {
+    setIsLoading(true);
+    try {
+      const response = await api.extendSubscription(token!, parseInt(ownerId!), listingId, days);
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      toast({
+        title: 'Успешно!',
+        description: response.message,
+      });
+
+      await loadOwnerListings();
+      await loadTransactions();
+      
+      const ownerData = localStorage.getItem('ownerData');
+      if (ownerData) {
+        const updatedOwner = JSON.parse(ownerData);
+        setOwner(updatedOwner);
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось продлить подписку',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('ownerToken');
     localStorage.removeItem('ownerId');
@@ -364,6 +426,104 @@ export default function OwnerDashboard() {
             </CardHeader>
           </Card>
         ) : (
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'auction')} className="space-y-6">
+            <TabsList className="grid w-full max-w-md grid-cols-2">
+              <TabsTrigger value="overview">Мои объекты</TabsTrigger>
+              <TabsTrigger value="auction">Аукцион</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {listings.map((listing) => (
+                  <HotelSubscriptionCard
+                    key={listing.id}
+                    listing={listing}
+                    subscriptionInfo={subscriptionInfo.get(listing.id) || null}
+                    onExtend={handleExtendSubscription}
+                    isLoading={isLoading}
+                  />
+                ))}
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>История операций</CardTitle>
+                  <CardDescription>Последние транзакции</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                    {transactions.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Icon name="Receipt" size={48} className="mx-auto mb-2 opacity-20" />
+                        <p>Операций пока нет</p>
+                      </div>
+                    ) : (
+                      transactions.slice(0, 10).map((tx) => (
+                        <div
+                          key={tx.id}
+                          className="flex items-center justify-between p-2 rounded-lg border hover:bg-muted/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Icon
+                              name={
+                                tx.type === 'deposit' ? 'ArrowDownToLine' :
+                                tx.type === 'bonus' ? 'Gift' :
+                                'ArrowUpFromLine'
+                              }
+                              size={16}
+                              className={
+                                tx.type === 'deposit' ? 'text-green-600' :
+                                tx.type === 'bonus' ? 'text-purple-600' :
+                                'text-red-600'
+                              }
+                            />
+                            <div>
+                              <div className="text-sm font-medium">{tx.description}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {new Date(tx.created_at).toLocaleDateString('ru-RU')}
+                              </div>
+                            </div>
+                          </div>
+                          <div className={`text-sm font-bold ${
+                            tx.type === 'deposit' || tx.type === 'bonus' ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {tx.type === 'deposit' || tx.type === 'bonus' ? '+' : ''}{tx.amount} ₽
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="auction" className="space-y-6">
+              <Card>
+                <CardContent className="pt-6">
+                  <Label>Выберите отель для аукциона:</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                    {listings.map((listing) => (
+                      <Button
+                        key={listing.id}
+                        variant={selectedListing?.id === listing.id ? 'default' : 'outline'}
+                        onClick={() => {
+                          setSelectedListing(listing);
+                          loadAuctionInfo(listing.city);
+                          loadStats(listing.id);
+                        }}
+                        className="justify-start h-auto py-3"
+                      >
+                        <div className="text-left">
+                          <div className="font-semibold">{listing.title}</div>
+                          <div className="text-xs opacity-70">{listing.city}</div>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {selectedListing ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1 space-y-6">
               <Card>
@@ -626,9 +786,15 @@ export default function OwnerDashboard() {
                     </CardContent>
                   </Card>
                 </>
+              ) : (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <p className="text-muted-foreground">Выберите отель в разделе "Мои объекты"</p>
+                  </CardContent>
+                </Card>
               )}
-            </div>
-          </div>
+            </TabsContent>
+          </Tabs>
         )}
       </main>
     </div>
