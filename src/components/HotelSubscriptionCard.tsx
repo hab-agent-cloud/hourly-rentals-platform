@@ -14,6 +14,7 @@ interface HotelSubscriptionCardProps {
     image_url: string;
     subscription_expires_at: string | null;
     is_archived: boolean;
+    auction: number;
   };
   subscriptionInfo: {
     days_left: number | null;
@@ -105,9 +106,14 @@ export default function HotelSubscriptionCard({ listing, subscriptionInfo, onExt
         <div>
           <h3 className="font-bold text-lg">{listing.title}</h3>
           <p className="text-sm text-muted-foreground">{listing.city}, {listing.district}</p>
-          <Badge variant="outline" className="mt-1 text-xs">
-            {listing.type === 'hotel' ? 'Отель' : 'Апартаменты'}
-          </Badge>
+          <div className="flex gap-2 mt-1">
+            <Badge variant="outline" className="text-xs">
+              {listing.type === 'hotel' ? 'Отель' : 'Апартаменты'}
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              Позиция #{listing.auction || '—'}
+            </Badge>
+          </div>
         </div>
 
         {daysLeft !== null && !isExpired && (

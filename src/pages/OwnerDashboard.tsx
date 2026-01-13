@@ -611,15 +611,9 @@ export default function OwnerDashboard() {
                     >
                       <div className="font-semibold">{listing.title}</div>
                       <div className="text-sm text-muted-foreground">{listing.city}</div>
-                      {selectedListing?.id === listing.id && auctionInfo ? (
-                        <Badge variant="outline" className="mt-2">
-                          Позиция #{auctionInfo.positions.find(p => p.booking_info?.listing_id === listing.id)?.position || '—'}
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="mt-2 opacity-50">
-                          Выберите для просмотра
-                        </Badge>
-                      )}
+                      <Badge variant="outline" className="mt-2">
+                        Позиция #{listing.auction || '—'}
+                      </Badge>
                     </div>
                   ))}
                 </CardContent>
@@ -642,7 +636,7 @@ export default function OwnerDashboard() {
                               <div>
                                 <div className="text-xs text-purple-700">Ваша позиция</div>
                                 <div className="text-2xl font-bold text-purple-900">
-                                  #{auctionInfo.positions.find(p => p.booking_info?.listing_id === selectedListing.id)?.position || '—'}
+                                  #{selectedListing.auction || '—'}
                                 </div>
                               </div>
                               <div>

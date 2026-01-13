@@ -49,6 +49,30 @@ def handler(event: dict, context) -> dict:
             """, (city,))
             total_positions = cur.fetchone()['total']
             
+            # Получаем текущие позиции из поля auction (фактические позиции)
+            cur.execute("""
+                SELECT 
+                    id as listing_id,
+                    title as listing_title,
+                    owner_id,
+                    auction as position
+                FROM listings
+                WHERE city = %s 
+                  AND is_archived = false
+                  AND auction IS NOT NULL
+                ORDER BY auction ASC
+            """, (city,))
+            
+            current_positions = {}
+            for row in cur.fetchall():
+                current_positions[row['position']] = {
+                    'listing_id': row['listing_id'],
+                    'listing_title': row['listing_title'],
+                    'owner_id': row['owner_id'],
+                    'paid_amount': 0
+                }
+            
+            # Получаем ставки из auction_bids (если есть)
             cur.execute("""
                 SELECT 
                     ab.position,
@@ -73,20 +97,28 @@ def handler(event: dict, context) -> dict:
                     'paid_amount': row['bid_amount']
                 }
             
+            # Объединяем: приоритет у auction_bids, если нет - берём из current_positions
+            final_positions = {}
+            for pos in range(1, total_positions + 1):
+                if pos in booked_positions:
+                    final_positions[pos] = booked_positions[pos]
+                elif pos in current_positions:
+                    final_positions[pos] = current_positions[pos]
+            
             positions = []
             for pos in range(1, total_positions + 1):
                 base_price = get_base_price(pos, total_positions)
                 
-                if pos in booked_positions:
-                    current_bid = booked_positions[pos]['paid_amount']
-                    min_overbid = current_bid + 5
+                if pos in final_positions:
+                    current_bid = final_positions[pos]['paid_amount']
+                    min_overbid = current_bid + 5 if current_bid > 0 else base_price
                     position_data = {
                         'position': pos,
                         'base_price': base_price,
-                        'current_bid': current_bid,
+                        'current_bid': current_bid if current_bid > 0 else None,
                         'min_overbid': min_overbid,
                         'is_booked': True,
-                        'booking_info': booked_positions[pos]
+                        'booking_info': final_positions[pos]
                     }
                 else:
                     position_data = {
