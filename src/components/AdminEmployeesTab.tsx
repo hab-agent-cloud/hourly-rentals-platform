@@ -148,29 +148,25 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
 
   const handleSave = async () => {
     try {
-      const payload = editingEmployee
-        ? { id: editingEmployee.id, ...formData }
-        : formData;
-
-      const response = await fetch(apiUrl, {
-        method: editingEmployee ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        setShowDialog(false);
-        fetchEmployees();
+      if (editingEmployee) {
+        await api.updateEmployee(token, editingEmployee.id, formData);
       } else {
-        const error = await response.json();
-        alert(error.error || 'Ошибка при сохранении');
+        await api.createEmployee(token, formData);
       }
-    } catch (error) {
-      console.error('Failed to save employee:', error);
-      alert('Ошибка при сохранении');
+      
+      toast({
+        title: 'Успешно',
+        description: editingEmployee ? 'Сотрудник обновлен' : 'Сотрудник создан',
+      });
+      
+      setShowDialog(false);
+      fetchEmployees();
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось сохранить',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -178,18 +174,18 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
     if (!confirm('Вы уверены, что хотите удалить этого сотрудника?')) return;
 
     try {
-      const response = await fetch(`${apiUrl}?id=${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      await api.deleteEmployee(token, id);
+      toast({
+        title: 'Успешно',
+        description: 'Сотрудник удален',
       });
-
-      if (response.ok) {
-        fetchEmployees();
-      }
-    } catch (error) {
-      console.error('Failed to delete employee:', error);
+      fetchEmployees();
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось удалить',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -275,6 +271,13 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
                   </div>
 
                   <div className="flex gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(employee)}
+                    >
+                      <Icon name="Edit" size={14} />
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
