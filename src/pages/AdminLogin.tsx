@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState('');
+  const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const data = await api.login(email, password);
+      const data = await api.login(login, password);
 
       if (data.token) {
         localStorage.setItem('adminToken', data.token);
@@ -62,14 +62,14 @@ export default function AdminLogin() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Email</label>
+              <label className="text-sm font-medium mb-2 block">Логин или Email</label>
               <div className="relative">
-                <Icon name="Mail" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Icon name="User" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  type="email"
-                  placeholder="admin@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  placeholder="Логин или email"
+                  value={login}
+                  onChange={(e) => setLogin(e.target.value)}
                   className="pl-10"
                   required
                 />
