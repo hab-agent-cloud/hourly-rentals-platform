@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Request password recovery",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "request",
+        "identifier": "test@example.com"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string",
+        "token": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -7,8 +7,10 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import AdminListingForm from '@/components/AdminListingForm';
+import AdminOwnersTab from '@/components/AdminOwnersTab';
 
 export default function AdminPanel() {
+  const [activeTab, setActiveTab] = useState<'listings' | 'owners'>('listings');
   const [listings, setListings] = useState<any[]>([]);
   const [showArchived, setShowArchived] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,7 +116,7 @@ export default function AdminPanel() {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                   Админ-панель 120 минут
                 </h1>
-                <p className="text-xs text-muted-foreground">Управление объектами</p>
+                <p className="text-xs text-muted-foreground">Управление платформой</p>
               </div>
             </div>
             <Button variant="outline" onClick={handleLogout}>
@@ -126,6 +128,28 @@ export default function AdminPanel() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        <div className="flex items-center gap-3 mb-6 border-b">
+          <Button
+            variant={activeTab === 'listings' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('listings')}
+            className="rounded-b-none"
+          >
+            <Icon name="Hotel" size={18} className="mr-2" />
+            Объекты
+          </Button>
+          <Button
+            variant={activeTab === 'owners' ? 'default' : 'ghost'}
+            onClick={() => setActiveTab('owners')}
+            className="rounded-b-none"
+          >
+            <Icon name="Users" size={18} className="mr-2" />
+            Владельцы
+          </Button>
+        </div>
+
+        {activeTab === 'owners' ? (
+          <AdminOwnersTab token={token!} />
+        ) : (
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <h2 className="text-3xl font-bold">Объекты</h2>
@@ -248,6 +272,7 @@ export default function AdminPanel() {
               Добавить объект
             </Button>
           </div>
+        )}
         )}
       </main>
     </div>

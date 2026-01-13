@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Get all owners unauthorized",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

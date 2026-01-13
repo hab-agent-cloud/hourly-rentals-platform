@@ -11,6 +11,7 @@ import ListingPage from "./pages/ListingPage";
 import RoomDetails from "./pages/RoomDetails";
 import OwnerRegister from "./pages/OwnerRegister";
 import OwnerLogin from "./pages/OwnerLogin";
+import OwnerForgotPassword from "./pages/OwnerForgotPassword";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import CompanyInfo from "./pages/CompanyInfo";
 import Offer from "./pages/Offer";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/owner/register" element={<OwnerRegister />} />
           <Route path="/owner/login" element={<OwnerLogin />} />
+          <Route path="/owner/forgot-password" element={<OwnerForgotPassword />} />
           <Route path="/owner/dashboard" element={<OwnerDashboard />} />
           <Route path="/company-info" element={<CompanyInfo />} />
           <Route path="/offer" element={<Offer />} />

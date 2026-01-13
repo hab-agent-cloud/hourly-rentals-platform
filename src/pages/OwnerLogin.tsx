@@ -101,6 +101,12 @@ export default function OwnerLogin() {
             </Button>
 
             <div className="text-center text-sm text-muted-foreground">
+              <Link to="/owner/forgot-password" className="text-purple-600 hover:underline">
+                Забыли пароль?
+              </Link>
+            </div>
+
+            <div className="text-center text-sm text-muted-foreground">
               Нет аккаунта?{' '}
               <Link to="/owner/register" className="text-purple-600 hover:underline">
                 Зарегистрироваться

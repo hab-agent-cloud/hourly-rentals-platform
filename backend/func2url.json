@@ -1,4 +1,6 @@
 {
+  "admin-owners": "https://functions.poehali.dev/25475092-b74f-493d-a43c-082847302085",
+  "owner-password-recovery": "https://functions.poehali.dev/e8d34dd8-8e0d-4d25-b36b-499898e019c7",
   "payment": "https://functions.poehali.dev/d3177c56-4fe4-4a52-a878-e17cca7a1397",
   "owner-auth": "https://functions.poehali.dev/381f57fd-5365-49e9-bb38-088d8db34102",
   "statistics": "https://functions.poehali.dev/0b408e53-8bd4-4f19-a1b5-9403bb03cffd",
