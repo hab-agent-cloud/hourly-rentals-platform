@@ -150,6 +150,7 @@ export default function AdminPanel() {
         {activeTab === 'owners' ? (
           <AdminOwnersTab token={token!} />
         ) : (
+        <>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <h2 className="text-3xl font-bold">Объекты</h2>
@@ -273,6 +274,7 @@ export default function AdminPanel() {
             </Button>
           </div>
         )}
+        </>
         )}
       </main>
     </div>
