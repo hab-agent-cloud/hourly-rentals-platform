@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
@@ -39,6 +40,7 @@ export default function AdminOwnersTab({ token }: { token: string }) {
   const [selectedOwner, setSelectedOwner] = useState<Owner | null>(null);
   const [availableListings, setAvailableListings] = useState<Listing[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedListingIds, setSelectedListingIds] = useState<number[]>([]);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -109,6 +111,7 @@ export default function AdminOwnersTab({ token }: { token: string }) {
     setSelectedOwner(owner);
     setShowAssignModal(true);
     setSearchQuery('');
+    setSelectedListingIds([]);
     try {
       const data = await api.getAvailableListings(token);
       setAvailableListings(data);
@@ -160,6 +163,50 @@ export default function AdminOwnersTab({ token }: { token: string }) {
         description: error.message || 'Не удалось отвязать отель',
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleBulkAssign = async () => {
+    if (!selectedOwner || selectedListingIds.length === 0) return;
+    
+    try {
+      await Promise.all(
+        selectedListingIds.map(id => 
+          api.assignListingToOwner(token, id, selectedOwner.id)
+        )
+      );
+      toast({
+        title: 'Успешно',
+        description: `Привязано отелей: ${selectedListingIds.length}`,
+      });
+      
+      setSelectedListingIds([]);
+      const data = await api.getAvailableListings(token);
+      setAvailableListings(data);
+      loadOwners();
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось привязать отели',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleToggleListing = (listingId: number) => {
+    setSelectedListingIds(prev => 
+      prev.includes(listingId)
+        ? prev.filter(id => id !== listingId)
+        : [...prev, listingId]
+    );
+  };
+
+  const handleToggleAll = () => {
+    const unassignedListings = filteredListings.filter(l => l.owner_id === null);
+    if (selectedListingIds.length === unassignedListings.length) {
+      setSelectedListingIds([]);
+    } else {
+      setSelectedListingIds(unassignedListings.map(l => l.id));
     }
   };
 
@@ -217,6 +264,26 @@ export default function AdminOwnersTab({ token }: { token: string }) {
               />
             </div>
 
+            {selectedListingIds.length > 0 && (
+              <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
+                <span className="font-semibold">Выбрано отелей: {selectedListingIds.length}</span>
+                <Button onClick={handleBulkAssign}>
+                  <Icon name="Link" size={16} className="mr-2" />
+                  Привязать выбранные
+                </Button>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2 pb-2">
+              <Checkbox
+                checked={selectedListingIds.length === filteredListings.filter(l => l.owner_id === null).length && filteredListings.filter(l => l.owner_id === null).length > 0}
+                onCheckedChange={handleToggleAll}
+              />
+              <Label className="cursor-pointer" onClick={handleToggleAll}>
+                Выбрать все свободные отели
+              </Label>
+            </div>
+
             <div className="space-y-3 max-h-[500px] overflow-y-auto">
               {filteredListings.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">Отели не найдены</p>
@@ -224,7 +291,13 @@ export default function AdminOwnersTab({ token }: { token: string }) {
                 filteredListings.map((listing) => (
                   <Card key={listing.id} className={listing.owner_id === selectedOwner.id ? 'border-purple-500' : ''}>
                     <CardContent className="pt-4">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {listing.owner_id === null && (
+                          <Checkbox
+                            checked={selectedListingIds.includes(listing.id)}
+                            onCheckedChange={() => handleToggleListing(listing.id)}
+                          />
+                        )}
                         <div className="flex-1">
                           <h4 className="font-semibold">{listing.title}</h4>
                           <p className="text-sm text-muted-foreground">
@@ -246,16 +319,17 @@ export default function AdminOwnersTab({ token }: { token: string }) {
                               <Icon name="Unlink" size={16} className="mr-2" />
                               Отвязать
                             </Button>
-                          ) : (
+                          ) : listing.owner_id === null ? (
                             <Button
                               variant="default"
                               size="sm"
                               onClick={() => handleAssignListing(listing)}
-                              disabled={listing.owner_id !== null}
                             >
                               <Icon name="Link" size={16} className="mr-2" />
                               Привязать
                             </Button>
+                          ) : (
+                            <Badge variant="secondary">Занят</Badge>
                           )}
                         </div>
                       </div>
