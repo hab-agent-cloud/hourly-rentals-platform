@@ -19,14 +19,16 @@ def handler(event: dict, context) -> dict:
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     if method != 'POST':
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'})
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
         }
     
     body = json.loads(event.get('body', '{}'))
@@ -39,7 +41,8 @@ def handler(event: dict, context) -> dict:
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Payment gateway not configured'})
+            'body': json.dumps({'error': 'Payment gateway not configured'}),
+            'isBase64Encoded': False
         }
     
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
@@ -54,7 +57,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Invalid amount'})
+                    'body': json.dumps({'error': 'Invalid amount'}),
+                    'isBase64Encoded': False
                 }
             
             cur.execute("SELECT email, full_name FROM owners WHERE id = %s", (owner_id,))
@@ -64,7 +68,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 404,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Owner not found'})
+                    'body': json.dumps({'error': 'Owner not found'}),
+                    'isBase64Encoded': False
                 }
             
             idempotence_key = str(uuid.uuid4())
@@ -110,14 +115,16 @@ def handler(event: dict, context) -> dict:
                             'payment_id': result['id'],
                             'confirmation_url': result['confirmation']['confirmation_url'],
                             'status': result['status']
-                        })
+                        }),
+                        'isBase64Encoded': False
                     }
             except urllib.error.HTTPError as e:
                 error_body = e.read().decode('utf-8')
                 return {
                     'statusCode': 500,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Payment creation failed', 'details': error_body})
+                    'body': json.dumps({'error': 'Payment creation failed', 'details': error_body}),
+                    'isBase64Encoded': False
                 }
         
         elif action == 'webhook':
@@ -157,14 +164,16 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'status': 'ok'})
+                'body': json.dumps({'status': 'ok'}),
+                'isBase64Encoded': False
             }
         
         else:
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Unknown action'})
+                'body': json.dumps({'error': 'Unknown action'}),
+                'isBase64Encoded': False
             }
     
     finally:
