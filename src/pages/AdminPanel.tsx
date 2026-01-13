@@ -95,16 +95,6 @@ export default function AdminPanel() {
     loadListings();
   };
 
-  if (showForm) {
-    return (
-      <AdminListingForm
-        listing={selectedListing}
-        token={token!}
-        onClose={handleFormClose}
-      />
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
@@ -147,7 +137,13 @@ export default function AdminPanel() {
           </Button>
         </div>
 
-        {activeTab === 'owners' ? (
+        {showForm ? (
+          <AdminListingForm
+            listing={selectedListing}
+            token={token!}
+            onClose={handleFormClose}
+          />
+        ) : activeTab === 'owners' ? (
           <AdminOwnersTab token={token!} />
         ) : (
         <>
