@@ -54,9 +54,9 @@ def handler(event: dict, context) -> dict:
                 SELECT 
                     o.id, o.email, o.login, o.full_name, o.phone, 
                     o.balance, o.bonus_balance, o.created_at, o.last_login,
-                    COUNT(DISTINCT h.id) as hotels_count
+                    COUNT(DISTINCT l.id) as hotels_count
                 FROM owners o
-                LEFT JOIN hotels h ON h.owner_id = o.id
+                LEFT JOIN listings l ON l.owner_id = o.id
                 GROUP BY o.id
                 ORDER BY o.id DESC
             """)
