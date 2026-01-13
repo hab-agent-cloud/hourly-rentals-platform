@@ -175,8 +175,12 @@ export const api = {
   // Управление владельцами (админ)
   getOwners: async (token: string) => {
     const response = await fetch(API_URLS.adminOwners, {
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: { 'X-Authorization': `Bearer ${token}` },
     });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
     return response.json();
   },
 
@@ -185,10 +189,14 @@ export const api = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'X-Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
     return response.json();
   },
 
@@ -197,10 +205,14 @@ export const api = {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'X-Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
     return response.json();
   },
 
