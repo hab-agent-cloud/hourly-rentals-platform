@@ -74,6 +74,51 @@ export default function Index() {
                   120 минут
                 </h1>
                 <p className="text-xs md:text-sm text-muted-foreground">Почасовая аренда по всей России</p>
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <button className="text-xs text-purple-600 hover:text-purple-700 underline underline-offset-2 mt-0.5">
+                      Для владельцев
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent className="w-[400px] sm:w-[540px]">
+                    <SheetHeader>
+                      <SheetTitle>Личный кабинет для владельцев</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6 space-y-4">
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-center">
+                            <div className="text-4xl mb-3">👤</div>
+                            <h3 className="font-bold text-lg mb-2">Войдите в аккаунт</h3>
+                            <p className="text-sm text-muted-foreground mb-4">
+                              Управляйте своими объектами и бронированиями
+                            </p>
+                            <Button 
+                              onClick={() => window.location.href = '/owner/login'}
+                              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-md hover:shadow-lg transition-all"
+                            >
+                              Войти
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <div className="pt-4 border-t space-y-2 text-center text-sm text-muted-foreground">
+                        <a href="/company-info" className="block hover:text-purple-600 transition-colors">
+                          <Icon name="Building2" size={16} className="inline mr-1" />
+                          Реквизиты компании
+                        </a>
+                        <a href="/offer" className="block hover:text-purple-600 transition-colors">
+                          <Icon name="FileText" size={16} className="inline mr-1" />
+                          Публичная оферта
+                        </a>
+                        <a href="/company-info" className="block hover:text-purple-600 transition-colors">
+                          <Icon name="Shield" size={16} className="inline mr-1" />
+                          Политика конфиденциальности
+                        </a>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
             </div>
 
@@ -106,52 +151,6 @@ export default function Index() {
               >
                 Поддержка
               </Button>
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all">
-                    <Icon name="User" size={18} className="mr-2" />
-                    Личный кабинет для владельцев
-                  </Button>
-                </SheetTrigger>
-                <SheetContent className="w-[400px] sm:w-[540px]">
-                  <SheetHeader>
-                    <SheetTitle>Личный кабинет для владельцев</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6 space-y-4">
-                    <Card>
-                      <CardContent className="pt-6">
-                        <div className="text-center">
-                          <div className="text-4xl mb-3">👤</div>
-                          <h3 className="font-bold text-lg mb-2">Войдите в аккаунт</h3>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            Управляйте своими объектами и бронированиями
-                          </p>
-                          <Button 
-                            onClick={() => window.location.href = '/owner/login'}
-                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-md hover:shadow-lg transition-all"
-                          >
-                            Войти
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <div className="pt-4 border-t space-y-2 text-center text-sm text-muted-foreground">
-                      <a href="/company-info" className="block hover:text-purple-600 transition-colors">
-                        <Icon name="Building2" size={16} className="inline mr-1" />
-                        Реквизиты компании
-                      </a>
-                      <a href="/offer" className="block hover:text-purple-600 transition-colors">
-                        <Icon name="FileText" size={16} className="inline mr-1" />
-                        Публичная оферта
-                      </a>
-                      <a href="/company-info" className="block hover:text-purple-600 transition-colors">
-                        <Icon name="Shield" size={16} className="inline mr-1" />
-                        Политика конфиденциальности
-                      </a>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
             </nav>
 
             <Button variant="ghost" size="icon" className="md:hidden">
