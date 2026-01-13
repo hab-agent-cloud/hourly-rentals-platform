@@ -4,6 +4,7 @@ const API_URLS = {
   adminUpload: 'https://functions.poehali.dev/22c1da70-b8a6-4b5e-81b8-330b559a8943',
   adminOwners: 'https://functions.poehali.dev/25475092-b74f-493d-a43c-082847302085',
   adminEmployees: 'https://functions.poehali.dev/ca59381a-030d-421c-8c98-057bb7ae12e4',
+  employeeBonuses: 'https://functions.poehali.dev/e7b4566b-8aa8-4db2-a866-4ba2231208a3',
   ownerListings: 'https://functions.poehali.dev/f431775b-031f-4417-b3eb-9e0475119162',
   publicListings: 'https://functions.poehali.dev/38a2f104-026e-40ea-80dc-0c07c014f868',
   ownerAuth: 'https://functions.poehali.dev/381f57fd-5365-49e9-bb38-088d8db34102',
@@ -428,6 +429,62 @@ export const api = {
       headers: {
         'X-Authorization': `Bearer ${token}`,
       },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Управление бонусами сотрудников
+  getBonusStats: async (token: string) => {
+    const response = await fetch(API_URLS.employeeBonuses, {
+      headers: { 'X-Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
+  getEmployeeBonuses: async (token: string, adminId: number, showPaid = false) => {
+    const url = `${API_URLS.employeeBonuses}?admin_id=${adminId}${showPaid ? '&paid=true' : ''}`;
+    const response = await fetch(url, {
+      headers: { 'X-Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
+  markBonusesPaid: async (token: string, bonusIds: number[]) => {
+    const response = await fetch(API_URLS.employeeBonuses, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ action: 'mark_paid', bonus_ids: bonusIds }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
+  markBonusesUnpaid: async (token: string, bonusIds: number[]) => {
+    const response = await fetch(API_URLS.employeeBonuses, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ action: 'mark_unpaid', bonus_ids: bonusIds }),
     });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: 'Network error' }));

@@ -148,6 +148,29 @@ def handler(event: dict, context) -> dict:
                 })
             ))
             
+            # Начисление бонуса сотруднику за добавление объекта
+            listing_type = body.get('type', '').lower()
+            bonus_amount = 0
+            
+            if 'отель' in listing_type or 'гостиница' in listing_type or 'hotel' in listing_type:
+                bonus_amount = 200
+            elif 'апартамент' in listing_type or 'apartment' in listing_type or 'квартира' in listing_type:
+                bonus_amount = 100
+            
+            if bonus_amount > 0:
+                cur.execute("""
+                    INSERT INTO t_p39732784_hourly_rentals_platf.employee_bonuses
+                    (admin_id, entity_type, entity_id, entity_name, bonus_amount, notes)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (
+                    admin.get('admin_id'),
+                    'listing',
+                    listing_id,
+                    body['title'],
+                    bonus_amount,
+                    f'Добавление: {body["type"]} в городе {body["city"]}'
+                ))
+            
             conn.commit()
             cur.close()
             conn.close()

@@ -12,6 +12,7 @@ import { api } from '@/lib/api';
 import AdminListingForm from '@/components/AdminListingForm';
 import AdminOwnersTab from '@/components/AdminOwnersTab';
 import AdminEmployeesTab from '@/components/AdminEmployeesTab';
+import AdminBonusesTab from '@/components/AdminBonusesTab';
 
 function LiveCountdown({ expiresAt }: { expiresAt: string | null }) {
   const [timeLeft, setTimeLeft] = useState('');
@@ -52,7 +53,7 @@ function LiveCountdown({ expiresAt }: { expiresAt: string | null }) {
 }
 
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState<'listings' | 'owners' | 'employees'>('listings');
+  const [activeTab, setActiveTab] = useState<'listings' | 'owners' | 'employees' | 'bonuses'>('listings');
   const [listings, setListings] = useState<any[]>([]);
   const [showArchived, setShowArchived] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -299,14 +300,24 @@ export default function AdminPanel() {
             </Button>
           )}
           {adminInfo?.role === 'superadmin' && (
-            <Button
-              variant={activeTab === 'employees' ? 'default' : 'ghost'}
-              onClick={() => setActiveTab('employees')}
-              className="rounded-b-none"
-            >
-              <Icon name="UserCog" size={18} className="mr-2" />
-              Сотрудники
-            </Button>
+            <>
+              <Button
+                variant={activeTab === 'employees' ? 'default' : 'ghost'}
+                onClick={() => setActiveTab('employees')}
+                className="rounded-b-none"
+              >
+                <Icon name="UserCog" size={18} className="mr-2" />
+                Сотрудники
+              </Button>
+              <Button
+                variant={activeTab === 'bonuses' ? 'default' : 'ghost'}
+                onClick={() => setActiveTab('bonuses')}
+                className="rounded-b-none"
+              >
+                <Icon name="DollarSign" size={18} className="mr-2" />
+                Выплаты
+              </Button>
+            </>
           )}
         </div>
 
@@ -320,6 +331,8 @@ export default function AdminPanel() {
           <AdminOwnersTab token={token!} />
         ) : activeTab === 'employees' && adminInfo?.role === 'superadmin' ? (
           <AdminEmployeesTab token={token!} />
+        ) : activeTab === 'bonuses' && adminInfo?.role === 'superadmin' ? (
+          <AdminBonusesTab token={token!} />
         ) : hasPermission('listings') ? (
         <>
         <div className="flex items-center justify-between mb-6">
