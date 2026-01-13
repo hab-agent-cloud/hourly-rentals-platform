@@ -48,11 +48,11 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor()
         
-        # Проверка администратора (по логину или email)
+        # Проверка администратора (по логину, email или телефону)
         login_escaped = login.replace("'", "''")
         password_escaped = password.replace("'", "''")
         cur.execute(
-            f"SELECT id, email, name, role, permissions, is_active FROM t_p39732784_hourly_rentals_platf.admins WHERE (login = '{login_escaped}' OR email = '{login_escaped}') AND password_hash = '{password_escaped}' AND is_active = true"
+            f"SELECT id, email, name, role, permissions, is_active FROM t_p39732784_hourly_rentals_platf.admins WHERE (login = '{login_escaped}' OR email = '{login_escaped}' OR phone = '{login_escaped}') AND password_hash = '{password_escaped}' AND is_active = true"
         )
         admin = cur.fetchone()
         
