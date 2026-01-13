@@ -243,7 +243,7 @@ def handler(event: dict, context) -> dict:
                 """, (
                     owner_id, 
                     amount, 
-                    f'Начисление бонусов администратором (ID: {admin["id"]})',
+                    f'Начисление бонусов администратором (ID: {admin.get("admin_id", "unknown")})',
                     owner['balance'] + owner['bonus_balance']
                 ))
                 
