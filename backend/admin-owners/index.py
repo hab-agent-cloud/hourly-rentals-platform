@@ -56,11 +56,21 @@ def handler(event: dict, context) -> dict:
                     o.balance, o.bonus_balance, o.created_at, o.last_login, o.is_archived,
                     COUNT(DISTINCT l.id) as hotels_count
                 FROM owners o
-                LEFT JOIN listings l ON l.owner_id = o.id
+                LEFT JOIN listings l ON l.owner_id = o.id AND l.is_archived = FALSE
                 GROUP BY o.id
                 ORDER BY o.is_archived, o.id DESC
             """)
             owners = cur.fetchall()
+            
+            # Добавляем список отелей для каждого владельца
+            for owner in owners:
+                cur.execute("""
+                    SELECT id, title, city 
+                    FROM listings 
+                    WHERE owner_id = %s AND is_archived = FALSE
+                    ORDER BY title
+                """, (owner['id'],))
+                owner['hotels'] = [dict(row) for row in cur.fetchall()]
             
             return {
                 'statusCode': 200,

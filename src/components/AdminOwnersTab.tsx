@@ -18,6 +18,7 @@ interface Owner {
   balance: number;
   bonus_balance: number;
   hotels_count: number;
+  hotels?: Array<{ id: number; title: string; city: string }>;
   created_at: string;
   last_login?: string;
   is_archived: boolean;
@@ -511,10 +512,6 @@ export default function AdminOwnersTab({ token }: { token: string }) {
                           </div>
                         )}
                         <div className="flex items-center gap-2">
-                          <Icon name="Hotel" size={14} />
-                          <span>Отелей: {owner.hotels_count}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
                           <Icon name="Wallet" size={14} />
                           <span>Баланс: {owner.balance} ₽</span>
                         </div>
@@ -532,6 +529,23 @@ export default function AdminOwnersTab({ token }: { token: string }) {
                           <> • Последний вход: {new Date(owner.last_login).toLocaleDateString('ru-RU')}</>
                         )}
                       </div>
+
+                      {owner.hotels && owner.hotels.length > 0 && (
+                        <div className="mt-3 p-3 bg-purple-50 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Icon name="Hotel" size={16} className="text-purple-600" />
+                            <span className="font-semibold text-sm">Привязанные отели ({owner.hotels.length})</span>
+                          </div>
+                          <div className="space-y-1">
+                            {owner.hotels.map((hotel) => (
+                              <div key={hotel.id} className="text-sm flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">{hotel.city}</Badge>
+                                <span>{hotel.title}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
