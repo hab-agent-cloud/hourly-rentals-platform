@@ -492,39 +492,67 @@ export default function OwnerDashboard() {
                         </div>
                       </div>
 
-                      <div className="border-t pt-4">
-                        <h3 className="font-semibold mb-3">Текущие позиции:</h3>
-                        <div className="space-y-2">
-                          {auctionInfo?.listings.slice(0, 10).map((item, index) => (
-                            <div
-                              key={item.id}
-                              className={`flex items-center justify-between p-2 rounded ${
-                                item.id === selectedListing.id ? 'bg-purple-100' : 'bg-gray-50'
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                                  index === 0 ? 'bg-yellow-400 text-yellow-900' :
-                                  index === 1 ? 'bg-gray-300 text-gray-700' :
-                                  index === 2 ? 'bg-orange-400 text-orange-900' :
-                                  'bg-gray-200 text-gray-600'
-                                }`}>
-                                  {item.current_position}
+                      <div className="border-t pt-4 space-y-4">
+                        <div>
+                          <h3 className="font-semibold mb-3">Ваша позиция:</h3>
+                          {auctionInfo?.listings.find(item => item.id === selectedListing.id) && (
+                            <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-4 rounded-lg border-2 border-purple-300">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-12 h-12 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-xl">
+                                    {auctionInfo.listings.find(item => item.id === selectedListing.id)?.current_position}
+                                  </div>
+                                  <div>
+                                    <div className="font-bold text-lg">{selectedListing.title}</div>
+                                    {auctionInfo.listings.find(item => item.id === selectedListing.id)?.bid_amount && (
+                                      <div className="text-sm text-purple-700">
+                                        Активная ставка: {auctionInfo.listings.find(item => item.id === selectedListing.id)?.bid_amount} ₽
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
-                                <div>
-                                  <div className="font-medium">{item.title}</div>
-                                  {item.bid_amount && (
-                                    <div className="text-sm text-muted-foreground">
-                                      Ставка: {item.bid_amount} ₽
-                                    </div>
-                                  )}
-                                </div>
+                                <Badge variant="secondary" className="bg-purple-200 text-purple-800">
+                                  Ваш отель
+                                </Badge>
                               </div>
-                              {item.id === selectedListing.id && (
-                                <Badge>Ваш объект</Badge>
-                              )}
                             </div>
-                          ))}
+                          )}
+                        </div>
+
+                        <div>
+                          <h3 className="font-semibold mb-3">Топ-10 отелей в городе:</h3>
+                          <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                            {auctionInfo?.listings.slice(0, 10).map((item) => (
+                              <div
+                                key={item.id}
+                                className={`flex items-center justify-between p-3 rounded ${
+                                  item.id === selectedListing.id ? 'bg-purple-50 border-2 border-purple-300' : 'bg-gray-50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
+                                    item.current_position === 1 ? 'bg-yellow-400 text-yellow-900' :
+                                    item.current_position === 2 ? 'bg-gray-300 text-gray-700' :
+                                    item.current_position === 3 ? 'bg-orange-400 text-orange-900' :
+                                    'bg-gray-200 text-gray-600'
+                                  }`}>
+                                    {item.current_position}
+                                  </div>
+                                  <div>
+                                    <div className="font-medium">{item.title}</div>
+                                    {item.bid_amount && (
+                                      <div className="text-sm text-muted-foreground">
+                                        Ставка: {item.bid_amount} ₽
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                {item.id === selectedListing.id && (
+                                  <Badge className="bg-purple-600">Вы</Badge>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </CardContent>

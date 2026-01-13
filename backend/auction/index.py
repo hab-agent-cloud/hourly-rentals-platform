@@ -34,15 +34,22 @@ def handler(event: dict, context) -> dict:
                 }
             
             cur.execute("""
-                SELECT 
-                    l.id, l.title, l.auction as current_position,
-                    ab.bid_amount, ab.position as target_position,
-                    o.full_name as owner_name
-                FROM listings l
-                LEFT JOIN auction_bids ab ON l.id = ab.listing_id AND ab.city = %s AND ab.status = 'active'
-                LEFT JOIN owners o ON ab.owner_id = o.id
-                WHERE l.city = %s AND l.is_archived = false
-                ORDER BY l.auction ASC
+                WITH ranked_listings AS (
+                    SELECT 
+                        l.id, 
+                        l.title, 
+                        ROW_NUMBER() OVER (ORDER BY l.auction ASC, l.id ASC) as actual_position,
+                        l.auction as db_position,
+                        ab.bid_amount, 
+                        ab.position as target_position,
+                        o.full_name as owner_name
+                    FROM listings l
+                    LEFT JOIN auction_bids ab ON l.id = ab.listing_id AND ab.city = %s AND ab.status = 'active'
+                    LEFT JOIN owners o ON ab.owner_id = o.id
+                    WHERE l.city = %s AND l.is_archived = false
+                )
+                SELECT * FROM ranked_listings
+                ORDER BY actual_position ASC
             """, (city, city))
             
             listings = []
@@ -51,9 +58,10 @@ def handler(event: dict, context) -> dict:
                     'id': row[0],
                     'title': row[1],
                     'current_position': row[2],
-                    'bid_amount': row[3],
-                    'target_position': row[4],
-                    'owner_name': row[5]
+                    'db_position': row[3],
+                    'bid_amount': row[4],
+                    'target_position': row[5],
+                    'owner_name': row[6]
                 })
             
             min_bid = 20
