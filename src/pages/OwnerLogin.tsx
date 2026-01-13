@@ -9,7 +9,7 @@ import { api } from '@/lib/api';
 import Icon from '@/components/ui/icon';
 
 export default function OwnerLogin() {
-  const [identifier, setIdentifier] = useState('');
+  const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ export default function OwnerLogin() {
     setIsLoading(true);
 
     try {
-      const response = await api.ownerLogin(identifier, password);
+      const response = await api.ownerLogin(login, password);
 
       if (response.error) {
         throw new Error(response.error);
@@ -62,15 +62,18 @@ export default function OwnerLogin() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="identifier">Телефон или Email</Label>
+              <Label htmlFor="login">Логин (номер телефона)</Label>
               <Input
-                id="identifier"
+                id="login"
                 type="text"
-                placeholder="+7 999 123-45-67 или owner@example.com"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="89991234567"
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                Логин выдаёт администратор
+              </p>
             </div>
 
             <div className="space-y-2">

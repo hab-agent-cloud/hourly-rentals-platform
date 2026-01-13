@@ -399,12 +399,17 @@ export default function AdminOwnersTab({ token }: { token: string }) {
               </div>
 
               <div>
-                <Label htmlFor="login">Логин (опционально)</Label>
+                <Label htmlFor="login">Логин (номер телефона для входа) *</Label>
                 <Input
                   id="login"
+                  placeholder="89991234567"
                   value={formData.login}
                   onChange={(e) => setFormData({ ...formData, login: e.target.value })}
+                  required
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Этот номер владелец будет использовать для входа в личный кабинет
+                </p>
               </div>
 
               <div>

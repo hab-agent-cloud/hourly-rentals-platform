@@ -110,12 +110,12 @@ export default function Index() {
                 <SheetTrigger asChild>
                   <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all">
                     <Icon name="User" size={18} className="mr-2" />
-                    Личный кабинет
+                    Личный кабинет для владельцев
                   </Button>
                 </SheetTrigger>
                 <SheetContent className="w-[400px] sm:w-[540px]">
                   <SheetHeader>
-                    <SheetTitle>Личный кабинет</SheetTitle>
+                    <SheetTitle>Личный кабинет для владельцев</SheetTitle>
                   </SheetHeader>
                   <div className="mt-6 space-y-4">
                     <Card>

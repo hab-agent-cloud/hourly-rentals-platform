@@ -115,11 +115,11 @@ export const api = {
     return response.json();
   },
 
-  ownerLogin: async (identifier: string, password: string) => {
+  ownerLogin: async (login: string, password: string) => {
     const response = await fetch(API_URLS.ownerAuth, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'login', identifier, password }),
+      body: JSON.stringify({ action: 'login', login, password }),
     });
     return response.json();
   },
