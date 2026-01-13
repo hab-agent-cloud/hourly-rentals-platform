@@ -128,6 +128,26 @@ def handler(event: dict, context) -> dict:
                           room.get('min_hours', 1), room.get('payment_methods', 'Наличные, банковская карта при заселении'),
                           room.get('cancellation_policy', 'Бесплатная отмена за 1 час до заселения')))
             
+            # Логирование действия
+            cur.execute("""
+                INSERT INTO t_p39732784_hourly_rentals_platf.admin_action_logs 
+                (admin_id, action_type, entity_type, entity_id, entity_name, description, metadata)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (
+                admin.get('admin_id'),
+                'create',
+                'listing',
+                listing_id,
+                body['title'],
+                f'Добавлен новый объект "{body["title"]}" в городе {body["city"]}',
+                json.dumps({
+                    'type': body['type'],
+                    'city': body['city'],
+                    'district': body['district'],
+                    'price': body['price']
+                })
+            ))
+            
             conn.commit()
             cur.close()
             conn.close()

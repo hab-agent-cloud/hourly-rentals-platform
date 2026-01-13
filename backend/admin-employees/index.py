@@ -1,5 +1,6 @@
 import json
 import os
+import jwt
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
@@ -38,12 +39,25 @@ def handler(event: dict, context) -> dict:
     conn = psycopg2.connect(dsn)
     
     try:
+        # Верификация JWT токена
+        try:
+            jwt_secret = os.environ['JWT_SECRET']
+            payload = jwt.decode(token, jwt_secret, algorithms=['HS256'])
+            admin_id = payload.get('admin_id')
+        except:
+            return {
+                'statusCode': 401,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Invalid token'}),
+                'isBase64Encoded': False
+            }
+        
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Проверка прав доступа - только superadmin
             cur.execute("""
-                SELECT role FROM t_p39732784_hourly_rentals_platf.admins 
-                WHERE login = %s AND is_active = true
-            """, (token,))
+                SELECT id, role, name FROM t_p39732784_hourly_rentals_platf.admins 
+                WHERE id = %s AND is_active = true
+            """, (admin_id,))
             admin = cur.fetchone()
             
             if not admin or admin['role'] != 'superadmin':
@@ -56,20 +70,77 @@ def handler(event: dict, context) -> dict:
             
             # GET - получить список всех сотрудников
             if method == 'GET':
-                cur.execute("""
-                    SELECT id, email, name, role, permissions, is_active, 
-                           created_at, last_login, login
-                    FROM t_p39732784_hourly_rentals_platf.admins
-                    ORDER BY created_at DESC
-                """)
-                employees = cur.fetchall()
+                employee_id = event.get('queryStringParameters', {}).get('employee_id')
                 
-                return {
-                    'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps([dict(e) for e in employees], default=str),
-                    'isBase64Encoded': False
-                }
+                if employee_id:
+                    # Получить историю действий конкретного сотрудника
+                    cur.execute("""
+                        SELECT id, email, name, role, permissions, is_active, 
+                               created_at, last_login, login
+                        FROM t_p39732784_hourly_rentals_platf.admins
+                        WHERE id = %s
+                    """, (employee_id,))
+                    employee = cur.fetchone()
+                    
+                    if not employee:
+                        return {
+                            'statusCode': 404,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Employee not found'}),
+                            'isBase64Encoded': False
+                        }
+                    
+                    # Получить историю действий
+                    cur.execute("""
+                        SELECT 
+                            l.id, l.action_type, l.entity_type, l.entity_id, 
+                            l.entity_name, l.description, l.created_at, l.metadata
+                        FROM t_p39732784_hourly_rentals_platf.admin_action_logs l
+                        WHERE l.admin_id = %s
+                        ORDER BY l.created_at DESC
+                        LIMIT 100
+                    """, (employee_id,))
+                    actions = cur.fetchall()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({
+                            'employee': dict(employee),
+                            'actions': [dict(a) for a in actions]
+                        }, default=str),
+                        'isBase64Encoded': False
+                    }
+                else:
+                    # Получить список всех сотрудников
+                    cur.execute("""
+                        SELECT id, email, name, role, permissions, is_active, 
+                               created_at, last_login, login
+                        FROM t_p39732784_hourly_rentals_platf.admins
+                        ORDER BY created_at DESC
+                    """)
+                    employees = cur.fetchall()
+                    
+                    # Получить количество действий для каждого сотрудника
+                    cur.execute("""
+                        SELECT admin_id, COUNT(*) as action_count
+                        FROM t_p39732784_hourly_rentals_platf.admin_action_logs
+                        GROUP BY admin_id
+                    """)
+                    action_counts = {row['admin_id']: row['action_count'] for row in cur.fetchall()}
+                    
+                    employees_with_counts = []
+                    for emp in employees:
+                        emp_dict = dict(emp)
+                        emp_dict['action_count'] = action_counts.get(emp['id'], 0)
+                        employees_with_counts.append(emp_dict)
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps(employees_with_counts, default=str),
+                        'isBase64Encoded': False
+                    }
             
             # POST - создать нового сотрудника
             elif method == 'POST':

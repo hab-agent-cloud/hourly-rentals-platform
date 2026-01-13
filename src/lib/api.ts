@@ -3,6 +3,7 @@ const API_URLS = {
   adminListings: 'https://functions.poehali.dev/5dea57de-4652-4870-b39f-6b34e594bc21',
   adminUpload: 'https://functions.poehali.dev/22c1da70-b8a6-4b5e-81b8-330b559a8943',
   adminOwners: 'https://functions.poehali.dev/25475092-b74f-493d-a43c-082847302085',
+  adminEmployees: 'https://functions.poehali.dev/ca59381a-030d-421c-8c98-057bb7ae12e4',
   ownerListings: 'https://functions.poehali.dev/f431775b-031f-4417-b3eb-9e0475119162',
   publicListings: 'https://functions.poehali.dev/38a2f104-026e-40ea-80dc-0c07c014f868',
   ownerAuth: 'https://functions.poehali.dev/381f57fd-5365-49e9-bb38-088d8db34102',
@@ -358,6 +359,29 @@ export const api = {
         'X-Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ action: 'update_position', listing_id: listingId, position: newPosition }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Управление сотрудниками
+  getEmployees: async (token: string) => {
+    const response = await fetch(API_URLS.adminEmployees, {
+      headers: { 'X-Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
+  getEmployeeDetails: async (token: string, employeeId: number) => {
+    const response = await fetch(`${API_URLS.adminEmployees}?employee_id=${employeeId}`, {
+      headers: { 'X-Authorization': `Bearer ${token}` },
     });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: 'Network error' }));

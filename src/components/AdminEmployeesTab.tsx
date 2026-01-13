@@ -20,7 +20,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
-import func2url from '../../backend/func2url.json';
+import { api } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 interface Employee {
   id: number;
@@ -36,6 +37,18 @@ interface Employee {
   is_active: boolean;
   created_at: string;
   last_login?: string;
+  action_count?: number;
+}
+
+interface EmployeeAction {
+  id: number;
+  action_type: string;
+  entity_type: string;
+  entity_id: number;
+  entity_name: string;
+  description: string;
+  created_at: string;
+  metadata: any;
 }
 
 interface AdminEmployeesTabProps {
@@ -43,9 +56,13 @@ interface AdminEmployeesTabProps {
 }
 
 export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
+  const { toast } = useToast();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [employeeActions, setEmployeeActions] = useState<EmployeeAction[]>([]);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [formData, setFormData] = useState({
     email: '',
@@ -61,27 +78,39 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
     is_active: true,
   });
 
-  const apiUrl = func2url['admin-employees'];
-
   useEffect(() => {
     fetchEmployees();
   }, []);
 
   const fetchEmployees = async () => {
     try {
-      const response = await fetch(apiUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setEmployees(data);
-      }
-    } catch (error) {
+      const data = await api.getEmployees(token);
+      console.log('Employees data:', data);
+      setEmployees(data);
+    } catch (error: any) {
       console.error('Failed to fetch employees:', error);
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось загрузить сотрудников',
+        variant: 'destructive',
+      });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchEmployeeDetails = async (employeeId: number) => {
+    try {
+      const data = await api.getEmployeeDetails(token, employeeId);
+      setSelectedEmployee(data.employee);
+      setEmployeeActions(data.actions);
+      setShowDetailsDialog(true);
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось загрузить данные',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -250,10 +279,10 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
                       variant="outline"
                       size="sm"
                       className="flex-1"
-                      onClick={() => handleEdit(employee)}
+                      onClick={() => fetchEmployeeDetails(employee.id)}
                     >
-                      <Icon name="Edit" size={16} className="mr-1" />
-                      Редактировать
+                      <Icon name="History" size={16} className="mr-1" />
+                      История ({employee.action_count || 0})
                     </Button>
                     <Button
                       variant="outline"
@@ -449,6 +478,100 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
               {editingEmployee ? 'Сохранить' : 'Создать'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">
+              История действий: {selectedEmployee?.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedEmployee && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
+                <div>
+                  <div className="text-sm text-muted-foreground">Email</div>
+                  <div className="font-medium">{selectedEmployee.email}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">Логин</div>
+                  <div className="font-medium">@{selectedEmployee.login}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">Роль</div>
+                  <Badge variant={selectedEmployee.role === 'superadmin' ? 'default' : 'secondary'}>
+                    {selectedEmployee.role === 'superadmin' ? 'Суперадмин' : 'Сотрудник'}
+                  </Badge>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">Всего действий</div>
+                  <div className="font-medium">{employeeActions.length}</div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Последние действия</h3>
+                {employeeActions.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Icon name="FileX" size={48} className="mx-auto mb-2 opacity-20" />
+                    <p>Нет записей о действиях</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {employeeActions.map((action) => (
+                      <Card key={action.id} className="p-4">
+                        <div className="flex items-start gap-4">
+                          <div className="mt-1">
+                            {action.action_type === 'create' && (
+                              <div className="p-2 bg-green-100 rounded-full">
+                                <Icon name="Plus" size={20} className="text-green-600" />
+                              </div>
+                            )}
+                            {action.action_type === 'update' && (
+                              <div className="p-2 bg-blue-100 rounded-full">
+                                <Icon name="Edit" size={20} className="text-blue-600" />
+                              </div>
+                            )}
+                            {action.action_type === 'delete' && (
+                              <div className="p-2 bg-red-100 rounded-full">
+                                <Icon name="Trash2" size={20} className="text-red-600" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge variant="outline" className="text-xs">
+                                {action.entity_type === 'listing' && 'Объект'}
+                                {action.entity_type === 'owner' && 'Владелец'}
+                                {action.entity_type === 'employee' && 'Сотрудник'}
+                              </Badge>
+                              <span className="text-sm font-semibold">{action.entity_name}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {action.description}
+                            </p>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Icon name="Clock" size={12} />
+                              {new Date(action.created_at).toLocaleString('ru-RU', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
