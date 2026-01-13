@@ -60,7 +60,7 @@ export default function AdminLogin() {
           <p className="text-muted-foreground mt-2">Вход в админ-панель</p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4" noValidate>
             <div>
               <label className="text-sm font-medium mb-2 block">Логин или Email</label>
               <div className="relative">
@@ -86,6 +86,7 @@ export default function AdminLogin() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
+                  autoComplete="current-password"
                   required
                 />
               </div>
