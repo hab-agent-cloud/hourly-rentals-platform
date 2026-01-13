@@ -96,6 +96,22 @@ def handler(event: dict, context) -> dict:
                 },
                 'capture': True,
                 'description': f'Пополнение баланса для {owner[1]}',
+                'receipt': {
+                    'customer': {
+                        'email': owner[0]
+                    },
+                    'items': [
+                        {
+                            'description': 'Пополнение баланса на платформе 120 минут',
+                            'quantity': '1.00',
+                            'amount': {
+                                'value': f'{amount}.00',
+                                'currency': 'RUB'
+                            },
+                            'vat_code': 1
+                        }
+                    ]
+                },
                 'metadata': {
                     'owner_id': str(owner_id),
                     'type': 'balance_topup'
