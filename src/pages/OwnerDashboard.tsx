@@ -62,7 +62,9 @@ export default function OwnerDashboard() {
   const [auctionInfo, setAuctionInfo] = useState<AuctionInfo | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [bidAmount, setBidAmount] = useState('');
+  const [topupAmount, setTopupAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isTopupLoading, setIsTopupLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -198,6 +200,37 @@ export default function OwnerDashboard() {
     }
   };
 
+  const handleTopup = async () => {
+    const amount = parseInt(topupAmount);
+    if (!amount || amount < 100) {
+      toast({
+        title: 'Ошибка',
+        description: 'Минимальная сумма пополнения: 100 ₽',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsTopupLoading(true);
+
+    try {
+      const response = await api.createPayment(parseInt(ownerId!), amount);
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      window.location.href = response.confirmation_url;
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось создать платёж',
+        variant: 'destructive',
+      });
+      setIsTopupLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('ownerToken');
     localStorage.removeItem('ownerId');
@@ -228,15 +261,46 @@ export default function OwnerDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="text-sm text-muted-foreground">Баланс</div>
-                <div className="text-xl font-bold text-purple-600">
-                  {totalBalance} ₽
+              <Card className="px-4 py-3">
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="text-sm text-muted-foreground">Баланс</div>
+                    <div className="text-xl font-bold text-purple-600">
+                      {totalBalance} ₽
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {owner.balance} ₽ + {owner.bonus_balance} бонусных
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        placeholder="Сумма"
+                        value={topupAmount}
+                        onChange={(e) => setTopupAmount(e.target.value)}
+                        className="w-28"
+                        min="100"
+                      />
+                      <Button
+                        onClick={handleTopup}
+                        disabled={isTopupLoading}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        {isTopupLoading ? (
+                          <Icon name="Loader2" size={16} className="animate-spin" />
+                        ) : (
+                          <>
+                            <Icon name="Wallet" size={16} className="mr-1" />
+                            Пополнить
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    <span className="text-xs text-muted-foreground text-center">мин. 100₽</span>
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  {owner.balance} ₽ + {owner.bonus_balance} бонусных
-                </div>
-              </div>
+              </Card>
               <Button variant="outline" onClick={handleLogout}>
                 <Icon name="LogOut" size={18} className="mr-2" />
                 Выйти
