@@ -46,7 +46,8 @@ def handler(event: dict, context) -> dict:
             if owner_id:
                 # Получить отели конкретного владельца (доступно всем с токеном)
                 cur.execute("""
-                    SELECT id, title, city, district, owner_id, is_archived, auction
+                    SELECT id, title, city, district, owner_id, is_archived, auction,
+                           type, image_url, subscription_expires_at
                     FROM listings
                     WHERE owner_id = %s AND is_archived = FALSE
                     ORDER BY title
