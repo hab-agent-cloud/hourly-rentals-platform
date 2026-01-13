@@ -105,6 +105,11 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
+            # Получаем старого владельца перед обновлением
+            cur.execute("SELECT owner_id FROM listings WHERE id = %s", (listing_id,))
+            old_owner = cur.fetchone()
+            old_owner_id = old_owner['owner_id'] if old_owner else None
+            
             # Если owner_id = None, значит отвязываем отель
             cur.execute("""
                 UPDATE listings 
@@ -114,6 +119,21 @@ def handler(event: dict, context) -> dict:
             """, (owner_id, listing_id))
             
             result = cur.fetchone()
+            
+            # Если привязываем к новому владельцу (не отвязываем), начисляем бонус 5000₽
+            if owner_id is not None and old_owner_id != owner_id:
+                cur.execute("""
+                    UPDATE owners 
+                    SET bonus_balance = bonus_balance + 5000
+                    WHERE id = %s
+                """, (owner_id,))
+                
+                cur.execute("""
+                    INSERT INTO transactions (owner_id, amount, type, description, balance_after)
+                    VALUES (%s, %s, 'bonus', %s, 
+                            (SELECT balance + bonus_balance FROM owners WHERE id = %s))
+                """, (owner_id, 5000, f'Приветственный бонус за добавление объекта "{result["title"]}"', owner_id))
+            
             conn.commit()
             
             return {

@@ -145,6 +145,31 @@ cur.execute("""
 """, (owner_id, cashback))
 ```
 
+**Приветственный бонус при добавлении объекта:**
+- При привязке объекта к владельцу автоматически начисляется 5000₽ бонусов
+- Реализовано в `backend/owner-listings/index.py` (PATCH метод)
+
+**Пример:**
+1. Администратор привязывает объект к владельцу
+2. Бонусный баланс: +5000₽ (приветственный бонус)
+3. Транзакция: "Приветственный бонус за добавление объекта '{название}'"
+
+```python
+# При привязке объекта к новому владельцу
+if owner_id is not None and old_owner_id != owner_id:
+    cur.execute("""
+        UPDATE owners 
+        SET bonus_balance = bonus_balance + 5000
+        WHERE id = %s
+    """, (owner_id,))
+    
+    cur.execute("""
+        INSERT INTO transactions (owner_id, amount, type, description, balance_after)
+        VALUES (%s, %s, 'bonus', %s, 
+                (SELECT balance + bonus_balance FROM owners WHERE id = %s))
+    """, (owner_id, 5000, f'Приветственный бонус за добавление объекта "{title}"', owner_id))
+```
+
 ## SQL Таблицы
 
 ### owners

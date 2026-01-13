@@ -94,6 +94,8 @@ export default function OwnerDashboard() {
   const [auctionInfo, setAuctionInfo] = useState<AuctionInfo | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [showCashbackAnimation, setShowCashbackAnimation] = useState(false);
+  const [cashbackAmount, setCashbackAmount] = useState(0);
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
   const [subscriptionInfo, setSubscriptionInfo] = useState<Map<number, SubscriptionInfo>>(new Map());
   const [topupAmount, setTopupAmount] = useState('');
@@ -288,6 +290,14 @@ export default function OwnerDashboard() {
     setIsTopupLoading(true);
 
     try {
+      const cashback = Math.floor(amount * 0.1);
+      setCashbackAmount(cashback);
+      setShowCashbackAnimation(true);
+      
+      setTimeout(() => {
+        setShowCashbackAnimation(false);
+      }, 3000);
+
       const response = await api.createPayment(parseInt(ownerId!), amount);
 
       if (response.error) {
@@ -302,6 +312,7 @@ export default function OwnerDashboard() {
         variant: 'destructive',
       });
       setIsTopupLoading(false);
+      setShowCashbackAnimation(false);
     }
   };
 
@@ -368,7 +379,15 @@ export default function OwnerDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Card className="px-6 py-4 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+              <Card className="px-6 py-4 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 relative">
+                {showCashbackAnimation && (
+                  <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 z-50 animate-bounce">
+                    <div className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+                      <Icon name="Gift" size={20} />
+                      <span className="font-bold">+{cashbackAmount}₽ кэшбэк!</span>
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-6">
                   <div className="text-right">
                     <div className="text-sm text-muted-foreground mb-1">Баланс</div>
