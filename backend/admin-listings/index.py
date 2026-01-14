@@ -61,28 +61,28 @@ def handler(event: dict, context) -> dict:
                     SELECT l.*, 
                            e.name as created_by_employee_name,
                            o.full_name as owner_name
-                    FROM listings l
-                    LEFT JOIN employees e ON l.created_by_employee_id = e.id
-                    LEFT JOIN owners o ON l.owner_id = o.id
-                    WHERE l.submitted_for_moderation = true
-                    ORDER BY l.submitted_at DESC
+                    FROM t_p39732784_hourly_rentals_platf.listings l
+                    LEFT JOIN t_p39732784_hourly_rentals_platf.employees e ON l.created_by_employee_id = e.id
+                    LEFT JOIN t_p39732784_hourly_rentals_platf.owners o ON l.owner_id = o.id
+                    WHERE l.moderation_status = 'pending'
+                    ORDER BY l.updated_at DESC
                 """)
             elif show_archived:
-                cur.execute("SELECT * FROM listings ORDER BY created_at DESC")
+                cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.listings ORDER BY created_at DESC")
             else:
-                cur.execute("SELECT * FROM listings WHERE is_archived = false ORDER BY auction ASC")
+                cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = false ORDER BY auction ASC")
             
             listings = cur.fetchall()
             
             # Получаем комнаты и станции метро для каждого объекта
             for listing in listings:
-                cur.execute("SELECT * FROM rooms WHERE listing_id = %s", (listing['id'],))
+                cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.rooms WHERE listing_id = %s", (listing['id'],))
                 listing['rooms'] = cur.fetchall()
                 
-                cur.execute("SELECT * FROM listing_photos WHERE listing_id = %s", (listing['id'],))
+                cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.listing_photos WHERE listing_id = %s", (listing['id'],))
                 listing['photos'] = cur.fetchall()
                 
-                cur.execute("SELECT station_name, walk_minutes FROM metro_stations WHERE listing_id = %s", (listing['id'],))
+                cur.execute("SELECT station_name, walk_minutes FROM t_p39732784_hourly_rentals_platf.metro_stations WHERE listing_id = %s", (listing['id'],))
                 listing['metro_stations'] = cur.fetchall()
             
             cur.close()
@@ -100,7 +100,7 @@ def handler(event: dict, context) -> dict:
             body = json.loads(event.get('body', '{}'))
             
             cur.execute("""
-                INSERT INTO listings (title, type, city, district, price, rating, reviews, 
+                INSERT INTO t_p39732784_hourly_rentals_platf.listings (title, type, city, district, price, rating, reviews, 
                                      auction, image_url, metro, metro_walk, has_parking, 
                                      parking_type, parking_price_per_hour,
                                      features, lat, lng, min_hours, phone, telegram, logo_url,
@@ -126,16 +126,16 @@ def handler(event: dict, context) -> dict:
             if 'metro_stations' in body and body['metro_stations']:
                 for station in body['metro_stations']:
                     cur.execute(
-                        "INSERT INTO metro_stations (listing_id, station_name, walk_minutes) VALUES (%s, %s, %s)",
+                        "INSERT INTO t_p39732784_hourly_rentals_platf.metro_stations (listing_id, station_name, walk_minutes) VALUES (%s, %s, %s)",
                         (listing_id, station['station_name'], station['walk_minutes'])
                     )
             
             # Удаление старых комнат и добавление новых
             if 'rooms' in body:
-                cur.execute("DELETE FROM rooms WHERE listing_id = %s", (listing_id,))
+                cur.execute("DELETE FROM t_p39732784_hourly_rentals_platf.rooms WHERE listing_id = %s", (listing_id,))
                 for room in body['rooms']:
                     cur.execute("""
-                        INSERT INTO rooms (listing_id, type, price, description, images, 
+                        INSERT INTO t_p39732784_hourly_rentals_platf.rooms (listing_id, type, price, description, images, 
                                          square_meters, features, min_hours, payment_methods, cancellation_policy)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """, (listing_id, room['type'], room['price'], 
@@ -219,7 +219,7 @@ def handler(event: dict, context) -> dict:
                 print(f'Rooms data: {body["rooms"]}')
             
             cur.execute("""
-                UPDATE listings SET 
+                UPDATE t_p39732784_hourly_rentals_platf.listings SET 
                     title=%s, type=%s, city=%s, district=%s, price=%s, rating=%s, 
                     reviews=%s, auction=%s, image_url=%s, metro=%s, metro_walk=%s, 
                     has_parking=%s, parking_type=%s, parking_price_per_hour=%s,
@@ -245,19 +245,19 @@ def handler(event: dict, context) -> dict:
             
             # Обновление станций метро
             if 'metro_stations' in body:
-                cur.execute("DELETE FROM metro_stations WHERE listing_id = %s", (listing_id,))
+                cur.execute("DELETE FROM t_p39732784_hourly_rentals_platf.metro_stations WHERE listing_id = %s", (listing_id,))
                 for station in body['metro_stations']:
                     cur.execute(
-                        "INSERT INTO metro_stations (listing_id, station_name, walk_minutes) VALUES (%s, %s, %s)",
+                        "INSERT INTO t_p39732784_hourly_rentals_platf.metro_stations (listing_id, station_name, walk_minutes) VALUES (%s, %s, %s)",
                         (listing_id, station['station_name'], station['walk_minutes'])
                     )
             
             # Обновление комнат
             if 'rooms' in body:
-                cur.execute("DELETE FROM rooms WHERE listing_id = %s", (listing_id,))
+                cur.execute("DELETE FROM t_p39732784_hourly_rentals_platf.rooms WHERE listing_id = %s", (listing_id,))
                 for room in body['rooms']:
                     cur.execute("""
-                        INSERT INTO rooms (listing_id, type, price, description, images, 
+                        INSERT INTO t_p39732784_hourly_rentals_platf.rooms (listing_id, type, price, description, images, 
                                          square_meters, features, min_hours, payment_methods, cancellation_policy)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """, (listing_id, room['type'], room['price'], 
@@ -294,7 +294,7 @@ def handler(event: dict, context) -> dict:
                     }
                 
                 cur.execute("""
-                    UPDATE listings
+                    UPDATE t_p39732784_hourly_rentals_platf.listings
                     SET submitted_for_moderation = TRUE, 
                         submitted_at = CURRENT_TIMESTAMP,
                         moderation_status = 'pending'
@@ -329,7 +329,7 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 
-                if moderation_status not in ['approved', 'needs_changes', 'pending']:
+                if moderation_status not in ['approved', 'rejected', 'pending']:
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -338,11 +338,12 @@ def handler(event: dict, context) -> dict:
                     }
                 
                 cur.execute("""
-                    UPDATE listings
+                    UPDATE t_p39732784_hourly_rentals_platf.listings
                     SET moderation_status = %s,
                         moderation_comment = %s,
                         moderated_by = %s,
-                        moderated_at = CURRENT_TIMESTAMP
+                        moderated_at = CURRENT_TIMESTAMP,
+                        submitted_for_moderation = FALSE
                     WHERE id = %s
                     RETURNING id, title, moderation_status, moderation_comment
                 """, (moderation_status, moderation_comment, admin.get('admin_id'), listing_id))
@@ -374,7 +375,7 @@ def handler(event: dict, context) -> dict:
                     }
                 
                 # Получаем текущую позицию и город
-                cur.execute("SELECT auction, city FROM listings WHERE id = %s", (listing_id,))
+                cur.execute("SELECT auction, city FROM t_p39732784_hourly_rentals_platf.listings WHERE id = %s", (listing_id,))
                 listing = cur.fetchone()
                 
                 if not listing:
@@ -401,7 +402,7 @@ def handler(event: dict, context) -> dict:
                 if old_position < new_position:
                     # Перемещение вниз: сдвигаем вверх объекты между old и new
                     cur.execute("""
-                        UPDATE listings 
+                        UPDATE t_p39732784_hourly_rentals_platf.listings 
                         SET auction = auction - 1
                         WHERE city = %s 
                           AND auction > %s 
@@ -411,7 +412,7 @@ def handler(event: dict, context) -> dict:
                 else:
                     # Перемещение вверх: сдвигаем вниз объекты между new и old
                     cur.execute("""
-                        UPDATE listings 
+                        UPDATE t_p39732784_hourly_rentals_platf.listings 
                         SET auction = auction + 1
                         WHERE city = %s 
                           AND auction >= %s 
@@ -421,7 +422,7 @@ def handler(event: dict, context) -> dict:
                 
                 # Устанавливаем новую позицию
                 cur.execute("""
-                    UPDATE listings 
+                    UPDATE t_p39732784_hourly_rentals_platf.listings 
                     SET auction = %s
                     WHERE id = %s
                     RETURNING id, title, auction
@@ -461,7 +462,7 @@ def handler(event: dict, context) -> dict:
                 }
             
             cur.execute(
-                "UPDATE listings SET is_archived = true WHERE id = %s RETURNING *",
+                "UPDATE t_p39732784_hourly_rentals_platf.listings SET is_archived = true WHERE id = %s RETURNING *",
                 (listing_id,)
             )
             

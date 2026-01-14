@@ -41,7 +41,7 @@ def handler(event: dict, context) -> dict:
                 l.has_parking as "hasParking", l.features, l.lat, l.lng, 
                 l.min_hours as "minHours", l.phone, l.telegram,
                 l.price_warning_holidays, l.price_warning_daytime
-            FROM listings l
+            FROM t_p39732784_hourly_rentals_platf.listings l
             WHERE l.is_archived = false 
             AND (l.moderation_status IS NULL OR l.moderation_status = 'approved')
             ORDER BY l.city ASC, l.auction ASC, l.id ASC
@@ -54,14 +54,14 @@ def handler(event: dict, context) -> dict:
             cur.execute(
                 """SELECT type, price, description, images, square_meters, features, 
                           min_hours, payment_methods, cancellation_policy 
-                   FROM rooms WHERE listing_id = %s""",
+                   FROM t_p39732784_hourly_rentals_platf.rooms WHERE listing_id = %s""",
                 (listing['id'],)
             )
             rooms = cur.fetchall()
             listing['rooms'] = rooms
             
             cur.execute(
-                """SELECT station_name, walk_minutes FROM metro_stations WHERE listing_id = %s""",
+                """SELECT station_name, walk_minutes FROM t_p39732784_hourly_rentals_platf.metro_stations WHERE listing_id = %s""",
                 (listing['id'],)
             )
             metro_stations = cur.fetchall()

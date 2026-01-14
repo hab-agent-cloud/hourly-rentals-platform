@@ -498,6 +498,12 @@ export default function AdminPanel() {
                         {listing.is_archived && (
                           <Badge variant="secondary" className="absolute top-3 left-3">Архив</Badge>
                         )}
+                        {listing.moderation_status === 'pending' && !listing.is_archived && (
+                          <Badge className="absolute top-3 left-3 bg-orange-500">
+                            <Icon name="Clock" size={12} className="mr-1" />
+                            На модерации
+                          </Badge>
+                        )}
                       </div>
                       <CardHeader>
                         <div className="flex items-start justify-between gap-3">
