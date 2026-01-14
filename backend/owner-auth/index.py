@@ -117,10 +117,10 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({'error': 'Неверный логин или пароль'})
                 }
             
-            cur.execute("UPDATE owners SET last_login = CURRENT_TIMESTAMP WHERE id = %s", (owner[0],))
-            conn.commit()
-            
             token = secrets.token_urlsafe(32)
+            
+            cur.execute("UPDATE owners SET last_login = CURRENT_TIMESTAMP, token = %s WHERE id = %s", (token, owner[0]))
+            conn.commit()
             
             return {
                 'statusCode': 200,
