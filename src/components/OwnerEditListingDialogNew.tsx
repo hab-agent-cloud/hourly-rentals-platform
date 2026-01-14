@@ -88,7 +88,7 @@ export default function OwnerEditListingDialogNew({
         `https://functions.poehali.dev/6e7f9cac-b774-46cc-bb47-154f93adb2c9?listing_id=${listing.id}`,
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'X-Authorization': `Bearer ${token}`,
           },
         }
       );
@@ -117,7 +117,7 @@ export default function OwnerEditListingDialogNew({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'X-Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           listing_id: listing.id,
