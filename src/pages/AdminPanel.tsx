@@ -13,6 +13,7 @@ import AdminListingForm from '@/components/AdminListingForm';
 import AdminOwnersTab from '@/components/AdminOwnersTab';
 import AdminEmployeesTab from '@/components/AdminEmployeesTab';
 import AdminBonusesTab from '@/components/AdminBonusesTab';
+import AdminAllActionsTab from '@/components/AdminAllActionsTab';
 
 function LiveCountdown({ expiresAt }: { expiresAt: string | null }) {
   const [timeLeft, setTimeLeft] = useState('');
@@ -53,7 +54,7 @@ function LiveCountdown({ expiresAt }: { expiresAt: string | null }) {
 }
 
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState<'listings' | 'owners' | 'employees' | 'bonuses'>('listings');
+  const [activeTab, setActiveTab] = useState<'listings' | 'owners' | 'employees' | 'bonuses' | 'all-actions'>('listings');
   const [listings, setListings] = useState<any[]>([]);
   const [showArchived, setShowArchived] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -354,6 +355,14 @@ export default function AdminPanel() {
                 <Icon name="DollarSign" size={18} className="mr-2" />
                 Выплаты
               </Button>
+              <Button
+                variant={activeTab === 'all-actions' ? 'default' : 'ghost'}
+                onClick={() => setActiveTab('all-actions')}
+                className="rounded-b-none"
+              >
+                <Icon name="ListChecks" size={18} className="mr-2" />
+                Общая работа
+              </Button>
             </>
           )}
         </div>
@@ -370,6 +379,8 @@ export default function AdminPanel() {
           <AdminEmployeesTab token={token!} />
         ) : activeTab === 'bonuses' && adminInfo?.role === 'superadmin' ? (
           <AdminBonusesTab token={token!} />
+        ) : activeTab === 'all-actions' && adminInfo?.role === 'superadmin' ? (
+          <AdminAllActionsTab token={token!} />
         ) : hasPermission('listings') ? (
         <>
         <div className="flex items-center justify-between mb-6">
