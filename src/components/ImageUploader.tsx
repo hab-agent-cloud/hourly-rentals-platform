@@ -1,0 +1,116 @@
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
+
+interface ImageUploaderProps {
+  onUpload: (url: string) => void;
+  multiple?: boolean;
+}
+
+export default function ImageUploader({ onUpload, multiple = false }: ImageUploaderProps) {
+  const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        if (!file.type.startsWith('image/')) {
+          toast({
+            title: 'Ошибка',
+            description: 'Можно загружать только изображения',
+            variant: 'destructive',
+          });
+          continue;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+          toast({
+            title: 'Ошибка',
+            description: 'Размер файла не должен превышать 10 МБ',
+            variant: 'destructive',
+          });
+          continue;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const base64 = event.target?.result as string;
+            
+            const response = await fetch('https://functions.poehali.dev/32a4bee5-4d04-4b73-a903-52cec9a5cef6', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                image: base64,
+                filename: file.name,
+              }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              throw new Error(data.error || 'Ошибка загрузки');
+            }
+
+            onUpload(data.url);
+            toast({
+              title: 'Успешно',
+              description: 'Фото загружено',
+            });
+          } catch (error: any) {
+            toast({
+              title: 'Ошибка загрузки',
+              description: error.message,
+              variant: 'destructive',
+            });
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  return (
+    <div>
+      <input
+        type="file"
+        accept="image/*"
+        multiple={multiple}
+        onChange={handleFileChange}
+        id="image-upload"
+        className="hidden"
+      />
+      <Button
+        type="button"
+        variant="outline"
+        disabled={isUploading}
+        onClick={() => document.getElementById('image-upload')?.click()}
+      >
+        {isUploading ? (
+          <>
+            <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+            Загрузка...
+          </>
+        ) : (
+          <>
+            <Icon name="Upload" size={16} className="mr-2" />
+            Загрузить {multiple ? 'фото' : 'фото'}
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}

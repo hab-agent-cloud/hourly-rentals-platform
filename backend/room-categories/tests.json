@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Get room categories - unauthorized",
+      "method": "GET",
+      "queryParams": {
+        "listing_id": "1"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

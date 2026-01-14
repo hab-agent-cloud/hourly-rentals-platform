@@ -102,15 +102,17 @@ def handler(event: dict, context) -> dict:
             cur.execute("""
                 INSERT INTO listings (title, type, city, district, price, rating, reviews, 
                                      auction, image_url, metro, metro_walk, has_parking, 
+                                     parking_type, parking_price_per_hour,
                                      features, lat, lng, min_hours, phone, telegram, logo_url,
                                      price_warning_holidays, price_warning_daytime)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
             """, (
                 body['title'], body['type'], body['city'], body['district'], 
                 body['price'], body.get('rating', 0), body.get('reviews', 0),
                 body.get('auction', 999), body.get('image_url'), body.get('metro'),
                 body.get('metro_walk', 0), body.get('has_parking', False),
+                body.get('parking_type', 'none'), body.get('parking_price_per_hour', 0),
                 body.get('features', []), body.get('lat'), body.get('lng'),
                 body.get('min_hours', 1), body.get('phone'), body.get('telegram'),
                 body.get('logo_url'), body.get('price_warning_holidays', False),
@@ -220,7 +222,8 @@ def handler(event: dict, context) -> dict:
                 UPDATE listings SET 
                     title=%s, type=%s, city=%s, district=%s, price=%s, rating=%s, 
                     reviews=%s, auction=%s, image_url=%s, metro=%s, metro_walk=%s, 
-                    has_parking=%s, features=%s, lat=%s, lng=%s, min_hours=%s, 
+                    has_parking=%s, parking_type=%s, parking_price_per_hour=%s,
+                    features=%s, lat=%s, lng=%s, min_hours=%s, 
                     phone=%s, telegram=%s, logo_url=%s, is_archived=%s,
                     price_warning_holidays=%s, price_warning_daytime=%s, updated_at=CURRENT_TIMESTAMP
                 WHERE id=%s
@@ -230,6 +233,7 @@ def handler(event: dict, context) -> dict:
                 body['price'], body.get('rating', 0), body.get('reviews', 0),
                 body.get('auction', 999), body.get('image_url'), body.get('metro'),
                 body.get('metro_walk', 0), body.get('has_parking', False),
+                body.get('parking_type', 'none'), body.get('parking_price_per_hour', 0),
                 body.get('features', []), body.get('lat'), body.get('lng'),
                 body.get('min_hours', 1), body.get('phone'), body.get('telegram'),
                 body.get('logo_url'), body.get('is_archived', False),

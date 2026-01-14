@@ -8,7 +8,7 @@ import { api } from '@/lib/api';
 import OwnerDashboardHeader from '@/components/OwnerDashboardHeader';
 import OwnerOverviewTab from '@/components/OwnerOverviewTab';
 import OwnerAuctionTab from '@/components/OwnerAuctionTab';
-import OwnerEditListingDialog from '@/components/OwnerEditListingDialog';
+import OwnerEditListingDialogNew from '@/components/OwnerEditListingDialogNew';
 
 interface Owner {
   id: number;
@@ -440,7 +440,7 @@ export default function OwnerDashboard() {
         )}
       </main>
 
-      <OwnerEditListingDialog
+      <OwnerEditListingDialogNew
         listing={editingListing}
         open={!!editingListing}
         onClose={() => setEditingListing(null)}

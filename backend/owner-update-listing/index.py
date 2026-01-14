@@ -97,6 +97,8 @@ def handler(event: dict, context) -> dict:
             metro = body.get('metro')
             metro_walk = body.get('metro_walk')
             has_parking = body.get('has_parking')
+            parking_type = body.get('parking_type')
+            parking_price_per_hour = body.get('parking_price_per_hour')
             min_hours = body.get('min_hours')
             lat = body.get('lat')
             lng = body.get('lng')
@@ -147,6 +149,14 @@ def handler(event: dict, context) -> dict:
             if has_parking is not None:
                 update_fields.append("has_parking = %s")
                 update_values.append(has_parking)
+            
+            if parking_type is not None:
+                update_fields.append("parking_type = %s")
+                update_values.append(parking_type)
+            
+            if parking_price_per_hour is not None:
+                update_fields.append("parking_price_per_hour = %s")
+                update_values.append(parking_price_per_hour)
             
             if min_hours is not None:
                 update_fields.append("min_hours = %s")

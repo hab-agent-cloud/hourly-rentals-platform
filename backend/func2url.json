@@ -1,4 +1,6 @@
 {
+  "room-categories": "https://functions.poehali.dev/6e7f9cac-b774-46cc-bb47-154f93adb2c9",
+  "upload-image": "https://functions.poehali.dev/32a4bee5-4d04-4b73-a903-52cec9a5cef6",
   "owner-update-listing": "https://functions.poehali.dev/3e708f67-7174-4fd3-84a6-6541bcc2186b",
   "employee-bonuses": "https://functions.poehali.dev/e7b4566b-8aa8-4db2-a866-4ba2231208a3",
   "cron-archive-expired": "https://functions.poehali.dev/43c17d19-e755-490d-b1e3-82394fdcf85e",

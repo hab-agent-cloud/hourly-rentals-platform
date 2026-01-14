@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { api } from '@/lib/api';
+import ImageUploader from '@/components/ImageUploader';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface OwnerEditListingDialogProps {
   listing: {
@@ -26,6 +28,9 @@ interface OwnerEditListingDialogProps {
     lat?: number;
     lng?: number;
     moderation_status?: string;
+    moderation_comment?: string;
+    parking_type?: string;
+    parking_price_per_hour?: number;
   } | null;
   open: boolean;
   onClose: () => void;
@@ -45,12 +50,12 @@ export default function OwnerEditListingDialog({
   const [formData, setFormData] = useState({
     title: '',
     price: 0,
-    square_meters: 0,
     district: '',
     city: '',
     metro: '',
     metro_walk: 0,
-    has_parking: false,
+    parking_type: 'none' as 'free' | 'paid' | 'street' | 'none',
+    parking_price_per_hour: 0,
     min_hours: 1,
     features: [] as string[],
   });
@@ -64,12 +69,12 @@ export default function OwnerEditListingDialog({
       setFormData({
         title: listing.title || '',
         price: listing.price || 0,
-        square_meters: listing.square_meters || 0,
         district: listing.district || '',
         city: listing.city || '',
         metro: listing.metro || '',
         metro_walk: listing.metro_walk || 0,
-        has_parking: listing.has_parking || false,
+        parking_type: (listing as any).parking_type || 'none',
+        parking_price_per_hour: (listing as any).parking_price_per_hour || 0,
         min_hours: listing.min_hours || 1,
         features: listing.features || [],
       });
@@ -187,26 +192,15 @@ export default function OwnerEditListingDialog({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="price">Цена за час (₽)</Label>
-              <Input
-                id="price"
-                type="number"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="square_meters">Площадь (м²)</Label>
-              <Input
-                id="square_meters"
-                type="number"
-                value={formData.square_meters}
-                onChange={(e) => setFormData({ ...formData, square_meters: parseInt(e.target.value) || 0 })}
-              />
-            </div>
+          <div>
+            <Label htmlFor="price">Цена за час (₽)</Label>
+            <Input
+              id="price"
+              type="number"
+              value={formData.price}
+              onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+              required
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -250,32 +244,52 @@ export default function OwnerEditListingDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="min_hours">Минимум часов</Label>
-              <Input
-                id="min_hours"
-                type="number"
-                value={formData.min_hours}
-                onChange={(e) => setFormData({ ...formData, min_hours: parseInt(e.target.value) || 1 })}
-              />
-            </div>
-            <div className="flex items-end">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.has_parking}
-                  onChange={(e) => setFormData({ ...formData, has_parking: e.target.checked })}
-                  className="w-4 h-4"
+          <div>
+            <Label htmlFor="min_hours">Минимум часов</Label>
+            <Input
+              id="min_hours"
+              type="number"
+              value={formData.min_hours}
+              onChange={(e) => setFormData({ ...formData, min_hours: parseInt(e.target.value) || 1 })}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <Label>Паркинг</Label>
+            <Select
+              value={formData.parking_type}
+              onValueChange={(value: any) => setFormData({ ...formData, parking_type: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Выберите тип паркинга" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Паркинга нет</SelectItem>
+                <SelectItem value="free">Паркинг бесплатный</SelectItem>
+                <SelectItem value="paid">Паркинг платный</SelectItem>
+                <SelectItem value="street">Стихийная парковка</SelectItem>
+              </SelectContent>
+            </Select>
+            {formData.parking_type === 'paid' && (
+              <div>
+                <Label htmlFor="parking_price">Стоимость паркинга (₽/час)</Label>
+                <Input
+                  id="parking_price"
+                  type="number"
+                  value={formData.parking_price_per_hour}
+                  onChange={(e) => setFormData({ ...formData, parking_price_per_hour: parseInt(e.target.value) || 0 })}
                 />
-                <span className="text-sm">Есть парковка</span>
-              </label>
-            </div>
+              </div>
+            )}
           </div>
 
           <div>
-            <Label>Фотографии</Label>
-            <div className="space-y-2">
+            <Label>Фотографии объекта</Label>
+            <ImageUploader
+              multiple
+              onUpload={(url) => setImageUrls([...imageUrls, url])}
+            />
+            <div className="space-y-2 mt-2">
               {imageUrls.map((url, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <img src={url} alt={`Photo ${index + 1}`} className="w-16 h-16 object-cover rounded" />

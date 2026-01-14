@@ -236,6 +236,8 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       metro_walk: listing?.metro_walk || 0,
       metro_stations: listing?.metro_stations || [],
       has_parking: listing?.has_parking || false,
+      parking_type: listing?.parking_type || 'none',
+      parking_price_per_hour: listing?.parking_price_per_hour || 0,
       features: listing?.features || [],
       lat: listing?.lat || 0,
       lng: listing?.lng || 0,
@@ -1043,6 +1045,37 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                     className={formData.telegram ? 'border-blue-300 bg-blue-50' : ''}
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                  <Icon name="Car" size={16} className="text-blue-600" />
+                  Паркинг
+                </label>
+                <Select
+                  value={formData.parking_type}
+                  onValueChange={(value) => setFormData({ ...formData, parking_type: value })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Выберите тип паркинга" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Паркинга нет</SelectItem>
+                    <SelectItem value="free">Паркинг бесплатный</SelectItem>
+                    <SelectItem value="paid">Паркинг платный</SelectItem>
+                    <SelectItem value="street">Стихийная парковка</SelectItem>
+                  </SelectContent>
+                </Select>
+                {formData.parking_type === 'paid' && (
+                  <div className="mt-2">
+                    <label className="text-sm font-medium mb-1 block">Стоимость паркинга (₽/час)</label>
+                    <Input
+                      type="number"
+                      value={formData.parking_price_per_hour}
+                      onChange={(e) => setFormData({ ...formData, parking_price_per_hour: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-3 gap-4">
