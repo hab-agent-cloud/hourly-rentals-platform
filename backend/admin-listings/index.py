@@ -60,10 +60,10 @@ def handler(event: dict, context) -> dict:
                 print(f"[DEBUG] Fetching pending moderation listings")
                 cur.execute("""
                     SELECT l.*, 
-                           e.name as created_by_employee_name,
+                           a.name as created_by_employee_name,
                            o.full_name as owner_name
                     FROM t_p39732784_hourly_rentals_platf.listings l
-                    LEFT JOIN t_p39732784_hourly_rentals_platf.employees e ON l.created_by_employee_id = e.id
+                    LEFT JOIN t_p39732784_hourly_rentals_platf.admins a ON l.created_by_employee_id = a.id
                     LEFT JOIN t_p39732784_hourly_rentals_platf.owners o ON l.owner_id = o.id
                     WHERE l.moderation_status = 'pending'
                     ORDER BY l.updated_at DESC
@@ -87,6 +87,7 @@ def handler(event: dict, context) -> dict:
                 cur.execute("SELECT station_name, walk_minutes FROM t_p39732784_hourly_rentals_platf.metro_stations WHERE listing_id = %s", (listing['id'],))
                 listing['metro_stations'] = cur.fetchall()
             
+            print(f"[DEBUG] About to serialize {len(listings)} listings")
             cur.close()
             conn.close()
             
