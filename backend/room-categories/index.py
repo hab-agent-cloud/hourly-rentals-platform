@@ -7,19 +7,22 @@ from datetime import datetime
 def verify_owner_token(token: str):
     '''Проверка токена владельца'''
     if not token:
+        print('[DEBUG] No token provided')
         return None
     
     try:
         dsn = os.environ.get('DATABASE_URL')
+        print(f'[DEBUG] Connecting to database, token length: {len(token)}')
         conn = psycopg2.connect(dsn)
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
         # Используем Simple Query Protocol (без параметров)
         safe_token = token.replace("'", "''")  # Экранируем одинарные кавычки
-        cur.execute(
-            f"SELECT * FROM t_p39732784_hourly_rentals_platf.owners WHERE token = '{safe_token}'"
-        )
+        query = f"SELECT * FROM t_p39732784_hourly_rentals_platf.owners WHERE token = '{safe_token}'"
+        print(f'[DEBUG] Executing query: {query[:100]}...')
+        cur.execute(query)
         owner = cur.fetchone()
+        print(f'[DEBUG] Query result: owner found = {owner is not None}')
         
         cur.close()
         conn.close()
