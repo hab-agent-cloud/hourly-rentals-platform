@@ -12,22 +12,25 @@ def verify_owner_token(token: str):
     
     try:
         dsn = os.environ.get('DATABASE_URL')
-        print(f'[DEBUG] Connecting to database, token length: {len(token)}')
+        print(f'[DEBUG] token length: {len(token)}')
         conn = psycopg2.connect(dsn)
-        cur = conn.cursor(cursor_factory=RealDictCursor)
+        conn.autocommit = True
+        cur = conn.cursor()
         
         # Используем Simple Query Protocol (без параметров)
         safe_token = token.replace("'", "''")  # Экранируем одинарные кавычки
-        query = f"SELECT * FROM t_p39732784_hourly_rentals_platf.owners WHERE token = '{safe_token}'"
-        print(f'[DEBUG] Executing query: {query[:100]}...')
+        query = f"SELECT id, email, full_name, phone FROM t_p39732784_hourly_rentals_platf.owners WHERE token = '{safe_token}'"
+        print(f'[DEBUG] Executing query: {query[:80]}...')
         cur.execute(query)
-        owner = cur.fetchone()
-        print(f'[DEBUG] Query result: owner found = {owner is not None}')
+        row = cur.fetchone()
+        print(f'[DEBUG] Query result: row = {row}')
         
         cur.close()
         conn.close()
         
-        return dict(owner) if owner else None
+        if row:
+            return {'id': row[0], 'email': row[1], 'full_name': row[2], 'phone': row[3]}
+        return None
     except Exception as e:
         print(f'[ERROR] verify_owner_token failed: {type(e).__name__}: {str(e)}')
         import traceback
