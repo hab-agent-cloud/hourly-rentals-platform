@@ -120,6 +120,10 @@ export const api = {
   // Публичное получение объектов
   getPublicListings: async () => {
     const response = await fetch(API_URLS.publicListings);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
     return response.json();
   },
 

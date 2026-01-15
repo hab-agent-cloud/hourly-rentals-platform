@@ -30,9 +30,25 @@ export default function Index() {
   const loadListings = async () => {
     try {
       const data = await api.getPublicListings();
+      console.log('=== PUBLIC LISTINGS LOADED ===');
+      console.log('Data type:', typeof data);
+      console.log('Is array:', Array.isArray(data));
+      console.log('Data length:', Array.isArray(data) ? data.length : 'N/A');
+      
+      if (data && data.error) {
+        throw new Error(data.error);
+      }
+      
+      if (!Array.isArray(data)) {
+        console.error('API returned non-array:', data);
+        setAllListings([]);
+        return;
+      }
+      
       setAllListings(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load listings:', error);
+      setAllListings([]);
     } finally {
       setIsLoading(false);
     }

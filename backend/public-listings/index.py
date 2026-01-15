@@ -50,23 +50,56 @@ def handler(event: dict, context) -> dict:
         
         listings = cur.fetchall()
         
-        # Получаем комнаты и станции метро для каждого объекта
+        if not listings:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps([]),
+                'isBase64Encoded': False
+            }
+        
+        # Получаем все комнаты одним запросом
+        listing_ids = [l['id'] for l in listings]
+        placeholders = ','.join(['%s'] * len(listing_ids))
+        cur.execute(
+            f"""SELECT listing_id, type, price, description, square_meters, features, 
+                       min_hours, payment_methods, cancellation_policy 
+                FROM t_p39732784_hourly_rentals_platf.rooms 
+                WHERE listing_id IN ({placeholders})""",
+            listing_ids
+        )
+        all_rooms = cur.fetchall()
+        
+        # Получаем все станции метро одним запросом
+        cur.execute(
+            f"""SELECT listing_id, station_name, walk_minutes 
+                FROM t_p39732784_hourly_rentals_platf.metro_stations 
+                WHERE listing_id IN ({placeholders})""",
+            listing_ids
+        )
+        all_metro = cur.fetchall()
+        
+        # Группируем по listing_id
+        rooms_by_listing = {}
+        for room in all_rooms:
+            lid = room.pop('listing_id')
+            if lid not in rooms_by_listing:
+                rooms_by_listing[lid] = []
+            rooms_by_listing[lid].append(room)
+        
+        metro_by_listing = {}
+        for metro in all_metro:
+            lid = metro.pop('listing_id')
+            if lid not in metro_by_listing:
+                metro_by_listing[lid] = []
+            metro_by_listing[lid].append(metro)
+        
+        # Присваиваем данные каждому объекту
         for listing in listings:
-            cur.execute(
-                """SELECT type, price, description, images, square_meters, features, 
-                          min_hours, payment_methods, cancellation_policy 
-                   FROM t_p39732784_hourly_rentals_platf.rooms WHERE listing_id = %s""",
-                (listing['id'],)
-            )
-            rooms = cur.fetchall()
-            listing['rooms'] = rooms
-            
-            cur.execute(
-                """SELECT station_name, walk_minutes FROM t_p39732784_hourly_rentals_platf.metro_stations WHERE listing_id = %s""",
-                (listing['id'],)
-            )
-            metro_stations = cur.fetchall()
-            listing['metro_stations'] = metro_stations
+            listing['rooms'] = rooms_by_listing.get(listing['id'], [])
+            listing['metro_stations'] = metro_by_listing.get(listing['id'], [])
         
         cur.close()
         conn.close()
