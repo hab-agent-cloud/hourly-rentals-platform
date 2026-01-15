@@ -110,6 +110,10 @@ def handler(event: dict, context) -> dict:
                 update_fields.append("title = %s")
                 update_values.append(title)
             
+            if description is not None:
+                update_fields.append("description = %s")
+                update_values.append(description)
+            
             if price is not None:
                 update_fields.append("price = %s")
                 update_values.append(price)

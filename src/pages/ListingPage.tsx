@@ -96,6 +96,19 @@ export default function ListingPage() {
       <main className="container mx-auto px-4 py-6 max-w-7xl">
         <ListingInfoCard listing={listing} />
 
+        {/* Описание объекта */}
+        {listing.description && (
+          <div className="mb-6 bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-bold mb-3 flex items-center gap-2">
+              <Icon name="FileText" size={20} className="text-purple-600" />
+              Об объекте
+            </h2>
+            <p className="text-muted-foreground whitespace-pre-line leading-relaxed">
+              {listing.description}
+            </p>
+          </div>
+        )}
+
         {/* Список категорий номеров */}
         <div className="space-y-6">
           <h2 className="text-2xl font-bold flex items-center gap-2">

@@ -39,7 +39,7 @@ def handler(event: dict, context) -> dict:
                 l.has_parking as "hasParking", l.parking_type, l.parking_price_per_hour,
                 l.features, l.lat, l.lng, 
                 l.min_hours as "minHours", l.phone, l.telegram,
-                l.price_warning_holidays, l.price_warning_daytime
+                l.price_warning_holidays, l.price_warning_daytime, l.description
             FROM t_p39732784_hourly_rentals_platf.listings l
             WHERE l.is_archived = false 
             AND (l.moderation_status IS NULL OR l.moderation_status = 'approved')

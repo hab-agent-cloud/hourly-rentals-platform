@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
@@ -26,6 +27,7 @@ interface OwnerEditListingDialogNewProps {
     moderation_comment?: string;
     parking_type?: string;
     parking_price_per_hour?: number;
+    description?: string;
   } | null;
   open: boolean;
   onClose: () => void;
@@ -50,6 +52,7 @@ export default function OwnerEditListingDialogNew({
     metro_walk: 0,
     parking_type: 'none' as 'free' | 'paid' | 'street' | 'none',
     parking_price_per_hour: 0,
+    description: '',
   });
 
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -65,6 +68,7 @@ export default function OwnerEditListingDialogNew({
         metro_walk: listing.metro_walk || 0,
         parking_type: listing.parking_type as any || 'none',
         parking_price_per_hour: listing.parking_price_per_hour || 0,
+        description: listing.description || '',
       });
 
       try {
@@ -273,6 +277,28 @@ export default function OwnerEditListingDialogNew({
                     />
                   </div>
                 )}
+              </div>
+
+              <div>
+                <Label htmlFor="description">Описание объекта</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  До 1000 слов. Описание будет отображаться сверху при открытии категорий номеров
+                </p>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => {
+                    const words = e.target.value.trim().split(/\s+/).filter(w => w.length > 0);
+                    if (words.length <= 1000) {
+                      setFormData({ ...formData, description: e.target.value });
+                    }
+                  }}
+                  rows={6}
+                  placeholder="Расскажите о вашем объекте: расположение, особенности, удобства, что рядом..."
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {formData.description.trim().split(/\s+/).filter(w => w.length > 0).length} / 1000 слов
+                </p>
               </div>
 
               <div>
