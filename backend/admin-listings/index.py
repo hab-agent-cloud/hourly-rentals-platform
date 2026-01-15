@@ -380,6 +380,18 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 
+                # Проверка роли: только superadmin может модерировать
+                cur.execute("SELECT role FROM t_p39732784_hourly_rentals_platf.admins WHERE id = %s", (admin.get('admin_id'),))
+                admin_data = cur.fetchone()
+                
+                if not admin_data or admin_data['role'] != 'superadmin':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Недостаточно прав для модерации'}),
+                        'isBase64Encoded': False
+                    }
+                
                 cur.execute("""
                     UPDATE t_p39732784_hourly_rentals_platf.listings
                     SET moderation_status = %s,
