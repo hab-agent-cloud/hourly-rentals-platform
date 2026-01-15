@@ -26,9 +26,11 @@ interface Listing {
 
 interface ModerationTabProps {
   token: string;
+  adminInfo?: any;
 }
 
-export default function AdminModerationTab({ token }: ModerationTabProps) {
+export default function AdminModerationTab({ token, adminInfo }: ModerationTabProps) {
+  const isSuperAdmin = adminInfo?.role === 'superadmin';
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
@@ -223,39 +225,43 @@ export default function AdminModerationTab({ token }: ModerationTabProps) {
                       <Icon name="ExternalLink" size={16} className="mr-2" />
                       Посмотреть
                     </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={async () => {
-                        try {
-                          await api.moderateListing(token, listing.id, 'approved', '');
-                          toast({
-                            title: 'Успешно',
-                            description: 'Объект одобрен и опубликован',
-                          });
-                          loadPendingListings();
-                        } catch (error: any) {
-                          toast({
-                            title: 'Ошибка',
-                            description: error.message,
-                            variant: 'destructive',
-                          });
-                        }
-                      }}
-                      disabled={listing.moderation_status === 'approved'}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <Icon name="CheckCircle" size={16} className="mr-2" />
-                      Одобрить
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleModerate(listing)}
-                    >
-                      <Icon name="XCircle" size={16} className="mr-2" />
-                      Отклонить с комментарием
-                    </Button>
+                    {isSuperAdmin && (
+                      <>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              await api.moderateListing(token, listing.id, 'approved', '');
+                              toast({
+                                title: 'Успешно',
+                                description: 'Объект одобрен и опубликован',
+                              });
+                              loadPendingListings();
+                            } catch (error: any) {
+                              toast({
+                                title: 'Ошибка',
+                                description: error.message,
+                                variant: 'destructive',
+                              });
+                            }
+                          }}
+                          disabled={listing.moderation_status === 'approved'}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <Icon name="CheckCircle" size={16} className="mr-2" />
+                          Одобрить
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleModerate(listing)}
+                        >
+                          <Icon name="XCircle" size={16} className="mr-2" />
+                          Отклонить с комментарием
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

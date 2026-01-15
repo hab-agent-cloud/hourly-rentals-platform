@@ -277,7 +277,7 @@ export default function AdminPanel() {
             onClose={handleFormClose}
           />
         ) : activeTab === 'moderation' && hasPermission('listings') ? (
-          <AdminModerationTab token={token!} />
+          <AdminModerationTab token={token!} adminInfo={adminInfo} />
         ) : activeTab === 'owners' && hasPermission('owners') ? (
           <AdminOwnersTab token={token!} />
         ) : activeTab === 'employees' && adminInfo?.role === 'superadmin' ? (
