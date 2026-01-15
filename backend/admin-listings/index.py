@@ -81,9 +81,6 @@ def handler(event: dict, context) -> dict:
                 cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.rooms WHERE listing_id = %s", (listing['id'],))
                 listing['rooms'] = cur.fetchall()
                 
-                cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.listing_photos WHERE listing_id = %s", (listing['id'],))
-                listing['photos'] = cur.fetchall()
-                
                 cur.execute("SELECT station_name, walk_minutes FROM t_p39732784_hourly_rentals_platf.metro_stations WHERE listing_id = %s", (listing['id'],))
                 listing['metro_stations'] = cur.fetchall()
             

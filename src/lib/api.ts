@@ -52,6 +52,12 @@ export const api = {
     const response = await fetch(url, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    
     return response.json();
   },
 
