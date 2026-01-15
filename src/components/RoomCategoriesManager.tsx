@@ -146,11 +146,29 @@ export default function RoomCategoriesManager({ categories, onChange }: RoomCate
       {categories.map((category, index) => (
         <Card key={index}>
           <CardHeader className="py-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">
-                {category.name || `Категория ${index + 1}`}
-              </CardTitle>
-              <div className="flex gap-2">
+            <div className="flex items-center gap-3 justify-between">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                {category.image_urls.length > 0 && (
+                  <img
+                    src={category.image_urls[0]}
+                    alt={category.name}
+                    className="w-16 h-16 object-cover rounded-md flex-shrink-0"
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="text-base truncate">
+                    {category.name || `Категория ${index + 1}`}
+                  </CardTitle>
+                  {expandedIndex !== index && (
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {category.price_per_hour > 0 && `${category.price_per_hour} ₽/час`}
+                      {category.square_meters > 0 && ` • ${category.square_meters} м²`}
+                      {category.features.length > 0 && ` • ${category.features.length} удобств`}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
                 <Button
                   type="button"
                   variant="ghost"
