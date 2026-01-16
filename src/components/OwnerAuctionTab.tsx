@@ -68,8 +68,6 @@ interface OwnerAuctionTabProps {
   listings: Listing[];
   selectedListing: Listing | null;
   auctionInfo: AuctionInfo | null;
-  stats: Stats | null;
-  transactions?: Transaction[];
   timeUntilReset: string;
   isLoading: boolean;
   selectedPosition: number | null;
@@ -81,8 +79,6 @@ export default function OwnerAuctionTab({
   listings,
   selectedListing,
   auctionInfo,
-  stats,
-  transactions,
   timeUntilReset,
   isLoading,
   selectedPosition,
@@ -155,7 +151,7 @@ export default function OwnerAuctionTab({
             </Card>
           </div>
 
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle>Бронирование позиций - {selectedListing.city}</CardTitle>
@@ -269,49 +265,6 @@ export default function OwnerAuctionTab({
                       })}
                     </div>
                   </>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Статистика просмотров</CardTitle>
-                <CardDescription>Последние 7 дней</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {stats ? (
-                  <>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      <div className="text-center p-4 bg-purple-50 rounded-lg">
-                        <Icon name="Eye" size={24} className="mx-auto mb-2 text-purple-600" />
-                        <div className="text-2xl font-bold text-purple-600">{stats.summary.total_views}</div>
-                        <div className="text-sm text-muted-foreground">Просмотров</div>
-                      </div>
-                      <div className="text-center p-4 bg-green-50 rounded-lg">
-                        <Icon name="MousePointerClick" size={24} className="mx-auto mb-2 text-green-600" />
-                        <div className="text-2xl font-bold text-green-600">{stats.summary.total_clicks}</div>
-                        <div className="text-sm text-muted-foreground">Кликов</div>
-                      </div>
-                      <div className="text-center p-4 bg-orange-50 rounded-lg">
-                        <Icon name="Phone" size={24} className="mx-auto mb-2 text-orange-600" />
-                        <div className="text-2xl font-bold text-orange-600">{stats.summary.phone_clicks}</div>
-                        <div className="text-sm text-muted-foreground">Звонков</div>
-                      </div>
-                      <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <Icon name="MessageCircle" size={24} className="mx-auto mb-2 text-blue-600" />
-                        <div className="text-2xl font-bold text-blue-600">{stats.summary.telegram_clicks}</div>
-                        <div className="text-sm text-muted-foreground">Telegram</div>
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg">
-                      <div className="text-sm text-purple-700 mb-1">Конверсия (CTR)</div>
-                      <div className="text-3xl font-bold text-purple-900">{stats.summary.ctr}%</div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Загрузка статистики...
-                  </div>
                 )}
               </CardContent>
             </Card>

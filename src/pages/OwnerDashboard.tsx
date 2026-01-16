@@ -112,7 +112,7 @@ export default function OwnerDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTopupLoading, setIsTopupLoading] = useState(false);
   const [timeUntilReset, setTimeUntilReset] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'auction'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'promotion' | 'statistics'>('overview');
   const [editingListing, setEditingListing] = useState<any | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -406,10 +406,11 @@ export default function OwnerDashboard() {
             </CardHeader>
           </Card>
         ) : (
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'promotion')} className="space-y-6">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'promotion' | 'statistics')} className="space-y-6">
+            <TabsList className="grid w-full max-w-2xl grid-cols-3">
               <TabsTrigger value="overview">Мои объекты</TabsTrigger>
               <TabsTrigger value="promotion">Продвижение</TabsTrigger>
+              <TabsTrigger value="statistics">Статистика</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">
@@ -427,13 +428,85 @@ export default function OwnerDashboard() {
                 listings={listings}
                 selectedListing={selectedListing}
                 auctionInfo={auctionInfo}
-                stats={stats}
                 timeUntilReset={timeUntilReset}
                 isLoading={isLoading}
                 selectedPosition={selectedPosition}
                 onSelectListing={handleListingSelect}
                 onBookPosition={handleBookPosition}
               />
+            </TabsContent>
+
+            <TabsContent value="statistics">
+              <div className="space-y-6">
+                <Card>
+                  <CardContent className="pt-6">
+                    <label className="text-sm font-medium mb-3 block">Выберите объект для просмотра статистики:</label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {listings.map((listing) => (
+                        <Button
+                          key={listing.id}
+                          variant={selectedListing?.id === listing.id ? 'default' : 'outline'}
+                          onClick={() => {
+                            setSelectedListing(listing);
+                            loadStats(listing.id);
+                          }}
+                          className="justify-start h-auto py-3"
+                        >
+                          <div className="text-left">
+                            <div className="font-semibold">{listing.title}</div>
+                            <div className="text-xs opacity-70">{listing.city}</div>
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {selectedListing && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Статистика просмотров - {selectedListing.title}</CardTitle>
+                      <CardDescription>Последние 7 дней</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {stats ? (
+                        <>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div className="text-center p-4 bg-purple-50 rounded-lg">
+                              <Icon name="Eye" size={24} className="mx-auto mb-2 text-purple-600" />
+                              <div className="text-2xl font-bold text-purple-600">{stats.summary.total_views}</div>
+                              <div className="text-sm text-muted-foreground">Просмотров</div>
+                            </div>
+                            <div className="text-center p-4 bg-green-50 rounded-lg">
+                              <Icon name="MousePointerClick" size={24} className="mx-auto mb-2 text-green-600" />
+                              <div className="text-2xl font-bold text-green-600">{stats.summary.total_clicks}</div>
+                              <div className="text-sm text-muted-foreground">Кликов</div>
+                            </div>
+                            <div className="text-center p-4 bg-orange-50 rounded-lg">
+                              <Icon name="Phone" size={24} className="mx-auto mb-2 text-orange-600" />
+                              <div className="text-2xl font-bold text-orange-600">{stats.summary.phone_clicks}</div>
+                              <div className="text-sm text-muted-foreground">Звонков</div>
+                            </div>
+                            <div className="text-center p-4 bg-blue-50 rounded-lg">
+                              <Icon name="MessageCircle" size={24} className="mx-auto mb-2 text-blue-600" />
+                              <div className="text-2xl font-bold text-blue-600">{stats.summary.telegram_clicks}</div>
+                              <div className="text-sm text-muted-foreground">Telegram</div>
+                            </div>
+                          </div>
+                          <div className="text-center p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg">
+                            <div className="text-sm text-purple-700 mb-1">Конверсия (CTR)</div>
+                            <div className="text-3xl font-bold text-purple-900">{stats.summary.ctr}%</div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                          Загрузка статистики...
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             </TabsContent>
           </Tabs>
         )}
