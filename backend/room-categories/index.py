@@ -98,12 +98,12 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            # Simple Query Protocol
+            # Загружаем из таблицы rooms (админ-панель сохраняет туда)
             cur.execute(
-                f"SELECT * FROM t_p39732784_hourly_rentals_platf.room_categories WHERE listing_id = {listing_id} ORDER BY id"
+                f"SELECT id, type as name, price as price_per_hour, square_meters, description, features, images as image_urls FROM t_p39732784_hourly_rentals_platf.rooms WHERE listing_id = {listing_id} ORDER BY id"
             )
-            categories = cur.fetchall()
-            print(f"[DEBUG] Found {len(categories)} categories for listing {listing_id}")
+            rooms = cur.fetchall()
+            print(f"[DEBUG] Found {len(rooms)} rooms for listing {listing_id}")
             
             cur.close()
             conn.close()
@@ -111,7 +111,7 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps([dict(c) for c in categories], default=str),
+                'body': json.dumps([dict(r) for r in rooms], default=str),
                 'isBase64Encoded': False
             }
         
@@ -142,9 +142,9 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            # Simple Query Protocol
+            # Сохраняем в таблицу rooms (как админ-панель)
             cur.execute(
-                f"DELETE FROM t_p39732784_hourly_rentals_platf.room_categories WHERE listing_id = {listing_id}"
+                f"DELETE FROM t_p39732784_hourly_rentals_platf.rooms WHERE listing_id = {listing_id}"
             )
             
             for category in categories:
@@ -152,14 +152,15 @@ def handler(event: dict, context) -> dict:
                 name = str(category.get('name', '')).replace("'", "''")
                 price = float(category.get('price_per_hour', 0))
                 sqm = float(category.get('square_meters', 0))
+                description = str(category.get('description', '')).replace("'", "''")
                 features = json.dumps(category.get('features', [])).replace("'", "''")
                 images = json.dumps(category.get('image_urls', [])).replace("'", "''")
                 
                 cur.execute(
                     f"""
-                    INSERT INTO t_p39732784_hourly_rentals_platf.room_categories 
-                    (listing_id, name, price_per_hour, square_meters, features, image_urls)
-                    VALUES ({listing_id}, '{name}', {price}, {sqm}, '{features}'::jsonb, '{images}'::jsonb)
+                    INSERT INTO t_p39732784_hourly_rentals_platf.rooms 
+                    (listing_id, type, price, square_meters, description, features, images, min_hours, payment_methods, cancellation_policy)
+                    VALUES ({listing_id}, '{name}', {price}, {sqm}, '{description}', ARRAY{features}::text[], ARRAY{images}::text[], 1, 'Наличные, банковская карта при заселении', 'Бесплатная отмена за 1 час до заселения')
                     """
                 )
             
