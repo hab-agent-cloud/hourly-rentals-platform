@@ -244,7 +244,7 @@ export default function OwnerAuctionTab({
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {auctionInfo.positions.map((pos) => {
                         const isMyListing = pos.booking_info?.listing_id === selectedListing.id;
                         const minPrice = pos.min_overbid || pos.base_price;
@@ -252,66 +252,81 @@ export default function OwnerAuctionTab({
                         return (
                           <div
                             key={pos.position}
-                            className={`p-4 rounded-lg border-2 transition-all ${
+                            className={`p-3 rounded-xl border-2 transition-all ${
                               isMyListing
-                                ? 'border-purple-600 bg-purple-50'
+                                ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-pink-50 shadow-sm'
                                 : pos.is_booked
-                                ? 'border-gray-300 bg-gray-50'
-                                : 'border-green-300 bg-green-50'
+                                ? 'border-gray-200 bg-gray-50/50'
+                                : 'border-green-200 bg-green-50/50 hover:border-green-300 hover:shadow-sm'
                             }`}
                           >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-base flex-shrink-0 ${
                                   isMyListing
-                                    ? 'bg-purple-200 text-purple-900'
+                                    ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md'
                                     : pos.is_booked
-                                    ? 'bg-gray-200 text-gray-700'
-                                    : 'bg-green-200 text-green-900'
+                                    ? 'bg-gray-200 text-gray-600'
+                                    : 'bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-md'
                                 }`}>
-                                  #{pos.position}
+                                  {pos.position}
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                   {pos.is_booked && pos.booking_info ? (
                                     <>
-                                      <div className="font-semibold">{pos.booking_info.listing_title}</div>
-                                      <div className="text-sm text-muted-foreground">
-                                        Забронировано за {pos.booking_info.paid_amount} ₽
+                                      <div className="font-semibold text-sm truncate max-w-[200px]">
+                                        {pos.booking_info.listing_title}
+                                      </div>
+                                      <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <Icon name="Coins" size={12} />
+                                        {pos.booking_info.paid_amount} ₽
                                       </div>
                                     </>
                                   ) : (
                                     <>
-                                      <div className="font-semibold text-green-700">Свободна</div>
-                                      <div className="text-sm text-muted-foreground">
-                                        Базовая цена: {pos.base_price} ₽
+                                      <div className="font-semibold text-sm text-green-700 flex items-center gap-1">
+                                        <Icon name="Sparkles" size={14} />
+                                        Свободна
+                                      </div>
+                                      <div className="text-xs text-muted-foreground">
+                                        от {pos.base_price} ₽
                                       </div>
                                     </>
                                   )}
                                   {isMyListing && (
-                                    <Badge className="mt-1 bg-purple-600">Ваша позиция</Badge>
+                                    <Badge className="mt-1 bg-purple-600 text-xs px-2 py-0">
+                                      <Icon name="Crown" size={10} className="mr-1" />
+                                      Ваша
+                                    </Badge>
                                   )}
                                 </div>
                               </div>
 
                               {!isMyListing && (
-                                <div className="flex items-center gap-2">
-                                  <Input
-                                    type="number"
-                                    placeholder={`мин. ${minPrice}`}
-                                    value={bidAmounts[pos.position] || ''}
-                                    onChange={(e) => handleBidChange(pos.position, e.target.value)}
-                                    className="w-28"
-                                    min={minPrice}
-                                  />
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <div className="flex flex-col gap-1">
+                                    <Input
+                                      type="number"
+                                      placeholder={`от ${minPrice}`}
+                                      value={bidAmounts[pos.position] || ''}
+                                      onChange={(e) => handleBidChange(pos.position, e.target.value)}
+                                      className="w-24 h-8 text-sm"
+                                      min={minPrice}
+                                    />
+                                  </div>
                                   <Button
                                     onClick={() => handleBookClick(pos.position)}
                                     disabled={isLoading && selectedPosition === pos.position}
-                                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                                    size="sm"
+                                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 h-8 px-3"
                                   >
                                     {isLoading && selectedPosition === pos.position ? (
-                                      <Icon name="Loader2" size={16} className="animate-spin" />
+                                      <Icon name="Loader2" size={14} className="animate-spin" />
                                     ) : (
-                                      'Забронировать'
+                                      <>
+                                        <Icon name="Gavel" size={14} className="mr-1" />
+                                        <span className="text-xs">Забронировать</span>
+                                      </>
                                     )}
                                   </Button>
                                 </div>

@@ -405,10 +405,10 @@ export default function OwnerDashboard() {
             </CardHeader>
           </Card>
         ) : (
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'auction')} className="space-y-6">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'promotion')} className="space-y-6">
             <TabsList className="grid w-full max-w-md grid-cols-2">
               <TabsTrigger value="overview">Мои объекты</TabsTrigger>
-              <TabsTrigger value="auction">Аукцион</TabsTrigger>
+              <TabsTrigger value="promotion">Продвижение</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">
@@ -422,7 +422,7 @@ export default function OwnerDashboard() {
               />
             </TabsContent>
 
-            <TabsContent value="auction">
+            <TabsContent value="promotion">
               <OwnerAuctionTab
                 listings={listings}
                 selectedListing={selectedListing}
