@@ -16,7 +16,7 @@ import AdminListingsFilters from '@/components/admin/AdminListingsFilters';
 import AdminListingCard from '@/components/admin/AdminListingCard';
 import SubscriptionDialog from '@/components/admin/SubscriptionDialog';
 import ModerationDialog from '@/components/admin/ModerationDialog';
-import ExpertRatingDialog from '@/components/ExpertRatingDialog';
+import ExpertRatingDialogFull from '@/components/ExpertRatingDialogFull';
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState<'listings' | 'moderation' | 'owners' | 'employees' | 'bonuses' | 'all-actions'>('listings');
@@ -363,7 +363,7 @@ export default function AdminPanel() {
           onSubmit={handleModerationSubmit}
         />
 
-        <ExpertRatingDialog
+        <ExpertRatingDialogFull
           open={expertRatingDialog.open}
           listing={expertRatingDialog.listing}
           token={token!}

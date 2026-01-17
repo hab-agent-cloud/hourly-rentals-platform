@@ -112,6 +112,23 @@ export const api = {
     return response.json();
   },
 
+  // Обновление всех экспертных оценок (объект + номера)
+  updateListingExpertRatings: async (token: string, id: number, data: any) => {
+    const response = await fetch(`${API_URLS.adminListings}?id=${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
   // Архивация объекта
   archiveListing: async (token: string, id: number) => {
     const response = await fetch(`${API_URLS.adminListings}?id=${id}`, {

@@ -90,8 +90,10 @@ def handler(event: dict, context) -> dict:
             listing_ids = [l['id'] for l in listings]
             placeholders = ','.join(['%s'] * len(listing_ids))
             cur.execute(
-                f"""SELECT listing_id, type, price, description, square_meters, features, 
-                           min_hours, payment_methods, cancellation_policy 
+                f"""SELECT id, listing_id, type, price, description, square_meters, features, 
+                           min_hours, payment_methods, cancellation_policy,
+                           expert_photo_rating, expert_photo_feedback,
+                           expert_fullness_rating, expert_fullness_feedback
                     FROM t_p39732784_hourly_rentals_platf.rooms 
                     WHERE listing_id IN ({placeholders})""",
                 listing_ids
@@ -264,10 +266,13 @@ def handler(event: dict, context) -> dict:
                 print(f'Rooms count: {len(body["rooms"])}')
                 print(f'Rooms data: {body["rooms"]}')
             
-            # Если это обновление только экспертной оценки
-            if 'expert_fullness_rating' in body and len(body) <= 3:
+            # Если это обновление экспертных оценок (есть хотя бы одно поле expert_*)
+            if any(key.startswith('expert_') for key in body.keys()) and 'title' not in body:
+                # Обновление экспертных оценок объекта
                 cur.execute("""
                     UPDATE t_p39732784_hourly_rentals_platf.listings SET 
+                        expert_photo_rating=%s,
+                        expert_photo_feedback=%s,
                         expert_fullness_rating=%s,
                         expert_fullness_feedback=%s,
                         expert_rated_by=%s,
@@ -276,11 +281,35 @@ def handler(event: dict, context) -> dict:
                     WHERE id=%s
                     RETURNING *
                 """, (
+                    body.get('expert_photo_rating'),
+                    body.get('expert_photo_feedback'),
                     body.get('expert_fullness_rating'),
                     body.get('expert_fullness_feedback'),
                     admin.get('admin_id'),
                     listing_id
                 ))
+                
+                # Обновление экспертных оценок номеров
+                if 'rooms' in body and body['rooms']:
+                    for room_data in body['rooms']:
+                        if room_data.get('id'):
+                            cur.execute("""
+                                UPDATE t_p39732784_hourly_rentals_platf.rooms SET
+                                    expert_photo_rating=%s,
+                                    expert_photo_feedback=%s,
+                                    expert_fullness_rating=%s,
+                                    expert_fullness_feedback=%s,
+                                    expert_rated_by=%s,
+                                    expert_rated_at=CURRENT_TIMESTAMP
+                                WHERE id=%s
+                            """, (
+                                room_data.get('expert_photo_rating'),
+                                room_data.get('expert_photo_feedback'),
+                                room_data.get('expert_fullness_rating'),
+                                room_data.get('expert_fullness_feedback'),
+                                admin.get('admin_id'),
+                                room_data['id']
+                            ))
             else:
                 # Полное обновление объекта
                 cur.execute("""
