@@ -289,6 +289,8 @@ def handler(event: dict, context) -> dict:
                     listing_id
                 ))
                 
+                updated_listing = cur.fetchone()
+                
                 # Обновление экспертных оценок номеров
                 if 'rooms' in body and body['rooms']:
                     for room_data in body['rooms']:
@@ -310,6 +312,17 @@ def handler(event: dict, context) -> dict:
                                 admin.get('admin_id'),
                                 room_data['id']
                             ))
+                
+                conn.commit()
+                cur.close()
+                conn.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps(updated_listing, default=str),
+                    'isBase64Encoded': False
+                }
             else:
                 # Полное обновление объекта
                 cur.execute("""
