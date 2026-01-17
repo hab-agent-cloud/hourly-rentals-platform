@@ -22,6 +22,7 @@ export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState<'listings' | 'moderation' | 'owners' | 'employees' | 'bonuses' | 'all-actions'>('listings');
   const [listings, setListings] = useState<any[]>([]);
   const [showArchived, setShowArchived] = useState(false);
+  const [showOnlyUnrated, setShowOnlyUnrated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
@@ -246,9 +247,21 @@ export default function AdminPanel() {
     return listings.filter(listing => {
       const cityMatch = selectedCity === 'all' || listing.city === selectedCity;
       const typeMatch = selectedType === 'all' || listing.type === selectedType;
+      
+      if (showOnlyUnrated) {
+        const hasMainRating = (listing.expert_photo_rating && listing.expert_photo_rating > 0) || 
+                              (listing.expert_fullness_rating && listing.expert_fullness_rating > 0);
+        const hasRoomRatings = listing.rooms?.some((room: any) => 
+          (room.expert_photo_rating && room.expert_photo_rating > 0) || 
+          (room.expert_fullness_rating && room.expert_fullness_rating > 0)
+        );
+        const ratedMatch = !hasMainRating && !hasRoomRatings;
+        return cityMatch && typeMatch && ratedMatch;
+      }
+      
       return cityMatch && typeMatch;
     });
-  }, [listings, selectedCity, selectedType]);
+  }, [listings, selectedCity, selectedType, showOnlyUnrated]);
 
   const groupedByCity = useMemo(() => {
     const groups: { [city: string]: any[] } = {};
@@ -296,10 +309,12 @@ export default function AdminPanel() {
           selectedCity={selectedCity}
           selectedType={selectedType}
           showArchived={showArchived}
+          showOnlyUnrated={showOnlyUnrated}
           cities={cities}
           onCityChange={setSelectedCity}
           onTypeChange={setSelectedType}
           onArchiveToggle={() => setShowArchived(!showArchived)}
+          onUnratedToggle={() => setShowOnlyUnrated(!showOnlyUnrated)}
           onCreate={handleCreate}
         />
 

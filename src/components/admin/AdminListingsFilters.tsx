@@ -9,10 +9,12 @@ interface AdminListingsFiltersProps {
   selectedCity: string;
   selectedType: string;
   showArchived: boolean;
+  showOnlyUnrated: boolean;
   cities: string[];
   onCityChange: (city: string) => void;
   onTypeChange: (type: string) => void;
   onArchiveToggle: () => void;
+  onUnratedToggle: () => void;
   onCreate: () => void;
 }
 
@@ -22,10 +24,12 @@ export default function AdminListingsFilters({
   selectedCity,
   selectedType,
   showArchived,
+  showOnlyUnrated,
   cities,
   onCityChange,
   onTypeChange,
   onArchiveToggle,
+  onUnratedToggle,
   onCreate,
 }: AdminListingsFiltersProps) {
   return (
@@ -78,6 +82,14 @@ export default function AdminListingsFilters({
             </SelectItem>
           </SelectContent>
         </Select>
+        <Button
+          variant={showOnlyUnrated ? 'default' : 'outline'}
+          onClick={onUnratedToggle}
+          className={showOnlyUnrated ? 'bg-purple-600 hover:bg-purple-700' : ''}
+        >
+          <Icon name="Award" size={18} className="mr-2" />
+          {showOnlyUnrated ? 'Все объекты' : 'Без оценки'}
+        </Button>
         <Button
           variant={showArchived ? 'default' : 'outline'}
           onClick={onArchiveToggle}
