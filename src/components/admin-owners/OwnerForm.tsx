@@ -89,7 +89,7 @@ export default function OwnerForm({
                 required
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Владелец будет использовать это для входа в личный кабинет
+                Владелец будет использовать это для входа в экстранет
               </p>
             </div>
 

@@ -65,7 +65,7 @@ export default function OwnerDashboardHeader({
             <div className="text-4xl">⏰</div>
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Личный кабинет
+                Экстранет
               </h1>
               <p className="text-xs text-muted-foreground">{owner.full_name}</p>
             </div>
