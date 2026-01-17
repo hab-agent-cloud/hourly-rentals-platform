@@ -108,7 +108,7 @@ export default function Index() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <img 
-                src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/4fc1d63d-f58e-4bb3-81aa-9d4773e6cd10.jpg" 
+                src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/69bb67c0-3011-44dd-8807-0323986ac305.jpg" 
                 alt="120 минут" 
                 className="h-16 w-16 md:h-20 md:w-20 object-contain hover:scale-110 transition-transform duration-300 cursor-pointer"
               />
