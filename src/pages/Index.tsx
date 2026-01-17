@@ -168,6 +168,7 @@ export default function Index() {
                     </div>
                   </SheetContent>
                 </Sheet>
+            </div>
 
             <nav className="hidden md:flex items-center gap-3">
               <Button 
