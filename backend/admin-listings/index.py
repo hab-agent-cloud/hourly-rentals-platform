@@ -264,31 +264,50 @@ def handler(event: dict, context) -> dict:
                 print(f'Rooms count: {len(body["rooms"])}')
                 print(f'Rooms data: {body["rooms"]}')
             
-            cur.execute("""
-                UPDATE t_p39732784_hourly_rentals_platf.listings SET 
-                    title=%s, type=%s, city=%s, district=%s, price=%s, rating=%s, 
-                    reviews=%s, auction=%s, image_url=%s, metro=%s, metro_walk=%s, 
-                    has_parking=%s, parking_type=%s, parking_price_per_hour=%s,
-                    features=%s, lat=%s, lng=%s, min_hours=%s, 
-                    phone=%s, telegram=%s, logo_url=%s, is_archived=%s,
-                    price_warning_holidays=%s, price_warning_daytime=%s, updated_at=CURRENT_TIMESTAMP
-                WHERE id=%s
-                RETURNING *
-            """, (
-                body['title'].strip() if isinstance(body.get('title'), str) else body['title'],
-                body['type'], 
-                body['city'].strip() if isinstance(body.get('city'), str) else body['city'],
-                body['district'].strip() if isinstance(body.get('district'), str) else body['district'],
-                body['price'], body.get('rating', 0), body.get('reviews', 0),
-                body.get('auction', 999), body.get('image_url'), body.get('metro'),
-                body.get('metro_walk', 0), body.get('has_parking', False),
-                body.get('parking_type', 'none'), body.get('parking_price_per_hour', 0),
-                body.get('features', []), body.get('lat'), body.get('lng'),
-                body.get('min_hours', 1), body.get('phone'), body.get('telegram'),
-                body.get('logo_url'), body.get('is_archived', False),
-                body.get('price_warning_holidays', False), body.get('price_warning_daytime', False),
-                listing_id
-            ))
+            # Если это обновление только экспертной оценки
+            if 'expert_fullness_rating' in body and len(body) <= 3:
+                cur.execute("""
+                    UPDATE t_p39732784_hourly_rentals_platf.listings SET 
+                        expert_fullness_rating=%s,
+                        expert_fullness_feedback=%s,
+                        expert_rated_by=%s,
+                        expert_rated_at=CURRENT_TIMESTAMP,
+                        updated_at=CURRENT_TIMESTAMP
+                    WHERE id=%s
+                    RETURNING *
+                """, (
+                    body.get('expert_fullness_rating'),
+                    body.get('expert_fullness_feedback'),
+                    admin.get('admin_id'),
+                    listing_id
+                ))
+            else:
+                # Полное обновление объекта
+                cur.execute("""
+                    UPDATE t_p39732784_hourly_rentals_platf.listings SET 
+                        title=%s, type=%s, city=%s, district=%s, price=%s, rating=%s, 
+                        reviews=%s, auction=%s, image_url=%s, metro=%s, metro_walk=%s, 
+                        has_parking=%s, parking_type=%s, parking_price_per_hour=%s,
+                        features=%s, lat=%s, lng=%s, min_hours=%s, 
+                        phone=%s, telegram=%s, logo_url=%s, is_archived=%s,
+                        price_warning_holidays=%s, price_warning_daytime=%s, updated_at=CURRENT_TIMESTAMP
+                    WHERE id=%s
+                    RETURNING *
+                """, (
+                    body['title'].strip() if isinstance(body.get('title'), str) else body['title'],
+                    body['type'], 
+                    body['city'].strip() if isinstance(body.get('city'), str) else body['city'],
+                    body['district'].strip() if isinstance(body.get('district'), str) else body['district'],
+                    body['price'], body.get('rating', 0), body.get('reviews', 0),
+                    body.get('auction', 999), body.get('image_url'), body.get('metro'),
+                    body.get('metro_walk', 0), body.get('has_parking', False),
+                    body.get('parking_type', 'none'), body.get('parking_price_per_hour', 0),
+                    body.get('features', []), body.get('lat'), body.get('lng'),
+                    body.get('min_hours', 1), body.get('phone'), body.get('telegram'),
+                    body.get('logo_url'), body.get('is_archived', False),
+                    body.get('price_warning_holidays', False), body.get('price_warning_daytime', False),
+                    listing_id
+                ))
             
             updated_listing = cur.fetchone()
             

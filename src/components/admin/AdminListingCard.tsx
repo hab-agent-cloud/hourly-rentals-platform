@@ -15,6 +15,7 @@ interface AdminListingCardProps {
   onChangePosition: (listingId: number, newPosition: number) => void;
   onSetSubscription: (listing: any) => void;
   onModerate: (listing: any) => void;
+  onExpertRate?: (listing: any) => void;
 }
 
 export default function AdminListingCard({
@@ -27,6 +28,7 @@ export default function AdminListingCard({
   onChangePosition,
   onSetSubscription,
   onModerate,
+  onExpertRate,
 }: AdminListingCardProps) {
   return (
     <Card className={listing.is_archived ? 'opacity-60' : ''}>
@@ -174,6 +176,18 @@ export default function AdminListingCard({
               >
                 <Icon name="CheckCircle" size={16} className="mr-1" />
                 {listing.moderation_status === 'approved' ? 'Изменить модерацию' : 'Модерировать'}
+              </Button>
+            )}
+            
+            {onExpertRate && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-purple-300 text-purple-700 hover:bg-purple-50"
+                onClick={() => onExpertRate(listing)}
+              >
+                <Icon name="Award" size={16} className="mr-1" />
+                {listing.expert_fullness_rating ? 'Изменить оценку' : 'Экспертная оценка'}
               </Button>
             )}
           </div>

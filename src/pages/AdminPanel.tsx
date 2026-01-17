@@ -16,6 +16,7 @@ import AdminListingsFilters from '@/components/admin/AdminListingsFilters';
 import AdminListingCard from '@/components/admin/AdminListingCard';
 import SubscriptionDialog from '@/components/admin/SubscriptionDialog';
 import ModerationDialog from '@/components/admin/ModerationDialog';
+import ExpertRatingDialog from '@/components/ExpertRatingDialog';
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState<'listings' | 'moderation' | 'owners' | 'employees' | 'bonuses' | 'all-actions'>('listings');
@@ -32,6 +33,7 @@ export default function AdminPanel() {
   const [moderationDialog, setModerationDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
   const [moderationStatus, setModerationStatus] = useState<string>('approved');
   const [moderationComment, setModerationComment] = useState<string>('');
+  const [expertRatingDialog, setExpertRatingDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -331,6 +333,7 @@ export default function AdminPanel() {
                       onChangePosition={handleChangePosition}
                       onSetSubscription={(listing) => setSubscriptionDialog({ open: true, listing })}
                       onModerate={handleModerate}
+                      onExpertRate={(listing) => setExpertRatingDialog({ open: true, listing })}
                     />
                   ))}
                 </div>
@@ -358,6 +361,17 @@ export default function AdminPanel() {
           onStatusChange={setModerationStatus}
           onCommentChange={setModerationComment}
           onSubmit={handleModerationSubmit}
+        />
+
+        <ExpertRatingDialog
+          open={expertRatingDialog.open}
+          listing={expertRatingDialog.listing}
+          token={token!}
+          onClose={() => setExpertRatingDialog({ open: false, listing: null })}
+          onSuccess={() => {
+            setExpertRatingDialog({ open: false, listing: null });
+            loadListings();
+          }}
         />
 
         {!isLoading && filteredListings.length === 0 && listings.length > 0 && (

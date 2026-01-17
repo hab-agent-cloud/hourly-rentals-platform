@@ -95,6 +95,23 @@ export const api = {
     return response.json();
   },
 
+  // Обновление экспертной оценки
+  updateExpertRating: async (token: string, id: number, data: { expert_fullness_rating: number; expert_fullness_feedback: string }) => {
+    const response = await fetch(`${API_URLS.adminListings}?id=${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
   // Архивация объекта
   archiveListing: async (token: string, id: number) => {
     const response = await fetch(`${API_URLS.adminListings}?id=${id}`, {

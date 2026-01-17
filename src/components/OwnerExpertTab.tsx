@@ -8,6 +8,8 @@ interface Listing {
   city: string;
   image_url: string;
   type: string;
+  expert_fullness_rating?: number;
+  expert_fullness_feedback?: string;
 }
 
 interface ExpertRating {
@@ -122,6 +124,7 @@ export default function OwnerExpertTab({ listings }: OwnerExpertTabProps) {
         <div className="grid grid-cols-1 gap-6">
           {listings.map((listing) => {
             const photoRating = getPhotoRating(listing);
+            const hasFullnessRating = listing.expert_fullness_rating && listing.expert_fullness_rating > 0;
             
             return (
               <Card key={listing.id} className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -138,7 +141,7 @@ export default function OwnerExpertTab({ listings }: OwnerExpertTabProps) {
                   </div>
                 </CardHeader>
                 <CardContent className="pt-6">
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     <div className="bg-white border rounded-lg p-6 hover:border-purple-300 transition-colors">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
@@ -183,6 +186,55 @@ export default function OwnerExpertTab({ listings }: OwnerExpertTabProps) {
                         </div>
                       </div>
                     </div>
+
+                    {hasFullnessRating && (
+                      <div className="bg-white border rounded-lg p-6 hover:border-purple-300 transition-colors">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                              <Icon name="ListChecks" size={24} className="text-blue-600" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-lg">Наполняемость объекта</h3>
+                              <p className="text-sm text-muted-foreground">Оценка от эксперта</p>
+                            </div>
+                          </div>
+                          <Badge variant={getScoreBadgeVariant(listing.expert_fullness_rating!)} className="text-sm px-3 py-1">
+                            {listing.expert_fullness_rating} из 5
+                          </Badge>
+                        </div>
+                        
+                        <div className="mb-4 flex items-center gap-2">
+                          {renderStars(listing.expert_fullness_rating!)}
+                          <span className={`font-bold text-lg ml-2 ${getScoreColor(listing.expert_fullness_rating!)}`}>
+                            {listing.expert_fullness_rating} звезд{listing.expert_fullness_rating === 1 ? 'а' : listing.expert_fullness_rating <= 4 ? 'ы' : ''}
+                          </span>
+                        </div>
+                        
+                        {listing.expert_fullness_feedback && (
+                          <div className={`p-4 rounded-lg ${
+                            listing.expert_fullness_rating! <= 2 ? 'bg-red-50 border border-red-200' :
+                            listing.expert_fullness_rating === 3 ? 'bg-orange-50 border border-orange-200' :
+                            listing.expert_fullness_rating === 4 ? 'bg-blue-50 border border-blue-200' :
+                            'bg-green-50 border border-green-200'
+                          }`}>
+                            <div className="flex items-start gap-3">
+                              <Icon 
+                                name={listing.expert_fullness_rating! >= 4 ? "ThumbsUp" : "AlertCircle"} 
+                                size={20} 
+                                className={getScoreColor(listing.expert_fullness_rating!)}
+                              />
+                              <div>
+                                <h4 className={`font-semibold mb-1 ${getScoreColor(listing.expert_fullness_rating!)}`}>
+                                  Обратная связь эксперта:
+                                </h4>
+                                <p className="text-sm whitespace-pre-line">{listing.expert_fullness_feedback}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
