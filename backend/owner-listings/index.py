@@ -50,6 +50,7 @@ def handler(event: dict, context) -> dict:
                            type, image_url, subscription_expires_at, moderation_status,
                            moderation_comment, price, square_meters, logo_url, features, 
                            metro, metro_walk, has_parking, min_hours, lat, lng,
+                           expert_photo_rating, expert_photo_feedback,
                            expert_fullness_rating, expert_fullness_feedback
                     FROM listings
                     WHERE owner_id = %s AND is_archived = FALSE
@@ -57,6 +58,33 @@ def handler(event: dict, context) -> dict:
                 """, (owner_id,))
                 listings = cur.fetchall()
                 print(f'Found {len(listings)} listings for owner {owner_id}')
+                
+                # Загружаем комнаты с экспертными оценками
+                if listings:
+                    listing_ids = [l['id'] for l in listings]
+                    placeholders = ','.join(['%s'] * len(listing_ids))
+                    cur.execute(
+                        f"""SELECT id, listing_id, type, price, 
+                                   expert_photo_rating, expert_photo_feedback,
+                                   expert_fullness_rating, expert_fullness_feedback
+                            FROM rooms 
+                            WHERE listing_id IN ({placeholders})
+                            ORDER BY listing_id, type""",
+                        listing_ids
+                    )
+                    all_rooms = cur.fetchall()
+                    
+                    # Группируем комнаты по listing_id
+                    rooms_by_listing = {}
+                    for room in all_rooms:
+                        lid = room.pop('listing_id')
+                        if lid not in rooms_by_listing:
+                            rooms_by_listing[lid] = []
+                        rooms_by_listing[lid].append(room)
+                    
+                    # Добавляем комнаты к каждому листингу
+                    for listing in listings:
+                        listing['rooms'] = rooms_by_listing.get(listing['id'], [])
             else:
                 # Получить все отели для привязки (только для админа)
                 admin = verify_token(token)
