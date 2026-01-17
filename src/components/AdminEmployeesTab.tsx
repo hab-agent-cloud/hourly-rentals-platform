@@ -69,6 +69,7 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
     name: '',
     login: '',
     password: '',
+    loginType: 'phone' as 'phone' | 'email',
     role: 'employee' as 'employee' | 'superadmin',
     permissions: {
       owners: false,
@@ -121,6 +122,7 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
       name: '',
       login: '',
       password: '',
+      loginType: 'phone',
       role: 'employee',
       permissions: {
         owners: false,
@@ -134,11 +136,13 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
 
   const handleEdit = (employee: Employee) => {
     setEditingEmployee(employee);
+    const loginType = employee.login.includes('@') ? 'email' : 'phone';
     setFormData({
       email: employee.email,
       name: employee.name,
       login: employee.login,
       password: '',
+      loginType: loginType,
       role: employee.role,
       permissions: employee.permissions,
       is_active: employee.is_active,
@@ -355,18 +359,47 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label>Тип логина</Label>
+              <Select
+                value={formData.loginType}
+                onValueChange={(value: 'phone' | 'email') =>
+                  setFormData({ ...formData, loginType: value, login: '' })
+                }
+                disabled={!!editingEmployee}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="phone">Номер телефона</SelectItem>
+                  <SelectItem value="email">Email</SelectItem>
+                </SelectContent>
+              </Select>
+              {editingEmployee && (
+                <p className="text-xs text-muted-foreground">
+                  Тип логина нельзя изменить после создания. Только суперадмин может изменить логин.
+                </p>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="login">Логин</Label>
+                <Label htmlFor="login">
+                  {formData.loginType === 'phone' ? 'Номер телефона' : 'Email для входа'}
+                </Label>
                 <Input
                   id="login"
+                  type={formData.loginType === 'email' ? 'email' : 'tel'}
                   value={formData.login}
                   onChange={(e) =>
                     setFormData({ ...formData, login: e.target.value })
                   }
-                  placeholder="username"
-                  disabled={!!editingEmployee}
+                  placeholder={formData.loginType === 'phone' ? '89991234567' : 'login@example.com'}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Сотрудник будет использовать это для входа в систему
+                </p>
               </div>
 
               <div className="space-y-2">

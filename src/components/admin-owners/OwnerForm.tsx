@@ -16,6 +16,7 @@ interface FormData {
   email: string;
   login: string;
   password: string;
+  loginType: 'phone' | 'email';
   full_name: string;
   phone: string;
 }
@@ -63,16 +64,32 @@ export default function OwnerForm({
             </div>
 
             <div>
-              <Label htmlFor="login">Логин (номер телефона для входа) *</Label>
+              <Label htmlFor="loginType">Тип логина *</Label>
+              <select
+                id="loginType"
+                value={formData.loginType}
+                onChange={(e) => setFormData({ ...formData, loginType: e.target.value as 'phone' | 'email', login: '' })}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="phone">Номер телефона</option>
+                <option value="email">Email</option>
+              </select>
+            </div>
+
+            <div>
+              <Label htmlFor="login">
+                {formData.loginType === 'phone' ? 'Номер телефона для входа' : 'Email для входа'} *
+              </Label>
               <Input
                 id="login"
-                placeholder="89991234567"
+                type={formData.loginType === 'email' ? 'email' : 'tel'}
+                placeholder={formData.loginType === 'phone' ? '89991234567' : 'login@example.com'}
                 value={formData.login}
                 onChange={(e) => setFormData({ ...formData, login: e.target.value })}
                 required
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Этот номер владелец будет использовать для входа в личный кабинет
+                Владелец будет использовать это для входа в личный кабинет
               </p>
             </div>
 

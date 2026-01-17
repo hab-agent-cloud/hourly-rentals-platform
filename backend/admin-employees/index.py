@@ -226,6 +226,9 @@ def handler(event: dict, context) -> dict:
                 if 'password' in data and data['password']:
                     updates.append('password_hash = %s')
                     values.append(hashlib.sha256(data['password'].encode()).hexdigest())
+                if 'login' in data:
+                    updates.append('login = %s')
+                    values.append(data['login'])
                 
                 if not updates:
                     return {

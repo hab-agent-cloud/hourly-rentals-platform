@@ -103,11 +103,12 @@ def handler(event: dict, context) -> dict:
             
             password_hash = hashlib.sha256(password.encode()).hexdigest()
             
-            # Вход по полю login (номер телефона)
+            # Вход по полю login (может быть номер телефона или email)
             cur.execute("""
                 SELECT id, email, full_name, balance, bonus_balance, phone, login
-                FROM owners WHERE login = %s AND password_hash = %s AND is_archived = false
-            """, (login, password_hash))
+                FROM owners 
+                WHERE (login = %s OR email = %s) AND password_hash = %s AND is_archived = false
+            """, (login, login, password_hash))
             
             owner = cur.fetchone()
             if not owner:

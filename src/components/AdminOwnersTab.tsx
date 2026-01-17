@@ -51,6 +51,7 @@ export default function AdminOwnersTab({ token }: { token: string }) {
     email: '',
     login: '',
     password: '',
+    loginType: 'phone' as 'phone' | 'email',
     full_name: '',
     phone: '',
   });
@@ -78,16 +79,18 @@ export default function AdminOwnersTab({ token }: { token: string }) {
 
   const handleCreate = () => {
     setSelectedOwner(null);
-    setFormData({ email: '', login: '', password: '', full_name: '', phone: '' });
+    setFormData({ email: '', login: '', password: '', loginType: 'phone', full_name: '', phone: '' });
     setShowForm(true);
   };
 
   const handleEdit = (owner: Owner) => {
     setSelectedOwner(owner);
+    const loginType = owner.login?.includes('@') ? 'email' : 'phone';
     setFormData({
       email: owner.email,
       login: owner.login || '',
       password: '',
+      loginType: loginType,
       full_name: owner.full_name,
       phone: owner.phone || '',
     });
