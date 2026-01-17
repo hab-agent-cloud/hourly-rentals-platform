@@ -67,11 +67,23 @@ export default function OwnerDashboard() {
           </Card>
         ) : (
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'promotion' | 'statistics' | 'expert')} className="space-y-6">
-            <TabsList className="grid w-full max-w-3xl grid-cols-4">
-              <TabsTrigger value="overview">Мои объекты</TabsTrigger>
-              <TabsTrigger value="promotion">Продвижение</TabsTrigger>
-              <TabsTrigger value="statistics">Статистика</TabsTrigger>
-              <TabsTrigger value="expert">Эксперт</TabsTrigger>
+            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-4">
+              <TabsTrigger value="overview">
+                <Icon name="Building" size={16} className="mr-2" />
+                Мои объекты
+              </TabsTrigger>
+              <TabsTrigger value="promotion">
+                <Icon name="TrendingUp" size={16} className="mr-2" />
+                Продвижение
+              </TabsTrigger>
+              <TabsTrigger value="statistics">
+                <Icon name="BarChart3" size={16} className="mr-2" />
+                Статистика
+              </TabsTrigger>
+              <TabsTrigger value="expert">
+                <Icon name="Award" size={16} className="mr-2" />
+                Эксперт
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">
