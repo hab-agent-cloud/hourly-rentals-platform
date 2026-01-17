@@ -196,14 +196,15 @@ export default function ExpertRatingDialogFull({
   if (!listing) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Icon name="Award" size={24} className="text-purple-600" />
-            Экспертная оценка: {listing.title}
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Award" size={24} className="text-purple-600" />
+              Экспертная оценка: {listing.title}
+            </DialogTitle>
+          </DialogHeader>
 
         <Tabs defaultValue="rooms" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
@@ -458,6 +459,7 @@ export default function ExpertRatingDialogFull({
           </Button>
         </div>
       </DialogContent>
+      </Dialog>
 
       <ImageLightbox
         images={lightboxImages}
@@ -466,6 +468,6 @@ export default function ExpertRatingDialogFull({
         onClose={() => setLightboxOpen(false)}
         onNavigate={setLightboxIndex}
       />
-    </Dialog>
+    </>
   );
 }
