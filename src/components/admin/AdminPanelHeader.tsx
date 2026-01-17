@@ -19,7 +19,7 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
               <div className="text-4xl">⏰</div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Админ-панель 120 минут
+                  Админ-панель
                 </h1>
                 <p className="text-xs text-muted-foreground">
                   {adminInfo?.name} • {adminInfo?.role === 'superadmin' ? 'Суперадминистратор' : 'Сотрудник'}
