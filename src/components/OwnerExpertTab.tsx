@@ -189,6 +189,19 @@ export default function OwnerExpertTab({ listings, token, ownerId, onUpdate }: O
   const [submittingRecheck, setSubmittingRecheck] = useState<number | null>(null);
   const { toast } = useToast();
 
+  // Debug: проверяем данные
+  console.log('OwnerExpertTab listings:', listings);
+  listings.forEach(listing => {
+    console.log(`Listing ${listing.id} (${listing.title}):`, {
+      image_url: listing.image_url,
+      rooms: listing.rooms?.map(r => ({
+        type: r.type,
+        images: r.images,
+        description: r.description
+      }))
+    });
+  });
+
   const handleImageClick = (images: string[], index: number) => {
     setLightboxImages(images);
     setLightboxIndex(index);
@@ -223,7 +236,7 @@ export default function OwnerExpertTab({ listings, token, ownerId, onUpdate }: O
       <div className="space-y-6">
       <Card className="border-purple-200 bg-gradient-to-br from-purple-50/50 to-pink-50/50">
         <CardHeader>
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <Icon name="Award" size={32} className="text-purple-600" />
               <div>
@@ -235,12 +248,12 @@ export default function OwnerExpertTab({ listings, token, ownerId, onUpdate }: O
             </div>
             <Button
               size="lg"
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all"
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all py-6"
               onClick={() => window.open('https://t.me/your_expert_channel', '_blank')}
             >
-              <div className="text-left">
-                <div className="font-bold text-base">Я ПРОДАМ ВСЕ</div>
-                <div className="text-xs opacity-90 -mt-0.5">
+              <div className="text-center w-full">
+                <div className="font-bold text-xl mb-1">Я ПРОДАМ ВСЕ</div>
+                <div className="text-sm opacity-90">
                   используйте советы от ведущего эксперта для ведения успешного бизнеса в почасовой аренде
                 </div>
               </div>
