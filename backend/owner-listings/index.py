@@ -64,7 +64,7 @@ def handler(event: dict, context) -> dict:
                     listing_ids = [l['id'] for l in listings]
                     placeholders = ','.join(['%s'] * len(listing_ids))
                     cur.execute(
-                        f"""SELECT id, listing_id, type, price, 
+                        f"""SELECT id, listing_id, type, price, description, images,
                                    expert_photo_rating, expert_photo_feedback,
                                    expert_fullness_rating, expert_fullness_feedback
                             FROM rooms 
