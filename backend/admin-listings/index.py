@@ -464,6 +464,9 @@ def handler(event: dict, context) -> dict:
                 moderation_status = body.get('status')
                 moderation_comment = body.get('comment', '')
                 
+                print(f"[DEBUG] Moderate request: listing_id={listing_id}, status={moderation_status}, comment={moderation_comment}")
+                print(f"[DEBUG] Body: {body}")
+                
                 if not listing_id or not moderation_status:
                     return {
                         'statusCode': 400,
