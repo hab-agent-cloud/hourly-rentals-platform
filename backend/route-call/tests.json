@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Route call - listing found",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "from": "+79991234567",
+        "to": "+74951234501"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "action": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Route call - missing parameters",
+      "method": "POST",
+      "path": "/",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "from and to parameters are required"
+      }
+    }
+  ]
+}

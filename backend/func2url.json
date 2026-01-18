@@ -1,4 +1,6 @@
 {
+  "get-virtual-number": "https://functions.poehali.dev/4a500ec2-2f33-49d9-87d0-3779d8d52ae5",
+  "route-call": "https://functions.poehali.dev/118f6961-69ab-4912-bbec-0481012af402",
   "room-categories": "https://functions.poehali.dev/6e7f9cac-b774-46cc-bb47-154f93adb2c9",
   "upload-image": "https://functions.poehali.dev/32a4bee5-4d04-4b73-a903-52cec9a5cef6",
   "owner-update-listing": "https://functions.poehali.dev/3e708f67-7174-4fd3-84a6-6541bcc2186b",

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
@@ -16,6 +16,8 @@ interface ListingInfoCardProps {
 
 export default function ListingInfoCard({ listing }: ListingInfoCardProps) {
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
+  const [virtualNumber, setVirtualNumber] = useState<string | null>(null);
+  const [isLoadingNumber, setIsLoadingNumber] = useState(false);
 
   const getFirstImage = (imageUrl: any) => {
     if (!imageUrl) return null;
@@ -116,10 +118,36 @@ export default function ListingInfoCard({ listing }: ListingInfoCardProps) {
               <div className="flex flex-col gap-3 pt-4">
                 {listing.phone && (
                   <Button 
-                    onClick={() => setPhoneModalOpen(true)}
+                    onClick={async () => {
+                      setIsLoadingNumber(true);
+                      try {
+                        const response = await fetch('https://functions.poehali.dev/4a500ec2-2f33-49d9-87d0-3779d8d52ae5', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ listing_id: listing.id })
+                        });
+                        const data = await response.json();
+                        if (data.virtual_number) {
+                          setVirtualNumber(data.virtual_number);
+                        } else {
+                          setVirtualNumber(listing.phone);
+                        }
+                      } catch (error) {
+                        console.error('Failed to get virtual number:', error);
+                        setVirtualNumber(listing.phone);
+                      } finally {
+                        setIsLoadingNumber(false);
+                        setPhoneModalOpen(true);
+                      }
+                    }}
+                    disabled={isLoadingNumber}
                     className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg py-6"
                   >
-                    <Icon name="Phone" size={20} className="mr-2" />
+                    {isLoadingNumber ? (
+                      <Icon name="Loader2" size={20} className="mr-2 animate-spin" />
+                    ) : (
+                      <Icon name="Phone" size={20} className="mr-2" />
+                    )}
                     Позвонить
                   </Button>
                 )}
@@ -147,12 +175,18 @@ export default function ListingInfoCard({ listing }: ListingInfoCardProps) {
           </DialogHeader>
           <div className="text-center py-6">
             <a 
-              href={`tel:${listing.phone}`}
+              href={`tel:${virtualNumber || listing.phone}`}
               className="text-3xl font-bold text-purple-600 hover:text-purple-700 transition-colors"
             >
-              {listing.phone}
+              {virtualNumber || listing.phone}
             </a>
             <p className="text-sm text-muted-foreground mt-2">Нажмите, чтобы позвонить</p>
+            {virtualNumber && virtualNumber !== listing.phone && (
+              <p className="text-xs text-muted-foreground mt-4 bg-purple-50 p-3 rounded-lg">
+                <Icon name="Info" size={14} className="inline mr-1" />
+                Специальный номер для связи с владельцем этого объекта
+              </p>
+            )}
           </div>
         </DialogContent>
       </Dialog>

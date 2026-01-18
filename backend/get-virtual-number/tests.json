@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Get virtual number for listing",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "listing_id": 1,
+        "client_phone": "+79991234567"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "virtual_number": "string",
+        "expires_at": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing listing_id",
+      "method": "POST",
+      "path": "/",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "listing_id is required"
+      }
+    }
+  ]
+}
