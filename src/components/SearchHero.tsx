@@ -70,20 +70,20 @@ export default function SearchHero({
             <span>БЕЗ РЕГИСТРАЦИИ НА САЙТЕ</span>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 md:gap-6 mb-6 sm:mb-8 text-xs sm:text-base md:text-lg font-medium">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-sm">1</div>
-            <span>ВЫБИРАЕТЕ</span>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 md:gap-6 mb-6 sm:mb-8 text-[11px] sm:text-base md:text-lg font-medium">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">1</div>
+            <span className="whitespace-nowrap">ВЫБИРАЕТЕ</span>
           </div>
-          <Icon name="ArrowRight" size={16} className="text-purple-600 rotate-90 sm:rotate-0" />
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-sm">2</div>
-            <span>СВЯЗЫВАЕТЕСЬ</span>
+          <Icon name="ArrowRight" size={14} className="text-purple-600 rotate-90 sm:rotate-0 flex-shrink-0" />
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">2</div>
+            <span className="whitespace-nowrap">СВЯЗЫВАЕТЕСЬ</span>
           </div>
-          <Icon name="ArrowRight" size={16} className="text-purple-600 rotate-90 sm:rotate-0" />
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-sm">3</div>
-            <span>БРОНИРУЕТЕ</span>
+          <Icon name="ArrowRight" size={14} className="text-purple-600 rotate-90 sm:rotate-0 flex-shrink-0" />
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">3</div>
+            <span className="whitespace-nowrap">БРОНИРУЕТЕ</span>
           </div>
         </div>
 
@@ -148,7 +148,8 @@ export default function SearchHero({
               </Badge>
               <Badge variant="secondary" className="cursor-pointer hover:bg-purple-100" onClick={() => setShowMap(!showMap)}>
                 <Icon name="Map" size={14} className="mr-1" />
-                {showMap ? 'Показать списком' : 'Показать на карте'}
+                <span className="hidden sm:inline">{showMap ? 'Показать списком' : 'Показать на карте'}</span>
+                <span className="sm:hidden">{showMap ? 'Списком' : 'На карте'}</span>
               </Badge>
             </div>
 

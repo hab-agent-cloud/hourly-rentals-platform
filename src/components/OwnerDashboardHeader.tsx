@@ -51,6 +51,7 @@ export default function OwnerDashboardHeader({
 }: OwnerDashboardHeaderProps) {
   const [topupAmount, setTopupAmount] = useState('');
   const [showTransactionsDialog, setShowTransactionsDialog] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const totalBalance = owner.balance + owner.bonus_balance;
 
   const handleTopupClick = async () => {
@@ -61,20 +62,30 @@ export default function OwnerDashboardHeader({
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <img 
-              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/69bb67c0-3011-44dd-8807-0323986ac305.jpg" 
-              alt="120 минут" 
-              className="h-10 w-10 sm:h-14 sm:w-14 object-contain flex-shrink-0"
-            />
-            <div>
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Экстранет
-              </h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[150px] sm:max-w-none">{owner.full_name}</p>
+          <div className="flex items-center justify-between gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <img 
+                src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/69bb67c0-3011-44dd-8807-0323986ac305.jpg" 
+                alt="120 минут" 
+                className="h-10 w-10 sm:h-14 sm:w-14 object-contain flex-shrink-0"
+              />
+              <div>
+                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  Экстранет
+                </h1>
+                <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[150px] sm:max-w-none">{owner.full_name}</p>
+              </div>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden p-2"
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+            >
+              <Icon name={showMobileMenu ? "X" : "Menu"} size={24} />
+            </Button>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+          <div className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 ${showMobileMenu ? 'flex' : 'hidden md:flex'}`}>
             <Card className="px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 relative">
               {showCashbackAnimation && (
                 <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 z-50 animate-bounce">
