@@ -27,7 +27,7 @@ interface Listing {
 interface ModerationTabProps {
   token: string;
   adminInfo?: any;
-  moderationFilter?: 'pending' | 'awaiting_recheck';
+  moderationFilter?: 'pending' | 'awaiting_recheck' | 'rejected';
 }
 
 export default function AdminModerationTab({ token, adminInfo, moderationFilter = 'pending' }: ModerationTabProps) {
@@ -129,13 +129,17 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Модерация объектов</h2>
+          <h2 className="text-2xl font-bold">
+            {moderationFilter === 'rejected' ? 'Отклонённые объекты' : moderationFilter === 'awaiting_recheck' ? 'Повторная проверка' : 'Модерация объектов'}
+          </h2>
           <p className="text-muted-foreground">
-            Проверяйте объекты, добавленные сотрудниками, или изменённые владельцами
+            {moderationFilter === 'rejected' 
+              ? 'Объекты, которые были отклонены при модерации' 
+              : 'Проверяйте объекты, добавленные сотрудниками, или изменённые владельцами'}
           </p>
         </div>
         <Badge variant="outline" className="text-lg px-4 py-2">
-          {listings.filter(l => l.moderation_status === 'pending').length} на проверке
+          {listings.length} {moderationFilter === 'rejected' ? 'отклонено' : 'на проверке'}
         </Badge>
       </div>
 
@@ -143,9 +147,11 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
         <Card className="p-12">
           <div className="text-center">
             <Icon name="CheckCircle" size={64} className="mx-auto mb-4 text-muted-foreground opacity-20" />
-            <h3 className="text-xl font-semibold mb-2">Нет объектов на модерации</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              {moderationFilter === 'rejected' ? 'Нет отклонённых объектов' : 'Нет объектов на модерации'}
+            </h3>
             <p className="text-muted-foreground">
-              Все объекты проверены
+              {moderationFilter === 'rejected' ? 'Все объекты одобрены' : 'Все объекты проверены'}
             </p>
           </div>
         </Card>

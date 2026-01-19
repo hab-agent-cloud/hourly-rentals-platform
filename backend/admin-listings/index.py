@@ -55,9 +55,9 @@ def handler(event: dict, context) -> dict:
             show_archived = params.get('archived') == 'true'
             moderation_filter = params.get('moderation')
             
-            if moderation_filter == 'pending':
-                # Только объекты на модерации
-                print(f"[DEBUG] Fetching pending moderation listings")
+            if moderation_filter in ('pending', 'awaiting_recheck', 'rejected'):
+                # Фильтр по статусу модерации
+                print(f"[DEBUG] Fetching moderation listings with status: {moderation_filter}")
                 cur.execute("""
                     SELECT l.*, 
                            a.name as created_by_employee_name,

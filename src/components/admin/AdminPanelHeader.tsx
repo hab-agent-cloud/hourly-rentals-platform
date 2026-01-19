@@ -4,8 +4,8 @@ import Icon from '@/components/ui/icon';
 interface AdminPanelHeaderProps {
   adminInfo: any;
   hasPermission: (permission: string) => boolean;
-  activeTab: 'listings' | 'moderation' | 'recheck' | 'owners' | 'employees' | 'bonuses' | 'all-actions';
-  onTabChange: (tab: 'listings' | 'moderation' | 'recheck' | 'owners' | 'employees' | 'bonuses' | 'all-actions') => void;
+  activeTab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions';
+  onTabChange: (tab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions') => void;
   onLogout: () => void;
 }
 
@@ -61,6 +61,14 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
               >
                 <Icon name="RefreshCw" size={18} className="mr-2" />
                 Повторная проверка
+              </Button>
+              <Button
+                variant={activeTab === 'rejected' ? 'default' : 'ghost'}
+                onClick={() => onTabChange('rejected')}
+                className="rounded-b-none"
+              >
+                <Icon name="XCircle" size={18} className="mr-2" />
+                Отклонённые
               </Button>
             </>
           )}
