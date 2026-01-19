@@ -71,7 +71,7 @@ export const api = {
 
   // Получение объектов на модерации
   getPendingModerationListings: async (token: string, moderationStatus: 'pending' | 'awaiting_recheck' = 'pending') => {
-    const response = await fetch(`${API_URLS.adminListings}?moderation_status=${moderationStatus}`, {
+    const response = await fetch(`${API_URLS.adminListings}?moderation=${moderationStatus}`, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
     if (!response.ok) {
