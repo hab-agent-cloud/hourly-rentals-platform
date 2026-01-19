@@ -285,6 +285,10 @@ export default function AdminPanel() {
       />
 
       <main className="container mx-auto px-4 py-8">
+        {(() => {
+          console.log('[AdminPanel] Current activeTab:', activeTab);
+          console.log('[AdminPanel] hasPermission(listings):', hasPermission('listings'));
+        })()}
         {showForm ? (
           <AdminListingForm
             listing={selectedListing}
