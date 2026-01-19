@@ -48,25 +48,25 @@ export default function OwnerLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 p-3 sm:p-4">
+      <Card className="w-full max-w-md shadow-xl">
+        <CardHeader className="text-center space-y-2 sm:space-y-3 pb-4 sm:pb-6">
           <img 
             src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/69bb67c0-3011-44dd-8807-0323986ac305.jpg" 
             alt="120 минут" 
-            className="h-20 w-20 object-contain mx-auto mb-4"
+            className="h-16 w-16 sm:h-20 sm:w-20 object-contain mx-auto mb-2 sm:mb-4"
           />
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Вход для владельцев
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm sm:text-base">
             Управляйте своими объявлениями
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="login">Логин (номер телефона)</Label>
+        <CardContent className="px-4 sm:px-6 pb-6">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="login" className="text-sm sm:text-base">Логин (номер телефона)</Label>
               <Input
                 id="login"
                 type="text"
@@ -74,14 +74,15 @@ export default function OwnerLogin() {
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
                 required
+                className="h-10 sm:h-11 text-sm sm:text-base"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[11px] sm:text-xs text-muted-foreground">
                 Логин выдаёт администратор
               </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Пароль</Label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="password" className="text-sm sm:text-base">Пароль</Label>
               <Input
                 id="password"
                 type="password"
@@ -89,33 +90,37 @@ export default function OwnerLogin() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="h-10 sm:h-11 text-sm sm:text-base"
               />
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 h-10 sm:h-11 text-sm sm:text-base font-medium shadow-md hover:shadow-lg transition-all"
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
-                  <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                  <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
                   Вход...
                 </>
               ) : (
-                'Войти'
+                <>
+                  <Icon name="LogIn" size={16} className="mr-2" />
+                  Войти
+                </>
               )}
             </Button>
 
-            <div className="text-center text-sm text-muted-foreground">
-              <Link to="/owner/forgot-password" className="text-purple-600 hover:underline">
+            <div className="text-center text-xs sm:text-sm text-muted-foreground pt-2">
+              <Link to="/owner/forgot-password" className="text-purple-600 hover:underline hover:text-purple-700 transition-colors">
                 Забыли пароль?
               </Link>
             </div>
 
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-xs sm:text-sm text-muted-foreground border-t pt-3 sm:pt-4">
               Нет аккаунта?{' '}
-              <Link to="/owner/register" className="text-purple-600 hover:underline">
+              <Link to="/owner/register" className="text-purple-600 hover:underline hover:text-purple-700 font-medium transition-colors">
                 Зарегистрироваться
               </Link>
             </div>

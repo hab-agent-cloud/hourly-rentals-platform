@@ -59,52 +59,53 @@ export default function OwnerDashboardHeader({
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <img 
               src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/69bb67c0-3011-44dd-8807-0323986ac305.jpg" 
               alt="120 минут" 
-              className="h-14 w-14 object-contain"
+              className="h-10 w-10 sm:h-14 sm:w-14 object-contain flex-shrink-0"
             />
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Экстранет
               </h1>
-              <p className="text-xs text-muted-foreground">{owner.full_name}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[150px] sm:max-w-none">{owner.full_name}</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <Card className="px-6 py-4 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 relative">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+            <Card className="px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 relative">
               {showCashbackAnimation && (
                 <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 z-50 animate-bounce">
-                  <div className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
-                    <Icon name="Gift" size={20} />
+                  <div className="bg-green-500 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shadow-lg flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                    <Icon name="Gift" size={16} />
                     <span className="font-bold">+{cashbackAmount}₽ кэшбэк!</span>
                   </div>
                 </div>
               )}
-              <div className="flex items-center gap-6">
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground mb-1">Баланс</div>
-                  <div className="text-2xl font-bold text-purple-600 mb-1">
-                    {totalBalance}<span className="text-xl">₽</span>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6">
+                <div className="text-center sm:text-right">
+                  <div className="text-xs sm:text-sm text-muted-foreground mb-0.5 sm:mb-1">Баланс</div>
+                  <div className="text-xl sm:text-2xl font-bold text-purple-600 mb-0.5 sm:mb-1">
+                    {totalBalance}<span className="text-lg sm:text-xl">₽</span>
                   </div>
-                  <div className="text-xs text-muted-foreground space-y-0.5">
-                    <div>{owner.balance}<span className="text-[10px]">₽</span> основной</div>
-                    <div className="text-purple-600 font-medium">{owner.bonus_balance}<span className="text-[10px]">₽</span> бонусный</div>
+                  <div className="text-xs text-muted-foreground space-y-0.5 flex gap-3 sm:gap-0 sm:flex-col justify-center sm:justify-start">
+                    <div>{owner.balance}<span className="text-[10px]">₽</span> осн.</div>
+                    <div className="text-purple-600 font-medium">{owner.bonus_balance}<span className="text-[10px]">₽</span> бон.</div>
                   </div>
                 </div>
-                <div className="border-l border-purple-200 pl-6">
+                <div className="border-t sm:border-t-0 sm:border-l border-purple-200 pt-3 sm:pt-0 sm:pl-6">
                   <div className="flex flex-col gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setShowTransactionsDialog(true)}
-                      className="w-full mb-1 border-purple-300 hover:bg-purple-50"
+                      className="w-full mb-1 border-purple-300 hover:bg-purple-50 text-xs sm:text-sm h-8"
                     >
                       <Icon name="Receipt" size={14} className="mr-1" />
-                      История операций
+                      <span className="hidden sm:inline">История операций</span>
+                      <span className="sm:hidden">История</span>
                     </Button>
                     <div className="flex gap-2">
                       <Input
@@ -112,25 +113,25 @@ export default function OwnerDashboardHeader({
                         placeholder="Сумма"
                         value={topupAmount}
                         onChange={(e) => setTopupAmount(e.target.value)}
-                        className="w-32 bg-white"
+                        className="flex-1 sm:w-32 bg-white h-8 text-sm"
                         min="100"
                       />
                       <Button
                         onClick={handleTopupClick}
                         disabled={isTopupLoading}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 h-8 text-xs sm:text-sm px-2 sm:px-4"
                       >
                         {isTopupLoading ? (
-                          <Icon name="Loader2" size={16} className="animate-spin" />
+                          <Icon name="Loader2" size={14} className="animate-spin" />
                         ) : (
                           <>
-                            <Icon name="Wallet" size={16} className="mr-1" />
-                            Пополнить
+                            <Icon name="Wallet" size={14} className="sm:mr-1" />
+                            <span className="hidden sm:inline">Пополнить</span>
                           </>
                         )}
                       </Button>
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-1 hidden sm:block">
                       <div className="text-[11px] text-purple-700 bg-purple-100 px-2 py-1 rounded leading-tight">
                         <Icon name="Gift" size={11} className="inline mr-1" />
                         Используйте бонусный счет на все платные услуги сайта: продление/продвижение объекта.
@@ -147,9 +148,9 @@ export default function OwnerDashboardHeader({
                 </div>
               </div>
             </Card>
-            <Button variant="outline" onClick={onLogout}>
-              <Icon name="LogOut" size={18} className="mr-2" />
-              Выйти
+            <Button variant="outline" onClick={onLogout} className="w-full sm:w-auto h-8 text-xs sm:text-sm">
+              <Icon name="LogOut" size={14} className="sm:mr-2" />
+              <span className="hidden sm:inline">Выйти</span>
             </Button>
           </div>
         </div>

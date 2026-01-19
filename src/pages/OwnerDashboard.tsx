@@ -57,7 +57,7 @@ export default function OwnerDashboard() {
         transactions={transactions}
       />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {listings.length === 0 ? (
           <Card className="text-center py-12">
             <CardHeader>
@@ -66,23 +66,25 @@ export default function OwnerDashboard() {
             </CardHeader>
           </Card>
         ) : (
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'promotion' | 'statistics' | 'expert')} className="space-y-6">
-            <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-4">
-              <TabsTrigger value="overview">
-                <Icon name="Building" size={16} className="mr-2" />
-                Мои объекты
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'promotion' | 'statistics' | 'expert')} className="space-y-4 sm:space-y-6">
+            <TabsList className="grid w-full mx-auto grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-0 h-auto p-1 sm:p-1">
+              <TabsTrigger value="overview" className="flex-col sm:flex-row gap-1 sm:gap-2 h-auto py-2 sm:py-2 text-xs sm:text-sm">
+                <Icon name="Building" size={14} className="sm:mr-2" />
+                <span className="hidden sm:inline">Мои объекты</span>
+                <span className="sm:hidden">Объекты</span>
               </TabsTrigger>
-              <TabsTrigger value="promotion">
-                <Icon name="TrendingUp" size={16} className="mr-2" />
-                Продвижение
+              <TabsTrigger value="promotion" className="flex-col sm:flex-row gap-1 sm:gap-2 h-auto py-2 sm:py-2 text-xs sm:text-sm">
+                <Icon name="TrendingUp" size={14} className="sm:mr-2" />
+                <span className="hidden sm:inline">Продвижение</span>
+                <span className="sm:hidden">ТОП</span>
               </TabsTrigger>
-              <TabsTrigger value="statistics">
-                <Icon name="BarChart3" size={16} className="mr-2" />
-                Статистика
+              <TabsTrigger value="statistics" className="flex-col sm:flex-row gap-1 sm:gap-2 h-auto py-2 sm:py-2 text-xs sm:text-sm">
+                <Icon name="BarChart3" size={14} className="sm:mr-2" />
+                <span>Статистика</span>
               </TabsTrigger>
-              <TabsTrigger value="expert">
-                <Icon name="Award" size={16} className="mr-2" />
-                Эксперт
+              <TabsTrigger value="expert" className="flex-col sm:flex-row gap-1 sm:gap-2 h-auto py-2 sm:py-2 text-xs sm:text-sm">
+                <Icon name="Award" size={14} className="sm:mr-2" />
+                <span>Эксперт</span>
               </TabsTrigger>
             </TabsList>
 
