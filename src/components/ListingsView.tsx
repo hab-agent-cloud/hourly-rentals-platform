@@ -116,21 +116,20 @@ export default function ListingsView({
   }, {} as Record<string, Listing[]>);
 
   return (
-    <section>
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-bold">Доступные объекты</h3>
-        <div className="flex items-center gap-4">
+    <section className="px-2 sm:px-0">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+        <h3 className="text-xl sm:text-2xl font-bold">Доступные объекты</h3>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
           <div className="flex items-center gap-2">
-            <Icon name="ArrowUpDown" size={18} className="text-purple-600" />
+            <Icon name="ArrowUpDown" size={16} className="text-purple-600" />
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full sm:w-[200px] h-9">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="auction">По позиции</SelectItem>
                 <SelectItem value="price-asc">Цена: по возрастанию</SelectItem>
                 <SelectItem value="price-desc">Цена: по убыванию</SelectItem>
-
               </SelectContent>
             </Select>
           </div>
@@ -138,9 +137,9 @@ export default function ListingsView({
             variant={showMap ? 'default' : 'outline'} 
             size="sm"
             onClick={() => setShowMap(!showMap)}
-            className={showMap ? 'bg-gradient-to-r from-purple-600 to-pink-600' : ''}
+            className={`${showMap ? 'bg-gradient-to-r from-purple-600 to-pink-600' : ''} h-9`}
           >
-            <Icon name={showMap ? 'List' : 'Map'} size={18} className="mr-2" />
+            <Icon name={showMap ? 'List' : 'Map'} size={16} className="mr-2" />
             {showMap ? 'Списком' : 'На карте'}
           </Button>
         </div>
@@ -218,16 +217,16 @@ export default function ListingsView({
         <div className="space-y-12">
           {Object.entries(groupedByCity).map(([city, cityListings]) => (
             <div key={city}>
-              <div className="flex items-center gap-3 mb-6">
-                <Icon name="MapPin" size={24} className="text-purple-600" />
-                <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <Icon name="MapPin" size={20} className="text-purple-600 flex-shrink-0" />
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                   {city}
                 </h3>
-                <Badge variant="outline" className="text-base px-3 py-1">
-                  {cityListings.length} {cityListings.length === 1 ? 'объект' : cityListings.length < 5 ? 'объекта' : 'объектов'}
+                <Badge variant="outline" className="text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1">
+                  {cityListings.length}
                 </Badge>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {cityListings.map((listing, index) => (
           <Card 
             key={listing.id} 
@@ -237,9 +236,9 @@ export default function ListingsView({
           >
             <div className="relative overflow-hidden">
               {getFirstImage(listing.image_url) ? (
-                <img src={getFirstImage(listing.image_url)!} alt={listing.title} className="h-48 w-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                <img src={getFirstImage(listing.image_url)!} alt={listing.title} className="h-40 sm:h-48 w-full object-cover group-hover:scale-110 transition-transform duration-300" />
               ) : (
-                <div className="h-48 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-300">
+                <div className="h-40 sm:h-48 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-5xl sm:text-6xl group-hover:scale-110 transition-transform duration-300">
                   🏨
                 </div>
               )}
