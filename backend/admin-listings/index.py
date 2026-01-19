@@ -525,16 +525,20 @@ def handler(event: dict, context) -> dict:
                             'isBase64Encoded': False
                         }
                 
+                # При отклонении автоматически архивируем объект
+                is_archived = True if moderation_status == 'rejected' else False
+                
                 cur.execute("""
                     UPDATE t_p39732784_hourly_rentals_platf.listings
                     SET moderation_status = %s,
                         moderation_comment = %s,
                         moderated_by = %s,
                         moderated_at = CURRENT_TIMESTAMP,
-                        submitted_for_moderation = FALSE
+                        submitted_for_moderation = FALSE,
+                        is_archived = %s
                     WHERE id = %s
                     RETURNING id, title, moderation_status, moderation_comment, subscription_expires_at
-                """, (moderation_status, moderation_comment, admin.get('admin_id'), listing_id))
+                """, (moderation_status, moderation_comment, admin.get('admin_id'), is_archived, listing_id))
                 
                 result = cur.fetchone()
                 conn.commit()
