@@ -69,7 +69,7 @@ def handler(event: dict, context) -> dict:
                     ORDER BY l.updated_at DESC
                 """, (moderation_filter,))
             elif show_archived:
-                cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.listings ORDER BY created_at DESC")
+                cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = true ORDER BY created_at DESC")
             else:
                 cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = false ORDER BY auction ASC")
             
