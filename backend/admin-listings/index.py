@@ -132,19 +132,22 @@ def handler(event: dict, context) -> dict:
                     metro_by_listing[lid] = []
                 metro_by_listing[lid].append(metro)
             
-            # Присваиваем данные каждому объекту
+            # Присваиваем данные каждому объекту и конвертируем в обычные dict
+            result = []
             for listing in listings:
-                listing['rooms'] = rooms_by_listing.get(listing['id'], [])
-                listing['metro_stations'] = metro_by_listing.get(listing['id'], [])
+                listing_dict = dict(listing)
+                listing_dict['rooms'] = [dict(r) for r in rooms_by_listing.get(listing['id'], [])]
+                listing_dict['metro_stations'] = [dict(m) for m in metro_by_listing.get(listing['id'], [])]
+                result.append(listing_dict)
             
-            print(f"[DEBUG] About to serialize {len(listings)} listings")
+            print(f"[DEBUG] About to serialize {len(result)} listings")
             cur.close()
             conn.close()
             
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps(listings, default=str),
+                'body': json.dumps(result, default=str),
                 'isBase64Encoded': False
             }
         
