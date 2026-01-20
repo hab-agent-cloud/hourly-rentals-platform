@@ -428,6 +428,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   };
 
   const [isCalculatingMetro, setIsCalculatingMetro] = useState(false);
+  const [editingMetroIndex, setEditingMetroIndex] = useState<number | null>(null);
 
   const calculateMetroWalkTime = async (stationName: string) => {
     if (!formData.city || !stationName) {
@@ -1385,26 +1386,130 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
               {formData.metro_stations && formData.metro_stations.length > 0 && (
                 <div className="space-y-2">
                   {formData.metro_stations.map((station: any, idx: number) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
-                      <div className="flex items-center gap-3">
-                        <Icon name="Train" size={16} className="text-purple-600" />
-                        <div>
-                          <div className="font-medium">{station.station_name}</div>
-                          <div className="text-xs text-muted-foreground">{station.walk_minutes} мин пешком</div>
+                    <div key={idx}>
+                      {editingMetroIndex === idx ? (
+                        <div className="flex items-center gap-2 p-3 bg-purple-100 rounded-lg border-2 border-purple-400">
+                          <Input
+                            value={station.station_name}
+                            onChange={(e) => {
+                              const updated = [...formData.metro_stations];
+                              updated[idx] = { ...updated[idx], station_name: e.target.value };
+                              setFormData({ ...formData, metro_stations: updated });
+                            }}
+                            placeholder="Название станции"
+                            className="flex-1"
+                          />
+                          <Input
+                            type="number"
+                            value={station.walk_minutes}
+                            onChange={(e) => {
+                              const updated = [...formData.metro_stations];
+                              updated[idx] = { ...updated[idx], walk_minutes: parseInt(e.target.value) || 0 };
+                              setFormData({ ...formData, metro_stations: updated });
+                            }}
+                            placeholder="Мин"
+                            className="w-24"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={async () => {
+                              const calculatedMinutes = await calculateMetroWalkTime(station.station_name);
+                              if (calculatedMinutes !== null) {
+                                const updated = [...formData.metro_stations];
+                                updated[idx] = { ...updated[idx], walk_minutes: calculatedMinutes };
+                                setFormData({ ...formData, metro_stations: updated });
+                              }
+                            }}
+                            disabled={isCalculatingMetro}
+                            title="Пересчитать время"
+                          >
+                            {isCalculatingMetro ? (
+                              <Icon name="Loader2" size={16} className="animate-spin" />
+                            ) : (
+                              <Icon name="Calculator" size={16} className="text-purple-600" />
+                            )}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="default"
+                            size="icon"
+                            onClick={() => setEditingMetroIndex(null)}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <Icon name="Check" size={16} />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              const updated = formData.metro_stations.filter((_: any, i: number) => i !== idx);
+                              setFormData({ ...formData, metro_stations: updated });
+                              setEditingMetroIndex(null);
+                              toast({ title: 'Станция удалена' });
+                            }}
+                          >
+                            <Icon name="Trash2" size={16} className="text-red-600" />
+                          </Button>
                         </div>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          const updated = formData.metro_stations.filter((_: any, i: number) => i !== idx);
-                          setFormData({ ...formData, metro_stations: updated });
-                          toast({ title: 'Станция удалена' });
-                        }}
-                      >
-                        <Icon name="Trash2" size={16} className="text-red-600" />
-                      </Button>
+                      ) : (
+                        <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200 hover:border-purple-300 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <Icon name="Train" size={16} className="text-purple-600" />
+                            <div>
+                              <div className="font-medium">{station.station_name}</div>
+                              <div className="text-xs text-muted-foreground">{station.walk_minutes} мин пешком</div>
+                            </div>
+                          </div>
+                          <div className="flex gap-1">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={async () => {
+                                const calculatedMinutes = await calculateMetroWalkTime(station.station_name);
+                                if (calculatedMinutes !== null) {
+                                  const updated = [...formData.metro_stations];
+                                  updated[idx] = { ...updated[idx], walk_minutes: calculatedMinutes };
+                                  setFormData({ ...formData, metro_stations: updated });
+                                }
+                              }}
+                              disabled={isCalculatingMetro}
+                              title="Пересчитать время"
+                            >
+                              {isCalculatingMetro ? (
+                                <Icon name="Loader2" size={16} className="animate-spin" />
+                              ) : (
+                                <Icon name="Calculator" size={16} className="text-purple-600" />
+                              )}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => setEditingMetroIndex(idx)}
+                              title="Редактировать"
+                            >
+                              <Icon name="Edit" size={16} className="text-blue-600" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                const updated = formData.metro_stations.filter((_: any, i: number) => i !== idx);
+                                setFormData({ ...formData, metro_stations: updated });
+                                toast({ title: 'Станция удалена' });
+                              }}
+                              title="Удалить"
+                            >
+                              <Icon name="Trash2" size={16} className="text-red-600" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

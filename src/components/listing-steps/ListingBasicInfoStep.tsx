@@ -67,10 +67,6 @@ export default function ListingBasicInfoStep({ data, onUpdate, onNext, onBack }:
       newErrors.city = 'Укажите город';
     }
 
-    if (!data.district?.trim()) {
-      newErrors.district = 'Укажите район';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -147,17 +143,13 @@ export default function ListingBasicInfoStep({ data, onUpdate, onNext, onBack }:
           </div>
 
           <div>
-            <Label htmlFor="district">Район *</Label>
+            <Label htmlFor="district">Район (необязательно)</Label>
             <Input
               id="district"
               placeholder="Центральный"
               value={data.district || ''}
               onChange={(e) => onUpdate({ district: e.target.value })}
-              className={errors.district ? 'border-red-500' : ''}
             />
-            {errors.district && (
-              <p className="text-sm text-red-500 mt-1">{errors.district}</p>
-            )}
           </div>
         </div>
 

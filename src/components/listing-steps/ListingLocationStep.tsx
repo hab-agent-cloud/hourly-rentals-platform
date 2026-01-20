@@ -17,6 +17,7 @@ interface ListingLocationStepProps {
 export default function ListingLocationStep({ data, onUpdate, onNext, onBack }: ListingLocationStepProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isCalculating, setIsCalculating] = useState<number | null>(null);
+  const [editingStation, setEditingStation] = useState<number | null>(null);
 
   const calculateWalkTime = async (stationName: string, index: number) => {
     if (!data.address || !stationName) return;
@@ -194,44 +195,95 @@ export default function ListingLocationStep({ data, onUpdate, onNext, onBack }: 
 
           {(data.metro_stations || []).map((station: any, index: number) => (
             <div key={index} className="space-y-2">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Название станции"
-                  value={station.station_name}
-                  onChange={(e) => updateMetroStation(index, 'station_name', e.target.value)}
-                  className="flex-1"
-                />
-                <Input
-                  type="number"
-                  placeholder="Минут пешком"
-                  value={station.walk_minutes}
-                  onChange={(e) => updateMetroStation(index, 'walk_minutes', e.target.value)}
-                  className="w-32"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => calculateWalkTime(station.station_name, index)}
-                  disabled={!data.address || !station.station_name || isCalculating === index}
-                  title="Авторасчет времени пешком"
-                >
-                  {isCalculating === index ? (
-                    <Icon name="Loader2" size={16} className="animate-spin" />
-                  ) : (
-                    <Icon name="Calculator" size={16} className="text-purple-600" />
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeMetroStation(index)}
-                >
-                  <Icon name="Trash2" size={16} className="text-red-500" />
-                </Button>
-              </div>
-              {!data.address && station.station_name && (
+              {editingStation === index ? (
+                <div className="flex gap-2 p-3 bg-purple-100 rounded-lg border-2 border-purple-400">
+                  <Input
+                    placeholder="Название станции"
+                    value={station.station_name}
+                    onChange={(e) => updateMetroStation(index, 'station_name', e.target.value)}
+                    className="flex-1"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Минут пешком"
+                    value={station.walk_minutes}
+                    onChange={(e) => updateMetroStation(index, 'walk_minutes', e.target.value)}
+                    className="w-32"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => calculateWalkTime(station.station_name, index)}
+                    disabled={!data.address || !station.station_name || isCalculating === index}
+                    title="Авторасчет времени пешком"
+                  >
+                    {isCalculating === index ? (
+                      <Icon name="Loader2" size={16} className="animate-spin" />
+                    ) : (
+                      <Icon name="Calculator" size={16} className="text-purple-600" />
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="default"
+                    size="icon"
+                    onClick={() => setEditingStation(null)}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <Icon name="Check" size={16} />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeMetroStation(index)}
+                  >
+                    <Icon name="Trash2" size={16} className="text-red-500" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-purple-300 transition-colors">
+                  <div className="flex-1 flex items-center gap-2">
+                    <Icon name="Train" size={16} className="text-purple-600" />
+                    <div>
+                      <div className="font-medium">{station.station_name}</div>
+                      <div className="text-xs text-muted-foreground">{station.walk_minutes} мин пешком</div>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => calculateWalkTime(station.station_name, index)}
+                    disabled={!data.address || !station.station_name || isCalculating === index}
+                    title="Пересчитать время"
+                  >
+                    {isCalculating === index ? (
+                      <Icon name="Loader2" size={16} className="animate-spin" />
+                    ) : (
+                      <Icon name="Calculator" size={16} className="text-purple-600" />
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setEditingStation(index)}
+                  >
+                    <Icon name="Edit" size={16} className="text-blue-600" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeMetroStation(index)}
+                  >
+                    <Icon name="Trash2" size={16} className="text-red-500" />
+                  </Button>
+                </div>
+              )}
+              {!data.address && station.station_name && editingStation !== index && (
                 <p className="text-xs text-amber-600 flex items-center gap-1">
                   <Icon name="AlertCircle" size={12} />
                   Укажите адрес для авторасчета времени
