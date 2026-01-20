@@ -85,7 +85,7 @@ export default function OwnerDashboardHeader({
               <Icon name={showMobileMenu ? "X" : "Menu"} size={24} />
             </Button>
           </div>
-          <div className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 ${showMobileMenu ? 'flex' : 'hidden md:flex'}`}>
+          <div className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 ${showMobileMenu ? 'flex bg-gradient-to-br from-purple-50/95 to-pink-50/95 backdrop-blur-sm p-3 rounded-lg border border-purple-100 shadow-lg' : 'hidden md:flex'}`}>
             <Card className="px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 relative">
               {showCashbackAnimation && (
                 <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 z-50 animate-bounce">
