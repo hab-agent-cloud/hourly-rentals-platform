@@ -161,7 +161,7 @@ export default function Index() {
                     </Button>
                     <div className="border-t pt-4 mt-4 space-y-2">
                       <a href="/add-listing" className="block">
-                        <Button variant="outline" className="w-full border-purple-300 hover:bg-purple-50">
+                        <Button variant="outline" className="w-full border-purple-300 text-purple-700 hover:bg-purple-50 hover:text-purple-800">
                           <Icon name="Plus" size={18} className="mr-2" />
                           Добавить объект
                         </Button>
@@ -207,7 +207,7 @@ export default function Index() {
               </Button>
               
               <a href="/add-listing">
-                <Button variant="outline" className="border-purple-300 hover:bg-purple-50">
+                <Button variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:text-purple-800">
                   <Icon name="Plus" size={18} className="mr-2" />
                   Добавить объект
                 </Button>
