@@ -1,0 +1,12 @@
+{
+  "tests": [{
+    "name": "Test email send",
+    "method": "POST",
+    "path": "/",
+    "body": {
+      "email": "test@example.com"
+    },
+    "expectedStatus": 200,
+    "bodyMatcher": "partial"
+  }]
+}
