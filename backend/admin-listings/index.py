@@ -99,7 +99,11 @@ def handler(event: dict, context) -> dict:
             
             print(f"[DEBUG] Fetching rooms for {len(listing_ids)} listings")
             rooms_query = f"""SELECT id, listing_id, type, price, description, square_meters, features, 
-                           min_hours, payment_methods, cancellation_policy, images,
+                           min_hours, payment_methods, cancellation_policy,
+                           CASE WHEN images IS NOT NULL AND array_length(images, 1) > 0 
+                                THEN ARRAY[images[1]] 
+                                ELSE images 
+                           END as images,
                            expert_photo_rating, expert_photo_feedback,
                            expert_fullness_rating, expert_fullness_feedback
                     FROM t_p39732784_hourly_rentals_platf.rooms 
