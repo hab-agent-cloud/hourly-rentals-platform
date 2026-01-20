@@ -437,7 +437,38 @@ export default function Index() {
           <div className="max-w-4xl mx-auto animate-fade-in">
             <h2 className="text-4xl font-bold mb-6">Поддержка</h2>
             <Card className="p-8">
-              <p className="text-lg">Свяжитесь с нами для получения помощи</p>
+              <h3 className="text-2xl font-bold mb-6">Поддержка по всей России</h3>
+              <div className="space-y-6">
+                <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
+                    <Icon name="Phone" size={24} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Телефон</p>
+                    <a href="tel:+79141965172" className="text-xl font-bold text-purple-600 hover:underline">
+                      +7 (914) 196-51-72
+                    </a>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4 p-4 bg-pink-50 rounded-lg border border-pink-200">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
+                    <Icon name="Mail" size={24} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Почта</p>
+                    <a href="mailto:120-minut@mail.ru" className="text-xl font-bold text-pink-600 hover:underline">
+                      120-minut@mail.ru
+                    </a>
+                  </div>
+                </div>
+                
+                <div className="mt-8 pt-6 border-t">
+                  <p className="text-center text-muted-foreground">
+                    Мы работаем ежедневно и готовы помочь вам с любыми вопросами
+                  </p>
+                </div>
+              </div>
             </Card>
           </div>
         )}
