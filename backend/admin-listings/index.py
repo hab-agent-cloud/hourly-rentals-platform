@@ -144,10 +144,22 @@ def handler(event: dict, context) -> dict:
             cur.close()
             conn.close()
             
+            try:
+                response_body = json.dumps(result, default=str)
+                print(f"[DEBUG] Serialization successful, body length: {len(response_body)}")
+            except Exception as e:
+                print(f"[ERROR] Serialization failed: {str(e)}")
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Serialization error: {str(e)}'}),
+                    'isBase64Encoded': False
+                }
+            
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps(result, default=str),
+                'body': response_body,
                 'isBase64Encoded': False
             }
         
