@@ -51,26 +51,33 @@ def handler(event: dict, context) -> dict:
         
         # GET - получение списка объектов
         if method == 'GET':
+            print(f"[DEBUG] GET request started")
             params = event.get('queryStringParameters', {}) or {}
             show_archived = params.get('archived') == 'true'
             moderation_filter = params.get('moderation')
             
+            print(f"[DEBUG] Params: archived={show_archived}, moderation={moderation_filter}")
+            
             if moderation_filter in ('pending', 'awaiting_recheck', 'rejected'):
                 # Фильтр по статусу модерации
                 print(f"[DEBUG] Fetching moderation listings with status: {moderation_filter}")
-                cur.execute("""
+                query = f"""
                     SELECT l.*, 
                            a.name as created_by_employee_name,
                            o.full_name as owner_name
                     FROM t_p39732784_hourly_rentals_platf.listings l
                     LEFT JOIN t_p39732784_hourly_rentals_platf.admins a ON l.created_by_employee_id = a.id
                     LEFT JOIN t_p39732784_hourly_rentals_platf.owners o ON l.owner_id = o.id
-                    WHERE l.moderation_status = %s
+                    WHERE l.moderation_status = '{moderation_filter}'
                     ORDER BY l.updated_at DESC
-                """, (moderation_filter,))
+                """
+                print(f"[DEBUG] Query: {query}")
+                cur.execute(query)
             elif show_archived:
+                print(f"[DEBUG] Fetching archived listings")
                 cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = true ORDER BY created_at DESC")
             else:
+                print(f"[DEBUG] Fetching active listings")
                 cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = false ORDER BY auction ASC")
             
             listings = cur.fetchall()
@@ -88,26 +95,27 @@ def handler(event: dict, context) -> dict:
             
             # Получаем все комнаты одним запросом (БЕЗ images для оптимизации)
             listing_ids = [l['id'] for l in listings]
-            placeholders = ','.join(['%s'] * len(listing_ids))
-            cur.execute(
-                f"""SELECT id, listing_id, type, price, description, square_meters, features, 
+            listing_ids_str = ','.join([str(lid) for lid in listing_ids])
+            
+            print(f"[DEBUG] Fetching rooms for {len(listing_ids)} listings")
+            rooms_query = f"""SELECT id, listing_id, type, price, description, square_meters, features, 
                            min_hours, payment_methods, cancellation_policy, images,
                            expert_photo_rating, expert_photo_feedback,
                            expert_fullness_rating, expert_fullness_feedback
                     FROM t_p39732784_hourly_rentals_platf.rooms 
-                    WHERE listing_id IN ({placeholders})""",
-                listing_ids
-            )
+                    WHERE listing_id IN ({listing_ids_str})"""
+            cur.execute(rooms_query)
             all_rooms = cur.fetchall()
+            print(f"[DEBUG] Fetched {len(all_rooms)} rooms")
             
             # Получаем все станции метро одним запросом
-            cur.execute(
-                f"""SELECT listing_id, station_name, walk_minutes 
+            print(f"[DEBUG] Fetching metro stations")
+            metro_query = f"""SELECT listing_id, station_name, walk_minutes 
                     FROM t_p39732784_hourly_rentals_platf.metro_stations 
-                    WHERE listing_id IN ({placeholders})""",
-                listing_ids
-            )
+                    WHERE listing_id IN ({listing_ids_str})"""
+            cur.execute(metro_query)
             all_metro = cur.fetchall()
+            print(f"[DEBUG] Fetched {len(all_metro)} metro stations")
             
             # Группируем по listing_id
             rooms_by_listing = {}
