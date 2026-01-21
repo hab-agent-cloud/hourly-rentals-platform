@@ -130,18 +130,11 @@ export default function Index() {
           <main className="container mx-auto px-4 py-8" ref={resultsRef}>
             <ListingsView
               filteredListings={filteredListings}
-              selectedType={selectedType}
-              hasParking={hasParking}
-              minHours={minHours}
-              selectedFeatures={selectedFeatures}
+              selectedCity={selectedCity}
               showMap={showMap}
               selectedListing={selectedListing}
-              onTypeChange={(type) => handleFilterChange(setSelectedType, type)}
-              onParkingChange={(parking) => handleFilterChange(setHasParking, parking)}
-              onMinHoursChange={(hours) => handleFilterChange(setMinHours, hours)}
-              onFeaturesChange={(features) => handleFilterChange(setSelectedFeatures, features)}
-              onToggleMap={() => setShowMap(!showMap)}
               onListingSelect={setSelectedListing}
+              onToggleMap={() => setShowMap(!showMap)}
               onCardClick={handleCardClick}
               isLoading={isLoading}
             />
