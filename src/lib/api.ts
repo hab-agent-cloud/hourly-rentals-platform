@@ -59,6 +59,8 @@ export const api = {
       ? `${API_URLS.adminListings}?archived=true&limit=${limit}&offset=${offset}`
       : `${API_URLS.adminListings}?limit=${limit}&offset=${offset}`;
     
+    console.log(`[API] Fetching listings: archived=${showArchived}, limit=${limit}, offset=${offset}`);
+    
     const response = await fetch(url, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
@@ -68,7 +70,10 @@ export const api = {
       throw new Error(errorData.error || `HTTP ${response.status}`);
     }
     
-    return response.json();
+    const data = await response.json();
+    console.log(`[API] Received ${Array.isArray(data) ? data.length : 0} listings`);
+    
+    return data;
   },
 
   // Получение объектов владельца
