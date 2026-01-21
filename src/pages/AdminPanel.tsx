@@ -30,6 +30,7 @@ export default function AdminPanel() {
   const [adminInfo, setAdminInfo] = useState<any>(null);
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [showAllListings, setShowAllListings] = useState(false);
   const [subscriptionDialog, setSubscriptionDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
   const [subscriptionDays, setSubscriptionDays] = useState<number>(30);
   const [moderationDialog, setModerationDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
@@ -67,32 +68,36 @@ export default function AdminPanel() {
   const loadListings = async () => {
     setIsLoading(true);
     try {
-      // Загружаем объекты порциями по 100 штук
-      let allListings: any[] = [];
-      let offset = 0;
       const limit = 100;
-      let hasMore = true;
       
-      while (hasMore) {
-        const data = await api.getListings(token!, showArchived, limit, offset);
-        
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        
-        if (!Array.isArray(data)) {
-          throw new Error('API вернул некорректный формат данных');
-        }
-        
-        allListings = [...allListings, ...data];
-        
-        // Если получили меньше чем limit, значит это последняя порция
-        if (data.length < limit) {
-          hasMore = false;
-        } else {
-          offset += limit;
-        }
+      // Сначала загружаем первую порцию чтобы узнать сколько всего
+      const firstBatch = await api.getListings(token!, showArchived, limit, 0);
+      
+      if (firstBatch.error) {
+        throw new Error(firstBatch.error);
       }
+      
+      if (!Array.isArray(firstBatch)) {
+        throw new Error('API вернул некорректный формат данных');
+      }
+      
+      // Если меньше лимита - это все данные
+      if (firstBatch.length < limit) {
+        const sortedData = [...firstBatch].sort((a, b) => b.id - a.id);
+        setListings(sortedData);
+        return;
+      }
+      
+      // Иначе загружаем остальные порции параллельно
+      const totalExpected = 400; // примерно
+      const requests = [];
+      
+      for (let offset = limit; offset < totalExpected; offset += limit) {
+        requests.push(api.getListings(token!, showArchived, limit, offset));
+      }
+      
+      const results = await Promise.all(requests);
+      const allListings = [firstBatch, ...results].flat();
       
       console.log('=== LOADED ALL LISTINGS ===');
       console.log('Total listings:', allListings.length);
@@ -279,7 +284,7 @@ export default function AdminPanel() {
   }, [listings]);
 
   const filteredListings = useMemo(() => {
-    return listings.filter(listing => {
+    const filtered = listings.filter(listing => {
       const cityMatch = selectedCity === 'all' || listing.city === selectedCity;
       const typeMatch = selectedType === 'all' || listing.type === selectedType;
       
@@ -296,7 +301,10 @@ export default function AdminPanel() {
       
       return cityMatch && typeMatch;
     });
-  }, [listings, selectedCity, selectedType, showOnlyUnrated]);
+    
+    // Показываем только первые 50 если не включен режим "показать все"
+    return showAllListings ? filtered : filtered.slice(0, 50);
+  }, [listings, selectedCity, selectedType, showOnlyUnrated, showAllListings]);
 
   const groupedByCity = useMemo(() => {
     const groups: { [city: string]: any[] } = {};
@@ -398,6 +406,19 @@ export default function AdminPanel() {
                 </div>
               </div>
             ))}
+            
+            {!showAllListings && listings.length > 50 && (
+              <div className="flex justify-center mt-8">
+                <Button 
+                  onClick={() => setShowAllListings(true)}
+                  size="lg"
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  <Icon name="ChevronsDown" size={20} className="mr-2" />
+                  Показать все ({listings.length} объектов)
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
