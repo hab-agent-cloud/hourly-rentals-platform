@@ -54,10 +54,10 @@ export const api = {
   },
 
   // Получение списка объектов (для админа)
-  getListings: async (token: string, showArchived = false) => {
+  getListings: async (token: string, showArchived = false, limit = 1000, offset = 0) => {
     const url = showArchived 
-      ? `${API_URLS.adminListings}?archived=true`
-      : API_URLS.adminListings;
+      ? `${API_URLS.adminListings}?archived=true&limit=${limit}&offset=${offset}`
+      : `${API_URLS.adminListings}?limit=${limit}&offset=${offset}`;
     
     const response = await fetch(url, {
       headers: { 'Authorization': `Bearer ${token}` },

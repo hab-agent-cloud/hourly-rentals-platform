@@ -55,8 +55,10 @@ def handler(event: dict, context) -> dict:
             params = event.get('queryStringParameters', {}) or {}
             show_archived = params.get('archived') == 'true'
             moderation_filter = params.get('moderation')
+            limit = int(params.get('limit', 50))
+            offset = int(params.get('offset', 0))
             
-            print(f"[DEBUG] Params: archived={show_archived}, moderation={moderation_filter}")
+            print(f"[DEBUG] Params: archived={show_archived}, moderation={moderation_filter}, limit={limit}, offset={offset}")
             
             if moderation_filter in ('pending', 'awaiting_recheck', 'rejected'):
                 # Фильтр по статусу модерации
@@ -70,15 +72,16 @@ def handler(event: dict, context) -> dict:
                     LEFT JOIN t_p39732784_hourly_rentals_platf.owners o ON l.owner_id = o.id
                     WHERE l.moderation_status = '{moderation_filter}'
                     ORDER BY l.updated_at DESC
+                    LIMIT {limit} OFFSET {offset}
                 """
                 print(f"[DEBUG] Query: {query}")
                 cur.execute(query)
             elif show_archived:
                 print(f"[DEBUG] Fetching archived listings")
-                cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = true ORDER BY created_at DESC")
+                cur.execute(f"SELECT * FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = true ORDER BY created_at DESC LIMIT {limit} OFFSET {offset}")
             else:
                 print(f"[DEBUG] Fetching active listings")
-                cur.execute("SELECT * FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = false ORDER BY auction ASC")
+                cur.execute(f"SELECT * FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = false ORDER BY auction ASC LIMIT {limit} OFFSET {offset}")
             
             listings = cur.fetchall()
             print(f"[DEBUG] Total listings fetched: {len(listings)}, moderation_filter={moderation_filter}")
