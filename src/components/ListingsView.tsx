@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -64,6 +64,8 @@ export default function ListingsView({
   const [sortBy, setSortBy] = useState<string>('auction');
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   const [selectedPhone, setSelectedPhone] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 30;
 
   const getFirstImage = (imageUrl: any) => {
     if (!imageUrl) return null;
@@ -121,6 +123,85 @@ export default function ListingsView({
   };
 
   const showCityCarousels = selectedCity === 'Все города';
+
+  const totalPages = Math.ceil(sortedListings.length / ITEMS_PER_PAGE);
+  const paginatedListings = sortedListings.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const CityCarousel = ({ city, cityListings }: { city: string; cityListings: Listing[] }) => {
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const topListings = cityListings.slice(0, 5);
+
+    const scroll = (direction: 'left' | 'right') => {
+      if (scrollRef.current) {
+        const scrollAmount = 340;
+        scrollRef.current.scrollBy({
+          left: direction === 'left' ? -scrollAmount : scrollAmount,
+          behavior: 'smooth'
+        });
+      }
+    };
+
+    return (
+      <div>
+        <div className="flex items-center gap-3 mb-6">
+          <Icon name="MapPin" size={24} className="text-purple-600 flex-shrink-0" />
+          <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            {city}
+          </h3>
+          <Badge variant="outline" className="text-base px-3 py-1">
+            {cityListings.length}
+          </Badge>
+        </div>
+
+        <div className="relative group">
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => scroll('left')}
+          >
+            <Icon name="ChevronLeft" size={24} />
+          </Button>
+
+          <div 
+            ref={scrollRef}
+            className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide scroll-smooth"
+          >
+            {topListings.map((listing) => (
+              <div key={listing.id} className="flex-shrink-0 w-[320px] snap-start">
+                <ListingCard listing={listing} />
+              </div>
+            ))}
+          </div>
+
+          <Button
+            variant="outline"
+            size="icon"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => scroll('right')}
+          >
+            <Icon name="ChevronRight" size={24} />
+          </Button>
+        </div>
+
+        {cityListings.length > 5 && (
+          <div className="text-center mt-4">
+            <Button 
+              variant="outline" 
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="text-purple-600 hover:text-purple-700"
+            >
+              Показать все {cityListings.length} объектов в {city}
+              <Icon name="ChevronUp" size={16} className="ml-2" />
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const ListingCard = ({ listing, showPosition = true }: { listing: Listing; showPosition?: boolean }) => {
     const position = getPositionInCity(listing);
@@ -315,53 +396,77 @@ export default function ListingsView({
         </div>
       ) : showCityCarousels ? (
         <div className="space-y-12">
-          {Object.entries(groupedByCity).map(([city, cityListings]) => {
-            const topListings = cityListings.slice(0, 5);
-            
-            return (
-              <div key={city}>
-                <div className="flex items-center gap-3 mb-6">
-                  <Icon name="MapPin" size={24} className="text-purple-600 flex-shrink-0" />
-                  <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    {city}
-                  </h3>
-                  <Badge variant="outline" className="text-base px-3 py-1">
-                    {cityListings.length}
-                  </Badge>
-                </div>
-
-                <div className="relative">
-                  <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                    {topListings.map((listing) => (
-                      <div key={listing.id} className="flex-shrink-0 w-[320px] snap-start">
-                        <ListingCard listing={listing} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {cityListings.length > 5 && (
-                  <div className="text-center mt-4">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                      className="text-purple-600 hover:text-purple-700"
-                    >
-                      Показать все {cityListings.length} объектов в {city}
-                      <Icon name="ChevronUp" size={16} className="ml-2" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {sortedListings.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} />
+          {Object.entries(groupedByCity).map(([city, cityListings]) => (
+            <CityCarousel key={city} city={city} cityListings={cityListings} />
           ))}
         </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {paginatedListings.map((listing) => (
+              <ListingCard key={listing.id} listing={listing} />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                <Icon name="ChevronLeft" size={16} className="mr-2" />
+                Назад
+              </Button>
+
+              <div className="flex items-center gap-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(page => {
+                    return page === 1 || 
+                           page === totalPages || 
+                           Math.abs(page - currentPage) <= 1;
+                  })
+                  .map((page, idx, array) => {
+                    if (idx > 0 && array[idx - 1] !== page - 1) {
+                      return (
+                        <div key={`ellipsis-${page}`} className="flex items-center gap-2">
+                          <span className="text-muted-foreground">...</span>
+                          <Button
+                            variant={currentPage === page ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className={currentPage === page ? 'bg-gradient-to-r from-purple-600 to-pink-600' : ''}
+                          >
+                            {page}
+                          </Button>
+                        </div>
+                      );
+                    }
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setCurrentPage(page)}
+                        className={currentPage === page ? 'bg-gradient-to-r from-purple-600 to-pink-600' : ''}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  })}
+              </div>
+
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Вперед
+                <Icon name="ChevronRight" size={16} className="ml-2" />
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       <Dialog open={phoneModalOpen} onOpenChange={setPhoneModalOpen}>
