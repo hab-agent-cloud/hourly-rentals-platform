@@ -103,6 +103,15 @@ export default function AdminPanel() {
       
       console.log('=== LOADED ALL LISTINGS ===');
       console.log('Total listings:', allListings.length);
+      console.log('First batch size:', firstBatch.length);
+      console.log('Additional batches:', results.length);
+      
+      // Подсчёт по городам для диагностики
+      const cityCounts: { [city: string]: number } = {};
+      allListings.forEach(l => {
+        cityCounts[l.city] = (cityCounts[l.city] || 0) + 1;
+      });
+      console.log('Listings by city:', cityCounts);
       
       const sortedData = [...allListings].sort((a, b) => b.id - a.id);
       setListings(sortedData);
