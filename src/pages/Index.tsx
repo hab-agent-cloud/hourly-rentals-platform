@@ -110,8 +110,19 @@ export default function Index() {
           <SearchHero
             searchCity={searchCity}
             setSearchCity={setSearchCity}
-            uniqueCities={uniqueCities}
-            onCityChange={handleCityChange}
+            selectedType={selectedType}
+            setSelectedType={setSelectedType}
+            selectedCity={selectedCity}
+            setSelectedCity={setSelectedCity}
+            cities={uniqueCities}
+            showMap={showMap}
+            setShowMap={setShowMap}
+            hasParking={hasParking}
+            setHasParking={setHasParking}
+            minHours={minHours}
+            setMinHours={setMinHours}
+            selectedFeatures={selectedFeatures}
+            setSelectedFeatures={setSelectedFeatures}
           />
 
           <main className="container mx-auto px-4 py-8" ref={resultsRef}>
