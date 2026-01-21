@@ -30,7 +30,8 @@ export default function AdminPanel() {
   const [adminInfo, setAdminInfo] = useState<any>(null);
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
-  const [showAllListings, setShowAllListings] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 50;
   const [subscriptionDialog, setSubscriptionDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
   const [subscriptionDays, setSubscriptionDays] = useState<number>(30);
   const [moderationDialog, setModerationDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
@@ -284,7 +285,10 @@ export default function AdminPanel() {
   }, [listings]);
 
   const filteredListings = useMemo(() => {
-    const filtered = listings.filter(listing => {
+    // Сбрасываем страницу при изменении фильтров
+    setCurrentPage(1);
+    
+    return listings.filter(listing => {
       const cityMatch = selectedCity === 'all' || listing.city === selectedCity;
       const typeMatch = selectedType === 'all' || listing.type === selectedType;
       
@@ -301,21 +305,26 @@ export default function AdminPanel() {
       
       return cityMatch && typeMatch;
     });
-    
-    // Показываем только первые 50 если не включен режим "показать все"
-    return showAllListings ? filtered : filtered.slice(0, 50);
-  }, [listings, selectedCity, selectedType, showOnlyUnrated, showAllListings]);
+  }, [listings, selectedCity, selectedType, showOnlyUnrated]);
+
+  const paginatedListings = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredListings.slice(startIndex, endIndex);
+  }, [filteredListings, currentPage, ITEMS_PER_PAGE]);
+
+  const totalPages = Math.ceil(filteredListings.length / ITEMS_PER_PAGE);
 
   const groupedByCity = useMemo(() => {
     const groups: { [city: string]: any[] } = {};
-    filteredListings.forEach(listing => {
+    paginatedListings.forEach(listing => {
       if (!groups[listing.city]) {
         groups[listing.city] = [];
       }
       groups[listing.city].push(listing);
     });
     return groups;
-  }, [filteredListings]);
+  }, [paginatedListings]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
@@ -407,15 +416,49 @@ export default function AdminPanel() {
               </div>
             ))}
             
-            {!showAllListings && listings.length > 50 && (
-              <div className="flex justify-center mt-8">
-                <Button 
-                  onClick={() => setShowAllListings(true)}
-                  size="lg"
-                  className="bg-purple-600 hover:bg-purple-700"
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-8">
+                <Button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  size="sm"
                 >
-                  <Icon name="ChevronsDown" size={20} className="mr-2" />
-                  Показать все ({listings.length} объектов)
+                  <Icon name="ChevronsLeft" size={16} />
+                </Button>
+                <Button
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Icon name="ChevronLeft" size={16} />
+                </Button>
+                
+                <div className="flex items-center gap-2 px-4">
+                  <span className="text-sm font-medium">
+                    Страница {currentPage} из {totalPages}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    ({filteredListings.length} объектов)
+                  </span>
+                </div>
+                
+                <Button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Icon name="ChevronRight" size={16} />
+                </Button>
+                <Button
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Icon name="ChevronsRight" size={16} />
                 </Button>
               </div>
             )}
