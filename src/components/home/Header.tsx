@@ -22,7 +22,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
               <h1 className="text-lg sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 120 минут
               </h1>
-              <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Почасовая аренда по всей России</p>
+              <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground whitespace-nowrap">Почасовая аренда по всей России</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -77,12 +77,6 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                         Экстранет для владельцев
                       </Button>
                     </a>
-                    <a href="/admin/login" className="block">
-                      <Button variant="outline" className="w-full border-purple-300">
-                        <Icon name="Shield" size={18} className="mr-2" />
-                        Админ панель
-                      </Button>
-                    </a>
                   </div>
                 </div>
               </SheetContent>
@@ -126,11 +120,6 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
             <a href="/owner/login">
               <Button variant="outline">
                 Экстранет для владельцев
-              </Button>
-            </a>
-            <a href="/admin/login">
-              <Button variant="outline" size="icon" title="Админ панель">
-                <Icon name="Shield" size={18} />
               </Button>
             </a>
           </nav>

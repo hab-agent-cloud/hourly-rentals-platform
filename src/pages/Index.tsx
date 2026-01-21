@@ -7,6 +7,8 @@ import AboutSection from '@/components/home/AboutSection';
 import PartnersSection from '@/components/home/PartnersSection';
 import SupportSection from '@/components/home/SupportSection';
 import { api } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 
 export default function Index() {
   const [searchCity, setSearchCity] = useState('');
@@ -159,6 +161,17 @@ export default function Index() {
           setSelectedHotel(null);
         }}
       />
+      
+      <footer className="bg-white/80 backdrop-blur-md border-t border-purple-200 py-4 mt-12">
+        <div className="container mx-auto px-4 flex justify-center">
+          <a href="/admin/login">
+            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-purple-600">
+              <Icon name="Shield" size={16} className="mr-2" />
+              Админ панель
+            </Button>
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }
