@@ -112,9 +112,9 @@ export default function AdminPanel() {
       const allListings = [...allActive, ...archivedFiltered];
       
       console.log('=== LOADED ALL LISTINGS ===');
+      console.log('Total active:', allActive.length);
+      console.log('Total archived:', archivedFiltered.length);
       console.log('Total listings:', allListings.length);
-      console.log('First batch size:', firstBatch.length);
-      console.log('Additional batches:', results.length);
       
       // Подсчёт по городам для диагностики
       const cityCounts: { [city: string]: number } = {};
