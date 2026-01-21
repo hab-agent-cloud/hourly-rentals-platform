@@ -71,35 +71,45 @@ export default function AdminPanel() {
     try {
       const limit = 100;
       
-      // Сначала загружаем первую порцию чтобы узнать сколько всего
-      // ВАЖНО: всегда загружаем ВСЕ объекты (включая архивные) для корректного подсчёта cityTotals
-      const firstBatch = await api.getListings(token!, true, limit, 0);
+      // Загружаем активные И архивные объекты отдельно
+      const activeFirstBatch = await api.getListings(token!, false, limit, 0);
+      const archivedFirstBatch = await api.getListings(token!, true, limit, 0);
       
-      if (firstBatch.error) {
-        throw new Error(firstBatch.error);
+      if (activeFirstBatch.error || archivedFirstBatch.error) {
+        throw new Error(activeFirstBatch.error || archivedFirstBatch.error);
       }
       
-      if (!Array.isArray(firstBatch)) {
+      if (!Array.isArray(activeFirstBatch) || !Array.isArray(archivedFirstBatch)) {
         throw new Error('API вернул некорректный формат данных');
       }
       
-      // Если меньше лимита - это все данные
-      if (firstBatch.length < limit) {
-        const sortedData = [...firstBatch].sort((a, b) => b.id - a.id);
-        setListings(sortedData);
-        return;
+      // Загружаем остальные порции параллельно
+      const totalExpected = 400;
+      const activeRequests = [];
+      const archivedRequests = [];
+      
+      if (activeFirstBatch.length >= limit) {
+        for (let offset = limit; offset < totalExpected; offset += limit) {
+          activeRequests.push(api.getListings(token!, false, limit, offset));
+        }
       }
       
-      // Иначе загружаем остальные порции параллельно
-      const totalExpected = 400; // примерно
-      const requests = [];
-      
-      for (let offset = limit; offset < totalExpected; offset += limit) {
-        requests.push(api.getListings(token!, true, limit, offset));
+      if (archivedFirstBatch.length >= limit) {
+        for (let offset = limit; offset < totalExpected; offset += limit) {
+          archivedRequests.push(api.getListings(token!, true, limit, offset));
+        }
       }
       
-      const results = await Promise.all(requests);
-      const allListings = [firstBatch, ...results].flat();
+      const activeResults = activeRequests.length > 0 ? await Promise.all(activeRequests) : [];
+      const archivedResults = archivedRequests.length > 0 ? await Promise.all(archivedRequests) : [];
+      
+      const allActive = [activeFirstBatch, ...activeResults].flat();
+      const allArchived = [archivedFirstBatch, ...archivedResults].flat();
+      
+      // Фильтруем архивные из активных (на случай дублей)
+      const archivedFiltered = allArchived.filter((listing: any) => listing.is_archived);
+      
+      const allListings = [...allActive, ...archivedFiltered];
       
       console.log('=== LOADED ALL LISTINGS ===');
       console.log('Total listings:', allListings.length);
