@@ -429,38 +429,25 @@ export default function AdminPanel() {
             <Icon name="Loader2" size={48} className="animate-spin text-purple-600" />
           </div>
         ) : (
-          <div className="space-y-8">
-            {Object.entries(groupedByCity).sort(([cityA], [cityB]) => cityA.localeCompare(cityB)).map(([city, cityListings]) => (
-              <div key={city}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Icon name="MapPin" size={20} className="text-purple-600" />
-                    <h3 className="text-2xl font-bold">{city}</h3>
-                  </div>
-                  <Badge variant="secondary" className="text-base px-3 py-1">
-                    {cityTotals[city] || 0}
-                  </Badge>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {cityListings.map((listing) => (
-                    <AdminListingCard
-                      key={listing.id}
-                      listing={listing}
-                      cityListings={cityListings}
-                      adminInfo={adminInfo}
-                      formatSubscriptionStatus={formatSubscriptionStatus}
-                      onEdit={handleEdit}
-                      onArchive={handleArchive}
-                      onDelete={adminInfo?.role === 'superadmin' ? handleDelete : undefined}
-                      onChangePosition={handleChangePosition}
-                      onSetSubscription={(listing) => setSubscriptionDialog({ open: true, listing })}
-                      onModerate={handleModerate}
-                      onExpertRate={(listing) => setExpertRatingDialog({ open: true, listing })}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedListings.map((listing) => (
+                <AdminListingCard
+                  key={listing.id}
+                  listing={listing}
+                  cityListings={filteredListings.filter(l => l.city === listing.city)}
+                  adminInfo={adminInfo}
+                  formatSubscriptionStatus={formatSubscriptionStatus}
+                  onEdit={handleEdit}
+                  onArchive={handleArchive}
+                  onDelete={adminInfo?.role === 'superadmin' ? handleDelete : undefined}
+                  onChangePosition={handleChangePosition}
+                  onSetSubscription={(listing) => setSubscriptionDialog({ open: true, listing })}
+                  onModerate={handleModerate}
+                  onExpertRate={(listing) => setExpertRatingDialog({ open: true, listing })}
+                />
+              ))}
+            </div>
             
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-8">
