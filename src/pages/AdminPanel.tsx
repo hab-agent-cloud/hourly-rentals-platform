@@ -67,24 +67,37 @@ export default function AdminPanel() {
   const loadListings = async () => {
     setIsLoading(true);
     try {
-      const data = await api.getListings(token!, showArchived, 1000, 0);
-      console.log('=== LOADED LISTINGS FROM API ===');
-      console.log('Response:', data);
+      // Загружаем объекты порциями по 100 штук
+      let allListings: any[] = [];
+      let offset = 0;
+      const limit = 100;
+      let hasMore = true;
       
-      if (data.error) {
-        throw new Error(data.error);
+      while (hasMore) {
+        const data = await api.getListings(token!, showArchived, limit, offset);
+        
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        if (!Array.isArray(data)) {
+          throw new Error('API вернул некорректный формат данных');
+        }
+        
+        allListings = [...allListings, ...data];
+        
+        // Если получили меньше чем limit, значит это последняя порция
+        if (data.length < limit) {
+          hasMore = false;
+        } else {
+          offset += limit;
+        }
       }
       
-      if (!Array.isArray(data)) {
-        throw new Error('API вернул некорректный формат данных');
-      }
+      console.log('=== LOADED ALL LISTINGS ===');
+      console.log('Total listings:', allListings.length);
       
-      console.log('Total listings:', data.length);
-      if (data.length > 0) {
-        console.log('First listing rooms:', data[0].rooms);
-      }
-      
-      const sortedData = [...data].sort((a, b) => b.id - a.id);
+      const sortedData = [...allListings].sort((a, b) => b.id - a.id);
       setListings(sortedData);
     } catch (error: any) {
       toast({

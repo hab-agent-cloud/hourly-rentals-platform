@@ -55,7 +55,7 @@ def handler(event: dict, context) -> dict:
             params = event.get('queryStringParameters', {}) or {}
             show_archived = params.get('archived') == 'true'
             moderation_filter = params.get('moderation')
-            limit = int(params.get('limit', 50))
+            limit = int(params.get('limit', 100))
             offset = int(params.get('offset', 0))
             
             print(f"[DEBUG] Params: archived={show_archived}, moderation={moderation_filter}, limit={limit}, offset={offset}")
