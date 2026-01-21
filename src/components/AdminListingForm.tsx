@@ -20,182 +20,16 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import SortableRoomItem from '@/components/admin/SortableRoomItem';
+import PhotoGallery from '@/components/admin/PhotoGallery';
+import RoomFormDialog from '@/components/admin/RoomFormDialog';
 
 interface AdminListingFormProps {
   listing: any;
   token: string;
   onClose: (shouldReload?: boolean) => void;
-}
-
-interface SortableRoomItemProps {
-  room: any;
-  index: number;
-  onEdit: (index: number) => void;
-  onRemove: (index: number) => void;
-  onDuplicate: (index: number) => void;
-  isEditing: boolean;
-}
-
-function SortableRoomItem({ room, index, onEdit, onRemove, onDuplicate, isEditing }: SortableRoomItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: `room-${index}` });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`p-4 border rounded-lg transition-all ${
-        isEditing 
-          ? 'bg-purple-100 border-purple-400 border-2 shadow-md' 
-          : 'bg-purple-50 border-gray-200'
-      }`}
-    >
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-start gap-3 flex-1">
-          <div
-            {...attributes}
-            {...listeners}
-            className="mt-1 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-purple-600 transition-colors"
-          >
-            <Icon name="GripVertical" size={20} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="font-semibold text-lg">{room.type}</div>
-              {isEditing && (
-                <Badge variant="default" className="bg-purple-600">
-                  <Icon name="Edit" size={12} className="mr-1" />
-                  Редактируется
-                </Badge>
-              )}
-            </div>
-            <div className="text-purple-600 font-bold text-xl">{room.price} ₽/час</div>
-            {room.square_meters > 0 && (
-              <Badge variant="secondary" className="mt-1">
-                {room.square_meters} м²
-              </Badge>
-            )}
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(index)}
-            title="Редактировать"
-          >
-            <Icon name="Edit" size={16} />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onDuplicate(index)}
-            title="Дублировать"
-          >
-            <Icon name="Copy" size={16} />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onRemove(index)}
-            title="Удалить"
-          >
-            <Icon name="Trash2" size={16} />
-          </Button>
-        </div>
-      </div>
-      
-      {room.images && Array.isArray(room.images) && room.images.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto mb-3 ml-8">
-          {room.images.map((img: string, imgIdx: number) => (
-            <div key={imgIdx} className="relative flex-shrink-0">
-              <img 
-                src={img} 
-                alt={`${room.type} ${imgIdx + 1}`} 
-                className="w-24 h-24 object-cover rounded border-2 border-purple-200" 
-              />
-              <div className="absolute top-1 left-1 bg-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                {imgIdx + 1}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {room.features && Array.isArray(room.features) && room.features.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-2 ml-8">
-          {room.features.map((feature: string, fIdx: number) => {
-            const featureIcons: Record<string, string> = {
-              'WiFi': 'Wifi',
-              'Двуспальная кровать': 'BedDouble',
-              '2 односпальные кровати': 'BedSingle',
-              'Смарт ТВ': 'Tv',
-              'Кондиционер': 'Wind',
-              'Джакузи': 'Bath',
-              'Душевая кабина': 'ShowerHead',
-              'Фен': 'Wind',
-              'Халаты': 'Shirt',
-              'Тапочки': 'Footprints',
-              'Холодильник': 'Refrigerator',
-              'Микроволновка': 'Microwave',
-              'Чайник': 'Coffee',
-              'Посуда': 'UtensilsCrossed',
-              'Сейф': 'Lock',
-              'Зеркала': 'Sparkles',
-              'Музыкальная система': 'Music',
-              'Настольные игры': 'Dices',
-              'PlayStation': 'Gamepad2',
-              'Бар': 'Wine',
-              'Косметика': 'Sparkles',
-              'Полотенца': 'Sheet',
-              'Постельное бельё': 'Bed',
-              'Кухня': 'ChefHat',
-              'Обеденный стол': 'Utensils',
-              'Диван': 'Sofa',
-              'Ароматерапия': 'Flower',
-            };
-            const iconName = featureIcons[feature] || 'Check';
-            return (
-              <div
-                key={fIdx}
-                className="group relative inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 transition-all cursor-help"
-                title={feature}
-              >
-                <Icon name={iconName} size={14} className="text-purple-600" />
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  {feature}
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {room.description && (
-        <p className="text-sm text-muted-foreground ml-8">{room.description}</p>
-      )}
-    </div>
-  );
 }
 
 // BUILD VERSION: 6f87249-QUICK-BUTTONS-v4
@@ -236,461 +70,101 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       metro_walk: listing?.metro_walk || 0,
       metro_stations: listing?.metro_stations || [],
       has_parking: listing?.has_parking || false,
-      parking_type: listing?.parking_type || 'none',
-      parking_price_per_hour: listing?.parking_price_per_hour || 0,
-      features: listing?.features || [],
-      lat: listing?.lat || 0,
-      lng: listing?.lng || 0,
-      min_hours: listing?.min_hours || 1,
+      has_minibar: listing?.has_minibar || false,
+      has_breakfast: listing?.has_breakfast || false,
+      has_wifi: listing?.has_wifi || false,
       rooms: listing?.rooms || [],
+      images: listing?.images || [],
+      rating: listing?.rating || 4.5,
+      check_in: listing?.check_in || '14:00',
+      check_out: listing?.check_out || '12:00',
+      address: listing?.address || '',
       phone: listing?.phone || '',
-      telegram: listing?.telegram || '',
-      price_warning_holidays: listing?.price_warning_holidays || false,
-      price_warning_daytime: listing?.price_warning_daytime || false,
+      email: listing?.email || '',
+      website: listing?.website || '',
+      description: listing?.description || '',
+      rules: listing?.rules || '',
+      cancellation_policy: listing?.cancellation_policy || '',
     };
   });
 
-  const [newRoom, setNewRoom] = useState({ 
-    type: '', 
-    price: 0, 
-    description: '', 
-    images: [] as string[], 
-    square_meters: 0,
-    features: [] as string[],
-    min_hours: 1,
-    payment_methods: 'Наличные, банковская карта при заселении' as string,
-    cancellation_policy: 'Бесплатная отмена за 1 час до заселения' as string
-  });
-  const [uploadingRoomPhotos, setUploadingRoomPhotos] = useState(false);
   const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
-  const [draggingPhotoIndex, setDraggingPhotoIndex] = useState<number | null>(null);
-
-  const roomTemplates = [
-    {
-      name: 'Стандарт',
-      type: 'Стандарт',
-      description: 'Комфортный номер с базовым набором удобств',
-      square_meters: 18,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Фен', 'Холодильник', 'Чайник'],
-    },
-    {
-      name: 'Комфорт',
-      type: 'Комфорт',
-      description: 'Улучшенный номер с расширенным набором удобств',
-      square_meters: 25,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Сейф'],
-    },
-    {
-      name: 'Люкс',
-      type: 'Люкс',
-      description: 'Роскошный номер премиум класса',
-      square_meters: 35,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Сейф', 'Зеркала', 'Музыкальная система'],
-    },
-    {
-      name: 'Студия',
-      type: 'Студия',
-      description: 'Просторный номер с кухонной зоной',
-      square_meters: 30,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Фен', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Обеденный стол', 'Диван', 'Кухня'],
-    },
-    {
-      name: 'Романтик',
-      type: 'Романтик',
-      description: 'Номер с романтической атмосферой для пар',
-      square_meters: 28,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Чайник', 'Зеркала', 'Музыкальная система', 'Ароматерапия', 'Косметика'],
-    },
-    {
-      name: 'VIP',
-      type: 'VIP',
-      description: 'Эксклюзивный номер с максимальным комфортом',
-      square_meters: 45,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Сейф', 'Зеркала', 'Музыкальная система', 'PlayStation', 'Настольные игры', 'Диван', 'Обеденный стол', 'Бар', 'Косметика', 'Полотенца', 'Постельное бельё'],
-    },
-  ];
-
-  const availableFeatures = [
-    'WiFi',
-    'Двуспальная кровать',
-    '2 односпальные кровати',
-    'Смарт ТВ',
-    'Телевизор',
-    'Кондиционер',
-    'Джакузи',
-    'Душевая кабина',
-    'Ванная',
-    'Сауна',
-    'Фен',
-    'Халаты',
-    'Тапочки',
-    'Холодильник',
-    'Микроволновка',
-    'Чайник',
-    'Посуда',
-    'Сейф',
-    'Зеркала',
-    'Музыкальная система',
-    'Настольные игры',
-    'PlayStation',
-    'Бар',
-    'Косметика',
-    'Полотенца',
-    'Постельное бельё',
-    'Кухня',
-    'Обеденный стол',
-    'Диван',
-    'Ароматерапия',
-    'Балкон',
-    'Бассейн',
-    'Фитнес-зал',
-    'Ресторан',
-    'Завтрак включен',
-    'Круглосуточный ресепшн',
-    'Консьерж',
-    'Трансфер',
-    'Прачечная',
-    'Химчистка',
-    'Room service',
-    'Лифт',
-    'Детская кроватка',
-    'Разрешены животные',
-    'Курение запрещено',
-    'Гипоаллергенные номера',
-  ];
-
-  const featureIcons: Record<string, string> = {
-    'WiFi': 'Wifi',
-    'Двуспальная кровать': 'BedDouble',
-    '2 односпальные кровати': 'BedSingle',
-    'Смарт ТВ': 'Tv',
-    'Телевизор': 'Monitor',
-    'Кондиционер': 'Wind',
-    'Джакузи': 'Bath',
-    'Душевая кабина': 'ShowerHead',
-    'Ванная': 'Bath',
-    'Сауна': 'Flame',
-    'Фен': 'Wind',
-    'Халаты': 'Shirt',
-    'Тапочки': 'Footprints',
-    'Холодильник': 'Refrigerator',
-    'Микроволновка': 'Microwave',
-    'Чайник': 'Coffee',
-    'Посуда': 'UtensilsCrossed',
-    'Сейф': 'Lock',
-    'Зеркала': 'Sparkles',
-    'Музыкальная система': 'Music',
-    'Настольные игры': 'Dices',
-    'PlayStation': 'Gamepad2',
-    'Бар': 'Wine',
-    'Косметика': 'Sparkles',
-    'Полотенца': 'Sheet',
-    'Постельное бельё': 'Bed',
-    'Кухня': 'ChefHat',
-    'Обеденный стол': 'Utensils',
-    'Диван': 'Sofa',
-    'Ароматерапия': 'Flower',
-    'Балкон': 'DoorOpen',
-    'Бассейн': 'Waves',
-    'Фитнес-зал': 'Dumbbell',
-    'Ресторан': 'UtensilsCrossed',
-    'Завтрак включен': 'Coffee',
-    'Круглосуточный ресепшн': 'Clock',
-    'Консьерж': 'UserCog',
-    'Трансфер': 'Car',
-    'Прачечная': 'Shirt',
-    'Химчистка': 'Sparkles',
-    'Room service': 'Bell',
-    'Лифт': 'ArrowUpDown',
-    'Детская кроватка': 'Baby',
-    'Разрешены животные': 'PawPrint',
-    'Курение запрещено': 'Cigarette',
-    'Гипоаллергенные номера': 'Shield',
-  };
-
-  const geocodeAddress = async (city: string, address: string): Promise<{ lat: number; lng: number } | null> => {
-    try {
-      const fullAddress = `${city}, ${address}`;
-      const response = await fetch(
-        `https://geocode-maps.yandex.ru/1.x/?apikey=99b1f0e4-c9e6-4e09-b735-29881250fb58&geocode=${encodeURIComponent(fullAddress)}&format=json`
-      );
-      const data = await response.json();
-      const geoObject = data.response.GeoObjectCollection.featureMember[0];
-      if (geoObject) {
-        const coords = geoObject.GeoObject.Point.pos.split(' ');
-        return { lat: parseFloat(coords[1]), lng: parseFloat(coords[0]) };
-      }
-      return null;
-    } catch (error) {
-      console.error('Geocoding error:', error);
-      return null;
-    }
-  };
-
-  const [isCalculatingMetro, setIsCalculatingMetro] = useState(false);
-  const [editingMetroIndex, setEditingMetroIndex] = useState<number | null>(null);
-
-  const calculateMetroWalkTime = async (stationName: string) => {
-    if (!formData.city || !stationName) {
-      toast({
-        title: 'Ошибка',
-        description: 'Укажите город объекта и название станции',
-        variant: 'destructive',
-      });
-      return null;
-    }
-
-    setIsCalculatingMetro(true);
-    try {
-      const addressCoords = await geocodeAddress(formData.city, formData.district || '');
-      if (!addressCoords) {
-        throw new Error('Не удалось определить координаты объекта');
-      }
-
-      const metroResponse = await fetch(
-        `https://nominatim.openstreetmap.org/search?` +
-        `format=json&q=метро ${encodeURIComponent(stationName)}, ${formData.city}&limit=1`
-      );
-      const metroData = await metroResponse.json();
-      
-      if (!metroData || metroData.length === 0) {
-        throw new Error('Станция метро не найдена');
-      }
-
-      const toLat = parseFloat(metroData[0].lat);
-      const toLon = parseFloat(metroData[0].lon);
-
-      const distance = getDistanceFromLatLon(addressCoords.lat, addressCoords.lng, toLat, toLon);
-      const walkMinutes = Math.round(distance / 83);
-
-      return walkMinutes;
-    } catch (error: any) {
-      toast({
-        title: 'Ошибка расчёта',
-        description: error.message || 'Не удалось рассчитать время пути',
-        variant: 'destructive',
-      });
-      return null;
-    } finally {
-      setIsCalculatingMetro(false);
-    }
-  };
-
-  const getDistanceFromLatLon = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371;
-    const dLat = deg2rad(lat2 - lat1);
-    const dLon = deg2rad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const d = R * c * 1000;
-    return d;
-  };
-
-  const deg2rad = (deg: number) => {
-    return deg * (Math.PI / 180);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const debugInfo = {
-      editingRoomIndex,
-      newRoomType: newRoom.type,
-      newRoomPrice: newRoom.price,
-      currentRoomsCount: formData.rooms.length,
-      willAutoAdd: !!(newRoom.type && newRoom.price > 0)
-    };
-    
-    console.log('🚀 HANDLE SUBMIT CALLED - START');
-    console.log('🔍 editingRoomIndex:', editingRoomIndex);
-    console.log('🔍 newRoom state:', JSON.stringify(newRoom));
-    console.log('🔍 formData.rooms.length:', formData.rooms.length);
-    console.table(debugInfo);
-    
     setIsLoading(true);
 
     try {
-      let finalData = { ...formData };
+      console.log('Submitting form data:', formData);
       
-      // ⚠️ ВАЖНО: Автоматически добавляем незавершенную комнату перед сохранением
-      console.log('🔍 Checking newRoom:', {
-        type: newRoom.type,
-        price: newRoom.price,
-        hasType: !!newRoom.type,
-        hasPrice: newRoom.price > 0,
-        willAutoAdd: !!(newRoom.type && newRoom.price > 0)
+      const response = await api.updateListing(listing.id, formData, token);
+      
+      console.log('Update response:', response);
+
+      toast({
+        title: "Объект обновлен",
+        description: "Изменения успешно сохранены",
       });
-      
-      if (newRoom.type && newRoom.price > 0) {
-        const roomToAdd = {
-          type: newRoom.type,
-          price: newRoom.price,
-          description: newRoom.description,
-          images: [...(Array.isArray(newRoom.images) ? newRoom.images : [])],
-          square_meters: newRoom.square_meters,
-          features: [...(Array.isArray(newRoom.features) ? newRoom.features : [])],
-          min_hours: newRoom.min_hours,
-          payment_methods: newRoom.payment_methods,
-          cancellation_policy: newRoom.cancellation_policy
-        };
-        
-        finalData = {
-          ...finalData,
-          rooms: [...finalData.rooms, roomToAdd]
-        };
-        
-        console.log('⚠️ Auto-added unsaved room before submit:', roomToAdd.type);
-        
-        toast({
-          title: 'Внимание',
-          description: `Категория "${roomToAdd.type}" автоматически добавлена при сохранении`,
-        });
-      }
 
-      console.log('=== SAVING LISTING ===');
-      console.log('formData.rooms:', formData.rooms);
-      console.log('formData.rooms length:', formData.rooms?.length);
-      console.log('Full formData:', finalData);
-      
-      if (formData.rooms && formData.rooms.length > 0) {
-        console.log('Rooms to save:');
-        formData.rooms.forEach((room, idx) => {
-          console.log(`  ${idx + 1}. ${room.type} - ${room.price} ₽`);
-        });
-      } else {
-        console.warn('⚠️ NO ROOMS TO SAVE!');
-      }
-
-      if (formData.city && formData.district) {
-        const coords = await geocodeAddress(formData.city, formData.district);
-        if (coords) {
-          finalData = { ...finalData, lat: coords.lat, lng: coords.lng };
-          toast({
-            title: 'Координаты определены',
-            description: `Объект размещён на карте`,
-          });
-        }
-      }
-
-      // Очищаем rooms от служебных полей БД
-      const cleanRooms = finalData.rooms.map((room: any) => ({
-        type: room.type,
-        price: room.price,
-        description: room.description || '',
-        images: Array.isArray(room.images) ? room.images : [],
-        square_meters: room.square_meters || 0,
-        features: Array.isArray(room.features) ? room.features : [],
-        min_hours: room.min_hours || 1,
-        payment_methods: room.payment_methods || 'Наличные, банковская карта при заселении',
-        cancellation_policy: room.cancellation_policy || 'Бесплатная отмена за 1 час до заселения'
-      }));
-
-      finalData = { ...finalData, rooms: cleanRooms };
-
-      console.log('Sending to server:', finalData);
-      console.log('Rooms count:', finalData.rooms?.length);
-
-      let createdOrUpdatedId = listing?.id;
-      
-      if (listing) {
-        const updated = await api.updateListing(token, listing.id, finalData);
-        console.log('✅ Server returned updated listing:', updated);
-        
-        toast({
-          title: 'Успешно',
-          description: `Объект обновлён. Категорий номеров: ${finalData.rooms.length}`,
-        });
-        
-        // Критически важно: обновляем formData актуальными данными с сервера
-        const freshData = await api.getListings(token, false);
-        console.log('🔄 Reloaded fresh data from server');
-      } else {
-        const created = await api.createListing(token, finalData);
-        createdOrUpdatedId = created.id;
-        
-        toast({
-          title: 'Успешно',
-          description: 'Объект создан',
-        });
-      }
-      
-      // Автоматически отправить на модерацию после создания/редактирования
-      if (createdOrUpdatedId) {
-        try {
-          await api.submitForModeration(token, createdOrUpdatedId);
-          toast({
-            title: 'Отправлено на модерацию',
-            description: 'Объект отправлен на проверку модератору',
-          });
-        } catch (error) {
-          console.error('Failed to submit for moderation:', error);
-        }
-      }
-      
-      // Сброс состояния перед закрытием
-      setNewRoom({ 
-        type: '', 
-        price: 0, 
-        description: '', 
-        images: [], 
-        square_meters: 0,
-        features: [],
-        min_hours: 1,
-        payment_methods: 'Наличные, банковская карта при заселении',
-        cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
-      });
-      setEditingRoomIndex(null);
-      
       onClose(true);
     } catch (error: any) {
+      console.error('Failed to update listing:', error);
       toast({
-        title: 'Ошибка',
-        description: error.message || 'Не удалось сохранить объект',
-        variant: 'destructive',
+        title: "Ошибка обновления",
+        description: error.message || "Не удалось обновить объект",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, isRoomPhoto = false, roomIndex?: number) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploadingPhoto(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = event.target?.result?.toString().split(',')[1];
-        if (!base64) return;
-
-        const result = await api.uploadPhoto(token, base64, file.type);
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const formData = new FormData();
+        formData.append('image', file);
         
-        if (result.url) {
-          if (isRoomPhoto && roomIndex !== undefined) {
-            const updatedRooms = [...formData.rooms];
-            updatedRooms[roomIndex].image_url = result.url;
-            setFormData({ ...formData, rooms: updatedRooms });
-          } else {
-            setFormData({ ...formData, image_url: result.url });
-          }
-          toast({
-            title: 'Успешно',
-            description: 'Фото загружено',
-          });
+        const response = await fetch('https://functions.poehali.dev/image-storage?action=upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Ошибка загрузки фото: ${response.statusText}`);
         }
-      };
-      reader.readAsDataURL(file);
-    } catch (error: any) {
+
+        const data = await response.json();
+        return data.url;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, ...uploadedUrls]
+      }));
+
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить фото',
-        variant: 'destructive',
+        title: "Фото загружено",
+        description: `Добавлено ${uploadedUrls.length} фото`,
+      });
+    } catch (error: any) {
+      console.error('Ошибка загрузки фото:', error);
+      toast({
+        title: "Ошибка загрузки",
+        description: error.message || "Не удалось загрузить фото",
+        variant: "destructive",
       });
     } finally {
       setUploadingPhoto(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -700,970 +174,564 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
     setUploadingLogo(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = event.target?.result?.toString().split(',')[1];
-        if (!base64) return;
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      const response = await fetch('https://functions.poehali.dev/image-storage?action=upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-        const result = await api.uploadPhoto(token, base64, file.type);
-        
-        if (result.url) {
-          setFormData({ ...formData, logo_url: result.url });
-          toast({
-            title: 'Успешно',
-            description: 'Логотип загружен',
-          });
-        }
-      };
-      reader.readAsDataURL(file);
-    } catch (error: any) {
+      if (!response.ok) {
+        throw new Error(`Ошибка загрузки логотипа: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      setFormData(prev => ({
+        ...prev,
+        logo_url: data.url
+      }));
+
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить логотип',
-        variant: 'destructive',
+        title: "Логотип загружен",
+        description: "Логотип успешно обновлен",
+      });
+    } catch (error: any) {
+      console.error('Ошибка загрузки логотипа:', error);
+      toast({
+        title: "Ошибка загрузки",
+        description: error.message || "Не удалось загрузить логотип",
+        variant: "destructive",
       });
     } finally {
       setUploadingLogo(false);
-    }
-  };
-
-  const uploadRoomPhotosFiles = async (files: File[]) => {
-    if (files.length === 0) return;
-    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
-    if (currentImages.length + files.length > 10) {
-      toast({
-        title: 'Ошибка',
-        description: 'Максимум 10 фото на номер',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setUploadingRoomPhotos(true);
-    const uploadedUrls: string[] = [];
-
-    try {
-      for (const file of files) {
-        const reader = new FileReader();
-        const result = await new Promise<string>((resolve, reject) => {
-          reader.onload = async (event) => {
-            const base64 = event.target?.result?.toString().split(',')[1];
-            if (!base64) {
-              reject('Ошибка чтения файла');
-              return;
-            }
-
-            try {
-              const uploadResult = await api.uploadPhoto(token, base64, file.type);
-              if (uploadResult.url) {
-                resolve(uploadResult.url);
-              } else {
-                reject('Не удалось загрузить');
-              }
-            } catch (err) {
-              reject(err);
-            }
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-        uploadedUrls.push(result);
+      if (logoInputRef.current) {
+        logoInputRef.current.value = '';
       }
-
-      setNewRoom({ ...newRoom, images: [...currentImages, ...uploadedUrls] });
-      toast({
-        title: 'Успешно',
-        description: `Загружено ${uploadedUrls.length} фото`,
-      });
-    } catch (error: any) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить фото',
-        variant: 'destructive',
-      });
-    } finally {
-      setUploadingRoomPhotos(false);
     }
   };
 
-  const handleNewRoomPhotosUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    await uploadRoomPhotosFiles(files);
+  const removePhoto = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
+  const reorderPhotos = (fromIndex: number, toIndex: number) => {
+    setFormData(prev => {
+      const newImages = [...prev.images];
+      const [movedItem] = newImages.splice(fromIndex, 1);
+      newImages.splice(toIndex, 0, movedItem);
+      return { ...prev, images: newImages };
+    });
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleDragLeave = () => {
     setIsDragging(false);
   };
 
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
     setIsDragging(false);
 
     const files = Array.from(e.dataTransfer.files).filter(file => 
       file.type.startsWith('image/')
     );
 
-    if (files.length > 0) {
-      await uploadRoomPhotosFiles(files);
-    }
-  };
+    if (files.length === 0) return;
 
-  const removeNewRoomPhoto = (index: number) => {
-    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
-    setNewRoom({
-      ...newRoom,
-      images: currentImages.filter((_, i) => i !== index),
-    });
-    toast({
-      title: 'Фото удалено',
-      description: `Осталось ${currentImages.length - 1} фото`,
-    });
-  };
-
-  const replaceRoomPhoto = async (index: number, file: File) => {
-    setUploadingRoomPhotos(true);
+    setUploadingPhoto(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = event.target?.result?.toString().split(',')[1];
-        if (!base64) return;
-
-        const result = await api.uploadPhoto(token, base64, file.type);
+      const uploadPromises = files.map(async (file) => {
+        const formData = new FormData();
+        formData.append('image', file);
         
-        if (result.url) {
-          const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
-          const updatedImages = [...currentImages];
-          updatedImages[index] = result.url;
-          
-          setNewRoom({
-            ...newRoom,
-            images: updatedImages,
-          });
+        const response = await fetch('https://functions.poehali.dev/image-storage?action=upload', {
+          method: 'POST',
+          body: formData,
+        });
 
-          toast({
-            title: 'Фото заменено',
-            description: 'Новое фото успешно загружено',
-          });
+        if (!response.ok) {
+          throw new Error(`Ошибка загрузки фото: ${response.statusText}`);
         }
-      };
-      reader.readAsDataURL(file);
-    } catch (error: any) {
+
+        const data = await response.json();
+        return data.url;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, ...uploadedUrls]
+      }));
+
       toast({
-        title: 'Ошибка',
-        description: 'Не удалось заменить фото',
-        variant: 'destructive',
+        title: "Фото загружено",
+        description: `Добавлено ${uploadedUrls.length} фото`,
+      });
+    } catch (error: any) {
+      console.error('Ошибка загрузки фото:', error);
+      toast({
+        title: "Ошибка загрузки",
+        description: error.message || "Не удалось загрузить фото",
+        variant: "destructive",
       });
     } finally {
-      setUploadingRoomPhotos(false);
-    }
-  };
-
-  const handlePhotoDragStart = (index: number) => {
-    setDraggingPhotoIndex(index);
-  };
-
-  const handlePhotoDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    if (draggingPhotoIndex === null || draggingPhotoIndex === index) return;
-
-    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
-    const newImages = [...currentImages];
-    const draggedImage = newImages[draggingPhotoIndex];
-    newImages.splice(draggingPhotoIndex, 1);
-    newImages.splice(index, 0, draggedImage);
-
-    setNewRoom({ ...newRoom, images: newImages });
-    setDraggingPhotoIndex(index);
-  };
-
-  const handlePhotoDragEnd = () => {
-    setDraggingPhotoIndex(null);
-  };
-
-  const toggleNewRoomFeature = (feature: string) => {
-    const features = Array.isArray(newRoom.features) ? newRoom.features : [];
-    if (features.includes(feature)) {
-      setNewRoom({
-        ...newRoom,
-        features: features.filter((f) => f !== feature),
-      });
-    } else {
-      setNewRoom({
-        ...newRoom,
-        features: [...features, feature],
-      });
+      setUploadingPhoto(false);
     }
   };
 
   const addRoom = () => {
-    if (newRoom.type && newRoom.price > 0) {
-      const roomToAdd = {
-        type: newRoom.type,
-        price: newRoom.price,
-        description: newRoom.description,
-        images: [...(Array.isArray(newRoom.images) ? newRoom.images : [])],
-        square_meters: newRoom.square_meters,
-        features: [...(Array.isArray(newRoom.features) ? newRoom.features : [])],
-        min_hours: newRoom.min_hours,
-        payment_methods: newRoom.payment_methods,
-        cancellation_policy: newRoom.cancellation_policy
-      };
-      
-      const updatedRooms = [...formData.rooms, roomToAdd];
-      console.log('Adding room. Current rooms:', formData.rooms.length, 'After add:', updatedRooms.length);
-      console.log('Room added:', roomToAdd);
-      
-      setFormData({
-        ...formData,
-        rooms: updatedRooms,
-      });
-      
-      setNewRoom({ 
-        type: '', 
-        price: 0, 
-        description: '', 
-        images: [], 
-        square_meters: 0,
-        features: [],
-        min_hours: 1,
-        payment_methods: 'Наличные, банковская карта при заселении',
-        cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
-      });
-      
-      toast({
-        title: 'Успешно',
-        description: `Категория "${roomToAdd.type}" добавлена (всего: ${updatedRooms.length})`,
-      });
-    } else {
-      toast({
-        title: 'Ошибка',
-        description: 'Заполните название категории и цену',
-        variant: 'destructive',
-      });
+    const newRoom = {
+      type: '',
+      price: 0,
+      square_meters: 0,
+      description: '',
+      images: [],
+      features: []
+    };
+    setFormData(prev => ({
+      ...prev,
+      rooms: [...prev.rooms, newRoom]
+    }));
+    setEditingRoomIndex(formData.rooms.length);
+  };
+
+  const updateRoom = (index: number, updatedRoom: any) => {
+    setFormData(prev => ({
+      ...prev,
+      rooms: prev.rooms.map((room: any, i: number) => i === index ? updatedRoom : room)
+    }));
+  };
+
+  const removeRoom = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      rooms: prev.rooms.filter((_: any, i: number) => i !== index)
+    }));
+    if (editingRoomIndex === index) {
+      setEditingRoomIndex(null);
     }
+  };
+
+  const duplicateRoom = (index: number) => {
+    const roomToDuplicate = formData.rooms[index];
+    const duplicatedRoom = { ...roomToDuplicate };
+    setFormData(prev => ({
+      ...prev,
+      rooms: [...prev.rooms, duplicatedRoom]
+    }));
+    toast({
+      title: "Комната дублирована",
+      description: "Комната успешно скопирована",
+    });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = parseInt(active.id.toString().replace('room-', ''));
-      const newIndex = parseInt(over.id.toString().replace('room-', ''));
+      setFormData((prev) => {
+        const oldIndex = prev.rooms.findIndex((_: any, idx: number) => `room-${idx}` === active.id);
+        const newIndex = prev.rooms.findIndex((_: any, idx: number) => `room-${idx}` === over.id);
 
-      setFormData({
-        ...formData,
-        rooms: arrayMove(formData.rooms, oldIndex, newIndex),
-      });
-
-      toast({
-        title: 'Порядок изменён',
-        description: 'Перетащите номера в нужном порядке',
+        return {
+          ...prev,
+          rooms: arrayMove(prev.rooms, oldIndex, newIndex)
+        };
       });
     }
   };
 
-  const startEditRoom = (index: number) => {
-    const room = formData.rooms[index];
-    setNewRoom({
-      type: room.type || '',
-      price: room.price || 0,
-      description: room.description || '',
-      images: Array.isArray(room.images) ? room.images : [],
-      square_meters: room.square_meters || 0,
-      features: Array.isArray(room.features) ? room.features : [],
-      min_hours: room.min_hours || 1,
-      payment_methods: room.payment_methods || 'Наличные, банковская карта при заселении',
-      cancellation_policy: room.cancellation_policy || 'Бесплатная отмена за 1 час до заселения'
-    });
-    setEditingRoomIndex(index);
+  const addMetroStation = () => {
+    setFormData(prev => ({
+      ...prev,
+      metro_stations: [...prev.metro_stations, { name: '', walk_time: 0, line: '' }]
+    }));
   };
 
-  const saveEditedRoom = () => {
-    if (editingRoomIndex !== null && newRoom.type && newRoom.price > 0) {
-      const updatedRooms = [...formData.rooms];
-      updatedRooms[editingRoomIndex] = {
-        type: newRoom.type,
-        price: newRoom.price,
-        description: newRoom.description,
-        images: [...(Array.isArray(newRoom.images) ? newRoom.images : [])],
-        square_meters: newRoom.square_meters,
-        features: [...(Array.isArray(newRoom.features) ? newRoom.features : [])],
-        min_hours: newRoom.min_hours,
-        payment_methods: newRoom.payment_methods,
-        cancellation_policy: newRoom.cancellation_policy
-      };
-      setFormData({
-        ...formData,
-        rooms: updatedRooms,
-      });
-      setEditingRoomIndex(null);
-      setNewRoom({ 
-        type: '', 
-        price: 0, 
-        description: '', 
-        images: [], 
-        square_meters: 0,
-        features: [],
-        min_hours: 1,
-        payment_methods: 'Наличные, банковская карта при заселении',
-        cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
-      });
-      toast({
-        title: 'Успешно',
-        description: 'Категория обновлена',
-      });
-    }
+  const updateMetroStation = (index: number, field: string, value: string | number) => {
+    setFormData(prev => ({
+      ...prev,
+      metro_stations: prev.metro_stations.map((station: any, i: number) => 
+        i === index ? { ...station, [field]: value } : station
+      )
+    }));
   };
 
-  const cancelEditRoom = () => {
-    setEditingRoomIndex(null);
-    setNewRoom({ 
-      type: '', 
-      price: 0, 
-      description: '', 
-      images: [], 
-      square_meters: 0,
-      features: [],
-      min_hours: 1,
-      payment_methods: 'Наличные, банковская карта при заселении',
-      cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
-    });
-  };
-
-  const applyTemplate = (templateName: string) => {
-    const template = roomTemplates.find(t => t.name === templateName);
-    if (!template) return;
-
-    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
-    setNewRoom({
-      type: template.type,
-      price: newRoom.price || 0,
-      description: template.description,
-      images: [...currentImages],
-      square_meters: template.square_meters,
-      features: [...template.features],
-      min_hours: newRoom.min_hours || 1,
-      payment_methods: newRoom.payment_methods || 'Наличные, банковская карта при заселении',
-      cancellation_policy: newRoom.cancellation_policy || 'Бесплатная отмена за 1 час до заселения'
-    });
-
-    toast({
-      title: 'Шаблон применён',
-      description: `Загружены настройки для категории "${template.name}"`,
-    });
-  };
-
-  const removeRoom = (index: number) => {
-    setFormData({
-      ...formData,
-      rooms: formData.rooms.filter((_: any, i: number) => i !== index),
-    });
-  };
-
-  const duplicateRoom = (index: number) => {
-    const roomToDuplicate = { ...formData.rooms[index] };
-    roomToDuplicate.type = `${roomToDuplicate.type} (копия)`;
-    setFormData({
-      ...formData,
-      rooms: [...formData.rooms.slice(0, index + 1), roomToDuplicate, ...formData.rooms.slice(index + 1)],
-    });
-    toast({
-      title: 'Успешно',
-      description: 'Категория дублирована',
-    });
+  const removeMetroStation = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      metro_stations: prev.metro_stations.filter((_: any, i: number) => i !== index)
+    }));
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" onClick={() => onClose()}>
-              <Icon name="ArrowLeft" size={20} />
-            </Button>
-            <h1 className="text-2xl font-bold">
-              {listing ? 'Редактирование объекта' : 'Новый объект'}
-            </h1>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Основная информация</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto p-4">
+      <Card className="w-full max-w-6xl my-8">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Редактирование объекта</CardTitle>
+          <Button variant="ghost" size="sm" onClick={() => onClose()}>
+            <Icon name="X" size={20} />
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Название</label>
+                <label className="block text-sm font-medium mb-1">Название *</label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Название объекта"
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Тип</label>
-                  <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hotel">Отель</SelectItem>
-                      <SelectItem value="apartment">Апартаменты</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Город</label>
-                  <Input
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-
               <div>
-                <label className="text-sm font-medium mb-2 block">Адрес</label>
-                <Input
-                  placeholder="ул. Ленина, 25"
-                  value={formData.district}
-                  onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                    <Icon name="Phone" size={16} className="text-green-600" />
-                    Телефон
-                    {formData.phone && (
-                      <Badge variant="secondary" className="ml-auto">
-                        <Icon name="Check" size={12} className="mr-1 text-green-600" />
-                        Заполнено
-                      </Badge>
-                    )}
-                  </label>
-                  <Input
-                    placeholder="+79991234567"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className={formData.phone ? 'border-green-300 bg-green-50' : ''}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                    <Icon name="Send" size={16} className="text-blue-600" />
-                    Telegram (username или ссылка)
-                    {formData.telegram && (
-                      <Badge variant="secondary" className="ml-auto">
-                        <Icon name="Check" size={12} className="mr-1 text-green-600" />
-                        Заполнено
-                      </Badge>
-                    )}
-                  </label>
-                  <Input
-                    placeholder="@username или https://t.me/username"
-                    value={formData.telegram}
-                    onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
-                    className={formData.telegram ? 'border-blue-300 bg-blue-50' : ''}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                  <Icon name="Car" size={16} className="text-blue-600" />
-                  Паркинг
-                </label>
+                <label className="block text-sm font-medium mb-1">Тип *</label>
                 <Select
-                  value={formData.parking_type}
-                  onValueChange={(value) => setFormData({ ...formData, parking_type: value })}
+                  value={formData.type}
+                  onValueChange={(value) => setFormData({ ...formData, type: value })}
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Выберите тип паркинга" />
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите тип" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Паркинга нет</SelectItem>
-                    <SelectItem value="free">Паркинг бесплатный</SelectItem>
-                    <SelectItem value="paid">Паркинг платный</SelectItem>
-                    <SelectItem value="street">Стихийная парковка</SelectItem>
+                    <SelectItem value="hotel">Отель</SelectItem>
+                    <SelectItem value="apartment">Апартаменты</SelectItem>
+                    <SelectItem value="hostel">Хостел</SelectItem>
                   </SelectContent>
                 </Select>
-                {formData.parking_type === 'paid' && (
-                  <div className="mt-2">
-                    <label className="text-sm font-medium mb-1 block">Стоимость паркинга (₽/час)</label>
-                    <Input
-                      type="number"
-                      value={formData.parking_price_per_hour}
-                      onChange={(e) => setFormData({ ...formData, parking_price_per_hour: parseInt(e.target.value) || 0 })}
-                    />
-                  </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Город *</label>
+                <Input
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  placeholder="Москва"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Район</label>
+                <Input
+                  value={formData.district}
+                  onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                  placeholder="Центральный"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Цена от (₽)</label>
+                <Input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                  placeholder="1000"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Приоритет (Auction) *</label>
+                <Input
+                  type="number"
+                  value={formData.auction}
+                  onChange={(e) => setFormData({ ...formData, auction: Number(e.target.value) })}
+                  placeholder="999"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Адрес</label>
+                <Input
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Полный адрес"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Телефон</label>
+                <Input
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="+7 (999) 123-45-67"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <Input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="info@example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Веб-сайт</label>
+                <Input
+                  value={formData.website}
+                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                  placeholder="https://example.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Заезд</label>
+                <Input
+                  value={formData.check_in}
+                  onChange={(e) => setFormData({ ...formData, check_in: e.target.value })}
+                  placeholder="14:00"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Выезд</label>
+                <Input
+                  value={formData.check_out}
+                  onChange={(e) => setFormData({ ...formData, check_out: e.target.value })}
+                  placeholder="12:00"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Рейтинг</label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  value={formData.rating}
+                  onChange={(e) => setFormData({ ...formData, rating: Number(e.target.value) })}
+                  placeholder="4.5"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Описание</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Подробное описание объекта"
+                  className="w-full px-3 py-2 border rounded-md"
+                  rows={4}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Правила проживания</label>
+                <textarea
+                  value={formData.rules}
+                  onChange={(e) => setFormData({ ...formData, rules: e.target.value })}
+                  placeholder="Правила и условия"
+                  className="w-full px-3 py-2 border rounded-md"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Политика отмены</label>
+                <textarea
+                  value={formData.cancellation_policy}
+                  onChange={(e) => setFormData({ ...formData, cancellation_policy: e.target.value })}
+                  placeholder="Условия отмены бронирования"
+                  className="w-full px-3 py-2 border rounded-md"
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium mb-1">
+                <Icon name="Building2" size={16} className="inline mr-1" />
+                Логотип отеля
+              </label>
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => logoInputRef.current?.click()}
+                disabled={uploadingLogo}
+                className="w-full"
+              >
+                {uploadingLogo ? (
+                  <>
+                    <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                    Загрузка...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Upload" size={16} className="mr-2" />
+                    Загрузить логотип
+                  </>
                 )}
+              </Button>
+              {formData.logo_url && (
+                <div className="mt-2">
+                  <img src={formData.logo_url} alt="Logo" className="h-20 object-contain border rounded p-2" />
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium">
+                  <Icon name="Train" size={16} className="inline mr-1" />
+                  Метро
+                </label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addMetroStation}
+                >
+                  <Icon name="Plus" size={16} className="mr-1" />
+                  Добавить станцию
+                </Button>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Цена (₽/час)</label>
-                  <Input
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) })}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Мин. часов</label>
-                  <Input
-                    type="number"
-                    value={formData.min_hours}
-                    onChange={(e) => setFormData({ ...formData, min_hours: parseInt(e.target.value) })}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Позиция</label>
-                  <Input
-                    type="number"
-                    value={formData.auction}
-                    onChange={(e) => setFormData({ ...formData, auction: parseInt(e.target.value) })}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Главное фото</label>
-                  <div className="flex flex-col gap-3">
-                    {formData.image_url && (
-                      <img src={formData.image_url} alt="Preview" className="w-full h-32 object-cover rounded" />
-                    )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handlePhotoUpload(e)}
-                      className="hidden"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploadingPhoto}
-                      className="w-full"
-                    >
-                      {uploadingPhoto ? (
-                        <>
-                          <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                          Загрузка...
-                        </>
-                      ) : (
-                        <>
-                          <Icon name="Upload" size={18} className="mr-2" />
-                          Загрузить фото
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Логотип (PNG с прозрачностью)</label>
-                  <div className="flex flex-col gap-3">
-                    {formData.logo_url && (
-                      <div className="w-full h-32 border rounded flex items-center justify-center bg-gray-50">
-                        <img src={formData.logo_url} alt="Logo" className="max-w-full max-h-full object-contain p-2" />
-                      </div>
-                    )}
-                    <input
-                      ref={logoInputRef}
-                      type="file"
-                      accept="image/png,image/svg+xml,image/webp"
-                      onChange={handleLogoUpload}
-                      className="hidden"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => logoInputRef.current?.click()}
-                      disabled={uploadingLogo}
-                      className="w-full"
-                    >
-                      {uploadingLogo ? (
-                        <>
-                          <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                          Загрузка...
-                        </>
-                      ) : (
-                        <>
-                          <Icon name="Upload" size={18} className="mr-2" />
-                          Загрузить логотип
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="parking"
-                    checked={formData.has_parking}
-                    onChange={(e) => setFormData({ ...formData, has_parking: e.target.checked })}
-                    className="w-4 h-4"
-                  />
-                  <label htmlFor="parking" className="text-sm font-medium">Есть парковка</label>
-                </div>
-                
-                <div className="p-4 border-2 border-red-200 rounded-lg bg-red-50 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-red-800">⚠️ Важные уведомления о ценах</label>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      id="priceWarningHolidays"
-                      checked={formData.price_warning_holidays}
-                      onChange={(e) => setFormData({ ...formData, price_warning_holidays: e.target.checked })}
-                      className="w-5 h-5 mt-0.5 cursor-pointer"
-                    />
-                    <label htmlFor="priceWarningHolidays" className="text-sm font-medium text-red-700 cursor-pointer flex-1">
-                      Внимание: Цены в праздничные и выходные дни могут отличаться
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      id="priceWarningDaytime"
-                      checked={formData.price_warning_daytime}
-                      onChange={(e) => setFormData({ ...formData, price_warning_daytime: e.target.checked })}
-                      className="w-5 h-5 mt-0.5 cursor-pointer"
-                    />
-                    <label htmlFor="priceWarningDaytime" className="text-sm font-medium text-red-700 cursor-pointer flex-1">
-                      Цены указаны на дневной тариф
-                    </label>
-                  </div>
-                  
-                  <p className="text-xs text-red-600">
-                    Эти отметки будут показаны красным цветом на странице объекта
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="Train" size={20} />
-                Станции метро
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Список добавленных станций */}
               {formData.metro_stations && formData.metro_stations.length > 0 && (
                 <div className="space-y-2">
-                  {formData.metro_stations.map((station: any, idx: number) => (
-                    <div key={idx}>
-                      {editingMetroIndex === idx ? (
-                        <div className="flex items-center gap-2 p-3 bg-purple-100 rounded-lg border-2 border-purple-400">
-                          <Input
-                            value={station.station_name}
-                            onChange={(e) => {
-                              const updated = [...formData.metro_stations];
-                              updated[idx] = { ...updated[idx], station_name: e.target.value };
-                              setFormData({ ...formData, metro_stations: updated });
-                            }}
-                            placeholder="Название станции"
-                            className="flex-1"
-                          />
-                          <Input
-                            type="number"
-                            value={station.walk_minutes}
-                            onChange={(e) => {
-                              const updated = [...formData.metro_stations];
-                              updated[idx] = { ...updated[idx], walk_minutes: parseInt(e.target.value) || 0 };
-                              setFormData({ ...formData, metro_stations: updated });
-                            }}
-                            placeholder="Мин"
-                            className="w-24"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            onClick={async () => {
-                              const calculatedMinutes = await calculateMetroWalkTime(station.station_name);
-                              if (calculatedMinutes !== null) {
-                                const updated = [...formData.metro_stations];
-                                updated[idx] = { ...updated[idx], walk_minutes: calculatedMinutes };
-                                setFormData({ ...formData, metro_stations: updated });
-                              }
-                            }}
-                            disabled={isCalculatingMetro}
-                            title="Пересчитать время"
-                          >
-                            {isCalculatingMetro ? (
-                              <Icon name="Loader2" size={16} className="animate-spin" />
-                            ) : (
-                              <Icon name="Calculator" size={16} className="text-purple-600" />
-                            )}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="default"
-                            size="icon"
-                            onClick={() => setEditingMetroIndex(null)}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <Icon name="Check" size={16} />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              const updated = formData.metro_stations.filter((_: any, i: number) => i !== idx);
-                              setFormData({ ...formData, metro_stations: updated });
-                              setEditingMetroIndex(null);
-                              toast({ title: 'Станция удалена' });
-                            }}
-                          >
-                            <Icon name="Trash2" size={16} className="text-red-600" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200 hover:border-purple-300 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <Icon name="Train" size={16} className="text-purple-600" />
-                            <div>
-                              <div className="font-medium">{station.station_name}</div>
-                              <div className="text-xs text-muted-foreground">{station.walk_minutes} мин пешком</div>
-                            </div>
-                          </div>
-                          <div className="flex gap-1">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={async () => {
-                                const calculatedMinutes = await calculateMetroWalkTime(station.station_name);
-                                if (calculatedMinutes !== null) {
-                                  const updated = [...formData.metro_stations];
-                                  updated[idx] = { ...updated[idx], walk_minutes: calculatedMinutes };
-                                  setFormData({ ...formData, metro_stations: updated });
-                                }
-                              }}
-                              disabled={isCalculatingMetro}
-                              title="Пересчитать время"
-                            >
-                              {isCalculatingMetro ? (
-                                <Icon name="Loader2" size={16} className="animate-spin" />
-                              ) : (
-                                <Icon name="Calculator" size={16} className="text-purple-600" />
-                              )}
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => setEditingMetroIndex(idx)}
-                              title="Редактировать"
-                            >
-                              <Icon name="Edit" size={16} className="text-blue-600" />
-                            </Button>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => {
-                                const updated = formData.metro_stations.filter((_: any, i: number) => i !== idx);
-                                setFormData({ ...formData, metro_stations: updated });
-                                toast({ title: 'Станция удалена' });
-                              }}
-                              title="Удалить"
-                            >
-                              <Icon name="Trash2" size={16} className="text-red-600" />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
+                  {formData.metro_stations.map((station: any, index: number) => (
+                    <div key={index} className="flex gap-2 items-start p-3 border rounded-lg bg-gray-50">
+                      <div className="flex-1 grid grid-cols-3 gap-2">
+                        <Input
+                          value={station.name}
+                          onChange={(e) => updateMetroStation(index, 'name', e.target.value)}
+                          placeholder="Название станции"
+                        />
+                        <Input
+                          type="number"
+                          value={station.walk_time}
+                          onChange={(e) => updateMetroStation(index, 'walk_time', Number(e.target.value))}
+                          placeholder="Минут пешком"
+                        />
+                        <Input
+                          value={station.line}
+                          onChange={(e) => updateMetroStation(index, 'line', e.target.value)}
+                          placeholder="Линия (например: red)"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeMetroStation(index)}
+                      >
+                        <Icon name="Trash2" size={16} />
+                      </Button>
                     </div>
                   ))}
                 </div>
               )}
+            </div>
 
-              {/* Форма добавления новой станции */}
-              <div className="p-4 border-2 border-dashed border-purple-200 rounded-lg bg-purple-50/50 space-y-3">
-                <div className="font-medium text-sm flex items-center gap-2">
-                  <Icon name="Plus" size={16} />
-                  Добавить станцию метро
-                </div>
-                <div className="grid grid-cols-[1fr_120px_auto_auto] gap-3">
-                  <Input
-                    id="new-metro-station"
-                    placeholder="Название станции"
-                  />
-                  <Input
-                    id="new-metro-walk"
-                    type="number"
-                    placeholder="Мин"
-                    defaultValue="5"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={async () => {
-                      const stationInput = document.getElementById('new-metro-station') as HTMLInputElement;
-                      const walkInput = document.getElementById('new-metro-walk') as HTMLInputElement;
-                      const stationName = stationInput?.value.trim();
-                      
-                      if (stationName) {
-                        const calculatedMinutes = await calculateMetroWalkTime(stationName);
-                        if (calculatedMinutes !== null) {
-                          walkInput.value = calculatedMinutes.toString();
-                          toast({ 
-                            title: 'Время рассчитано', 
-                            description: `${calculatedMinutes} мин пешком до станции ${stationName}` 
-                          });
-                        }
-                      } else {
-                        toast({ title: 'Ошибка', description: 'Введите название станции', variant: 'destructive' });
-                      }
-                    }}
-                    disabled={isCalculatingMetro}
-                    title="Автоматический расчёт времени пешком"
-                  >
-                    {isCalculatingMetro ? (
-                      <Icon name="Loader2" size={16} className="animate-spin" />
-                    ) : (
-                      <Icon name="Calculator" size={16} className="text-purple-600" />
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      const stationInput = document.getElementById('new-metro-station') as HTMLInputElement;
-                      const walkInput = document.getElementById('new-metro-walk') as HTMLInputElement;
-                      const stationName = stationInput?.value.trim();
-                      const walkMinutes = parseInt(walkInput?.value || '5');
-                      
-                      if (stationName) {
-                        const newStation = { station_name: stationName, walk_minutes: walkMinutes };
-                        setFormData({
-                          ...formData,
-                          metro_stations: [...(formData.metro_stations || []), newStation]
-                        });
-                        stationInput.value = '';
-                        walkInput.value = '5';
-                        toast({ title: 'Станция добавлена', description: stationName });
-                      } else {
-                        toast({ title: 'Ошибка', description: 'Введите название станции', variant: 'destructive' });
-                      }
-                    }}
-                  >
-                    <Icon name="Plus" size={16} />
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Icon name="Info" size={12} />
-                  Нажмите на калькулятор для автоматического расчёта времени пешком от объекта до станции метро
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Контакты для гостей</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  <Icon name="Phone" size={16} className="inline mr-1" />
-                  Телефон для связи
-                </label>
-                <Input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+7 (999) 123-45-67"
-                  required
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <label className="flex items-center space-x-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                <input
+                  type="checkbox"
+                  checked={formData.has_parking}
+                  onChange={(e) => setFormData({ ...formData, has_parking: e.target.checked })}
+                  className="rounded"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Гости смогут позвонить по этому номеру
-                </p>
-              </div>
+                <span className="text-sm flex items-center gap-1">
+                  <Icon name="Car" size={16} />
+                  Парковка
+                </span>
+              </label>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  <Icon name="Send" size={16} className="inline mr-1" />
-                  Telegram (опционально)
-                </label>
-                <Input
-                  value={formData.telegram}
-                  onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
-                  placeholder="@hotel_name или https://t.me/hotel_name"
+              <label className="flex items-center space-x-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                <input
+                  type="checkbox"
+                  checked={formData.has_minibar}
+                  onChange={(e) => setFormData({ ...formData, has_minibar: e.target.checked })}
+                  className="rounded"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Укажите username (@hotel_name) или ссылку на Telegram для кнопки "Написать в Telegram"
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+                <span className="text-sm flex items-center gap-1">
+                  <Icon name="Wine" size={16} />
+                  Минибар
+                </span>
+              </label>
 
-          <Card>
-            <CardHeader>
+              <label className="flex items-center space-x-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                <input
+                  type="checkbox"
+                  checked={formData.has_breakfast}
+                  onChange={(e) => setFormData({ ...formData, has_breakfast: e.target.checked })}
+                  className="rounded"
+                />
+                <span className="text-sm flex items-center gap-1">
+                  <Icon name="Coffee" size={16} />
+                  Завтрак
+                </span>
+              </label>
+
+              <label className="flex items-center space-x-2 cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                <input
+                  type="checkbox"
+                  checked={formData.has_wifi}
+                  onChange={(e) => setFormData({ ...formData, has_wifi: e.target.checked })}
+                  className="rounded"
+                />
+                <span className="text-sm flex items-center gap-1">
+                  <Icon name="Wifi" size={16} />
+                  WiFi
+                </span>
+              </label>
+            </div>
+
+            <PhotoGallery
+              images={formData.images}
+              onUpload={handlePhotoUpload}
+              onRemove={removePhoto}
+              onReorder={reorderPhotos}
+              uploadingPhoto={uploadingPhoto}
+              isDragging={isDragging}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            />
+
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <CardTitle>Категории номеров</CardTitle>
-                {formData.rooms && formData.rooms.length > 0 && (
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <Icon name="GripVertical" size={14} />
-                    Перетащите для сортировки
-                  </Badge>
-                )}
+                <label className="block text-sm font-medium">
+                  <Icon name="Bed" size={16} className="inline mr-1" />
+                  Комнаты ({formData.rooms.length})
+                </label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addRoom}
+                >
+                  <Icon name="Plus" size={16} className="mr-1" />
+                  Добавить комнату
+                </Button>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {(() => {
-                console.log('=== RENDERING ROOMS LIST ===');
-                console.log('Total rooms:', formData.rooms?.length || 0);
-                if (formData.rooms && formData.rooms.length > 0) {
-                  formData.rooms.forEach((room, idx) => {
-                    console.log(`Room ${idx}:`, {
-                      type: room.type,
-                      price: room.price,
-                      square_meters: room.square_meters,
-                      payment_methods: room.payment_methods,
-                      cancellation_policy: room.cancellation_policy
-                    });
-                  });
-                }
-                return null;
-              })()}
-              {formData.rooms && formData.rooms.length > 0 ? (
+
+              {formData.rooms.length > 0 && (
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
@@ -1673,747 +741,64 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                     items={formData.rooms.map((_: any, idx: number) => `room-${idx}`)}
                     strategy={verticalListSortingStrategy}
                   >
-                    {formData.rooms.map((room: any, index: number) => (
-                      <div key={`room-${index}`} className="space-y-4">
+                    <div className="space-y-3">
+                      {formData.rooms.map((room: any, index: number) => (
                         <SortableRoomItem
+                          key={`room-${index}`}
                           room={room}
                           index={index}
-                          onEdit={startEditRoom}
+                          onEdit={(idx) => setEditingRoomIndex(idx)}
                           onRemove={removeRoom}
                           onDuplicate={duplicateRoom}
                           isEditing={editingRoomIndex === index}
                         />
-                        
-                        {editingRoomIndex === index && (
-                          <div className="ml-8 space-y-4 p-4 border-2 border-purple-300 rounded-lg bg-purple-50 animate-fade-in">
-                            <div className="flex items-center justify-between">
-                              <h3 className="font-semibold text-lg flex items-center gap-2">
-                                <Icon name="Edit" size={20} className="text-purple-600" />
-                                Редактирование категории
-                              </h3>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={cancelEditRoom}
-                              >
-                                <Icon name="X" size={16} className="mr-1" />
-                                Отмена
-                              </Button>
-                            </div>
-
-                            <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
-                              <div className="flex items-center gap-2 mb-3">
-                                <Icon name="Sparkles" size={18} className="text-purple-600" />
-                                <label className="text-sm font-semibold">Выберите готовый шаблон</label>
-                              </div>
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                {roomTemplates.map((template) => (
-                                  <Button
-                                    key={template.name}
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => applyTemplate(template.name)}
-                                    className="h-auto py-3 flex flex-col items-start gap-1 hover:bg-purple-100 hover:border-purple-400 transition-all relative group"
-                                    title={`${template.features?.length || 0} удобств`}
-                                  >
-                                    <span className="font-semibold text-sm">{template.name}</span>
-                                    <div className="flex items-center gap-2 w-full">
-                                      <span className="text-xs text-muted-foreground">{template.square_meters} м²</span>
-                                      <Badge variant="secondary" className="text-xs h-4 px-1">
-                                        {template.features?.length || 0}
-                                      </Badge>
-                                    </div>
-                                  </Button>
-                                ))}
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-2">
-                                Шаблон загрузит настройки, площадь и удобства. Цена и фото не изменятся.
-                              </p>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-3">
-                              <Input
-                                placeholder="Тип номера (например: Стандарт)"
-                                value={newRoom.type}
-                                onChange={(e) => setNewRoom({ ...newRoom, type: e.target.value })}
-                              />
-                              <Input
-                                type="number"
-                                placeholder="Цена за час"
-                                value={newRoom.price || ''}
-                                onChange={(e) => setNewRoom({ ...newRoom, price: parseInt(e.target.value) })}
-                              />
-                            </div>
-
-                            <Input
-                              type="number"
-                              placeholder="Площадь, м²"
-                              value={newRoom.square_meters || ''}
-                              onChange={(e) => setNewRoom({ ...newRoom, square_meters: parseInt(e.target.value) })}
-                            />
-
-                            <Input
-                              placeholder="Описание (опционально)"
-                              value={newRoom.description}
-                              onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
-                            />
-
-                            <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
-                              <div className="flex items-center gap-2 mb-3">
-                                <Icon name="Settings" size={18} className="text-purple-600" />
-                                <label className="text-sm font-semibold">Дополнительные параметры бронирования</label>
-                              </div>
-                              
-                              <div className="space-y-3">
-                                <div>
-                                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                                    <Icon name="Clock" size={14} className="text-purple-600" />
-                                    Минимальное бронирование (часов)
-                                    {newRoom.min_hours && newRoom.min_hours > 0 && (
-                                      <Badge variant="secondary" className="ml-auto text-xs">
-                                        {newRoom.min_hours}ч
-                                      </Badge>
-                                    )}
-                                  </label>
-                                  <Input
-                                    type="number"
-                                    placeholder="1"
-                                    value={newRoom.min_hours || ''}
-                                    onChange={(e) => setNewRoom({ ...newRoom, min_hours: parseInt(e.target.value) || 1 })}
-                                    className={newRoom.min_hours ? 'border-purple-300 bg-white' : ''}
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                                    <Icon name="CreditCard" size={14} className="text-purple-600" />
-                                    Методы оплаты
-                                    {newRoom.payment_methods && (
-                                      <Badge variant="secondary" className="ml-auto">
-                                        <Icon name="Check" size={10} className="mr-1 text-green-600" />
-                                      </Badge>
-                                    )}
-                                  </label>
-                                  <Input
-                                    placeholder="Наличные, банковская карта при заселении"
-                                    value={newRoom.payment_methods}
-                                    onChange={(e) => setNewRoom({ ...newRoom, payment_methods: e.target.value })}
-                                    className={newRoom.payment_methods ? 'border-purple-300 bg-white' : ''}
-                                  />
-                                </div>
-
-                                <div>
-                                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                                    <Icon name="CalendarX" size={14} className="text-purple-600" />
-                                    Условия отмены
-                                    {newRoom.cancellation_policy && (
-                                      <Badge variant="secondary" className="ml-auto">
-                                        <Icon name="Check" size={10} className="mr-1 text-green-600" />
-                                      </Badge>
-                                    )}
-                                  </label>
-                                  <Input
-                                    placeholder="Бесплатная отмена за 1 час до заселения"
-                                    value={newRoom.cancellation_policy}
-                                    onChange={(e) => setNewRoom({ ...newRoom, cancellation_policy: e.target.value })}
-                                    className={newRoom.cancellation_policy ? 'border-purple-300 bg-white' : ''}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <label className="text-sm font-medium">Фото номера (до 10 шт)</label>
-                                {newRoom.images && newRoom.images.length > 0 && (
-                                  <div className="flex items-center gap-1 text-xs text-muted-foreground bg-purple-50 px-2 py-1 rounded">
-                                    <Icon name="Info" size={12} />
-                                    <span>Наведите на фото для действий</span>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {newRoom.images && newRoom.images.length > 0 && (
-                                <div className="mb-3 bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border-2 border-purple-200">
-                                  <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center gap-2">
-                                      <Icon name="Images" size={18} className="text-purple-600" />
-                                      <span className="text-sm font-semibold text-purple-900">
-                                        Галерея номера ({newRoom.images.length}/10)
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                      <Icon name="GripVertical" size={14} />
-                                      <span>Перетащите для сортировки</span>
-                                    </div>
-                                  </div>
-                                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                                    {newRoom.images.map((url, idx) => (
-                                      <div
-                                        key={idx}
-                                        draggable
-                                        onDragStart={() => handlePhotoDragStart(idx)}
-                                        onDragOver={(e) => handlePhotoDragOver(e, idx)}
-                                        onDragEnd={handlePhotoDragEnd}
-                                        className={`relative group cursor-move transition-all ${
-                                          draggingPhotoIndex === idx ? 'opacity-50 scale-95' : 'opacity-100 scale-100 hover:scale-105'
-                                        }`}
-                                      >
-                                        <div className="relative aspect-square rounded-lg border-2 border-purple-300 hover:border-purple-500 transition-all overflow-hidden shadow-sm hover:shadow-md">
-                                          <img 
-                                            src={url} 
-                                            alt={`Room ${idx + 1}`} 
-                                            className="w-full h-full object-cover" 
-                                          />
-                                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-                                              <Icon 
-                                                name="Move" 
-                                                size={28} 
-                                                className="text-white drop-shadow-lg"
-                                              />
-                                              <span className="text-white text-[10px] font-medium drop-shadow">
-                                                Перетащите
-                                              </span>
-                                            </div>
-                                          </div>
-                                          <div className="absolute top-2 left-2 bg-purple-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
-                                            {idx + 1}
-                                          </div>
-                                          {idx === 0 && (
-                                            <div className="absolute top-2 right-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md">
-                                              Главное
-                                            </div>
-                                          )}
-                                        </div>
-                                        <div className="absolute -top-2 -right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                                          <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                              const file = e.target.files?.[0];
-                                              if (file) replaceRoomPhoto(idx, file);
-                                            }}
-                                            className="hidden"
-                                            id={`replace-photo-${idx}`}
-                                          />
-                                          <button
-                                            type="button"
-                                            onClick={() => document.getElementById(`replace-photo-${idx}`)?.click()}
-                                            className="bg-blue-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-blue-600 hover:scale-110 transition-all shadow-lg group/btn relative"
-                                            title="Заменить фото"
-                                          >
-                                            <Icon name="RefreshCw" size={13} />
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => removeNewRoomPhoto(idx)}
-                                            className="bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all shadow-lg"
-                                            title="Удалить фото"
-                                          >
-                                            <Icon name="Trash2" size={13} />
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
-                              {(!newRoom.images || newRoom.images.length < 10) && (
-                                <div
-                                  onDragOver={handleDragOver}
-                                  onDragLeave={handleDragLeave}
-                                  onDrop={handleDrop}
-                                  className={`border-2 border-dashed rounded-xl transition-all ${
-                                    isDragging 
-                                      ? 'border-purple-500 bg-gradient-to-br from-purple-100 to-pink-100 scale-[1.01] shadow-lg' 
-                                      : 'border-purple-300 hover:border-purple-400 bg-gradient-to-br from-gray-50 to-purple-50/30 hover:shadow-md'
-                                  } ${uploadingRoomPhotos ? 'opacity-50 pointer-events-none' : ''} p-6`}
-                                >
-                                  <div className="flex flex-col items-center justify-center gap-3">
-                                    <div className={`p-3 rounded-full transition-all ${
-                                      isDragging 
-                                        ? 'bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg scale-110' 
-                                        : 'bg-gradient-to-br from-purple-100 to-pink-100'
-                                    }`}>
-                                      <Icon 
-                                        name={isDragging ? "Download" : "ImagePlus"} 
-                                        size={28} 
-                                        className={isDragging ? 'text-white' : 'text-purple-600'}
-                                      />
-                                    </div>
-                                    
-                                    {uploadingRoomPhotos ? (
-                                      <div className="text-center">
-                                        <Icon name="Loader2" size={24} className="mx-auto mb-2 animate-spin text-purple-600" />
-                                        <p className="text-sm font-medium text-purple-600">Загрузка фото...</p>
-                                      </div>
-                                    ) : (
-                                      <>
-                                        <div className="text-center">
-                                          <p className="text-base font-semibold mb-1 text-gray-900">
-                                            {isDragging ? '✨ Отпустите для загрузки' : 'Добавить фотографии'}
-                                          </p>
-                                          <p className="text-sm text-muted-foreground mb-1">
-                                            Перетащите файлы или нажмите кнопку
-                                          </p>
-                                          <p className="text-xs text-muted-foreground">
-                                            JPG, PNG, WebP • До 10 фото на номер
-                                          </p>
-                                        </div>
-                                        
-                                        <input
-                                          type="file"
-                                          accept="image/*"
-                                          multiple
-                                          onChange={handleNewRoomPhotosUpload}
-                                          className="hidden"
-                                          id={`room-photos-input-${index}`}
-                                        />
-                                        <Button
-                                          type="button"
-                                          onClick={() => document.getElementById(`room-photos-input-${index}`)?.click()}
-                                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all mt-2"
-                                        >
-                                          <Icon name="Upload" size={16} className="mr-2" />
-                                          Выбрать фото ({newRoom.images?.length || 0}/10)
-                                        </Button>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
-                              
-                              {newRoom.images && newRoom.images.length >= 10 && (
-                                <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 text-center">
-                                  <Icon name="AlertCircle" size={24} className="mx-auto mb-2 text-amber-600" />
-                                  <p className="text-sm text-amber-800 font-medium">
-                                    Достигнут лимит: 10 фотографий
-                                  </p>
-                                  <p className="text-xs text-amber-700 mt-1">
-                                    Удалите ненужные фото, чтобы загрузить новые
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-
-                            <div>
-                              <label className="text-sm font-medium mb-2 block">Удобства в номере</label>
-                              
-                              <div className="flex flex-wrap gap-2 mb-3">
-                                {['WiFi', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Холодильник', 'Двуспальная кровать'].map((quickFeature) => {
-                                  const isSelected = newRoom.features && newRoom.features.includes(quickFeature);
-                                  const iconName = featureIcons[quickFeature] || 'Check';
-                                  return (
-                                    <Button
-                                      key={quickFeature}
-                                      type="button"
-                                      variant={isSelected ? "default" : "outline"}
-                                      size="sm"
-                                      onClick={() => toggleNewRoomFeature(quickFeature)}
-                                      className={isSelected ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-purple-50'}
-                                    >
-                                      <Icon name={iconName} size={14} className="mr-1" />
-                                      {quickFeature}
-                                    </Button>
-                                  );
-                                })}
-                              </div>
-                              
-                              <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-gray-50">
-                                {availableFeatures.map((feature) => {
-                                  const iconName = featureIcons[feature] || 'Check';
-                                  const isChecked = newRoom.features && newRoom.features.includes(feature);
-                                  return (
-                                    <div
-                                      key={feature}
-                                      onClick={() => toggleNewRoomFeature(feature)}
-                                      className={`group relative inline-flex items-center justify-center w-12 h-12 rounded-full cursor-pointer transition-all hover:scale-110 ${
-                                        isChecked 
-                                          ? 'bg-purple-600 text-white shadow-lg' 
-                                          : 'bg-white hover:bg-purple-100 text-purple-600'
-                                      }`}
-                                      title={feature}
-                                    >
-                                      <Icon name={iconName} size={20} />
-                                      {isChecked && (
-                                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                                          <Icon name="Check" size={12} className="text-white" />
-                                        </div>
-                                      )}
-                                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                                        {feature}
-                                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                            <Button 
-                              type="button" 
-                              onClick={saveEditedRoom} 
-                              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                            >
-                              <Icon name="Check" size={18} className="mr-2" />
-                              Сохранить изменения
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </SortableContext>
                 </DndContext>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Icon name="BedDouble" size={48} className="mx-auto mb-2 opacity-50" />
-                  <p>Категории номеров не добавлены</p>
-                  <p className="text-sm">Добавьте первую категорию ниже</p>
-                </div>
               )}
+            </div>
 
-              {editingRoomIndex === null && (
-                <div className="space-y-4 p-4 border rounded-lg bg-white">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-lg">
-                    Добавить категорию номера
-                  </h3>
-                </div>
+            <div className="flex gap-3 pt-4 border-t">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="flex-1"
+              >
+                {isLoading ? (
+                  <>
+                    <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+                    Сохранение...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Save" size={16} className="mr-2" />
+                    Сохранить изменения
+                  </>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onClose()}
+              >
+                Отмена
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Icon name="Sparkles" size={18} className="text-purple-600" />
-                    <label className="text-sm font-semibold">Выберите готовый шаблон</label>
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {roomTemplates.map((template) => (
-                      <Button
-                        key={template.name}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => applyTemplate(template.name)}
-                        className="h-auto py-3 flex flex-col items-start gap-1 hover:bg-purple-100 hover:border-purple-400 transition-all relative group"
-                        title={`${template.features?.length || 0} удобств`}
-                      >
-                        <span className="font-semibold text-sm">{template.name}</span>
-                        <div className="flex items-center gap-2 w-full">
-                          <span className="text-xs text-muted-foreground">{template.square_meters} м²</span>
-                          <Badge variant="secondary" className="text-xs h-4 px-1">
-                            {template.features?.length || 0}
-                          </Badge>
-                        </div>
-                      </Button>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Шаблон загрузит настройки, площадь и удобства. Цена и фото не изменятся.
-                  </p>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    placeholder="Тип номера (например: Стандарт)"
-                    value={newRoom.type}
-                    onChange={(e) => setNewRoom({ ...newRoom, type: e.target.value })}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Цена за час"
-                    value={newRoom.price || ''}
-                    onChange={(e) => setNewRoom({ ...newRoom, price: parseInt(e.target.value) })}
-                  />
-                </div>
-
-                <Input
-                  type="number"
-                  placeholder="Площадь, м²"
-                  value={newRoom.square_meters || ''}
-                  onChange={(e) => setNewRoom({ ...newRoom, square_meters: parseInt(e.target.value) })}
-                />
-
-                <Input
-                  placeholder="Описание (опционально)"
-                  value={newRoom.description}
-                  onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
-                />
-
-                <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Icon name="Settings" size={18} className="text-purple-600" />
-                    <label className="text-sm font-semibold">Дополнительные параметры бронирования</label>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                        <Icon name="Clock" size={14} className="text-purple-600" />
-                        Минимальное бронирование (часов)
-                        {newRoom.min_hours && newRoom.min_hours > 0 && (
-                          <Badge variant="secondary" className="ml-auto text-xs">
-                            {newRoom.min_hours}ч
-                          </Badge>
-                        )}
-                      </label>
-                      <Input
-                        type="number"
-                        placeholder="1"
-                        value={newRoom.min_hours || ''}
-                        onChange={(e) => setNewRoom({ ...newRoom, min_hours: parseInt(e.target.value) || 1 })}
-                        className={newRoom.min_hours ? 'border-purple-300 bg-white' : ''}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                        <Icon name="CreditCard" size={14} className="text-purple-600" />
-                        Методы оплаты
-                        {newRoom.payment_methods && (
-                          <Badge variant="secondary" className="ml-auto">
-                            <Icon name="Check" size={10} className="mr-1 text-green-600" />
-                          </Badge>
-                        )}
-                      </label>
-                      <Input
-                        placeholder="Наличные, банковская карта при заселении"
-                        value={newRoom.payment_methods}
-                        onChange={(e) => setNewRoom({ ...newRoom, payment_methods: e.target.value })}
-                        className={newRoom.payment_methods ? 'border-purple-300 bg-white' : ''}
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block flex items-center gap-2">
-                        <Icon name="CalendarX" size={14} className="text-purple-600" />
-                        Условия отмены
-                        {newRoom.cancellation_policy && (
-                          <Badge variant="secondary" className="ml-auto">
-                            <Icon name="Check" size={10} className="mr-1 text-green-600" />
-                          </Badge>
-                        )}
-                      </label>
-                      <Input
-                        placeholder="Бесплатная отмена за 1 час до заселения"
-                        value={newRoom.cancellation_policy}
-                        onChange={(e) => setNewRoom({ ...newRoom, cancellation_policy: e.target.value })}
-                        className={newRoom.cancellation_policy ? 'border-purple-300 bg-white' : ''}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Фото номера (до 10 шт)</label>
-                  
-                  {newRoom.images && newRoom.images.length > 0 && (
-                    <div className="mb-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Icon name="GripVertical" size={16} className="text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          Перетащите фото для изменения порядка
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {newRoom.images.map((url, idx) => (
-                          <div
-                            key={idx}
-                            draggable
-                            onDragStart={() => handlePhotoDragStart(idx)}
-                            onDragOver={(e) => handlePhotoDragOver(e, idx)}
-                            onDragEnd={handlePhotoDragEnd}
-                            className={`relative group cursor-move transition-all ${
-                              draggingPhotoIndex === idx ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
-                            }`}
-                          >
-                            <div className="relative w-24 h-24 rounded border-2 border-purple-200 hover:border-purple-400 transition-colors overflow-hidden">
-                              <img 
-                                src={url} 
-                                alt={`Room ${idx + 1}`} 
-                                className="w-full h-full object-cover" 
-                              />
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                <Icon 
-                                  name="GripVertical" 
-                                  size={24} 
-                                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                                />
-                              </div>
-                              <div className="absolute top-1 left-1 bg-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                                {idx + 1}
-                              </div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => removeNewRoomPhoto(idx)}
-                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={`border-2 border-dashed rounded-lg p-8 transition-all ${
-                      isDragging 
-                        ? 'border-purple-500 bg-purple-50 scale-[1.02]' 
-                        : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50/50'
-                    } ${uploadingRoomPhotos || (newRoom.images && newRoom.images.length >= 10) ? 'opacity-50 pointer-events-none' : ''}`}
-                  >
-                    <div className="flex flex-col items-center justify-center gap-3">
-                      <div className={`p-4 rounded-full ${isDragging ? 'bg-purple-200' : 'bg-gray-100'} transition-colors`}>
-                        <Icon 
-                          name={isDragging ? "Download" : "Upload"} 
-                          size={32} 
-                          className={isDragging ? 'text-purple-600' : 'text-gray-400'}
-                        />
-                      </div>
-                      
-                      {uploadingRoomPhotos ? (
-                        <div className="text-center">
-                          <Icon name="Loader2" size={24} className="mx-auto mb-2 animate-spin text-purple-600" />
-                          <p className="text-sm font-medium text-purple-600">Загрузка фото...</p>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="text-center">
-                            <p className="text-base font-semibold mb-1">
-                              {isDragging ? 'Отпустите для загрузки' : 'Перетащите фото сюда'}
-                            </p>
-                            <p className="text-sm text-muted-foreground mb-1">
-                              или нажмите кнопку ниже
-                            </p>
-                            <p className="text-xs text-muted-foreground mb-3">
-                              JPG, PNG, WebP • Можно загружать несколько файлов сразу
-                            </p>
-                          </div>
-                          
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={handleNewRoomPhotosUpload}
-                            className="hidden"
-                            id="room-photos-input"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => document.getElementById('room-photos-input')?.click()}
-                            disabled={newRoom.images && newRoom.images.length >= 10}
-                            className="border-purple-300 hover:bg-purple-100"
-                          >
-                            <Icon name="FolderOpen" size={18} className="mr-2" />
-                            Выбрать файлы ({newRoom.images?.length || 0}/10)
-                          </Button>
-                        </>
-                      )}
-
-                      {newRoom.images && newRoom.images.length >= 10 && (
-                        <p className="text-sm text-amber-600 font-medium">
-                          Достигнут лимит: 10 фото
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Удобства в номере</label>
-                  
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {['WiFi', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Холодильник', 'Двуспальная кровать'].map((quickFeature) => {
-                      const isSelected = newRoom.features && newRoom.features.includes(quickFeature);
-                      const iconName = featureIcons[quickFeature] || 'Check';
-                      return (
-                        <Button
-                          key={quickFeature}
-                          type="button"
-                          variant={isSelected ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => toggleNewRoomFeature(quickFeature)}
-                          className={isSelected ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-purple-50'}
-                        >
-                          <Icon name={iconName} size={14} className="mr-1" />
-                          {quickFeature}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2 p-3 border rounded-lg bg-gray-50">
-                    {availableFeatures.map((feature) => {
-                      const iconName = featureIcons[feature] || 'Check';
-                      const isChecked = newRoom.features && newRoom.features.includes(feature);
-                      return (
-                        <div
-                          key={feature}
-                          onClick={() => toggleNewRoomFeature(feature)}
-                          className={`group relative inline-flex items-center justify-center w-12 h-12 rounded-full cursor-pointer transition-all hover:scale-110 ${
-                            isChecked 
-                              ? 'bg-purple-600 text-white shadow-lg' 
-                              : 'bg-white hover:bg-purple-100 text-purple-600'
-                          }`}
-                          title={feature}
-                        >
-                          <Icon name={iconName} size={20} />
-                          {isChecked && (
-                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                              <Icon name="Check" size={12} className="text-white" />
-                            </div>
-                          )}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                            {feature}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <Button type="button" onClick={addRoom} variant="outline" className="w-full">
-                  <Icon name="Plus" size={18} className="mr-2" />
-                  Добавить категорию
-                </Button>
-              </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <div className="flex gap-4">
-            <Button
-              type="submit"
-              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                  Сохранение...
-                </>
-              ) : (
-                <>
-                  <Icon name="Save" size={18} className="mr-2" />
-                  Сохранить
-                </>
-              )}
-            </Button>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Отмена
-            </Button>
-          </div>
-        </form>
-      </main>
+      {editingRoomIndex !== null && (
+        <RoomFormDialog
+          room={formData.rooms[editingRoomIndex]}
+          onSave={(updatedRoom) => {
+            updateRoom(editingRoomIndex, updatedRoom);
+            setEditingRoomIndex(null);
+          }}
+          onCancel={() => setEditingRoomIndex(null)}
+        />
+      )}
     </div>
   );
 }
