@@ -401,7 +401,7 @@ export default function AdminPanel() {
                     <h3 className="text-2xl font-bold">{city}</h3>
                   </div>
                   <Badge variant="secondary" className="text-base px-3 py-1">
-                    {cityListings.length} из {cityTotals[city] || 0}
+                    {cityTotals[city] || 0}
                   </Badge>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
