@@ -67,7 +67,7 @@ export default function AdminPanel() {
   const loadListings = async () => {
     setIsLoading(true);
     try {
-      const data = await api.getListings(token!, showArchived);
+      const data = await api.getListings(token!, showArchived, 1000, 0);
       console.log('=== LOADED LISTINGS FROM API ===');
       console.log('Response:', data);
       
