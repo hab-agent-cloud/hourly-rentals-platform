@@ -77,6 +77,12 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                         Экстранет для владельцев
                       </Button>
                     </a>
+                    <a href="/admin/login" className="block">
+                      <Button variant="outline" className="w-full border-purple-300">
+                        <Icon name="Shield" size={18} className="mr-2" />
+                        Админ панель
+                      </Button>
+                    </a>
                   </div>
                 </div>
               </SheetContent>
@@ -120,6 +126,11 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
             <a href="/owner/login">
               <Button variant="outline">
                 Экстранет для владельцев
+              </Button>
+            </a>
+            <a href="/admin/login">
+              <Button variant="outline" size="icon" title="Админ панель">
+                <Icon name="Shield" size={18} />
               </Button>
             </a>
           </nav>
