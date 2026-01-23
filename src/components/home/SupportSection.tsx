@@ -20,7 +20,7 @@ export default function SupportSection() {
               <p className="text-muted-foreground mb-4">
                 Свяжитесь с нами в Telegram для быстрой поддержки
               </p>
-              <a href="https://t.me/yoursupport" target="_blank" rel="noopener noreferrer">
+              <a href="https://t.me/HELP120MINUT" target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" className="w-full border-purple-300">
                   <Icon name="Send" size={18} className="mr-2" />
                   Написать в Telegram
@@ -98,7 +98,7 @@ export default function SupportSection() {
                 Свяжитесь с нами любым удобным способом, и мы ответим на все ваши вопросы
               </p>
               <div className="flex flex-wrap gap-2">
-                <a href="https://t.me/yoursupport" target="_blank" rel="noopener noreferrer">
+                <a href="https://t.me/HELP120MINUT" target="_blank" rel="noopener noreferrer">
                   <Button size="sm" variant="outline" className="border-purple-300">
                     <Icon name="Send" size={16} className="mr-2" />
                     Telegram
