@@ -53,12 +53,15 @@ def handler(event: dict, context) -> dict:
         if method == 'GET':
             print(f"[DEBUG] GET request started")
             params = event.get('queryStringParameters', {}) or {}
+            print(f"[DEBUG] RAW params from event: {params}")
             show_archived = params.get('archived') == 'true'
             moderation_filter = params.get('moderation')
-            limit = int(params.get('limit', 100))
+            limit_param = params.get('limit', '100')
+            print(f"[DEBUG] limit_param string value: '{limit_param}'")
+            limit = min(int(limit_param), 1000)
             offset = int(params.get('offset', 0))
             
-            print(f"[DEBUG] Params: archived={show_archived}, moderation={moderation_filter}, limit={limit}, offset={offset}")
+            print(f"[DEBUG] Params: archived={show_archived}, moderation={moderation_filter}, limit={limit} (requested={limit_param}), offset={offset}")
             
             if moderation_filter in ('pending', 'awaiting_recheck', 'rejected'):
                 # Фильтр по статусу модерации
