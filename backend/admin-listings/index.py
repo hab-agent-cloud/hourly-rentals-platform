@@ -66,8 +66,17 @@ def handler(event: dict, context) -> dict:
             if moderation_filter in ('pending', 'awaiting_recheck', 'rejected'):
                 # Фильтр по статусу модерации
                 print(f"[DEBUG] Fetching moderation listings with status: {moderation_filter}")
+                # ⚠️ Явно указываем поля БЕЗ images для экономии памяти
                 query = f"""
-                    SELECT l.*, 
+                    SELECT l.id, l.owner_id, l.title, l.address, l.longitude, l.latitude, l.district,
+                           l.opening_hours, l.parking_info, l.contact_phone, l.whatsapp_number, l.telegram_number,
+                           l.deposit, l.payment_methods, l.rules, l.cancellation_policy, l.description, l.image_url,
+                           l.auction, l.is_archived, l.moderation_status, l.rejection_reason,
+                           l.created_at, l.updated_at, l.created_by_employee_id,
+                           CASE WHEN l.images IS NOT NULL AND array_length(l.images, 1) > 0 
+                                THEN array_length(l.images, 1) 
+                                ELSE 0 
+                           END as images_count,
                            a.name as created_by_employee_name,
                            o.full_name as owner_name
                     FROM t_p39732784_hourly_rentals_platf.listings l
@@ -81,10 +90,36 @@ def handler(event: dict, context) -> dict:
                 cur.execute(query)
             elif show_archived:
                 print(f"[DEBUG] Fetching archived listings")
-                cur.execute(f"SELECT * FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = true ORDER BY created_at DESC LIMIT {limit} OFFSET {offset}")
+                # ⚠️ Явно указываем поля БЕЗ images для экономии памяти
+                cur.execute(f"""SELECT id, owner_id, title, address, longitude, latitude, district, 
+                           opening_hours, parking_info, contact_phone, whatsapp_number, telegram_number, 
+                           deposit, payment_methods, rules, cancellation_policy, description, image_url,
+                           auction, is_archived, moderation_status, rejection_reason, 
+                           created_at, updated_at, created_by_employee_id,
+                           CASE WHEN images IS NOT NULL AND array_length(images, 1) > 0 
+                                THEN array_length(images, 1) 
+                                ELSE 0 
+                           END as images_count
+                    FROM t_p39732784_hourly_rentals_platf.listings 
+                    WHERE is_archived = true 
+                    ORDER BY created_at DESC 
+                    LIMIT {limit} OFFSET {offset}""")
             else:
                 print(f"[DEBUG] Fetching active listings")
-                cur.execute(f"SELECT * FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = false ORDER BY auction ASC LIMIT {limit} OFFSET {offset}")
+                # ⚠️ Явно указываем поля БЕЗ images для экономии памяти
+                cur.execute(f"""SELECT id, owner_id, title, address, longitude, latitude, district, 
+                           opening_hours, parking_info, contact_phone, whatsapp_number, telegram_number, 
+                           deposit, payment_methods, rules, cancellation_policy, description, image_url,
+                           auction, is_archived, moderation_status, rejection_reason, 
+                           created_at, updated_at, created_by_employee_id,
+                           CASE WHEN images IS NOT NULL AND array_length(images, 1) > 0 
+                                THEN array_length(images, 1) 
+                                ELSE 0 
+                           END as images_count
+                    FROM t_p39732784_hourly_rentals_platf.listings 
+                    WHERE is_archived = false 
+                    ORDER BY auction ASC 
+                    LIMIT {limit} OFFSET {offset}""")
             
             listings = cur.fetchall()
             print(f"[DEBUG] Total listings fetched: {len(listings)}, moderation_filter={moderation_filter}")
@@ -149,10 +184,7 @@ def handler(event: dict, context) -> dict:
             for listing in listings:
                 listing_dict = dict(listing)
                 
-                # ⚠️ КРИТИЧЕСКАЯ ОПТИМИЗАЦИЯ: Убираем массив изображений из listing (оставляем только image_url)
-                if 'images' in listing_dict and isinstance(listing_dict['images'], list):
-                    listing_dict['images_count'] = len(listing_dict['images'])
-                    listing_dict['images'] = []  # Удаляем полный массив URL
+                # images уже не загружается из БД (только images_count), так что очищать нечего
                 
                 # Обрезаем длинные текстовые поля для списка
                 if listing_dict.get('description') and len(listing_dict['description']) > 200:
