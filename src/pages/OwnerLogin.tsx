@@ -52,7 +52,7 @@ export default function OwnerLogin() {
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center space-y-2 sm:space-y-3 pb-4 sm:pb-6">
           <img 
-            src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/69bb67c0-3011-44dd-8807-0323986ac305.jpg" 
+            src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/77574b92-3610-4b79-8c59-819891e5ebca.jpg" 
             alt="120 минут" 
             className="h-16 w-16 sm:h-20 sm:w-20 object-contain mx-auto mb-2 sm:mb-4"
           />

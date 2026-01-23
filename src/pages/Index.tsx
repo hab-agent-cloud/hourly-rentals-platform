@@ -155,14 +155,21 @@ export default function Index() {
         }}
       />
       
-      <footer className="bg-white/80 backdrop-blur-md border-t border-purple-200 py-4 mt-12">
-        <div className="container mx-auto px-4 flex justify-center">
-          <a href="/admin/login">
-            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-purple-600">
-              <Icon name="Shield" size={16} className="mr-2" />
-              Админ панель
-            </Button>
-          </a>
+      <footer className="bg-white/80 backdrop-blur-md border-t border-purple-200 py-8 mt-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col items-center gap-4">
+            <img 
+              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/77574b92-3610-4b79-8c59-819891e5ebca.jpg" 
+              alt="120 минут" 
+              className="h-16 w-16 object-contain"
+            />
+            <a href="/admin/login">
+              <Button variant="ghost" size="sm" className="text-gray-500 hover:text-purple-600">
+                <Icon name="Shield" size={16} className="mr-2" />
+                Админ панель
+              </Button>
+            </a>
+          </div>
         </div>
       </footer>
     </div>

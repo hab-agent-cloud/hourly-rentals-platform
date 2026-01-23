@@ -6,9 +6,16 @@ export default function SupportSection() {
   return (
     <div className="container mx-auto px-4 py-16">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Поддержка
-        </h2>
+        <div className="flex flex-col items-center mb-8">
+          <img 
+            src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/77574b92-3610-4b79-8c59-819891e5ebca.jpg" 
+            alt="120 минут" 
+            className="h-20 w-20 object-contain mb-4"
+          />
+          <h2 className="text-4xl font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Поддержка
+          </h2>
+        </div>
         
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           <Card className="border-purple-200 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow">

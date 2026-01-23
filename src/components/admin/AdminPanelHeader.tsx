@@ -16,7 +16,11 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="text-4xl">⏰</div>
+              <img 
+                src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/77574b92-3610-4b79-8c59-819891e5ebca.jpg" 
+                alt="120 минут" 
+                className="h-12 w-12 object-contain"
+              />
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                   Админ-панель
