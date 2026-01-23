@@ -53,13 +53,14 @@ export const api = {
     }
   },
 
-  // Получение списка объектов (для админа)
+  // Получение списка объектов (для админа)  
   getListings: async (token: string, showArchived = false, limit = 1000, offset = 0) => {
+    console.log(`[API] getListings called with: token=${!!token}, archived=${showArchived}, limit=${limit}, offset=${offset}`);
     const url = showArchived 
       ? `${API_URLS.adminListings}?archived=true&limit=${limit}&offset=${offset}`
       : `${API_URLS.adminListings}?limit=${limit}&offset=${offset}`;
     
-    console.log(`[API] Fetching listings: archived=${showArchived}, limit=${limit}, offset=${offset}`);
+    console.log(`[API] Fetching listings URL: ${url}`);
     
     const response = await fetch(url, {
       headers: { 'Authorization': `Bearer ${token}` },
