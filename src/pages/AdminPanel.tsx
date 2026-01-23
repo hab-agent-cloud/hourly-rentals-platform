@@ -73,7 +73,9 @@ export default function AdminPanel() {
 
   const handleCreate = () => {
     setSelectedListing(null);
-    setShowForm(true);
+    requestAnimationFrame(() => {
+      setShowForm(true);
+    });
   };
 
   const handleFormClose = (shouldReload = false) => {

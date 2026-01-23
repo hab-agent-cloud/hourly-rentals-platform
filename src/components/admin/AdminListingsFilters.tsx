@@ -99,7 +99,11 @@ export default function AdminListingsFilters({
         </Button>
         <Button
           className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-          onClick={onCreate}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onCreate();
+          }}
         >
           <Icon name="Plus" size={18} className="mr-2" />
           Добавить объект
