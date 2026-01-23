@@ -121,8 +121,19 @@ def handler(event: dict, context) -> dict:
                     ORDER BY auction ASC 
                     LIMIT {limit} OFFSET {offset}""")
             
-            listings = cur.fetchall()
-            print(f"[DEBUG] Total listings fetched: {len(listings)}, moderation_filter={moderation_filter}")
+            try:
+                listings = cur.fetchall()
+                print(f"[DEBUG] Total listings fetched: {len(listings)}, moderation_filter={moderation_filter}")
+            except Exception as e:
+                print(f"[ERROR] Failed to fetch listings: {str(e)}")
+                cur.close()
+                conn.close()
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Database query error: {str(e)}'}),
+                    'isBase64Encoded': False
+                }
             
             if not listings:
                 cur.close()
