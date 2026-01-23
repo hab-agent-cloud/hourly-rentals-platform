@@ -143,10 +143,28 @@ def handler(event: dict, context) -> dict:
                 metro_by_listing[lid].append(metro)
             
             # Присваиваем данные каждому объекту и конвертируем в обычные dict
+            # Оптимизация: для списка убираем тяжелые поля
             result = []
             for listing in listings:
                 listing_dict = dict(listing)
-                listing_dict['rooms'] = [dict(r) for r in rooms_by_listing.get(listing['id'], [])]
+                # Обрезаем длинные текстовые поля для списка
+                if listing_dict.get('description') and len(listing_dict['description']) > 200:
+                    listing_dict['description'] = listing_dict['description'][:200] + '...'
+                if listing_dict.get('rules') and len(listing_dict['rules']) > 100:
+                    listing_dict['rules'] = listing_dict['rules'][:100] + '...'
+                if listing_dict.get('cancellation_policy') and len(listing_dict['cancellation_policy']) > 100:
+                    listing_dict['cancellation_policy'] = listing_dict['cancellation_policy'][:100] + '...'
+                
+                # Для комнат убираем images - они уже есть в listing.images
+                rooms = []
+                for r in rooms_by_listing.get(listing['id'], []):
+                    room_dict = dict(r)
+                    # Заменяем массив images на количество
+                    if 'image_count' in room_dict:
+                        room_dict['images'] = []  # Пустой массив вместо реальных URL
+                    rooms.append(room_dict)
+                
+                listing_dict['rooms'] = rooms
                 listing_dict['metro_stations'] = [dict(m) for m in metro_by_listing.get(listing['id'], [])]
                 result.append(listing_dict)
             
