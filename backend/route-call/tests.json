@@ -10,7 +10,7 @@
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "action": "string"
+        "destination": "string"
       },
       "bodyMatcher": "partial"
     },

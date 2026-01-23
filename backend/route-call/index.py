@@ -6,8 +6,8 @@ from psycopg2.extras import RealDictCursor
 
 def handler(event: dict, context) -> dict:
     """
-    Webhook для маршрутизации входящих звонков с АТС.
-    Определяет объект по истории звонков и возвращает данные для соединения.
+    Webhook для маршрутизации входящих звонков с МТС Exolve.
+    Определяет объект по истории звонков и переадресует на владельца.
     """
     method = event.get('httpMethod', 'POST')
     
@@ -90,29 +90,23 @@ def handler(event: dict, context) -> dict:
         conn.close()
         
         if result:
-            # НАШЛИ объект в истории
+            # Формат ответа для МТС Exolve webhook
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
-                    'action': 'ivr_confirm',
-                    'message': f"Здравствуйте! Вы звоните по объекту {result['short_title']}. Нажмите 1 для соединения с владельцем",
-                    'if_pressed_1': {
-                        'action': 'connect',
-                        'to': result['owner_phone'],
-                        'whisper': f"Звонок с сайта 120 минут по объекту номер {result['listing_number']}"
-                    }
+                    'destination': result['owner_phone'],
+                    'listing_id': result['listing_id'],
+                    'listing_title': result['short_title']
                 })
             }
         else:
-            # НЕ НАШЛИ в истории
+            # Номер не найден в истории - МТС не переадресует
             return {
-                'statusCode': 200,
+                'statusCode': 404,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
-                    'action': 'play_message',
-                    'message': 'Здравствуйте! Вы позвонили в сервис 120 минут. К сожалению, мы не смогли определить объект. Пожалуйста, зайдите на сайт 120 минут точка ру, найдите нужный объект и нажмите кнопку Позвонить. Спасибо за понимание!',
-                    'then': 'hangup'
+                    'error': 'No call history found'
                 })
             }
         
