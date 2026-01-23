@@ -207,22 +207,21 @@ def handler(event: dict, context) -> dict:
                 
                 # images уже не загружается из БД (только images_count), так что очищать нечего
                 
-                # Обрезаем длинные текстовые поля для списка
-                if listing_dict.get('description') and len(listing_dict['description']) > 200:
-                    listing_dict['description'] = listing_dict['description'][:200] + '...'
-                if listing_dict.get('rules') and len(listing_dict['rules']) > 100:
-                    listing_dict['rules'] = listing_dict['rules'][:100] + '...'
-                if listing_dict.get('cancellation_policy') and len(listing_dict['cancellation_policy']) > 100:
-                    listing_dict['cancellation_policy'] = listing_dict['cancellation_policy'][:100] + '...'
+                # Обрезаем длинные текстовые поля для списка (более агрессивно)
+                if listing_dict.get('description') and len(listing_dict['description']) > 100:
+                    listing_dict['description'] = listing_dict['description'][:100] + '...'
                 
-                # Для комнат убираем images - их не загружаем из БД
+                # Для комнат минимальная информация для списка
                 rooms = []
                 for r in rooms_by_listing.get(listing['id'], []):
-                    room_dict = dict(r)
-                    # images_count уже есть в запросе, images не загружается
-                    if 'images_count' not in room_dict:
-                        room_dict['images_count'] = 0
-                    room_dict['images'] = []  # Пустой массив для совместимости с фронтендом
+                    room_dict = {
+                        'id': r['id'],
+                        'type': r['type'],
+                        'price': r['price'],
+                        'square_meters': r.get('square_meters'),
+                        'expert_photo_rating': r.get('expert_photo_rating'),
+                        'expert_fullness_rating': r.get('expert_fullness_rating'),
+                    }
                     rooms.append(room_dict)
                 
                 listing_dict['rooms'] = rooms
