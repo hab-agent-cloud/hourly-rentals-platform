@@ -102,20 +102,37 @@ export function useListingForm(listing: any, token: string, onClose: (shouldRelo
     setUploadingPhoto(true);
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
-        const formData = new FormData();
-        formData.append('image', file);
-        
-        const response = await fetch('https://functions.poehali.dev/image-storage?action=upload', {
-          method: 'POST',
-          body: formData,
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = async (event) => {
+            try {
+              const base64 = event.target?.result as string;
+              
+              const response = await fetch('https://functions.poehali.dev/32a4bee5-4d04-4b73-a903-52cec9a5cef6', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  image: base64,
+                  filename: file.name,
+                }),
+              });
+
+              if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `Ошибка загрузки фото: ${response.statusText}`);
+              }
+
+              const data = await response.json();
+              resolve(data.url);
+            } catch (error: any) {
+              reject(error);
+            }
+          };
+          reader.onerror = () => reject(new Error('Ошибка чтения файла'));
+          reader.readAsDataURL(file);
         });
-
-        if (!response.ok) {
-          throw new Error(`Ошибка загрузки фото: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.url;
       });
 
       const uploadedUrls = await Promise.all(uploadPromises);
