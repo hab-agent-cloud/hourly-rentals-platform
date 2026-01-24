@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,17 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  
+  const [rooms, setRooms] = useState<any[]>([]);
+  const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
+  const [roomForm, setRoomForm] = useState({
+    type: '',
+    price: '',
+    min_hours: '2',
+    square_meters: '',
+    description: '',
+    features: [] as string[],
+  });
 
   // Инициализация formData
   const [formData, setFormData] = useState(() => {
@@ -49,9 +60,17 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       parking_price: listing?.parking_price || '',
       lat: listing?.lat || '',
       lon: listing?.lon || '',
+      min_hours: listing?.min_hours || '1',
       features: listing?.features ? (Array.isArray(listing.features) ? listing.features : JSON.parse(listing.features)) : [],
     };
   });
+
+  // Загрузка номеров при открытии редактора
+  useEffect(() => {
+    if (listing?.rooms) {
+      setRooms(listing.rooms);
+    }
+  }, [listing]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +80,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       const submitData = {
         ...formData,
         image_url: formData.images.length > 0 ? JSON.stringify(formData.images) : '',
+        rooms: rooms,
       };
 
       let response;
@@ -194,6 +214,78 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     }));
   };
 
+  const addRoom = () => {
+    if (!roomForm.type || !roomForm.price) {
+      toast({
+        title: "Ошибка",
+        description: "Заполните тип номера и цену",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newRoom = {
+      type: roomForm.type,
+      price: parseInt(roomForm.price),
+      min_hours: parseInt(roomForm.min_hours),
+      square_meters: roomForm.square_meters ? parseInt(roomForm.square_meters) : null,
+      description: roomForm.description,
+      features: roomForm.features,
+    };
+
+    if (editingRoomIndex !== null) {
+      const updated = [...rooms];
+      updated[editingRoomIndex] = newRoom;
+      setRooms(updated);
+      setEditingRoomIndex(null);
+    } else {
+      setRooms([...rooms, newRoom]);
+    }
+
+    setRoomForm({
+      type: '',
+      price: '',
+      min_hours: '2',
+      square_meters: '',
+      description: '',
+      features: [],
+    });
+  };
+
+  const editRoom = (index: number) => {
+    const room = rooms[index];
+    setRoomForm({
+      type: room.type,
+      price: room.price.toString(),
+      min_hours: room.min_hours.toString(),
+      square_meters: room.square_meters?.toString() || '',
+      description: room.description || '',
+      features: room.features || [],
+    });
+    setEditingRoomIndex(index);
+  };
+
+  const removeRoom = (index: number) => {
+    setRooms(rooms.filter((_, i) => i !== index));
+  };
+
+  const addRoomFeature = () => {
+    const input = prompt('Введите особенность номера:');
+    if (input && input.trim()) {
+      setRoomForm(prev => ({
+        ...prev,
+        features: [...prev.features, input.trim()]
+      }));
+    }
+  };
+
+  const removeRoomFeature = (index: number) => {
+    setRoomForm(prev => ({
+      ...prev,
+      features: prev.features.filter((_, i) => i !== index)
+    }));
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
       <Card className="w-full max-w-3xl max-h-[95vh] overflow-y-auto my-2">
@@ -250,6 +342,32 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                     onClick={() => setFormData({...formData, hour_price: price.toString()})}
                   >
                     {price}₽
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Минимум часов */}
+            <div>
+              <Label htmlFor="min_hours">Минимум часов для бронирования *</Label>
+              <Input
+                id="min_hours"
+                type="number"
+                min="1"
+                value={formData.min_hours}
+                onChange={(e) => setFormData({...formData, min_hours: e.target.value})}
+                required
+              />
+              <div className="flex flex-wrap gap-2 mt-2">
+                {[1, 2, 3, 4, 6, 8].map(hours => (
+                  <Button
+                    key={hours}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFormData({...formData, min_hours: hours.toString()})}
+                  >
+                    от {hours}ч
                   </Button>
                 ))}
               </div>
@@ -432,6 +550,143 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                 <Icon name={uploadingPhoto ? "Loader2" : "Upload"} size={16} className={`mr-2 ${uploadingPhoto ? 'animate-spin' : ''}`} />
                 {uploadingPhoto ? 'Загрузка...' : 'Загрузить фото'}
               </Button>
+            </div>
+
+            {/* Категории номеров */}
+            <div className="border-t pt-6">
+              <Label className="text-base font-semibold mb-4 block">Категории номеров</Label>
+              
+              {/* Список номеров */}
+              {rooms.length > 0 && (
+                <div className="space-y-2 mb-4">
+                  {rooms.map((room, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                      <div className="flex-1">
+                        <div className="font-medium">{room.type}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {room.price}₽/час • от {room.min_hours}ч
+                          {room.square_meters && ` • ${room.square_meters}м²`}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => editRoom(index)}
+                        >
+                          <Icon name="Edit" size={16} />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeRoom(index)}
+                        >
+                          <Icon name="Trash" size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Форма добавления/редактирования номера */}
+              <div className="space-y-4 p-4 border rounded-lg bg-card">
+                <div>
+                  <Label htmlFor="room_type">Тип номера *</Label>
+                  <Input
+                    id="room_type"
+                    placeholder="Стандартный номер"
+                    value={roomForm.type}
+                    onChange={(e) => setRoomForm({...roomForm, type: e.target.value})}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="room_price">Цена за час (₽) *</Label>
+                    <Input
+                      id="room_price"
+                      type="number"
+                      value={roomForm.price}
+                      onChange={(e) => setRoomForm({...roomForm, price: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="room_min_hours">Минимум часов *</Label>
+                    <Input
+                      id="room_min_hours"
+                      type="number"
+                      min="1"
+                      value={roomForm.min_hours}
+                      onChange={(e) => setRoomForm({...roomForm, min_hours: e.target.value})}
+                    />
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {[1, 2, 3, 4, 6].map(hours => (
+                        <Button
+                          key={hours}
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setRoomForm({...roomForm, min_hours: hours.toString()})}
+                        >
+                          {hours}ч
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="room_square">Площадь (м²)</Label>
+                  <Input
+                    id="room_square"
+                    type="number"
+                    value={roomForm.square_meters}
+                    onChange={(e) => setRoomForm({...roomForm, square_meters: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="room_description">Описание</Label>
+                  <Textarea
+                    id="room_description"
+                    rows={2}
+                    value={roomForm.description}
+                    onChange={(e) => setRoomForm({...roomForm, description: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <Label>Особенности номера</Label>
+                  <div className="flex flex-wrap gap-2 mt-2 mb-2">
+                    {roomForm.features.map((feature, index) => (
+                      <div key={index} className="flex items-center gap-1 bg-secondary px-2 py-1 rounded-full text-sm">
+                        <span>{feature}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0"
+                          onClick={() => removeRoomFeature(index)}
+                        >
+                          <Icon name="X" size={12} />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  <Button type="button" variant="outline" size="sm" onClick={addRoomFeature}>
+                    <Icon name="Plus" size={14} className="mr-1" />
+                    Добавить особенность
+                  </Button>
+                </div>
+
+                <Button type="button" onClick={addRoom} className="w-full">
+                  <Icon name={editingRoomIndex !== null ? "Save" : "Plus"} size={16} className="mr-2" />
+                  {editingRoomIndex !== null ? 'Сохранить изменения' : 'Добавить номер'}
+                </Button>
+              </div>
             </div>
 
             {/* Логотип */}
