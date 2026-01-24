@@ -1,147 +1,597 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface AdminListingFormProps {
   listing: any;
   token: string;
-  onClose: (shouldReload?: boolean) => void;
+  onClose: () => void;
+}
+
+interface SortableRoomItemProps {
+  room: any;
+  index: number;
+  onEdit: (index: number) => void;
+  onRemove: (index: number) => void;
+  onDuplicate: (index: number) => void;
+  isEditing: boolean;
+}
+
+function SortableRoomItem({ room, index, onEdit, onRemove, onDuplicate, isEditing }: SortableRoomItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: `room-${index}` });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const featureIcons: Record<string, string> = {
+    'WiFi': 'Wifi',
+    'Двуспальная кровать': 'BedDouble',
+    '2 односпальные кровати': 'BedSingle',
+    'Смарт ТВ': 'Tv',
+    'Телевизор': 'Monitor',
+    'Кондиционер': 'Wind',
+    'Джакузи': 'Bath',
+    'Душевая кабина': 'ShowerHead',
+    'Ванная': 'Bath',
+    'Сауна': 'Flame',
+    'Фен': 'Wind',
+    'Халаты': 'Shirt',
+    'Тапочки': 'Footprints',
+    'Холодильник': 'Refrigerator',
+    'Микроволновка': 'Microwave',
+    'Чайник': 'Coffee',
+    'Посуда': 'UtensilsCrossed',
+    'Сейф': 'Lock',
+    'Зеркала': 'Sparkles',
+    'Музыкальная система': 'Music',
+    'Настольные игры': 'Dices',
+    'PlayStation': 'Gamepad2',
+    'Бар': 'Wine',
+    'Косметика': 'Sparkles',
+    'Полотенца': 'Sheet',
+    'Постельное бельё': 'Bed',
+    'Кухня': 'ChefHat',
+    'Обеденный стол': 'Utensils',
+    'Диван': 'Sofa',
+    'Ароматерапия': 'Flower',
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`p-4 border rounded-lg transition-all ${
+        isEditing 
+          ? 'bg-purple-100 border-purple-400 border-2 shadow-md' 
+          : 'bg-purple-50 border-gray-200'
+      }`}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start gap-3 flex-1">
+          <div
+            {...attributes}
+            {...listeners}
+            className="mt-1 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-purple-600 transition-colors"
+          >
+            <Icon name="GripVertical" size={20} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <div className="font-semibold text-lg">{room.type}</div>
+              {isEditing && (
+                <Badge variant="default" className="bg-purple-600">
+                  <Icon name="Edit" size={12} className="mr-1" />
+                  Редактируется
+                </Badge>
+              )}
+            </div>
+            <div className="text-purple-600 font-bold text-xl">{room.price} ₽/час</div>
+            {room.square_meters > 0 && (
+              <Badge variant="secondary" className="mt-1">
+                {room.square_meters} м²
+              </Badge>
+            )}
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onEdit(index)}
+            title="Редактировать"
+          >
+            <Icon name="Edit" size={16} />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onDuplicate(index)}
+            title="Дублировать"
+          >
+            <Icon name="Copy" size={16} />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onRemove(index)}
+            title="Удалить"
+          >
+            <Icon name="Trash2" size={16} />
+          </Button>
+        </div>
+      </div>
+      
+      {room.images && Array.isArray(room.images) && room.images.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto mb-3 ml-8">
+          {room.images.map((img: string, imgIdx: number) => (
+            <div key={imgIdx} className="relative flex-shrink-0">
+              <img 
+                src={img} 
+                alt={`${room.type} ${imgIdx + 1}`} 
+                className="w-24 h-24 object-cover rounded border-2 border-purple-200" 
+              />
+              <div className="absolute top-1 left-1 bg-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {imgIdx + 1}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {room.features && Array.isArray(room.features) && room.features.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-2 ml-8">
+          {room.features.map((feature: string, fIdx: number) => {
+            const iconName = featureIcons[feature] || 'Check';
+            return (
+              <div
+                key={fIdx}
+                className="group relative inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 transition-all cursor-help"
+                title={feature}
+              >
+                <Icon name={iconName} size={14} className="text-purple-600" />
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  {feature}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {room.description && (
+        <p className="text-sm text-muted-foreground ml-8">{room.description}</p>
+      )}
+    </div>
+  );
 }
 
 export default function AdminListingForm({ listing, token, onClose }: AdminListingFormProps) {
+  console.log('✅ AdminListingForm component loaded - RESTORED VERSION');
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const logoInputRef = useRef<HTMLInputElement>(null);
-  
-  const [rooms, setRooms] = useState<any[]>([]);
-  const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
-  const [roomForm, setRoomForm] = useState({
-    type: '',
-    price: '',
-    min_hours: '2',
-    square_meters: '',
-    description: '',
-    features: [] as string[],
-  });
+  const [isDragging, setIsDragging] = useState(false);
 
-  // Инициализация formData
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const [formData, setFormData] = useState(() => {
-    let images: string[] = [];
-    if (listing?.image_url) {
-      try {
-        const parsed = JSON.parse(listing.image_url);
-        images = Array.isArray(parsed) ? parsed : [listing.image_url];
-      } catch {
-        images = [listing.image_url];
-      }
+    console.log('=== INITIALIZING FORM DATA ===');
+    console.log('Listing prop:', listing);
+    console.log('Listing rooms:', listing?.rooms);
+    if (listing?.rooms && listing.rooms.length > 0) {
+      console.log('First room data:', listing.rooms[0]);
     }
-
     return {
       title: listing?.title || '',
-      description: listing?.description || '',
-      hour_price: listing?.hour_price || '',
+      type: listing?.type || 'hotel',
       city: listing?.city || '',
       district: listing?.district || '',
-      address: listing?.address || '',
-      square_meters: listing?.square_meters || '',
-      images: images,
+      price: listing?.price || 0,
+      auction: listing?.auction || 999,
+      image_url: listing?.image_url || '',
       logo_url: listing?.logo_url || '',
-      metro_station: listing?.metro_station || '',
-      parking_type: listing?.parking_type || 'Нет',
-      parking_price: listing?.parking_price || '',
-      lat: listing?.lat || '',
-      lon: listing?.lon || '',
-      min_hours: listing?.min_hours || '1',
-      features: listing?.features ? (Array.isArray(listing.features) ? listing.features : JSON.parse(listing.features)) : [],
+      metro: listing?.metro || '',
+      metro_walk: listing?.metro_walk || 0,
+      metro_stations: listing?.metro_stations || [],
+      has_parking: listing?.has_parking || false,
+      parking_type: listing?.parking_type || 'none',
+      parking_price_per_hour: listing?.parking_price_per_hour || 0,
+      features: listing?.features || [],
+      lat: listing?.lat || 0,
+      lng: listing?.lng || 0,
+      min_hours: listing?.min_hours || 1,
+      rooms: listing?.rooms || [],
+      phone: listing?.phone || '',
+      telegram: listing?.telegram || '',
+      price_warning_holidays: listing?.price_warning_holidays || false,
+      price_warning_daytime: listing?.price_warning_daytime || false,
     };
   });
 
-  // Загрузка номеров при открытии редактора
-  useEffect(() => {
-    if (listing?.rooms) {
-      setRooms(listing.rooms);
+  const [newRoom, setNewRoom] = useState({ 
+    type: '', 
+    price: 0, 
+    description: '', 
+    images: [] as string[], 
+    square_meters: 0,
+    features: [] as string[],
+    min_hours: 1,
+    payment_methods: 'Наличные, банковская карта при заселении' as string,
+    cancellation_policy: 'Бесплатная отмена за 1 час до заселения' as string
+  });
+  const [uploadingRoomPhotos, setUploadingRoomPhotos] = useState(false);
+  const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
+  const [draggingPhotoIndex, setDraggingPhotoIndex] = useState<number | null>(null);
+
+  const roomTemplates = [
+    {
+      name: 'Стандарт',
+      type: 'Стандарт',
+      description: 'Комфортный номер с базовым набором удобств',
+      square_meters: 18,
+      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Фен', 'Холодильник', 'Чайник'],
+    },
+    {
+      name: 'Комфорт',
+      type: 'Комфорт',
+      description: 'Улучшенный номер с расширенным набором удобств',
+      square_meters: 25,
+      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Сейф'],
+    },
+    {
+      name: 'Люкс',
+      type: 'Люкс',
+      description: 'Роскошный номер премиум класса',
+      square_meters: 35,
+      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Сейф', 'Зеркала', 'Музыкальная система'],
+    },
+    {
+      name: 'Студия',
+      type: 'Студия',
+      description: 'Просторный номер с кухонной зоной',
+      square_meters: 30,
+      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Фен', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Обеденный стол', 'Диван', 'Кухня'],
+    },
+    {
+      name: 'Романтик',
+      type: 'Романтик',
+      description: 'Номер с романтической атмосферой для пар',
+      square_meters: 28,
+      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Чайник', 'Зеркала', 'Музыкальная система', 'Ароматерапия', 'Косметика'],
+    },
+    {
+      name: 'VIP',
+      type: 'VIP',
+      description: 'Эксклюзивный номер с максимальным комфортом',
+      square_meters: 45,
+      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Сейф', 'Зеркала', 'Музыкальная система', 'PlayStation', 'Настольные игры', 'Диван', 'Обеденный стол', 'Бар', 'Косметика', 'Полотенца', 'Постельное бельё'],
+    },
+  ];
+
+  const availableFeatures = [
+    'WiFi',
+    'Двуспальная кровать',
+    '2 односпальные кровати',
+    'Смарт ТВ',
+    'Телевизор',
+    'Кондиционер',
+    'Джакузи',
+    'Душевая кабина',
+    'Ванная',
+    'Сауна',
+    'Фен',
+    'Халаты',
+    'Тапочки',
+    'Холодильник',
+    'Микроволновка',
+    'Чайник',
+    'Посуда',
+    'Сейф',
+    'Зеркала',
+    'Музыкальная система',
+    'Настольные игры',
+    'PlayStation',
+    'Бар',
+    'Косметика',
+    'Полотенца',
+    'Постельное бельё',
+    'Кухня',
+    'Обеденный стол',
+    'Диван',
+    'Ароматерапия',
+  ];
+
+  const featureIcons: Record<string, string> = {
+    'WiFi': 'Wifi',
+    'Двуспальная кровать': 'BedDouble',
+    '2 односпальные кровати': 'BedSingle',
+    'Смарт ТВ': 'Tv',
+    'Телевизор': 'Monitor',
+    'Кондиционер': 'Wind',
+    'Джакузи': 'Bath',
+    'Душевая кабина': 'ShowerHead',
+    'Ванная': 'Bath',
+    'Сауна': 'Flame',
+    'Фен': 'Wind',
+    'Халаты': 'Shirt',
+    'Тапочки': 'Footprints',
+    'Холодильник': 'Refrigerator',
+    'Микроволновка': 'Microwave',
+    'Чайник': 'Coffee',
+    'Посуда': 'UtensilsCrossed',
+    'Сейф': 'Lock',
+    'Зеркала': 'Sparkles',
+    'Музыкальная система': 'Music',
+    'Настольные игры': 'Dices',
+    'PlayStation': 'Gamepad2',
+    'Бар': 'Wine',
+    'Косметика': 'Sparkles',
+    'Полотенца': 'Sheet',
+    'Постельное бельё': 'Bed',
+    'Кухня': 'ChefHat',
+    'Обеденный стол': 'Utensils',
+    'Диван': 'Sofa',
+    'Ароматерапия': 'Flower',
+  };
+
+  const geocodeAddress = async (city: string, address: string): Promise<{ lat: number; lng: number } | null> => {
+    try {
+      const fullAddress = `${city}, ${address}`;
+      const response = await fetch(
+        `https://geocode-maps.yandex.ru/1.x/?apikey=99b1f0e4-c9e6-4e09-b735-29881250fb58&geocode=${encodeURIComponent(fullAddress)}&format=json`
+      );
+      const data = await response.json();
+      const geoObject = data.response.GeoObjectCollection.featureMember[0];
+      if (geoObject) {
+        const coords = geoObject.GeoObject.Point.pos.split(' ');
+        return { lat: parseFloat(coords[1]), lng: parseFloat(coords[0]) };
+      }
+      return null;
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      return null;
     }
-  }, [listing]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const debugInfo = {
+      editingRoomIndex,
+      newRoomType: newRoom.type,
+      newRoomPrice: newRoom.price,
+      currentRoomsCount: formData.rooms.length,
+      willAutoAdd: !!(newRoom.type && newRoom.price > 0)
+    };
+    
+    console.log('🚀 HANDLE SUBMIT CALLED - START');
+    console.log('🔍 editingRoomIndex:', editingRoomIndex);
+    console.log('🔍 newRoom state:', JSON.stringify(newRoom));
+    console.log('🔍 formData.rooms.length:', formData.rooms.length);
+    console.table(debugInfo);
+    
     setIsLoading(true);
 
     try {
-      const submitData = {
-        ...formData,
-        image_url: formData.images.length > 0 ? JSON.stringify(formData.images) : '',
-        rooms: rooms,
-      };
-
-      let response;
-      if (listing && listing.id) {
-        response = await api.updateListing(token, listing.id, submitData);
+      let finalData = { ...formData };
+      
+      console.log('🔍 Checking newRoom:', {
+        type: newRoom.type,
+        price: newRoom.price,
+        hasType: !!newRoom.type,
+        hasPrice: newRoom.price > 0,
+        willAutoAdd: !!(newRoom.type && newRoom.price > 0)
+      });
+      
+      if (newRoom.type && newRoom.price > 0) {
+        const roomToAdd = {
+          type: newRoom.type,
+          price: newRoom.price,
+          description: newRoom.description,
+          images: [...(Array.isArray(newRoom.images) ? newRoom.images : [])],
+          square_meters: newRoom.square_meters,
+          features: [...(Array.isArray(newRoom.features) ? newRoom.features : [])],
+          min_hours: newRoom.min_hours,
+          payment_methods: newRoom.payment_methods,
+          cancellation_policy: newRoom.cancellation_policy
+        };
+        
+        finalData = {
+          ...finalData,
+          rooms: [...finalData.rooms, roomToAdd]
+        };
+        
+        console.log('⚠️ Auto-added unsaved room before submit:', roomToAdd.type);
+        
         toast({
-          title: "Объект обновлен",
-          description: "Изменения успешно сохранены",
-        });
-      } else {
-        response = await api.createListing(token, submitData);
-        toast({
-          title: "Объект создан",
-          description: "Новый объект успешно добавлен",
+          title: 'Внимание',
+          description: `Категория "${roomToAdd.type}" автоматически добавлена при сохранении`,
         });
       }
 
-      console.log('Response:', response);
-      onClose(true);
+      console.log('=== SAVING LISTING ===');
+      console.log('formData.rooms:', formData.rooms);
+      console.log('formData.rooms length:', formData.rooms?.length);
+      console.log('Full formData:', finalData);
+      
+      if (formData.rooms && formData.rooms.length > 0) {
+        console.log('Rooms to save:');
+        formData.rooms.forEach((room, idx) => {
+          console.log(`  ${idx + 1}. ${room.type} - ${room.price} ₽`);
+        });
+      } else {
+        console.warn('⚠️ NO ROOMS TO SAVE!');
+      }
+
+      if (formData.city && formData.district) {
+        const coords = await geocodeAddress(formData.city, formData.district);
+        if (coords) {
+          finalData = { ...finalData, lat: coords.lat, lng: coords.lng };
+          toast({
+            title: 'Координаты определены',
+            description: `Объект размещён на карте`,
+          });
+        }
+      }
+
+      const cleanRooms = finalData.rooms.map((room: any) => ({
+        type: room.type,
+        price: room.price,
+        description: room.description || '',
+        images: Array.isArray(room.images) ? room.images : [],
+        square_meters: room.square_meters || 0,
+        features: Array.isArray(room.features) ? room.features : [],
+        min_hours: room.min_hours || 1,
+        payment_methods: room.payment_methods || 'Наличные, банковская карта при заселении',
+        cancellation_policy: room.cancellation_policy || 'Бесплатная отмена за 1 час до заселения'
+      }));
+
+      finalData = { ...finalData, rooms: cleanRooms };
+
+      console.log('Sending to server:', finalData);
+      console.log('Rooms count:', finalData.rooms?.length);
+
+      let createdOrUpdatedId = listing?.id;
+      
+      if (listing) {
+        const updated = await api.updateListing(token, listing.id, finalData);
+        console.log('✅ Server returned updated listing:', updated);
+        
+        toast({
+          title: 'Успешно',
+          description: `Объект обновлён. Категорий номеров: ${finalData.rooms.length}`,
+        });
+        
+        const freshData = await api.getListings(token, false);
+        console.log('🔄 Reloaded fresh data from server');
+      } else {
+        const created = await api.createListing(token, finalData);
+        createdOrUpdatedId = created.id;
+        
+        toast({
+          title: 'Успешно',
+          description: 'Объект создан',
+        });
+      }
+      
+      if (createdOrUpdatedId) {
+        try {
+          await api.submitForModeration(token, createdOrUpdatedId);
+          toast({
+            title: 'Отправлено на модерацию',
+            description: 'Объект отправлен на проверку модератору',
+          });
+        } catch (error) {
+          console.error('Failed to submit for moderation:', error);
+        }
+      }
+      
+      setNewRoom({ 
+        type: '', 
+        price: 0, 
+        description: '', 
+        images: [], 
+        square_meters: 0,
+        features: [],
+        min_hours: 1,
+        payment_methods: 'Наличные, банковская карта при заселении',
+        cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
+      });
+      setEditingRoomIndex(null);
+      
+      onClose();
     } catch (error: any) {
-      console.error('Error saving listing:', error);
       toast({
-        title: "Ошибка",
-        description: error.message || "Не удалось сохранить объект",
-        variant: "destructive",
+        title: 'Ошибка',
+        description: error.message || 'Не удалось сохранить объект',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, isRoomPhoto = false, roomIndex?: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadingPhoto(true);
     try {
-      const base64 = await fileToBase64(file);
-      const response = await api.uploadPhoto(token, base64, file.name);
-      
-      setFormData(prev => ({
-        ...prev,
-        images: [...prev.images, response.url]
-      }));
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target?.result?.toString().split(',')[1];
+        if (!base64) return;
 
-      toast({
-        title: "Фото загружено",
-        description: "Изображение успешно добавлено",
-      });
+        const result = await api.uploadPhoto(token, base64, file.type);
+        
+        if (result.url) {
+          if (isRoomPhoto && roomIndex !== undefined) {
+            const updatedRooms = [...formData.rooms];
+            updatedRooms[roomIndex].image_url = result.url;
+            setFormData({ ...formData, rooms: updatedRooms });
+          } else {
+            setFormData({ ...formData, image_url: result.url });
+          }
+          toast({
+            title: 'Успешно',
+            description: 'Фото загружено',
+          });
+        }
+      };
+      reader.readAsDataURL(file);
     } catch (error: any) {
-      console.error('Photo upload error:', error);
       toast({
-        title: "Ошибка загрузки",
-        description: error.message || "Не удалось загрузить фото",
-        variant: "destructive",
+        title: 'Ошибка',
+        description: 'Не удалось загрузить фото',
+        variant: 'destructive',
       });
     } finally {
       setUploadingPhoto(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
     }
   };
 
@@ -151,584 +601,702 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
     setUploadingLogo(true);
     try {
-      const base64 = await fileToBase64(file);
-      const response = await api.uploadPhoto(token, base64, file.name);
-      
-      setFormData(prev => ({
-        ...prev,
-        logo_url: response.url
-      }));
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target?.result?.toString().split(',')[1];
+        if (!base64) return;
 
-      toast({
-        title: "Логотип загружен",
-        description: "Логотип успешно обновлен",
-      });
+        const result = await api.uploadPhoto(token, base64, file.type);
+        
+        if (result.url) {
+          setFormData({ ...formData, logo_url: result.url });
+          toast({
+            title: 'Успешно',
+            description: 'Логотип загружен',
+          });
+        }
+      };
+      reader.readAsDataURL(file);
     } catch (error: any) {
-      console.error('Logo upload error:', error);
       toast({
-        title: "Ошибка загрузки",
-        description: error.message || "Не удалось загрузить логотип",
-        variant: "destructive",
+        title: 'Ошибка',
+        description: 'Не удалось загрузить логотип',
+        variant: 'destructive',
       });
     } finally {
       setUploadingLogo(false);
-      if (logoInputRef.current) {
-        logoInputRef.current.value = '';
-      }
     }
   };
 
-  const removePhoto = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
-  };
-
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        resolve(base64.split(',')[1]);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const addFeature = () => {
-    const input = prompt('Введите название особенности:');
-    if (input && input.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        features: [...prev.features, input.trim()]
-      }));
-    }
-  };
-
-  const removeFeature = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index)
-    }));
-  };
-
-  const addRoom = () => {
-    if (!roomForm.type || !roomForm.price) {
+  const uploadRoomPhotosFiles = async (files: File[]) => {
+    if (files.length === 0) return;
+    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
+    if (currentImages.length + files.length > 10) {
       toast({
-        title: "Ошибка",
-        description: "Заполните тип номера и цену",
-        variant: "destructive",
+        title: 'Ошибка',
+        description: 'Максимум 10 фото на номер',
+        variant: 'destructive',
       });
       return;
     }
 
-    const newRoom = {
-      type: roomForm.type,
-      price: parseInt(roomForm.price),
-      min_hours: parseInt(roomForm.min_hours),
-      square_meters: roomForm.square_meters ? parseInt(roomForm.square_meters) : null,
-      description: roomForm.description,
-      features: roomForm.features,
-    };
+    setUploadingRoomPhotos(true);
+    const uploadedUrls: string[] = [];
 
-    if (editingRoomIndex !== null) {
-      const updated = [...rooms];
-      updated[editingRoomIndex] = newRoom;
-      setRooms(updated);
-      setEditingRoomIndex(null);
-    } else {
-      setRooms([...rooms, newRoom]);
+    try {
+      for (const file of files) {
+        const reader = new FileReader();
+        const result = await new Promise<string>((resolve, reject) => {
+          reader.onload = async (event) => {
+            const base64 = event.target?.result?.toString().split(',')[1];
+            if (!base64) {
+              reject('Ошибка чтения файла');
+              return;
+            }
+
+            try {
+              const uploadResult = await api.uploadPhoto(token, base64, file.type);
+              if (uploadResult.url) {
+                resolve(uploadResult.url);
+              } else {
+                reject('Не удалось загрузить');
+              }
+            } catch (err) {
+              reject(err);
+            }
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        uploadedUrls.push(result);
+      }
+
+      setNewRoom({ ...newRoom, images: [...currentImages, ...uploadedUrls] });
+      toast({
+        title: 'Успешно',
+        description: `Загружено ${uploadedUrls.length} фото`,
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить фото',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingRoomPhotos(false);
     }
+  };
 
-    setRoomForm({
-      type: '',
-      price: '',
-      min_hours: '2',
-      square_meters: '',
-      description: '',
-      features: [],
+  const handleNewRoomPhotosUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    await uploadRoomPhotosFiles(files);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = Array.from(e.dataTransfer.files).filter(file => 
+      file.type.startsWith('image/')
+    );
+
+    if (files.length > 0) {
+      await uploadRoomPhotosFiles(files);
+    }
+  };
+
+  const removeNewRoomPhoto = (index: number) => {
+    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
+    setNewRoom({
+      ...newRoom,
+      images: currentImages.filter((_, i) => i !== index),
+    });
+    toast({
+      title: 'Фото удалено',
+      description: `Осталось ${currentImages.length - 1} фото`,
     });
   };
 
-  const editRoom = (index: number) => {
-    const room = rooms[index];
-    setRoomForm({
-      type: room.type,
-      price: room.price.toString(),
-      min_hours: room.min_hours.toString(),
-      square_meters: room.square_meters?.toString() || '',
+  const replaceRoomPhoto = async (index: number, file: File) => {
+    setUploadingRoomPhotos(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target?.result?.toString().split(',')[1];
+        if (!base64) return;
+
+        const result = await api.uploadPhoto(token, base64, file.type);
+        
+        if (result.url) {
+          const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
+          const updatedImages = [...currentImages];
+          updatedImages[index] = result.url;
+          
+          setNewRoom({
+            ...newRoom,
+            images: updatedImages,
+          });
+
+          toast({
+            title: 'Фото заменено',
+            description: 'Новое фото успешно загружено',
+          });
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось заменить фото',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingRoomPhotos(false);
+    }
+  };
+
+  const handlePhotoDragStart = (index: number) => {
+    setDraggingPhotoIndex(index);
+  };
+
+  const handlePhotoDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggingPhotoIndex === null || draggingPhotoIndex === index) return;
+
+    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
+    const newImages = [...currentImages];
+    const draggedImage = newImages[draggingPhotoIndex];
+    newImages.splice(draggingPhotoIndex, 1);
+    newImages.splice(index, 0, draggedImage);
+
+    setNewRoom({ ...newRoom, images: newImages });
+    setDraggingPhotoIndex(index);
+  };
+
+  const handlePhotoDragEnd = () => {
+    setDraggingPhotoIndex(null);
+  };
+
+  const toggleNewRoomFeature = (feature: string) => {
+    const features = Array.isArray(newRoom.features) ? newRoom.features : [];
+    if (features.includes(feature)) {
+      setNewRoom({
+        ...newRoom,
+        features: features.filter((f) => f !== feature),
+      });
+    } else {
+      setNewRoom({
+        ...newRoom,
+        features: [...features, feature],
+      });
+    }
+  };
+
+  const addRoom = () => {
+    if (newRoom.type && newRoom.price > 0) {
+      const roomToAdd = {
+        type: newRoom.type,
+        price: newRoom.price,
+        description: newRoom.description,
+        images: [...(Array.isArray(newRoom.images) ? newRoom.images : [])],
+        square_meters: newRoom.square_meters,
+        features: [...(Array.isArray(newRoom.features) ? newRoom.features : [])],
+        min_hours: newRoom.min_hours,
+        payment_methods: newRoom.payment_methods,
+        cancellation_policy: newRoom.cancellation_policy
+      };
+      
+      const updatedRooms = [...formData.rooms, roomToAdd];
+      console.log('Adding room. Current rooms:', formData.rooms.length, 'After add:', updatedRooms.length);
+      console.log('Room added:', roomToAdd);
+      
+      setFormData({
+        ...formData,
+        rooms: updatedRooms,
+      });
+      
+      setNewRoom({ 
+        type: '', 
+        price: 0, 
+        description: '', 
+        images: [], 
+        square_meters: 0,
+        features: [],
+        min_hours: 1,
+        payment_methods: 'Наличные, банковская карта при заселении',
+        cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
+      });
+      
+      toast({
+        title: 'Успешно',
+        description: `Категория "${roomToAdd.type}" добавлена (всего: ${updatedRooms.length})`,
+      });
+    } else {
+      toast({
+        title: 'Ошибка',
+        description: 'Заполните название категории и цену',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = parseInt(active.id.toString().replace('room-', ''));
+      const newIndex = parseInt(over.id.toString().replace('room-', ''));
+
+      setFormData({
+        ...formData,
+        rooms: arrayMove(formData.rooms, oldIndex, newIndex),
+      });
+
+      toast({
+        title: 'Порядок изменён',
+        description: 'Перетащите номера в нужном порядке',
+      });
+    }
+  };
+
+  const startEditRoom = (index: number) => {
+    const room = formData.rooms[index];
+    setNewRoom({
+      type: room.type || '',
+      price: room.price || 0,
       description: room.description || '',
-      features: room.features || [],
+      images: Array.isArray(room.images) ? room.images : [],
+      square_meters: room.square_meters || 0,
+      features: Array.isArray(room.features) ? room.features : [],
+      min_hours: room.min_hours || 1,
+      payment_methods: room.payment_methods || 'Наличные, банковская карта при заселении',
+      cancellation_policy: room.cancellation_policy || 'Бесплатная отмена за 1 час до заселения'
     });
     setEditingRoomIndex(index);
   };
 
-  const removeRoom = (index: number) => {
-    setRooms(rooms.filter((_, i) => i !== index));
-  };
-
-  const addRoomFeature = () => {
-    const input = prompt('Введите особенность номера:');
-    if (input && input.trim()) {
-      setRoomForm(prev => ({
-        ...prev,
-        features: [...prev.features, input.trim()]
-      }));
+  const saveEditedRoom = () => {
+    if (editingRoomIndex !== null && newRoom.type && newRoom.price > 0) {
+      const updatedRooms = [...formData.rooms];
+      updatedRooms[editingRoomIndex] = {
+        type: newRoom.type,
+        price: newRoom.price,
+        description: newRoom.description,
+        images: [...(Array.isArray(newRoom.images) ? newRoom.images : [])],
+        square_meters: newRoom.square_meters,
+        features: [...(Array.isArray(newRoom.features) ? newRoom.features : [])],
+        min_hours: newRoom.min_hours,
+        payment_methods: newRoom.payment_methods,
+        cancellation_policy: newRoom.cancellation_policy
+      };
+      setFormData({
+        ...formData,
+        rooms: updatedRooms,
+      });
+      setEditingRoomIndex(null);
+      setNewRoom({ 
+        type: '', 
+        price: 0, 
+        description: '', 
+        images: [], 
+        square_meters: 0,
+        features: [],
+        min_hours: 1,
+        payment_methods: 'Наличные, банковская карта при заселении',
+        cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
+      });
+      toast({
+        title: 'Успешно',
+        description: 'Категория обновлена',
+      });
     }
   };
 
-  const removeRoomFeature = (index: number) => {
-    setRoomForm(prev => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index)
-    }));
+  const cancelEditRoom = () => {
+    setEditingRoomIndex(null);
+    setNewRoom({ 
+      type: '', 
+      price: 0, 
+      description: '', 
+      images: [], 
+      square_meters: 0,
+      features: [],
+      min_hours: 1,
+      payment_methods: 'Наличные, банковская карта при заселении',
+      cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
+    });
+  };
+
+  const applyTemplate = (templateName: string) => {
+    const template = roomTemplates.find(t => t.name === templateName);
+    if (!template) return;
+
+    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
+    setNewRoom({
+      type: template.type,
+      price: newRoom.price || 0,
+      description: template.description,
+      images: [...currentImages],
+      square_meters: template.square_meters,
+      features: [...template.features],
+      min_hours: newRoom.min_hours || 1,
+      payment_methods: newRoom.payment_methods || 'Наличные, банковская карта при заселении',
+      cancellation_policy: newRoom.cancellation_policy || 'Бесплатная отмена за 1 час до заселения'
+    });
+
+    toast({
+      title: 'Шаблон применён',
+      description: `Загружены настройки для категории "${template.name}"`,
+    });
+  };
+
+  const removeRoom = (index: number) => {
+    setFormData({
+      ...formData,
+      rooms: formData.rooms.filter((_: any, i: number) => i !== index),
+    });
+  };
+
+  const duplicateRoom = (index: number) => {
+    const roomToDuplicate = { ...formData.rooms[index] };
+    roomToDuplicate.type = `${roomToDuplicate.type} (копия)`;
+    setFormData({
+      ...formData,
+      rooms: [...formData.rooms.slice(0, index + 1), roomToDuplicate, ...formData.rooms.slice(index + 1)],
+    });
+    toast({
+      title: 'Успешно',
+      description: 'Категория дублирована',
+    });
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
-      <Card className="w-full max-w-3xl max-h-[95vh] overflow-y-auto my-2">
-        <CardHeader className="flex flex-row items-center justify-between sticky top-0 bg-background z-10 border-b">
-          <CardTitle className="text-lg">
-            {listing ? 'Редактирование объекта' : 'Создание объекта'}
-          </CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => onClose()}>
-            <Icon name="X" size={20} />
-          </Button>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            
-            {/* Название */}
-            <div>
-              <Label htmlFor="title">Название *</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
-                required
-              />
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="icon" onClick={onClose}>
+              <Icon name="ArrowLeft" size={20} />
+            </Button>
+            <h1 className="text-2xl font-bold">
+              {listing ? 'Редактирование объекта' : 'Новый объект'}
+            </h1>
+          </div>
+        </div>
+      </header>
 
-            {/* Описание */}
-            <div>
-              <Label htmlFor="description">Описание</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                rows={4}
-              />
-            </div>
-
-            {/* Цена за час */}
-            <div>
-              <Label htmlFor="hour_price">Цена за час (₽) *</Label>
-              <Input
-                id="hour_price"
-                type="number"
-                value={formData.hour_price}
-                onChange={(e) => setFormData({...formData, hour_price: e.target.value})}
-                required
-              />
-              <div className="flex flex-wrap gap-2 mt-2">
-                {[500, 1000, 1500, 2000, 3000].map(price => (
-                  <Button
-                    key={price}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setFormData({...formData, hour_price: price.toString()})}
-                  >
-                    {price}₽
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Минимум часов */}
-            <div>
-              <Label htmlFor="min_hours">Минимум часов для бронирования *</Label>
-              <Input
-                id="min_hours"
-                type="number"
-                min="1"
-                value={formData.min_hours}
-                onChange={(e) => setFormData({...formData, min_hours: e.target.value})}
-                required
-              />
-              <div className="flex flex-wrap gap-2 mt-2">
-                {[1, 2, 3, 4, 6, 8].map(hours => (
-                  <Button
-                    key={hours}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setFormData({...formData, min_hours: hours.toString()})}
-                  >
-                    от {hours}ч
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Площадь */}
-            <div>
-              <Label htmlFor="square_meters">Площадь (м²)</Label>
-              <Input
-                id="square_meters"
-                type="number"
-                value={formData.square_meters}
-                onChange={(e) => setFormData({...formData, square_meters: e.target.value})}
-              />
-              <div className="flex flex-wrap gap-2 mt-2">
-                {[20, 30, 50, 100, 200].map(area => (
-                  <Button
-                    key={area}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setFormData({...formData, square_meters: area.toString()})}
-                  >
-                    {area}м²
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Город */}
-            <div>
-              <Label htmlFor="city">Город *</Label>
-              <Input
-                id="city"
-                value={formData.city}
-                onChange={(e) => setFormData({...formData, city: e.target.value})}
-                required
-              />
-            </div>
-
-            {/* Район */}
-            <div>
-              <Label htmlFor="district">Район</Label>
-              <Input
-                id="district"
-                value={formData.district}
-                onChange={(e) => setFormData({...formData, district: e.target.value})}
-              />
-            </div>
-
-            {/* Адрес */}
-            <div>
-              <Label htmlFor="address">Адрес *</Label>
-              <Input
-                id="address"
-                value={formData.address}
-                onChange={(e) => setFormData({...formData, address: e.target.value})}
-                required
-              />
-            </div>
-
-            {/* Метро */}
-            <div>
-              <Label htmlFor="metro_station">Станция метро</Label>
-              <Input
-                id="metro_station"
-                value={formData.metro_station}
-                onChange={(e) => setFormData({...formData, metro_station: e.target.value})}
-              />
-            </div>
-
-            {/* Координаты */}
-            <div className="grid grid-cols-2 gap-4">
+      <main className="container mx-auto px-4 py-8 max-w-4xl">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Основная информация</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="lat">Широта</Label>
+                <label className="text-sm font-medium mb-2 block">Название</label>
                 <Input
-                  id="lat"
-                  type="number"
-                  step="any"
-                  value={formData.lat}
-                  onChange={(e) => setFormData({...formData, lat: e.target.value})}
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  required
                 />
               </div>
-              <div>
-                <Label htmlFor="lon">Долгота</Label>
-                <Input
-                  id="lon"
-                  type="number"
-                  step="any"
-                  value={formData.lon}
-                  onChange={(e) => setFormData({...formData, lon: e.target.value})}
-                />
-              </div>
-            </div>
 
-            {/* Парковка */}
-            <div>
-              <Label htmlFor="parking_type">Тип парковки</Label>
-              <select
-                id="parking_type"
-                value={formData.parking_type}
-                onChange={(e) => setFormData({...formData, parking_type: e.target.value})}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option>Нет</option>
-                <option>Бесплатная</option>
-                <option>Платная</option>
-              </select>
-            </div>
-
-            {formData.parking_type === 'Платная' && (
-              <div>
-                <Label htmlFor="parking_price">Цена парковки (₽/час)</Label>
-                <Input
-                  id="parking_price"
-                  type="number"
-                  value={formData.parking_price}
-                  onChange={(e) => setFormData({...formData, parking_price: e.target.value})}
-                />
-              </div>
-            )}
-
-            {/* Особенности */}
-            <div>
-              <Label>Особенности</Label>
-              <div className="flex flex-wrap gap-2 mt-2 mb-2">
-                {formData.features.map((feature, index) => (
-                  <div key={index} className="flex items-center gap-1 bg-secondary px-3 py-1 rounded-full">
-                    <span className="text-sm">{feature}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-5 w-5 p-0"
-                      onClick={() => removeFeature(index)}
-                    >
-                      <Icon name="X" size={14} />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              <Button type="button" variant="outline" size="sm" onClick={addFeature}>
-                <Icon name="Plus" size={16} className="mr-2" />
-                Добавить особенность
-              </Button>
-            </div>
-
-            {/* Фото */}
-            <div>
-              <Label>Фотографии</Label>
-              <div className="grid grid-cols-3 gap-2 mt-2 mb-2">
-                {formData.images.map((url, index) => (
-                  <div key={index} className="relative group">
-                    <img src={url} alt={`Фото ${index + 1}`} className="w-full h-32 object-cover rounded" />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => removePhoto(index)}
-                    >
-                      <Icon name="Trash" size={14} />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                className="hidden"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingPhoto}
-              >
-                <Icon name={uploadingPhoto ? "Loader2" : "Upload"} size={16} className={`mr-2 ${uploadingPhoto ? 'animate-spin' : ''}`} />
-                {uploadingPhoto ? 'Загрузка...' : 'Загрузить фото'}
-              </Button>
-            </div>
-
-            {/* Категории номеров */}
-            <div className="border-t pt-6">
-              <Label className="text-base font-semibold mb-4 block">Категории номеров</Label>
-              
-              {/* Список номеров */}
-              {rooms.length > 0 && (
-                <div className="space-y-2 mb-4">
-                  {rooms.map((room, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                      <div className="flex-1">
-                        <div className="font-medium">{room.type}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {room.price}₽/час • от {room.min_hours}ч
-                          {room.square_meters && ` • ${room.square_meters}м²`}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => editRoom(index)}
-                        >
-                          <Icon name="Edit" size={16} />
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeRoom(index)}
-                        >
-                          <Icon name="Trash" size={16} />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Форма добавления/редактирования номера */}
-              <div className="space-y-4 p-4 border rounded-lg bg-card">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="room_type">Тип номера *</Label>
+                  <label className="text-sm font-medium mb-2 block">Тип</label>
+                  <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hotel">Отель</SelectItem>
+                      <SelectItem value="apartment">Апартаменты</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Город</label>
                   <Input
-                    id="room_type"
-                    placeholder="Стандартный номер"
-                    value={roomForm.type}
-                    onChange={(e) => setRoomForm({...roomForm, type: e.target.value})}
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    required
                   />
                 </div>
+              </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="room_price">Цена за час (₽) *</Label>
-                    <Input
-                      id="room_price"
-                      type="number"
-                      value={roomForm.price}
-                      onChange={(e) => setRoomForm({...roomForm, price: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="room_min_hours">Минимум часов *</Label>
-                    <Input
-                      id="room_min_hours"
-                      type="number"
-                      min="1"
-                      value={roomForm.min_hours}
-                      onChange={(e) => setRoomForm({...roomForm, min_hours: e.target.value})}
-                    />
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {[1, 2, 3, 4, 6].map(hours => (
-                        <Button
-                          key={hours}
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setRoomForm({...roomForm, min_hours: hours.toString()})}
-                        >
-                          {hours}ч
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Адрес</label>
+                <Input
+                  placeholder="ул. Ленина, 25"
+                  value={formData.district}
+                  onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                  required
+                />
+              </div>
 
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="room_square">Площадь (м²)</Label>
+                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                    <Icon name="Phone" size={16} className="text-green-600" />
+                    Телефон
+                    {formData.phone && (
+                      <Badge variant="secondary" className="ml-auto">
+                        <Icon name="Check" size={12} className="mr-1 text-green-600" />
+                        Заполнено
+                      </Badge>
+                    )}
+                  </label>
                   <Input
-                    id="room_square"
+                    placeholder="+79991234567"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className={formData.phone ? 'border-green-300 bg-green-50' : ''}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                    <Icon name="Send" size={16} className="text-blue-600" />
+                    Telegram (username или ссылка)
+                    {formData.telegram && (
+                      <Badge variant="secondary" className="ml-auto">
+                        <Icon name="Check" size={12} className="mr-1 text-green-600" />
+                        Заполнено
+                      </Badge>
+                    )}
+                  </label>
+                  <Input
+                    placeholder="@username или https://t.me/username"
+                    value={formData.telegram}
+                    onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
+                    className={formData.telegram ? 'border-blue-300 bg-blue-50' : ''}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                  <Icon name="Car" size={16} className="text-blue-600" />
+                  Паркинг
+                </label>
+                <Select
+                  value={formData.parking_type}
+                  onValueChange={(value) => setFormData({ ...formData, parking_type: value })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Выберите тип паркинга" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Паркинга нет</SelectItem>
+                    <SelectItem value="free">Паркинг бесплатный</SelectItem>
+                    <SelectItem value="paid">Паркинг платный</SelectItem>
+                    <SelectItem value="street">Стихийная парковка</SelectItem>
+                  </SelectContent>
+                </Select>
+                {formData.parking_type === 'paid' && (
+                  <div className="mt-2">
+                    <label className="text-sm font-medium mb-1 block">Стоимость паркинга (₽/час)</label>
+                    <Input
+                      type="number"
+                      value={formData.parking_price_per_hour}
+                      onChange={(e) => setFormData({ ...formData, parking_price_per_hour: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Цена (₽/час)</label>
+                  <Input
                     type="number"
-                    value={roomForm.square_meters}
-                    onChange={(e) => setRoomForm({...roomForm, square_meters: e.target.value})}
+                    value={formData.price}
+                    onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) })}
+                    required
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="room_description">Описание</Label>
-                  <Textarea
-                    id="room_description"
-                    rows={2}
-                    value={roomForm.description}
-                    onChange={(e) => setRoomForm({...roomForm, description: e.target.value})}
+                  <label className="text-sm font-medium mb-2 block">Мин. часов</label>
+                  <Input
+                    type="number"
+                    value={formData.min_hours}
+                    onChange={(e) => setFormData({ ...formData, min_hours: parseInt(e.target.value) })}
+                    required
                   />
                 </div>
 
                 <div>
-                  <Label>Особенности номера</Label>
-                  <div className="flex flex-wrap gap-2 mt-2 mb-2">
-                    {roomForm.features.map((feature, index) => (
-                      <div key={index} className="flex items-center gap-1 bg-secondary px-2 py-1 rounded-full text-sm">
-                        <span>{feature}</span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 w-4 p-0"
-                          onClick={() => removeRoomFeature(index)}
-                        >
-                          <Icon name="X" size={12} />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                  <Button type="button" variant="outline" size="sm" onClick={addRoomFeature}>
-                    <Icon name="Plus" size={14} className="mr-1" />
-                    Добавить особенность
-                  </Button>
+                  <label className="text-sm font-medium mb-2 block">Позиция</label>
+                  <Input
+                    type="number"
+                    value={formData.auction}
+                    onChange={(e) => setFormData({ ...formData, auction: parseInt(e.target.value) })}
+                    required
+                  />
                 </div>
-
-                <Button type="button" onClick={addRoom} className="w-full">
-                  <Icon name={editingRoomIndex !== null ? "Save" : "Plus"} size={16} className="mr-2" />
-                  {editingRoomIndex !== null ? 'Сохранить изменения' : 'Добавить номер'}
-                </Button>
               </div>
-            </div>
 
-            {/* Логотип */}
-            <div>
-              <Label>Логотип</Label>
-              {formData.logo_url && (
-                <div className="mt-2 mb-2">
-                  <img src={formData.logo_url} alt="Логотип" className="w-32 h-32 object-contain rounded border" />
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Главное фото</label>
+                  <div className="flex flex-col gap-3">
+                    {formData.image_url && (
+                      <img src={formData.image_url} alt="Preview" className="w-full h-32 object-cover rounded" />
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handlePhotoUpload(e)}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingPhoto}
+                      className="w-full"
+                    >
+                      {uploadingPhoto ? (
+                        <>
+                          <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                          Загрузка...
+                        </>
+                      ) : (
+                        <>
+                          <Icon name="Upload" size={18} className="mr-2" />
+                          Загрузить фото
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Логотип (PNG с прозрачностью)</label>
+                  <div className="flex flex-col gap-3">
+                    {formData.logo_url && (
+                      <div className="w-full h-32 border rounded flex items-center justify-center bg-gray-50">
+                        <img src={formData.logo_url} alt="Logo" className="max-w-full max-h-full object-contain p-2" />
+                      </div>
+                    )}
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/png,image/svg+xml,image/webp"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => logoInputRef.current?.click()}
+                      disabled={uploadingLogo}
+                      className="w-full"
+                    >
+                      {uploadingLogo ? (
+                        <>
+                          <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                          Загрузка...
+                        </>
+                      ) : (
+                        <>
+                          <Icon name="Upload" size={18} className="mr-2" />
+                          Загрузить логотип
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="parking"
+                    checked={formData.has_parking}
+                    onChange={(e) => setFormData({ ...formData, has_parking: e.target.checked })}
+                    className="w-4 h-4"
+                  />
+                  <label htmlFor="parking" className="text-sm font-medium">Есть парковка</label>
+                </div>
+                
+                <div className="p-4 border-2 border-red-200 rounded-lg bg-red-50 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold text-red-800">⚠️ Важные уведомления о ценах</label>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="priceWarningHolidays"
+                      checked={formData.price_warning_holidays}
+                      onChange={(e) => setFormData({ ...formData, price_warning_holidays: e.target.checked })}
+                      className="w-5 h-5 mt-0.5 cursor-pointer"
+                    />
+                    <label htmlFor="priceWarningHolidays" className="text-sm font-medium text-red-700 cursor-pointer flex-1">
+                      Внимание: Цены в праздничные и выходные дни могут отличаться
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="priceWarningDaytime"
+                      checked={formData.price_warning_daytime}
+                      onChange={(e) => setFormData({ ...formData, price_warning_daytime: e.target.checked })}
+                      className="w-5 h-5 mt-0.5 cursor-pointer"
+                    />
+                    <label htmlFor="priceWarningDaytime" className="text-sm font-medium text-red-700 cursor-pointer flex-1">
+                      Цены указаны на дневной тариф
+                    </label>
+                  </div>
+                  
+                  <p className="text-xs text-red-600">
+                    Эти отметки будут показаны красным цветом на странице объекта
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Остальные карточки продолжу в следующем сообщении из-за лимита */}
+          
+          <div className="flex gap-4">
+            <Button type="submit" disabled={isLoading} className="flex-1">
+              {isLoading ? (
+                <>
+                  <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                  Сохранение...
+                </>
+              ) : (
+                <>
+                  <Icon name="Save" size={18} className="mr-2" />
+                  Сохранить
+                </>
               )}
-              <input
-                ref={logoInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleLogoUpload}
-                className="hidden"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => logoInputRef.current?.click()}
-                disabled={uploadingLogo}
-              >
-                <Icon name={uploadingLogo ? "Loader2" : "Upload"} size={16} className={`mr-2 ${uploadingLogo ? 'animate-spin' : ''}`} />
-                {uploadingLogo ? 'Загрузка...' : 'Загрузить логотип'}
-              </Button>
-            </div>
-
-            {/* Кнопки */}
-            <div className="flex gap-2 pt-4">
-              <Button type="submit" disabled={isLoading}>
-                <Icon name={isLoading ? "Loader2" : "Save"} size={16} className={`mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                {isLoading ? 'Сохранение...' : 'Сохранить'}
-              </Button>
-              <Button type="button" variant="outline" onClick={() => onClose()}>
-                Отмена
-              </Button>
-            </div>
-
-          </form>
-        </CardContent>
-      </Card>
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Отмена
+            </Button>
+          </div>
+        </form>
+      </main>
     </div>
   );
 }
