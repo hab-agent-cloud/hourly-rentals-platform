@@ -52,6 +52,7 @@ export default function ImageUploader({ onUpload, multiple = false }: ImageUploa
         reader.onload = async (event) => {
           try {
             const base64 = event.target?.result as string;
+            console.log('[ImageUploader] Starting upload for:', file.name);
             
             const response = await fetch('https://functions.poehali.dev/32a4bee5-4d04-4b73-a903-52cec9a5cef6', {
               method: 'POST',
@@ -62,10 +63,16 @@ export default function ImageUploader({ onUpload, multiple = false }: ImageUploa
                 image: base64,
                 filename: file.name,
               }),
+            }).catch(err => {
+              console.error('[ImageUploader] Fetch failed:', err);
+              throw new Error('Не удалось подключиться к серверу. Проверьте интернет-соединение.');
             });
+
+            console.log('[ImageUploader] Response status:', response.status);
 
             if (!response.ok) {
               const errorText = await response.text();
+              console.error('[ImageUploader] Error response:', errorText);
               let errorMessage = 'Ошибка загрузки';
               try {
                 const errorData = JSON.parse(errorText);
@@ -77,6 +84,7 @@ export default function ImageUploader({ onUpload, multiple = false }: ImageUploa
             }
 
             const data = await response.json();
+            console.log('[ImageUploader] Upload success:', data);
             onUpload(data.url);
             completed++;
             setUploadProgress(Math.round((completed / totalCount) * 100));
