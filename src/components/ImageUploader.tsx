@@ -18,9 +18,10 @@ export default function ImageUploader({ onUpload, multiple = false }: ImageUploa
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    const totalCount = files.length;
     setIsUploading(true);
     setUploadProgress(0);
-    setTotalFiles(files.length);
+    setTotalFiles(totalCount);
 
     const uploadPromises: Promise<void>[] = [];
     let completed = 0;
@@ -78,7 +79,7 @@ export default function ImageUploader({ onUpload, multiple = false }: ImageUploa
             const data = await response.json();
             onUpload(data.url);
             completed++;
-            setUploadProgress(Math.round((completed / totalFiles) * 100));
+            setUploadProgress(Math.round((completed / totalCount) * 100));
             toast({
               title: 'Успешно',
               description: 'Фото загружено',
