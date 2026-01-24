@@ -11,14 +11,19 @@ interface ImageUploaderProps {
 export default function ImageUploader({ onUpload, multiple = false }: ImageUploaderProps) {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [totalFiles, setTotalFiles] = useState(0);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
+    setUploadProgress(0);
+    setTotalFiles(files.length);
 
     const uploadPromises: Promise<void>[] = [];
+    const completed = 0;
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -72,6 +77,8 @@ export default function ImageUploader({ onUpload, multiple = false }: ImageUploa
 
             const data = await response.json();
             onUpload(data.url);
+            completed++;
+            setUploadProgress(Math.round((completed / totalFiles) * 100));
             toast({
               title: 'Успешно',
               description: 'Фото загружено',
@@ -98,6 +105,8 @@ export default function ImageUploader({ onUpload, multiple = false }: ImageUploa
       await Promise.allSettled(uploadPromises);
     } finally {
       setIsUploading(false);
+      setUploadProgress(0);
+      setTotalFiles(0);
       e.target.value = '';
     }
   };
@@ -112,24 +121,35 @@ export default function ImageUploader({ onUpload, multiple = false }: ImageUploa
         id="image-upload"
         className="hidden"
       />
-      <Button
-        type="button"
-        variant="outline"
-        disabled={isUploading}
-        onClick={() => document.getElementById('image-upload')?.click()}
-      >
-        {isUploading ? (
-          <>
-            <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
-            Загрузка...
-          </>
-        ) : (
-          <>
-            <Icon name="Upload" size={16} className="mr-2" />
-            Загрузить {multiple ? 'фото' : 'фото'}
-          </>
+      <div className="space-y-2">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={isUploading}
+          onClick={() => document.getElementById('image-upload')?.click()}
+          className="w-full"
+        >
+          {isUploading ? (
+            <>
+              <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+              Загрузка... {uploadProgress}%
+            </>
+          ) : (
+            <>
+              <Icon name="Upload" size={16} className="mr-2" />
+              Загрузить {multiple ? 'фото' : 'фото'}
+            </>
+          )}
+        </Button>
+        {isUploading && (
+          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
         )}
-      </Button>
+      </div>
     </div>
   );
 }
