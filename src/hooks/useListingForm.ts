@@ -21,6 +21,17 @@ export function useListingForm(listing: any, token: string, onClose: (shouldRelo
     if (listing?.rooms && listing.rooms.length > 0) {
       console.log('First room data:', listing.rooms[0]);
     }
+
+    let images: string[] = [];
+    if (listing?.image_url) {
+      try {
+        const parsed = JSON.parse(listing.image_url);
+        images = Array.isArray(parsed) ? parsed : [listing.image_url];
+      } catch {
+        images = [listing.image_url];
+      }
+    }
+
     return {
       title: listing?.title || '',
       type: listing?.type || 'hotel',
@@ -38,7 +49,7 @@ export function useListingForm(listing: any, token: string, onClose: (shouldRelo
       has_breakfast: listing?.has_breakfast || false,
       has_wifi: listing?.has_wifi || false,
       rooms: listing?.rooms || [],
-      images: listing?.images || [],
+      images,
       rating: listing?.rating || 4.5,
       check_in: listing?.check_in || '14:00',
       check_out: listing?.check_out || '12:00',
@@ -57,11 +68,15 @@ export function useListingForm(listing: any, token: string, onClose: (shouldRelo
     setIsLoading(true);
 
     try {
-      console.log('Submitting form data:', formData);
+      const submitData = {
+        ...formData,
+        image_url: formData.images.length > 0 ? JSON.stringify(formData.images) : formData.images[0] || '',
+      };
+      console.log('Submitting form data:', submitData);
       
       let response;
       if (listing && listing.id) {
-        response = await api.updateListing(token, listing.id, formData);
+        response = await api.updateListing(token, listing.id, submitData);
         console.log('Update response:', response);
 
         toast({
@@ -69,7 +84,7 @@ export function useListingForm(listing: any, token: string, onClose: (shouldRelo
           description: "Изменения успешно сохранены",
         });
       } else {
-        response = await api.createListing(token, formData);
+        response = await api.createListing(token, submitData);
         console.log('Create response:', response);
 
         if (response.error) {
