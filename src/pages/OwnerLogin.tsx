@@ -118,9 +118,31 @@ export default function OwnerLogin() {
               </Link>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4 text-xs sm:text-sm text-blue-900">
-              <Icon name="Info" size={14} className="inline mr-1" />
-              Для регистрации нажмите <Link to="/add-listing" className="text-purple-600 hover:underline font-medium">"Добавить объект"</Link> на главной странице
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-purple-200 rounded-lg p-4 mt-4 space-y-3">
+              <div className="flex items-start gap-2">
+                <Icon name="Info" size={18} className="text-purple-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-purple-900 text-sm mb-2">Нет аккаунта? Два способа регистрации:</p>
+                  <div className="space-y-2 text-xs sm:text-sm text-purple-800">
+                    <div className="flex items-start gap-2">
+                      <Icon name="Building2" size={14} className="flex-shrink-0 mt-0.5 text-purple-600" />
+                      <span>
+                        <strong>Добавьте объект самостоятельно:</strong> нажмите{' '}
+                        <Link to="/add-listing" className="text-purple-600 hover:underline font-medium">
+                          "Добавить объект"
+                        </Link>
+                        {' '}на главной странице
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Icon name="MessageCircle" size={14} className="flex-shrink-0 mt-0.5 text-purple-600" />
+                      <span>
+                        <strong>Оставьте заявку:</strong> наша поддержка свяжется с вами и поможет с регистрацией
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </form>
         </CardContent>
