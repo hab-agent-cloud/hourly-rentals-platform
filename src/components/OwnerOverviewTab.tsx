@@ -42,6 +42,7 @@ interface OwnerOverviewTabProps {
   isLoading: boolean;
   onExtendSubscription: (listingId: number, days: number) => Promise<void>;
   onEditListing?: (listing: any) => void;
+  onUnarchiveListing?: (listingId: number) => void;
 }
 
 export default function OwnerOverviewTab({
@@ -51,6 +52,7 @@ export default function OwnerOverviewTab({
   isLoading,
   onExtendSubscription,
   onEditListing,
+  onUnarchiveListing,
 }: OwnerOverviewTabProps) {
   const activeListings = listings.filter(l => !l.is_archived);
   const archivedListings = listings.filter(l => l.is_archived);
@@ -72,6 +74,7 @@ export default function OwnerOverviewTab({
                 subscriptionInfo={subscriptionInfo.get(listing.id) || null}
                 onExtend={onExtendSubscription}
                 onEdit={onEditListing}
+                onUnarchive={onUnarchiveListing}
                 isLoading={isLoading}
               />
             ))}
@@ -94,6 +97,7 @@ export default function OwnerOverviewTab({
                 subscriptionInfo={subscriptionInfo.get(listing.id) || null}
                 onExtend={onExtendSubscription}
                 onEdit={onEditListing}
+                onUnarchive={onUnarchiveListing}
                 isLoading={isLoading}
               />
             ))}

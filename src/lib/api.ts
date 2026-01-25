@@ -215,6 +215,23 @@ export const api = {
     return response.json();
   },
 
+  // Восстановление объекта из архива
+  unarchiveListing: async (token: string, listingId: number) => {
+    const response = await fetch(`${API_URLS.adminListings}?id=${listingId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ is_archived: false }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
   // Загрузка фото
   uploadPhoto: async (token: string, imageBase64: string, contentType: string) => {
     console.log('[API] Uploading photo...');

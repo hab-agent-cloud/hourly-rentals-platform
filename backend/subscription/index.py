@@ -93,7 +93,7 @@ def handler(event: dict, context) -> dict:
                 listing_id = body.get('listing_id')
                 days = body.get('days')
                 
-                if not listing_id or not days:
+                if not listing_id or days is None:
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -117,17 +117,23 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 
-                # Если есть активная подписка, добавляем к ней дни
-                if listing['subscription_expires_at'] and listing['subscription_expires_at'] > datetime.now():
-                    new_expires_at = listing['subscription_expires_at'] + timedelta(days=days)
+                # Если days = 0, отменяем подписку (устанавливаем в прошлое)
+                if days == 0:
+                    new_expires_at = datetime.now() - timedelta(days=1)
+                    message = 'Подписка отменена'
                 else:
-                    new_expires_at = datetime.now() + timedelta(days=days)
+                    # Если есть активная подписка, добавляем к ней дни
+                    if listing['subscription_expires_at'] and listing['subscription_expires_at'] > datetime.now():
+                        new_expires_at = listing['subscription_expires_at'] + timedelta(days=days)
+                    else:
+                        new_expires_at = datetime.now() + timedelta(days=days)
+                    message = f'Подписка установлена на {days} дней'
                 
                 cur.execute("""
                     UPDATE listings 
-                    SET subscription_expires_at = %s, is_archived = FALSE
+                    SET subscription_expires_at = %s, is_archived = %s
                     WHERE id = %s
-                """, (new_expires_at, listing_id))
+                """, (new_expires_at, days == 0, listing_id))
                 
                 conn.commit()
                 
@@ -136,7 +142,7 @@ def handler(event: dict, context) -> dict:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
                         'success': True,
-                        'message': f'Подписка установлена на {days} дней',
+                        'message': message,
                         'expires_at': new_expires_at.isoformat()
                     }, default=str),
                     'isBase64Encoded': False

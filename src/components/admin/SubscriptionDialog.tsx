@@ -45,16 +45,19 @@ export default function SubscriptionDialog({
             <label className="text-sm font-medium mb-2 block">Количество дней</label>
             <Input
               type="number"
-              min="1"
               value={subscriptionDays}
               onChange={(e) => onDaysChange(Number(e.target.value))}
-              placeholder="30"
+              placeholder="30 (или 0 для отмены)"
             />
+            <div className="text-xs text-muted-foreground mt-1">
+              Укажите 0 для отмены подписки
+            </div>
           </div>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={() => onDaysChange(30)}>30 дней</Button>
             <Button size="sm" variant="outline" onClick={() => onDaysChange(90)}>90 дней</Button>
             <Button size="sm" variant="outline" onClick={() => onDaysChange(365)}>1 год</Button>
+            <Button size="sm" variant="destructive" onClick={() => onDaysChange(0)}>Отменить</Button>
           </div>
         </div>
         <div className="flex gap-3">

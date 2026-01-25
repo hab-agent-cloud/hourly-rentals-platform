@@ -35,6 +35,7 @@ export default function OwnerDashboard() {
     handleExtendSubscription,
     handleEditListing,
     handleEditSuccess,
+    handleUnarchiveListing,
     handleLogout,
     loadStats,
   } = useOwnerDashboard();
@@ -95,6 +96,7 @@ export default function OwnerDashboard() {
                 isLoading={isLoading}
                 onExtendSubscription={handleExtendSubscription}
                 onEditListing={handleEditListing}
+                onUnarchiveListing={handleUnarchiveListing}
               />
             </TabsContent>
 

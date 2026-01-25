@@ -28,10 +28,11 @@ interface HotelSubscriptionCardProps {
   } | null;
   onExtend: (listingId: number, days: number) => void;
   onEdit?: (listing: any) => void;
+  onUnarchive?: (listingId: number) => void;
   isLoading: boolean;
 }
 
-export default function HotelSubscriptionCard({ listing, subscriptionInfo, onExtend, onEdit, isLoading }: HotelSubscriptionCardProps) {
+export default function HotelSubscriptionCard({ listing, subscriptionInfo, onExtend, onEdit, onUnarchive, isLoading }: HotelSubscriptionCardProps) {
   const [timeLeft, setTimeLeft] = useState('');
 
   useEffect(() => {
@@ -253,18 +254,32 @@ export default function HotelSubscriptionCard({ listing, subscriptionInfo, onExt
           </div>
         )}
 
-        {onEdit && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onEdit(listing)}
-            className="w-full mt-2 h-8 sm:h-9 text-xs sm:text-sm"
-          >
-            <Icon name="Edit" size={14} className="mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">{listing.moderation_status === 'rejected' ? 'Исправить и отправить повторно' : 'Редактировать объект'}</span>
-            <span className="sm:hidden">{listing.moderation_status === 'rejected' ? 'Исправить' : 'Редактировать'}</span>
-          </Button>
-        )}
+        <div className="space-y-2">
+          {onEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(listing)}
+              className="w-full h-8 sm:h-9 text-xs sm:text-sm"
+            >
+              <Icon name="Edit" size={14} className="mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">{listing.moderation_status === 'rejected' ? 'Исправить и отправить повторно' : 'Редактировать объект'}</span>
+              <span className="sm:hidden">{listing.moderation_status === 'rejected' ? 'Исправить' : 'Редактировать'}</span>
+            </Button>
+          )}
+
+          {listing.is_archived && onUnarchive && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => onUnarchive(listing.id)}
+              className="w-full h-8 sm:h-9 text-xs sm:text-sm bg-green-600 hover:bg-green-700"
+            >
+              <Icon name="ArchiveRestore" size={14} className="mr-1 sm:mr-2" />
+              <span>Восстановить из архива</span>
+            </Button>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

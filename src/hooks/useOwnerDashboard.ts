@@ -365,6 +365,31 @@ export function useOwnerDashboard() {
     });
   };
 
+  const handleUnarchiveListing = async (listingId: number) => {
+    setIsLoading(true);
+    try {
+      const response = await api.unarchiveListing(token!, listingId);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      toast({
+        title: 'Успешно!',
+        description: 'Объект восстановлен из архива',
+      });
+
+      await loadOwnerListings();
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось восстановить объект',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('ownerToken');
     localStorage.removeItem('ownerId');
@@ -397,6 +422,7 @@ export function useOwnerDashboard() {
     handleExtendSubscription,
     handleEditListing,
     handleEditSuccess,
+    handleUnarchiveListing,
     handleLogout,
     loadStats,
   };
