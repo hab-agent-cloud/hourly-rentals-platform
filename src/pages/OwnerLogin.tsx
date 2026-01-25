@@ -144,6 +144,19 @@ export default function OwnerLogin() {
                 </div>
               </div>
             </div>
+
+            <div className="text-center text-xs text-muted-foreground pt-4 border-t">
+              <p className="mb-2">Входя в систему, вы соглашаетесь с:</p>
+              <div className="flex justify-center gap-3 flex-wrap">
+                <Link to="/company-info" className="text-purple-600 hover:underline">
+                  Пользовательское соглашение
+                </Link>
+                <span>•</span>
+                <Link to="/offer" className="text-purple-600 hover:underline">
+                  Договор оферты
+                </Link>
+              </div>
+            </div>
           </form>
         </CardContent>
       </Card>
