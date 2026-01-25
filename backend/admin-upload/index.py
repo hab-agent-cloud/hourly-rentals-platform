@@ -59,13 +59,18 @@ def handler(event: dict, context) -> dict:
         }
     
     try:
+        print('=== UPLOAD PHOTO START ===')
         body = json.loads(event.get('body', '{}'))
+        print(f'Body keys: {list(body.keys())}')
         
         # Получаем base64 изображение
         image_base64 = body.get('image')
         content_type = body.get('contentType', 'image/jpeg')
+        print(f'Content-Type: {content_type}')
+        print(f'Image base64 length: {len(image_base64) if image_base64 else 0}')
         
         if not image_base64:
+            print('ERROR: No image in request')
             return {
                 'statusCode': 400,
                 'headers': {**cors_headers, 'Content-Type': 'application/json'},
@@ -74,13 +79,17 @@ def handler(event: dict, context) -> dict:
             }
         
         # Декодируем base64
+        print('Decoding base64...')
         image_data = base64.b64decode(image_base64)
+        print(f'Image size: {len(image_data)} bytes')
         
         # Генерируем уникальное имя файла
         file_extension = content_type.split('/')[-1]
         file_name = f"listings/{uuid.uuid4()}.{file_extension}"
+        print(f'File name: {file_name}')
         
         # Загружаем в S3
+        print('Uploading to S3...')
         s3 = boto3.client('s3',
             endpoint_url='https://bucket.poehali.dev',
             aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
@@ -93,18 +102,26 @@ def handler(event: dict, context) -> dict:
             Body=image_data,
             ContentType=content_type
         )
+        print('S3 upload complete')
         
         # Формируем CDN URL
         cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{file_name}"
+        print(f'CDN URL: {cdn_url}')
         
-        return {
+        response = {
             'statusCode': 200,
             'headers': {**cors_headers, 'Content-Type': 'application/json'},
             'body': json.dumps({'url': cdn_url}),
             'isBase64Encoded': False
         }
+        print(f'Response: {response}')
+        return response
         
     except Exception as e:
+        print(f'=== UPLOAD PHOTO ERROR ===')
+        print(f'Error: {str(e)}')
+        import traceback
+        print(f'Traceback: {traceback.format_exc()}')
         return {
             'statusCode': 500,
             'headers': {**cors_headers, 'Content-Type': 'application/json'},
