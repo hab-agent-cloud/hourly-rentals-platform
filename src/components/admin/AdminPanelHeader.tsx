@@ -17,7 +17,7 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img 
-                src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/77574b92-3610-4b79-8c59-819891e5ebca.jpg" 
+                src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/5c9e35dd-cbea-4989-b103-55a89cb6e1a6.jpg" 
                 alt="120 минут" 
                 className="h-12 w-12 object-contain"
               />
