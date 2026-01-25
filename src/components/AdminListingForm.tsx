@@ -699,9 +699,19 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   };
 
   const uploadRoomPhotosFiles = async (files: File[]) => {
-    if (files.length === 0) return;
+    console.log('=== UPLOAD ROOM PHOTOS START ===');
+    console.log('Files count:', files.length);
+    
+    if (files.length === 0) {
+      console.log('No files selected');
+      return;
+    }
+    
     const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
+    console.log('Current room images:', currentImages.length);
+    
     if (currentImages.length + files.length > 10) {
+      console.log('Too many photos:', currentImages.length + files.length);
       toast({
         title: 'Ошибка',
         description: 'Максимум 10 фото на номер',
@@ -715,45 +725,64 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
 
     try {
       for (const file of files) {
+        console.log('Processing file:', file.name, file.type, file.size);
         const reader = new FileReader();
         const result = await new Promise<string>((resolve, reject) => {
           reader.onload = async (event) => {
+            console.log('File read complete');
             const base64 = event.target?.result?.toString().split(',')[1];
             if (!base64) {
+              console.error('Failed to extract base64');
               reject('Ошибка чтения файла');
               return;
             }
+            console.log('Base64 length:', base64.length);
 
             try {
+              console.log('Calling api.uploadPhoto...');
               const uploadResult = await api.uploadPhoto(token, base64, file.type);
+              console.log('Upload result:', uploadResult);
+              
               if (uploadResult.url) {
+                console.log('Photo uploaded successfully:', uploadResult.url);
                 resolve(uploadResult.url);
               } else {
+                console.error('No URL in upload result:', uploadResult);
                 reject('Не удалось загрузить');
               }
             } catch (err) {
+              console.error('Upload API error:', err);
               reject(err);
             }
           };
-          reader.onerror = reject;
+          reader.onerror = (err) => {
+            console.error('FileReader error:', err);
+            reject(err);
+          };
           reader.readAsDataURL(file);
         });
         uploadedUrls.push(result);
       }
 
+      console.log('All photos uploaded:', uploadedUrls);
       setNewRoom({ ...newRoom, images: [...currentImages, ...uploadedUrls] });
       toast({
         title: 'Успешно',
         description: `Загружено ${uploadedUrls.length} фото`,
       });
     } catch (error: any) {
+      console.error('=== UPLOAD ROOM PHOTOS ERROR ===');
+      console.error('Error:', error);
+      console.error('Error message:', error?.message);
+      console.error('Error stack:', error?.stack);
       toast({
         title: 'Ошибка',
-        description: 'Не удалось загрузить фото',
+        description: error?.message || 'Не удалось загрузить фото',
         variant: 'destructive',
       });
     } finally {
       setUploadingRoomPhotos(false);
+      console.log('=== UPLOAD ROOM PHOTOS END ===');
     }
   };
 
