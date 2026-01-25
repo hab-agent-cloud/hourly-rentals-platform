@@ -79,8 +79,8 @@ def handler(event: dict, context) -> dict:
             try:
                 cur.execute("""
                     INSERT INTO t_p39732784_hourly_rentals_platf.owners 
-                    (email, password_hash, full_name, phone, balance, bonus_balance, is_verified)
-                    VALUES (%s, %s, %s, %s, 0, 0, false)
+                    (email, password_hash, full_name, phone, balance, bonus_awarded, is_verified)
+                    VALUES (%s, %s, %s, %s, 5000.00, true, false)
                     RETURNING id
                 """, (
                     body['owner_email'],
@@ -95,7 +95,7 @@ def handler(event: dict, context) -> dict:
             owner_result = cur.fetchone()
             owner_id = owner_result['id']
             
-            print(f"[INFO] Created new owner with ID {owner_id}, password: {generated_password}")
+            print(f"[INFO] Created new owner with ID {owner_id}, password: {generated_password}, bonus: 5000.00 RUB")
             
             # Сохраняем пароль для отправки на email
             try:

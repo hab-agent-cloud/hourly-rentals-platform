@@ -203,6 +203,18 @@ export default function ListingReviewStep({ data, onBack, onSubmit, onEdit }: Li
         </div>
 
         {/* Actions */}
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+          <div className="flex gap-2 text-green-800 mb-3">
+            <Icon name="Gift" size={20} className="flex-shrink-0" />
+            <div>
+              <p className="text-sm font-bold mb-1">🎉 Приветственный бонус 5000₽!</p>
+              <p className="text-sm text-green-700">
+                Сразу после добавления объекта вы получите 5000 бонусных рублей на счёт. Используйте их для продвижения и продления объявления!
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex gap-2 text-blue-800 mb-2">
             <Icon name="Info" size={18} />

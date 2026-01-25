@@ -97,13 +97,22 @@ export default function OwnerDashboardHeader({
               )}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-6">
                 <div className="text-center sm:text-right">
-                  <div className="text-xs sm:text-sm text-muted-foreground mb-0.5 sm:mb-1">Баланс</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground mb-0.5 sm:mb-1 flex items-center gap-1 justify-center sm:justify-end">
+                    <span>Баланс</span>
+                    {owner.bonus_balance > 0 && (
+                      <Icon name="Gift" size={14} className="text-green-500" />
+                    )}
+                  </div>
                   <div className="text-xl sm:text-2xl font-bold text-purple-600 mb-0.5 sm:mb-1">
                     {totalBalance}<span className="text-lg sm:text-xl">₽</span>
                   </div>
                   <div className="text-xs text-muted-foreground space-y-0.5 flex gap-3 sm:gap-0 sm:flex-col justify-center sm:justify-start">
                     <div>{owner.balance}<span className="text-[10px]">₽</span> осн.</div>
-                    <div className="text-purple-600 font-medium">{owner.bonus_balance}<span className="text-[10px]">₽</span> бон.</div>
+                    {owner.bonus_balance > 0 && (
+                      <div className="text-green-600 font-semibold animate-pulse">
+                        {owner.bonus_balance}<span className="text-[10px]">₽</span> бонус
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="border-t sm:border-t-0 sm:border-l border-purple-200 pt-3 sm:pt-0 sm:pl-6">
@@ -143,16 +152,20 @@ export default function OwnerDashboardHeader({
                       </Button>
                     </div>
                     <div className="space-y-1 hidden sm:block">
-                      <div className="text-[11px] text-purple-700 bg-purple-100 px-2 py-1 rounded leading-tight">
+                      <div className="text-[11px] text-green-700 bg-green-100 px-2 py-1 rounded leading-tight font-semibold">
                         <Icon name="Gift" size={11} className="inline mr-1" />
-                        Используйте бонусный счет на все платные услуги сайта: продление/продвижение объекта.
+                        5000₽ бонус за регистрацию и добавление объекта!
                       </div>
                       <div className="text-[11px] text-purple-700 bg-purple-100 px-2 py-1 rounded leading-tight">
-                        1 бонусный рубль равен 1 рублю.
+                        <Icon name="Sparkles" size={11} className="inline mr-1" />
+                        Используйте бонусы на продление и продвижение объекта.
+                      </div>
+                      <div className="text-[11px] text-purple-700 bg-purple-100 px-2 py-1 rounded leading-tight">
+                        1 бонусный рубль = 1 рублю.
                       </div>
                       <div className="text-[11px] text-green-700 bg-green-100 px-2 py-1 rounded leading-tight">
                         <Icon name="TrendingUp" size={11} className="inline mr-1" />
-                        При пополнении баланса начисляется кэшбэк на бонусный счет 10%.
+                        Кэшбэк 10% на бонусный счёт при пополнении.
                       </div>
                     </div>
                   </div>
