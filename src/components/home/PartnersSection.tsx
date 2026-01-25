@@ -8,7 +8,7 @@ export default function PartnersSection() {
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col items-center mb-8">
           <img 
-            src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/5c9e35dd-cbea-4989-b103-55a89cb6e1a6.jpg" 
+            src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/d8d9b10a-cef6-4677-b1f5-bcb73b08ba75.jpg" 
             alt="120 минут" 
             className="h-20 w-20 object-contain mb-4"
           />
