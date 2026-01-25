@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Detect city endpoint responds",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "ip": "string",
+        "detected": "boolean"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

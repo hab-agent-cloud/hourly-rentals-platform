@@ -24,12 +24,27 @@ export default function Index() {
   const [allListings, setAllListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [detectedCity, setDetectedCity] = useState<string | null>(null);
   
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadListings();
+    detectUserCity();
   }, []);
+
+  const detectUserCity = async () => {
+    try {
+      const cityData = await api.detectCity();
+      if (cityData && cityData.detected && cityData.city) {
+        console.log('City detected:', cityData.city);
+        setDetectedCity(cityData.city);
+        setSelectedCity(cityData.city);
+      }
+    } catch (error) {
+      console.error('Failed to detect city:', error);
+    }
+  };
 
   const loadListings = async () => {
     try {
@@ -125,6 +140,7 @@ export default function Index() {
             setMinHours={setMinHours}
             selectedFeatures={selectedFeatures}
             setSelectedFeatures={setSelectedFeatures}
+            detectedCity={detectedCity}
           />
 
           <main className="container mx-auto px-4 py-8" ref={resultsRef}>

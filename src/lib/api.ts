@@ -15,6 +15,7 @@ const API_URLS = {
   payment: 'https://functions.poehali.dev/d3177c56-4fe4-4a52-a878-e17cca7a1397',
   ownerTransactions: 'https://functions.poehali.dev/d65e7c1b-75b3-4a33-965b-70ee3a543a50',
   subscription: 'https://functions.poehali.dev/083c2fbe-03b3-474d-accd-281d4089bb06',
+  detectCity: 'https://functions.poehali.dev/15d3dd6b-83e0-48c3-b215-802340270720',
 };
 
 export const api = {
@@ -514,6 +515,18 @@ export const api = {
       throw new Error(errorData.error || `HTTP ${response.status}`);
     }
     return response.json();
+  },
+
+  // Определение города по IP
+  detectCity: async () => {
+    try {
+      const response = await fetch(API_URLS.detectCity);
+      if (!response.ok) return null;
+      return response.json();
+    } catch (error) {
+      console.error('City detection error:', error);
+      return null;
+    }
   },
 
   adminAddBonus: async (token: string, ownerId: number, amount: number) => {

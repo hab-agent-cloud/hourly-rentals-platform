@@ -19,6 +19,7 @@ interface SearchHeroProps {
   setMinHours: (value: number | null) => void;
   selectedFeatures: string[];
   setSelectedFeatures: (value: string[]) => void;
+  detectedCity?: string | null;
 }
 
 export default function SearchHero({
@@ -37,6 +38,7 @@ export default function SearchHero({
   setMinHours,
   selectedFeatures,
   setSelectedFeatures,
+  detectedCity,
 }: SearchHeroProps) {
   const popularFeatures = [
     { name: 'Джакузи', icon: 'Bath' },
@@ -111,6 +113,12 @@ export default function SearchHero({
             <div className="flex items-center gap-2">
               <Icon name="MapPin" size={16} className="text-purple-600" />
               <span className="text-sm font-semibold text-purple-700">Популярные города:</span>
+              {detectedCity && (
+                <Badge variant="outline" className="border-green-500 text-green-700 bg-green-50">
+                  <Icon name="MapPinned" size={12} className="mr-1" />
+                  Ваш город: {detectedCity}
+                </Badge>
+              )}
             </div>
             <div className="flex flex-wrap gap-2">
               {['Уфа', 'Москва', 'Санкт-Петербург', 'Казань', 'Екатеринбург', 'Новосибирск'].map(city => (
