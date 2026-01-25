@@ -77,6 +77,24 @@ export const api = {
     return data;
   },
 
+  // Получение ОДНОГО объекта с полными данными (для редактирования)
+  getListing: async (token: string, id: number) => {
+    console.log(`[API] getListing called for id=${id}`);
+    const response = await fetch(`${API_URLS.adminListings}?id=${id}`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log(`[API] Received listing with ${data.rooms?.length || 0} rooms`);
+    
+    return data;
+  },
+
   // Получение объектов владельца
   getOwnerListings: async (token: string, ownerId: number) => {
     const response = await fetch(`${API_URLS.ownerListings}?owner_id=${ownerId}`, {

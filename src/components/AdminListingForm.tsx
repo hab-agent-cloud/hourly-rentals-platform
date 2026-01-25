@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -267,6 +267,41 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   const [uploadingRoomPhotos, setUploadingRoomPhotos] = useState(false);
   const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
   const [draggingPhotoIndex, setDraggingPhotoIndex] = useState<number | null>(null);
+
+  // Обновляем formData при изменении listing (загрузка полных данных)
+  useEffect(() => {
+    if (listing) {
+      console.log('=== UPDATING FORM DATA FROM LISTING PROP ===');
+      console.log('Listing:', listing);
+      console.log('Rooms:', listing.rooms);
+      
+      setFormData({
+        title: listing.title || '',
+        type: listing.type || 'hotel',
+        city: listing.city || '',
+        district: listing.district || '',
+        price: listing.price || 0,
+        auction: listing.auction || 999,
+        image_url: listing.image_url || '',
+        logo_url: listing.logo_url || '',
+        metro: listing.metro || '',
+        metro_walk: listing.metro_walk || 0,
+        metro_stations: listing.metro_stations || [],
+        has_parking: listing.has_parking || false,
+        parking_type: listing.parking_type || 'none',
+        parking_price_per_hour: listing.parking_price_per_hour || 0,
+        features: listing.features || [],
+        lat: listing.lat || 0,
+        lng: listing.lng || 0,
+        min_hours: listing.min_hours || 1,
+        rooms: listing.rooms || [],
+        phone: listing.phone || '',
+        telegram: listing.telegram || '',
+        price_warning_holidays: listing.price_warning_holidays || false,
+        price_warning_daytime: listing.price_warning_daytime || false,
+      });
+    }
+  }, [listing]);
 
   const roomTemplates = [
     {
@@ -563,31 +598,49 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     setUploadingPhoto(true);
     try {
       const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = event.target?.result?.toString().split(',')[1];
-        if (!base64) return;
+      const uploadPromise = new Promise<string>((resolve, reject) => {
+        reader.onload = async (event) => {
+          try {
+            const base64 = event.target?.result?.toString().split(',')[1];
+            if (!base64) {
+              reject('Ошибка чтения файла');
+              return;
+            }
 
-        const result = await api.uploadPhoto(token, base64, file.type);
-        
-        if (result.url) {
-          if (isRoomPhoto && roomIndex !== undefined) {
-            const updatedRooms = [...formData.rooms];
-            updatedRooms[roomIndex].image_url = result.url;
-            setFormData({ ...formData, rooms: updatedRooms });
-          } else {
-            setFormData({ ...formData, image_url: result.url });
+            const result = await api.uploadPhoto(token, base64, file.type);
+            
+            if (result.url) {
+              resolve(result.url);
+            } else {
+              reject('Не удалось получить URL фото');
+            }
+          } catch (err) {
+            reject(err);
           }
-          toast({
-            title: 'Успешно',
-            description: 'Фото загружено',
-          });
-        }
-      };
+        };
+        reader.onerror = () => reject('Ошибка чтения файла');
+      });
+      
       reader.readAsDataURL(file);
+      const url = await uploadPromise;
+      
+      if (isRoomPhoto && roomIndex !== undefined) {
+        const updatedRooms = [...formData.rooms];
+        updatedRooms[roomIndex].image_url = url;
+        setFormData({ ...formData, rooms: updatedRooms });
+      } else {
+        setFormData({ ...formData, image_url: url });
+      }
+      
+      toast({
+        title: 'Успешно',
+        description: 'Фото загружено',
+      });
     } catch (error: any) {
+      console.error('Photo upload error:', error);
       toast({
         title: 'Ошибка',
-        description: 'Не удалось загрузить фото',
+        description: error?.message || 'Не удалось загрузить фото',
         variant: 'destructive',
       });
     } finally {
@@ -602,25 +655,42 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     setUploadingLogo(true);
     try {
       const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = event.target?.result?.toString().split(',')[1];
-        if (!base64) return;
+      const uploadPromise = new Promise<string>((resolve, reject) => {
+        reader.onload = async (event) => {
+          try {
+            const base64 = event.target?.result?.toString().split(',')[1];
+            if (!base64) {
+              reject('Ошибка чтения файла');
+              return;
+            }
 
-        const result = await api.uploadPhoto(token, base64, file.type);
-        
-        if (result.url) {
-          setFormData({ ...formData, logo_url: result.url });
-          toast({
-            title: 'Успешно',
-            description: 'Логотип загружен',
-          });
-        }
-      };
+            const result = await api.uploadPhoto(token, base64, file.type);
+            
+            if (result.url) {
+              resolve(result.url);
+            } else {
+              reject('Не удалось получить URL логотипа');
+            }
+          } catch (err) {
+            reject(err);
+          }
+        };
+        reader.onerror = () => reject('Ошибка чтения файла');
+      });
+      
       reader.readAsDataURL(file);
+      const url = await uploadPromise;
+      
+      setFormData({ ...formData, logo_url: url });
+      toast({
+        title: 'Успешно',
+        description: 'Логотип загружен',
+      });
     } catch (error: any) {
+      console.error('Logo upload error:', error);
       toast({
         title: 'Ошибка',
-        description: 'Не удалось загрузить логотип',
+        description: error?.message || 'Не удалось загрузить логотип',
         variant: 'destructive',
       });
     } finally {

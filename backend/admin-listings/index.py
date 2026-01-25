@@ -49,11 +49,79 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        # GET - получение списка объектов
+        # GET - получение списка объектов ИЛИ одного объекта
         if method == 'GET':
             print(f"[DEBUG] GET request started")
             params = event.get('queryStringParameters', {}) or {}
             print(f"[DEBUG] RAW params from event: {params}")
+            
+            # Если передан id - возвращаем ОДИН объект с ПОЛНЫМИ данными (включая images)
+            listing_id = params.get('id')
+            if listing_id:
+                print(f"[DEBUG] Fetching single listing with id={listing_id}")
+                cur.execute("""
+                    SELECT id, owner_id, title, city, district, lat, lng,
+                           phone, telegram, description, image_url, logo_url,
+                           auction, is_archived, moderation_status, moderation_comment,
+                           created_at, updated_at, created_by_employee_id,
+                           subscription_expires_at, subscription_auto_renew,
+                           type, price, rating, reviews, metro, metro_walk,
+                           has_parking, features, min_hours,
+                           square_meters, parking_type, parking_price_per_hour,
+                           expert_fullness_rating, expert_fullness_feedback,
+                           expert_photo_rating, expert_photo_feedback, short_title,
+                           price_warning_holidays, price_warning_daytime
+                    FROM t_p39732784_hourly_rentals_platf.listings 
+                    WHERE id = %s
+                """, (listing_id,))
+                
+                listing = cur.fetchone()
+                if not listing:
+                    cur.close()
+                    conn.close()
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Объект не найден'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Получаем ПОЛНЫЕ данные комнат (с images!)
+                cur.execute("""
+                    SELECT id, listing_id, type, price, description, square_meters, features, 
+                           min_hours, payment_methods, cancellation_policy, images,
+                           expert_photo_rating, expert_photo_feedback,
+                           expert_fullness_rating, expert_fullness_feedback
+                    FROM t_p39732784_hourly_rentals_platf.rooms 
+                    WHERE listing_id = %s
+                    ORDER BY id ASC
+                """, (listing_id,))
+                rooms = cur.fetchall()
+                
+                # Получаем станции метро
+                cur.execute("""
+                    SELECT station_name, walk_minutes 
+                    FROM t_p39732784_hourly_rentals_platf.metro_stations 
+                    WHERE listing_id = %s
+                """, (listing_id,))
+                metro_stations = cur.fetchall()
+                
+                result = dict(listing)
+                result['rooms'] = [dict(r) for r in rooms] if rooms else []
+                result['metro_stations'] = [dict(m) for m in metro_stations] if metro_stations else []
+                
+                cur.close()
+                conn.close()
+                
+                print(f"[DEBUG] Returning single listing with {len(result['rooms'])} rooms")
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps(result, default=str),
+                    'isBase64Encoded': False
+                }
+            
+            # Список объектов (без полных данных images)
             show_archived = params.get('archived') == 'true'
             moderation_filter = params.get('moderation')
             limit_param = params.get('limit', '100')

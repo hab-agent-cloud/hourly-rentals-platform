@@ -63,12 +63,27 @@ export default function AdminPanel() {
     }
   }, [token, adminInfo]);
 
-  const handleEdit = (listing: any) => {
+  const handleEdit = async (listing: any) => {
     console.log('=== OPENING EDIT FORM ===');
-    console.log('Listing to edit:', listing);
-    console.log('Listing rooms:', listing.rooms);
-    setSelectedListing(listing);
-    setShowForm(true);
+    console.log('Listing to edit (partial data):', listing);
+    
+    try {
+      // Загружаем ПОЛНЫЕ данные объекта с images
+      console.log('Fetching full listing data for id:', listing.id);
+      const fullListing = await api.getListing(token!, listing.id);
+      console.log('Full listing data received:', fullListing);
+      console.log('Full listing rooms:', fullListing.rooms);
+      
+      setSelectedListing(fullListing);
+      setShowForm(true);
+    } catch (error: any) {
+      console.error('Failed to load listing data:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить данные объекта',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleCreate = () => {
