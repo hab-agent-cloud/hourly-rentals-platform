@@ -202,6 +202,8 @@ def handler(event: dict, context) -> dict:
                         'id': data.get('id', ''),
                         'result': {
                             'redirect_type': 1,
+                            'event_extended': False,
+                            'masking': False,
                             'followme_struct': [1, [{
                                 'I_FOLLOW_ORDER': 1,
                                 'ACTIVE': True,
@@ -209,7 +211,8 @@ def handler(event: dict, context) -> dict:
                                 'REDIRECT_NUMBER': owner_phone,
                                 'PERIOD': 'always',
                                 'PERIOD_DESCRIPTION': 'always',
-                                'TIMEOUT': 60
+                                'TIMEOUT': 60,
+                                'GREETING_TEXT': 'Здравствуйте! Соединяем вас с владельцем.'
                             }]]
                         }
                     })
