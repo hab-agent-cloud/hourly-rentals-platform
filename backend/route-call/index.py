@@ -201,8 +201,16 @@ def handler(event: dict, context) -> dict:
                         'jsonrpc': '2.0',
                         'id': data.get('id', ''),
                         'result': {
-                            'action': 'redirect',
-                            'to': owner_phone
+                            'redirect_type': 1,
+                            'followme_struct': [1, [{
+                                'I_FOLLOW_ORDER': 1,
+                                'ACTIVE': True,
+                                'NAME': f'Listing {result["listing_id"]}',
+                                'REDIRECT_NUMBER': owner_phone,
+                                'PERIOD': 'always',
+                                'PERIOD_DESCRIPTION': 'always',
+                                'TIMEOUT': 60
+                            }]]
                         }
                     })
                 }
