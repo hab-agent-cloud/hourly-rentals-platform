@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Test greeting setup with valid data",
+      "method": "POST",
+      "body": {
+        "phone_number": "+79587589276",
+        "target_phone": "+79991234567"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test missing parameters",
+      "method": "POST",
+      "body": {
+        "phone_number": "+79587589276"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "phone_number and target_phone are required"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

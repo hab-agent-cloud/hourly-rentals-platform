@@ -99,12 +99,12 @@ def handler(event: dict, context) -> dict:
             'body': json.dumps({'error': 'listing_id is required'})
         }
     
-    mts_api_key = os.environ.get('MTS_API_KEY')
-    if not mts_api_key:
+    exolve_api_key = os.environ.get('EXOLVE_API_KEY')
+    if not exolve_api_key:
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'MTS API key not configured'})
+            'body': json.dumps({'error': 'Exolve API key not configured'})
         }
     
     try:
@@ -160,9 +160,9 @@ def handler(event: dict, context) -> dict:
         virtual_number = result['phone']
         expires_at = datetime.now() + timedelta(minutes=30)
         
-        # Настраиваем переадресацию через МТС API
-        mts_success = setup_mts_forwarding(mts_api_key, virtual_number, owner_phone, expires_at)
-        if not mts_success:
+        # Настраиваем переадресацию через Exolve API
+        exolve_success = setup_mts_forwarding(exolve_api_key, virtual_number, owner_phone, expires_at)
+        if not exolve_success:
             conn.close()
             return {
                 'statusCode': 500,
