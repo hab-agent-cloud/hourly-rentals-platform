@@ -329,6 +329,13 @@ export default function CityContent({ city, citySlug }: CityContentProps) {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
+              <Link to="/" className="inline-block">
+                <img 
+                  src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg" 
+                  alt="120 минут" 
+                  className="h-16 w-16 object-contain mb-4"
+                />
+              </Link>
               <h3 className="text-xl font-bold mb-4">120 МИНУТ</h3>
               <p className="text-purple-200 text-sm">
                 Платформа для поиска отелей с почасовой арендой по всей России
@@ -360,7 +367,7 @@ export default function CityContent({ city, citySlug }: CityContentProps) {
             </div>
           </div>
           <div className="border-t border-purple-700 mt-8 pt-8 text-center text-sm text-purple-200">
-            <p>&copy; 2024 120 МИНУТ. Все права защищены.</p>
+            <p>&copy; 2025 120 МИНУТ. Все права защищены.</p>
           </div>
         </div>
       </footer>
