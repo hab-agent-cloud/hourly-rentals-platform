@@ -187,8 +187,12 @@ def handler(event: dict, context) -> dict:
                 # Формат ответа для МТС Exolve JSON-RPC
                 print(f"[ROUTE] Forwarding {virtual_number} -> {result['owner_phone']} (listing {result['listing_id']})")
                 
-                # Убираем + из номера для МТС Exolve
-                owner_phone_clean = result['owner_phone'].replace('+', '')
+                # Конвертируем номер в международный формат для МТС Exolve
+                owner_phone = result['owner_phone'].replace('+', '').replace(' ', '')
+                if owner_phone.startswith('8'):
+                    owner_phone = '7' + owner_phone[1:]  # 89104676860 -> 79104676860
+                
+                print(f"[ROUTE] Converted phone: {result['owner_phone']} -> {owner_phone}")
                 
                 return {
                     'statusCode': 200,
@@ -198,7 +202,7 @@ def handler(event: dict, context) -> dict:
                         'id': data.get('id', ''),
                         'result': {
                             'action': 'redirect',
-                            'to': owner_phone_clean
+                            'to': owner_phone
                         }
                     })
                 }
