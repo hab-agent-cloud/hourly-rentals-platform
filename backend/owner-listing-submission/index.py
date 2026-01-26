@@ -130,8 +130,8 @@ def handler(event: dict, context) -> dict:
             cur.execute("""
             INSERT INTO t_p39732784_hourly_rentals_platf.listings 
             (title, type, city, district, price, rating, reviews, auction, image_url, metro, metro_walk, 
-             has_parking, features, lat, lng, min_hours, is_archived)
-            VALUES (%s, %s, %s, %s, %s, 0.0, 0, 999, %s, %s, %s, %s, %s, %s, %s, 1, false)
+             has_parking, features, lat, lng, min_hours, is_archived, owner_id, phone, created_by_owner)
+            VALUES (%s, %s, %s, %s, %s, 0.0, 0, 999, %s, %s, %s, %s, %s, %s, %s, 1, false, %s, %s, true)
             RETURNING id
         """, (
             body['title'],
@@ -145,7 +145,9 @@ def handler(event: dict, context) -> dict:
             body.get('has_parking', False),
             body.get('features', []),
             body.get('lat'),
-            body.get('lng')
+            body.get('lng'),
+            owner_id,
+            body['owner_phone']
         ))
         except Exception as e:
             print(f"[ERROR] Failed to create listing: {str(e)}")
