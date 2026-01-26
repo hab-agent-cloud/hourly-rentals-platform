@@ -119,21 +119,27 @@ export default function ListingInfoCard({ listing }: ListingInfoCardProps) {
                 {listing.phone && (
                   <Button 
                     onClick={async () => {
+                      console.log('[ListingInfoCard] Phone button clicked for listing:', listing.id);
                       setIsLoadingNumber(true);
                       try {
+                        console.log('[ListingInfoCard] Fetching virtual number...');
                         const response = await fetch('https://functions.poehali.dev/4a500ec2-2f33-49d9-87d0-3779d8d52ae5', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ listing_id: listing.id })
                         });
+                        console.log('[ListingInfoCard] Response status:', response.status);
                         const data = await response.json();
+                        console.log('[ListingInfoCard] Response data:', data);
                         if (data.virtual_number) {
+                          console.log('[ListingInfoCard] Got virtual number:', data.virtual_number);
                           setVirtualNumber(data.virtual_number);
                         } else {
+                          console.log('[ListingInfoCard] No virtual number, using fallback:', listing.phone);
                           setVirtualNumber(listing.phone);
                         }
                       } catch (error) {
-                        console.error('Failed to get virtual number:', error);
+                        console.error('[ListingInfoCard] Failed to get virtual number:', error);
                         setVirtualNumber(listing.phone);
                       } finally {
                         setIsLoadingNumber(false);
