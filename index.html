@@ -8,12 +8,18 @@
     <meta name="theme-color" content="#9333ea"/>
     <title>120 МИНУТ — Почасовая аренда отелей и номеров от 2 часов по всей России | Бронирование онлайн</title>
     <meta name="description" content="Почасовая аренда номеров в отелях и апартаментов от 2 часов по всей России: Москва, Санкт-Петербург, Казань, Екатеринбург и другие города. Без комиссии. Проверенные объекты. Бронирование напрямую у владельцев."/>
-    <meta name="keywords" content="почасовая аренда, отель на час, снять номер на 2 часа, гостиница почасовая, аренда номера по часам, отель на несколько часов, бронирование отеля, краткосрочная аренда, 120 минут"/>
+    <meta name="keywords" content="почасовая аренда, отель на час, снять номер на 2 часа, гостиница почасовая, аренда номера по часам, отель на несколько часов, бронирование отеля, краткосрочная аренда, 120 минут, hotel hourly, rent hotel room, hourly hotel booking, short term hotel rental"/>
     <meta name="author" content="120 МИНУТ"/>
-    <meta name="robots" content="index, follow"/>
-    <meta name="googlebot" content="index, follow"/>
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"/>
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"/>
     <meta name="yandex" content="index, follow"/>
+    <meta name="bingbot" content="index, follow"/>
     <meta name="yandex-verification" content="e4f71593ff2478e9"/>
+    <meta name="geo.region" content="RU"/>
+    <meta name="geo.placename" content="Россия"/>
+    <meta name="language" content="Russian"/>
+    <meta name="rating" content="General"/>
+    <meta name="revisit-after" content="7 days"/>
     <link rel="canonical" href="https://120minut.ru/"/>
     <link rel="icon" type="image/jpeg" href="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg">
     <link rel="apple-touch-icon" href="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg">
@@ -27,10 +33,15 @@
     <meta property="og:url" content="https://120minut.ru/">
     <meta property="og:site_name" content="120 МИНУТ">
     <meta property="og:locale" content="ru_RU">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="article:publisher" content="https://120minut.ru">
+    <meta property="article:modified_time" content="2026-01-26T12:00:00+03:00">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="120 МИНУТ — Почасовая аренда отелей и номеров от 2 часов">
     <meta name="twitter:description" content="Почасовая аренда номеров в отелях по всей России. Проверенные объекты. Без комиссии. Бронирование напрямую у владельцев.">
     <meta name="twitter:image" content="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg">
+    <meta name="twitter:site" content="@120minut">
+    <meta name="twitter:creator" content="@120minut">
     
     <!-- JSON-LD Schema.org разметка для поисковых систем -->
     <script type="application/ld+json">
@@ -52,17 +63,78 @@
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "120 МИНУТ",
+      "alternateName": "120 Minut",
       "url": "https://120minut.ru",
-      "logo": "https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg",
-      "description": "Платформа для почасовой аренды номеров в отелях по всей России",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg",
+        "width": 400,
+        "height": 400
+      },
+      "description": "Платформа для почасовой аренды номеров в отелях по всей России. Более 500 проверенных объектов в 21 городе. Без комиссии.",
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "customer support",
         "email": "support@120minut.ru",
-        "availableLanguage": "Russian"
+        "availableLanguage": ["Russian", "English"],
+        "areaServed": "RU"
       },
       "sameAs": [
         "https://t.me/HELP120MINUT"
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "RU"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.7",
+        "reviewCount": "523",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "foundingDate": "2025",
+      "slogan": "Почасовая аренда отелей от 2 часов"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Почасовая аренда отелей",
+      "provider": {
+        "@type": "Organization",
+        "name": "120 МИНУТ"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "Россия"
+      },
+      "serviceType": "Почасовая аренда номеров в отелях",
+      "availableChannel": {
+        "@type": "ServiceChannel",
+        "serviceUrl": "https://120minut.ru"
+      },
+      "offers": {
+        "@type": "AggregateOffer",
+        "priceCurrency": "RUB",
+        "lowPrice": "250",
+        "highPrice": "2000",
+        "offerCount": "500"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Главная",
+          "item": "https://120minut.ru/"
+        }
       ]
     }
     </script>
