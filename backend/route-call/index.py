@@ -133,13 +133,15 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        # Ищем в истории последний показ этого номера этому клиенту
+        # Ищем в истории последний показ этого номера с проверкой срока действия
         cur.execute("""
             SELECT 
                 ct.listing_id,
+                ct.expires_at,
                 l.short_title,
                 l.phone as owner_phone,
-                l.id as listing_number
+                l.id as listing_number,
+                (ct.expires_at > NOW()) as is_valid
             FROM call_tracking ct
             JOIN listings l ON ct.listing_id = l.id
             WHERE ct.client_phone = %s 
@@ -150,39 +152,56 @@ def handler(event: dict, context) -> dict:
         
         result = cur.fetchone()
         
-        # Обновляем время звонка
-        if result:
-            cur.execute("""
-                UPDATE call_tracking 
-                SET called_at = NOW()
-                WHERE listing_id = %s 
-                  AND client_phone = %s
-                  AND virtual_number = %s
-                  AND called_at IS NULL
-            """, (result['listing_id'], client_phone, virtual_number))
-            conn.commit()
-        
         cur.close()
         conn.close()
         
         if result:
-            # Формат ответа для МТС Exolve webhook
+            # Проверяем, действителен ли номер (не истёк ли срок 30 минут)
+            if result['is_valid']:
+                # Номер действителен - соединяем с владельцем
+                conn = psycopg2.connect(os.environ['DATABASE_URL'])
+                cur = conn.cursor()
+                cur.execute("""
+                    UPDATE call_tracking 
+                    SET called_at = NOW()
+                    WHERE listing_id = %s 
+                      AND client_phone = %s
+                      AND virtual_number = %s
+                      AND called_at IS NULL
+                """, (result['listing_id'], client_phone, virtual_number))
+                conn.commit()
+                cur.close()
+                conn.close()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'destination': result['owner_phone'],
+                        'listing_id': result['listing_id'],
+                        'listing_title': result['short_title']
+                    })
+                }
+            else:
+                # Номер истёк - проигрываем автоответчик
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'action': 'play_message',
+                        'message': 'expired_number',
+                        'reason': 'Number assignment expired'
+                    })
+                }
+        else:
+            # Номер не найден в истории - проигрываем автоответчик
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
-                    'destination': result['owner_phone'],
-                    'listing_id': result['listing_id'],
-                    'listing_title': result['short_title']
-                })
-            }
-        else:
-            # Номер не найден в истории - МТС не переадресует
-            return {
-                'statusCode': 404,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({
-                    'error': 'No call history found'
+                    'action': 'play_message',
+                    'message': 'expired_number',
+                    'reason': 'No call history found'
                 })
             }
         
