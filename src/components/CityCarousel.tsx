@@ -30,7 +30,7 @@ interface CityCarouselProps {
   city: string;
   cityListings: Listing[];
   onCardClick: (listing: Listing) => void;
-  onPhoneClick: (phone: string, e: React.MouseEvent) => void;
+  onPhoneClick: (phone: string, e: React.MouseEvent, listingId?: number) => void;
   getPositionInCity: (listing: Listing) => number;
 }
 

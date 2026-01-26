@@ -30,7 +30,7 @@ interface ListingCardProps {
   showPosition?: boolean;
   position?: number;
   onCardClick: (listing: Listing) => void;
-  onPhoneClick?: (phone: string, e: React.MouseEvent) => void;
+  onPhoneClick?: (phone: string, e: React.MouseEvent, listingId?: number) => void;
 }
 
 const getFirstImage = (imageUrl: any) => {
@@ -149,7 +149,7 @@ export default function ListingCard({
               variant="outline"
               size="sm"
               className="flex-1"
-              onClick={(e) => onPhoneClick(listing.phone!, e)}
+              onClick={(e) => onPhoneClick(listing.phone!, e, listing.id)}
             >
               <Icon name="Phone" size={14} className="mr-1" />
               Позвонить

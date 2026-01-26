@@ -65,6 +65,8 @@ export default function ListingsView({
   const [sortBy, setSortBy] = useState<string>('auction');
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   const [selectedPhone, setSelectedPhone] = useState('');
+  const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
+  const [isLoadingPhone, setIsLoadingPhone] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 30;
 
@@ -96,10 +98,42 @@ export default function ListingsView({
     return sameCity.findIndex(l => l.id === listing.id) + 1;
   };
 
-  const handlePhoneClick = (phone: string, e: React.MouseEvent) => {
+  const handlePhoneClick = async (phone: string, e: React.MouseEvent, listingId?: number) => {
     e.stopPropagation();
-    setSelectedPhone(phone);
+    
+    if (!listingId) {
+      setSelectedPhone(phone);
+      setPhoneModalOpen(true);
+      return;
+    }
+
+    setIsLoadingPhone(true);
     setPhoneModalOpen(true);
+    setSelectedListingId(listingId);
+    
+    try {
+      const response = await fetch('https://functions.poehali.dev/4a500ec2-2f33-49d9-87d0-3779d8d52ae5', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          listing_id: listingId,
+          client_phone: 'web_user_' + Date.now()
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.virtual_number) {
+        setSelectedPhone(data.virtual_number);
+      } else {
+        setSelectedPhone(phone);
+      }
+    } catch (error) {
+      console.error('Failed to get virtual number:', error);
+      setSelectedPhone(phone);
+    } finally {
+      setIsLoadingPhone(false);
+    }
   };
 
   const showCityCarousels = selectedCity === 'Все города';
@@ -243,21 +277,33 @@ export default function ListingsView({
             <DialogTitle>Номер телефона</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg text-center">
-              <a 
-                href={`tel:${selectedPhone}`}
-                className="text-2xl font-bold text-purple-600 hover:text-purple-700"
-              >
-                {selectedPhone}
-              </a>
-            </div>
-            <Button 
-              className="w-full" 
-              onClick={() => window.location.href = `tel:${selectedPhone}`}
-            >
-              <Icon name="Phone" size={18} className="mr-2" />
-              Позвонить
-            </Button>
+            {isLoadingPhone ? (
+              <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-4 border-purple-500 border-t-transparent mx-auto mb-2"></div>
+                <p className="text-sm text-muted-foreground">Подключаем безопасный номер...</p>
+              </div>
+            ) : (
+              <>
+                <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg text-center">
+                  <a 
+                    href={`tel:${selectedPhone}`}
+                    className="text-2xl font-bold text-purple-600 hover:text-purple-700"
+                  >
+                    {selectedPhone}
+                  </a>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Защищённый номер действует 10 минут
+                  </p>
+                </div>
+                <Button 
+                  className="w-full" 
+                  onClick={() => window.location.href = `tel:${selectedPhone}`}
+                >
+                  <Icon name="Phone" size={18} className="mr-2" />
+                  Позвонить
+                </Button>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
