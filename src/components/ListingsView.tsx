@@ -99,14 +99,17 @@ export default function ListingsView({
   };
 
   const handlePhoneClick = async (phone: string, e: React.MouseEvent, listingId?: number) => {
+    console.log('[ListingsView] handlePhoneClick called', { phone, listingId });
     e.stopPropagation();
     
     if (!listingId) {
+      console.log('[ListingsView] No listingId - showing direct phone');
       setSelectedPhone(phone);
       setPhoneModalOpen(true);
       return;
     }
 
+    console.log('[ListingsView] Will fetch virtual number');
     setIsLoadingPhone(true);
     setPhoneModalOpen(true);
     setSelectedListingId(listingId);
