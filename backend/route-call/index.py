@@ -118,8 +118,11 @@ def handler(event: dict, context) -> dict:
             'body': json.dumps({'error': 'Invalid JSON'})
         }
     
-    client_phone = data.get('from')
-    virtual_number = data.get('to')
+    # Логируем весь входящий запрос от MTS Exolve
+    print(f"[ROUTE] Incoming webhook data: {json.dumps(data, ensure_ascii=False)}")
+    
+    client_phone = data.get('from') or data.get('caller') or data.get('callerNumber')
+    virtual_number = data.get('to') or data.get('callee') or data.get('calleeNumber')
     
     if not client_phone or not virtual_number:
         return {
@@ -173,35 +176,63 @@ def handler(event: dict, context) -> dict:
                 cur.close()
                 conn.close()
                 
+                # Формат ответа для МТС Exolve VoiceAPI
+                print(f"[ROUTE] Forwarding {virtual_number} -> {result['owner_phone']} (listing {result['listing_id']})")
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
-                        'destination': result['owner_phone'],
-                        'listing_id': result['listing_id'],
-                        'listing_title': result['short_title']
+                        'commands': [
+                            {
+                                'command': 'dial',
+                                'parameters': {
+                                    'destination': result['owner_phone'],
+                                    'timeout': 60
+                                }
+                            }
+                        ]
                     })
                 }
             else:
                 # Номер истёк - проигрываем автоответчик
+                print(f"[ROUTE] Number expired for {virtual_number}")
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
-                        'action': 'play_message',
-                        'message': 'expired_number',
-                        'reason': 'Number assignment expired'
+                        'commands': [
+                            {
+                                'command': 'say',
+                                'parameters': {
+                                    'text': 'Срок действия номера истёк. Пожалуйста, запросите новый номер на сайте.',
+                                    'voice': 'Anna'
+                                }
+                            },
+                            {
+                                'command': 'hangup'
+                            }
+                        ]
                     })
                 }
         else:
             # Номер не найден в истории - проигрываем автоответчик
+            print(f"[ROUTE] No history found for {virtual_number} from {client_phone}")
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
-                    'action': 'play_message',
-                    'message': 'expired_number',
-                    'reason': 'No call history found'
+                    'commands': [
+                        {
+                            'command': 'say',
+                            'parameters': {
+                                'text': 'Номер не найден. Пожалуйста, запросите номер на сайте.',
+                                'voice': 'Anna'
+                            }
+                        },
+                        {
+                            'command': 'hangup'
+                        }
+                    ]
                 })
             }
         
