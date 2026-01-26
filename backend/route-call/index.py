@@ -121,14 +121,25 @@ def handler(event: dict, context) -> dict:
     # Логируем весь входящий запрос от MTS Exolve
     print(f"[ROUTE] Incoming webhook data: {json.dumps(data, ensure_ascii=False)}")
     
-    client_phone = data.get('from') or data.get('caller') or data.get('callerNumber')
-    virtual_number = data.get('to') or data.get('callee') or data.get('calleeNumber')
+    # МТС Exolve отправляет JSON-RPC формат:
+    # {"method": "getControlCallFollowMe", "params": {"numberA": "79141965172", "sip_id": "79587579160"}}
+    params = data.get('params', {})
+    client_phone = params.get('numberA') or data.get('from') or data.get('caller')
+    virtual_number = params.get('sip_id') or data.get('to') or data.get('callee')
+    
+    # Добавляем + к номерам, если его нет
+    if client_phone and not client_phone.startswith('+'):
+        client_phone = '+' + client_phone
+    if virtual_number and not virtual_number.startswith('+'):
+        virtual_number = '+' + virtual_number
+    
+    print(f"[ROUTE] Parsed: client={client_phone}, virtual={virtual_number}")
     
     if not client_phone or not virtual_number:
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'from and to parameters are required'})
+            'body': json.dumps({'error': 'numberA and sip_id parameters are required'})
         }
     
     try:
@@ -176,63 +187,50 @@ def handler(event: dict, context) -> dict:
                 cur.close()
                 conn.close()
                 
-                # Формат ответа для МТС Exolve VoiceAPI
+                # Формат ответа для МТС Exolve JSON-RPC
                 print(f"[ROUTE] Forwarding {virtual_number} -> {result['owner_phone']} (listing {result['listing_id']})")
+                
+                # Убираем + из номера для МТС Exolve
+                owner_phone_clean = result['owner_phone'].replace('+', '')
+                
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
-                        'commands': [
-                            {
-                                'command': 'dial',
-                                'parameters': {
-                                    'destination': result['owner_phone'],
-                                    'timeout': 60
-                                }
-                            }
-                        ]
+                        'jsonrpc': '2.0',
+                        'id': data.get('id', ''),
+                        'result': {
+                            'action': 'redirect',
+                            'to': owner_phone_clean
+                        }
                     })
                 }
             else:
-                # Номер истёк - проигрываем автоответчик
+                # Номер истёк - завершаем звонок
                 print(f"[ROUTE] Number expired for {virtual_number}")
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({
-                        'commands': [
-                            {
-                                'command': 'say',
-                                'parameters': {
-                                    'text': 'Срок действия номера истёк. Пожалуйста, запросите новый номер на сайте.',
-                                    'voice': 'Anna'
-                                }
-                            },
-                            {
-                                'command': 'hangup'
-                            }
-                        ]
+                        'jsonrpc': '2.0',
+                        'id': data.get('id', ''),
+                        'result': {
+                            'action': 'hangup'
+                        }
                     })
                 }
         else:
-            # Номер не найден в истории - проигрываем автоответчик
+            # Номер не найден в истории - завершаем звонок
             print(f"[ROUTE] No history found for {virtual_number} from {client_phone}")
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
-                    'commands': [
-                        {
-                            'command': 'say',
-                            'parameters': {
-                                'text': 'Номер не найден. Пожалуйста, запросите номер на сайте.',
-                                'voice': 'Anna'
-                            }
-                        },
-                        {
-                            'command': 'hangup'
-                        }
-                    ]
+                    'jsonrpc': '2.0',
+                    'id': data.get('id', ''),
+                    'result': {
+                        'action': 'hangup'
+                    }
                 })
             }
         
