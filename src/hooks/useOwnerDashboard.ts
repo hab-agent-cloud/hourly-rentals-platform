@@ -143,7 +143,13 @@ export function useOwnerDashboard() {
 
   const loadPromotionInfo = async (city: string) => {
     try {
+      console.log('Loading promotion info for city:', city, 'owner:', ownerId);
+      if (!city || city.trim() === '') {
+        console.error('City is empty, skipping promotion info load');
+        return;
+      }
       const info = await api.getPromotionInfo(city, parseInt(ownerId!));
+      console.log('Promotion info loaded:', info);
       setPromotionInfo(info);
     } catch (error) {
       console.error('Failed to load promotion info:', error);
