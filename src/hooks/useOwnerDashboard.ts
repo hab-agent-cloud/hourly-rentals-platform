@@ -133,6 +133,7 @@ export function useOwnerDashboard() {
       setSubscriptionInfo(subMap);
 
       if (ownerListings.length > 0) {
+        console.log('First listing city:', ownerListings[0].city);
         setSelectedListing(ownerListings[0]);
         loadPromotionInfo(ownerListings[0].city);
       }
