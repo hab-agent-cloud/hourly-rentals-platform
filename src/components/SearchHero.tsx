@@ -121,7 +121,7 @@ export default function SearchHero({
               )}
             </div>
             <div className="flex flex-wrap gap-2">
-              {['Уфа', 'Москва', 'Санкт-Петербург', 'Казань', 'Екатеринбург', 'Новосибирск'].map(city => (
+              {['Уфа', 'Москва', 'Санкт-Петербург', 'Казань', 'Нижний Новгород', 'Екатеринбург', 'Новосибирск'].map(city => (
                 <Badge
                   key={city}
                   variant={selectedCity === city ? "default" : "secondary"}
