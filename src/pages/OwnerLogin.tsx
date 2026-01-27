@@ -49,6 +49,16 @@ export default function OwnerLogin() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 p-3 sm:p-4">
+      <div className="absolute top-4 left-4">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/')}
+          className="border-purple-300 hover:bg-purple-50"
+        >
+          <Icon name="Home" size={16} className="mr-2" />
+          Все объекты
+        </Button>
+      </div>
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center space-y-2 sm:space-y-3 pb-4 sm:pb-6">
           <img 
