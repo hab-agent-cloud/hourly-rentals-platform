@@ -183,9 +183,7 @@ export function useOwnerDashboard() {
     try {
       const response = await api.purchasePromotionPackage(
         token!,
-        parseInt(ownerId!),
         listingId,
-        city,
         packageType
       );
 
