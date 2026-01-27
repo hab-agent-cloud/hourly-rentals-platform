@@ -105,7 +105,7 @@ export function useOwnerDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTopupLoading, setIsTopupLoading] = useState(false);
   const [timeUntilReset, setTimeUntilReset] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'promotion' | 'statistics' | 'expert'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'promotion' | 'expert'>('overview');
   const [editingListing, setEditingListing] = useState<any | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
