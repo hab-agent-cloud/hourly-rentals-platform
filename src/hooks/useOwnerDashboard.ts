@@ -119,6 +119,7 @@ export function useOwnerDashboard() {
       console.log('Loading listings for owner:', ownerId);
       const ownerListings = await api.getOwnerListings(token!, parseInt(ownerId!));
       console.log('Received listings:', ownerListings);
+      console.log('Listings length:', ownerListings?.length);
       setListings(ownerListings);
 
       const subMap = new Map<number, SubscriptionInfo>();
