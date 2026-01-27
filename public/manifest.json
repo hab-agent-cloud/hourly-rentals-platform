@@ -3,10 +3,15 @@
   "short_name": "120 МИНУТ",
   "description": "Почасовая аренда номеров в отелях от 2 часов",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#9333ea",
   "orientation": "portrait",
+  "categories": ["travel", "lifestyle"],
+  "lang": "ru",
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg",
@@ -19,6 +24,16 @@
       "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Все объекты",
+      "short_name": "Каталог",
+      "description": "Просмотр всех доступных объектов",
+      "url": "/",
+      "icons": []
     }
   ]
 }
