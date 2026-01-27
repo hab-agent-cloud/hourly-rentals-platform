@@ -4,9 +4,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -19,10 +19,9 @@ interface Room {
   type: string;
   price: number;
   images?: string[];
+  description?: string;
   expert_photo_rating?: number;
-  expert_photo_feedback?: string;
-  expert_fullness_rating?: number;
-  expert_fullness_feedback?: string;
+  expert_description_rating?: number;
 }
 
 interface ExpertRatingDialogFullProps {
@@ -31,11 +30,10 @@ interface ExpertRatingDialogFullProps {
     title: string;
     image_url?: string;
     district?: string;
+    description?: string;
     features?: string[];
     expert_photo_rating?: number;
-    expert_photo_feedback?: string;
-    expert_fullness_rating?: number;
-    expert_fullness_feedback?: string;
+    expert_description_rating?: number;
     rooms?: Room[];
   } | null;
   open: boolean;
@@ -45,14 +43,8 @@ interface ExpertRatingDialogFullProps {
 }
 
 interface RatingState {
-  rating: number;
-  feedback: string;
-}
-
-interface SiteRatingState {
-  mainPhoto: RatingState;
-  description: RatingState;
-  fullness: RatingState;
+  photo: number;
+  description: number;
 }
 
 const StarRating = ({ 
@@ -102,12 +94,11 @@ export default function ExpertRatingDialogFull({
   onSuccess,
   token,
 }: ExpertRatingDialogFullProps) {
-  const [siteRating, setSiteRating] = useState<SiteRatingState>({
-    mainPhoto: { rating: 0, feedback: '' },
-    description: { rating: 0, feedback: '' },
-    fullness: { rating: 0, feedback: '' }
+  const [siteRating, setSiteRating] = useState<RatingState>({
+    photo: 0,
+    description: 0,
   });
-  const [roomRatings, setRoomRatings] = useState<Map<number, { photo: RatingState; fullness: RatingState }>>(new Map());
+  const [roomRatings, setRoomRatings] = useState<Map<number, RatingState>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -117,31 +108,15 @@ export default function ExpertRatingDialogFull({
   useEffect(() => {
     if (listing) {
       setSiteRating({
-        mainPhoto: {
-          rating: listing.expert_photo_rating || 0,
-          feedback: listing.expert_photo_feedback || '',
-        },
-        description: {
-          rating: 0,
-          feedback: '',
-        },
-        fullness: {
-          rating: listing.expert_fullness_rating || 0,
-          feedback: listing.expert_fullness_feedback || '',
-        }
+        photo: listing.expert_photo_rating || 0,
+        description: listing.expert_description_rating || 0,
       });
 
       const newRoomRatings = new Map();
       listing.rooms?.forEach((room, index) => {
         newRoomRatings.set(index, {
-          photo: {
-            rating: room.expert_photo_rating || 0,
-            feedback: room.expert_photo_feedback || '',
-          },
-          fullness: {
-            rating: room.expert_fullness_rating || 0,
-            feedback: room.expert_fullness_feedback || '',
-          },
+          photo: room.expert_photo_rating || 0,
+          description: room.expert_description_rating || 0,
         });
       });
       setRoomRatings(newRoomRatings);
@@ -149,28 +124,26 @@ export default function ExpertRatingDialogFull({
   }, [listing]);
 
   const handleSubmit = async () => {
+    if (siteRating.photo === 0 || siteRating.description === 0) {
+      toast({
+        title: 'Ошибка',
+        description: 'Поставьте оценки для фотографий и описания объекта',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const avgSiteRating = Math.round((siteRating.mainPhoto.rating + siteRating.description.rating + siteRating.fullness.rating) / 3);
-      const siteFeedback = [
-        siteRating.mainPhoto.feedback && `Главное фото: ${siteRating.mainPhoto.feedback}`,
-        siteRating.description.feedback && `Описание: ${siteRating.description.feedback}`,
-        siteRating.fullness.feedback && `Наполняемость: ${siteRating.fullness.feedback}`
-      ].filter(Boolean).join('\n\n');
-      
       await api.updateListingExpertRatings(token, listing!.id, {
-        expert_photo_rating: avgSiteRating || null,
-        expert_photo_feedback: siteFeedback.trim() || null,
-        expert_fullness_rating: avgSiteRating || null,
-        expert_fullness_feedback: siteFeedback.trim() || null,
+        expert_photo_rating: siteRating.photo,
+        expert_description_rating: siteRating.description,
         rooms: listing!.rooms?.map((room, index) => {
           const ratings = roomRatings.get(index);
           return {
             id: room.id,
-            expert_photo_rating: ratings?.photo.rating || null,
-            expert_photo_feedback: ratings?.photo.feedback.trim() || null,
-            expert_fullness_rating: ratings?.fullness.rating || null,
-            expert_fullness_feedback: ratings?.fullness.feedback.trim() || null,
+            expert_photo_rating: ratings?.photo || null,
+            expert_description_rating: ratings?.description || null,
           };
         }) || [],
       });
@@ -206,11 +179,11 @@ export default function ExpertRatingDialogFull({
             </DialogTitle>
           </DialogHeader>
 
-        <Tabs defaultValue="rooms" className="w-full">
+        <Tabs defaultValue="site" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="site">
               <Icon name="Globe" size={16} className="mr-2" />
-              Оценка выставленного объекта на сайте
+              Объект на сайте
             </TabsTrigger>
             <TabsTrigger value="rooms">
               <Icon name="Bed" size={16} className="mr-2" />
@@ -238,27 +211,14 @@ export default function ExpertRatingDialogFull({
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Icon name="Camera" size={20} className="text-purple-600" />
-                  Главное фото
+                  Оценка фотографий
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-3 block">Оценка (1-5 звёзд)</label>
-                  <StarRating
-                    rating={siteRating.mainPhoto.rating}
-                    onRatingChange={(rating) => setSiteRating({...siteRating, mainPhoto: {...siteRating.mainPhoto, rating}})}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Обратная связь</label>
-                  <Textarea
-                    value={siteRating.mainPhoto.feedback}
-                    onChange={(e) => setSiteRating({...siteRating, mainPhoto: {...siteRating.mainPhoto, feedback: e.target.value}})}
-                    placeholder="Рекомендации по главному фото..."
-                    className="min-h-[80px]"
-                    maxLength={1000}
-                  />
-                </div>
+              <CardContent>
+                <StarRating
+                  rating={siteRating.photo}
+                  onRatingChange={(rating) => setSiteRating({...siteRating, photo: rating})}
+                />
               </CardContent>
             </Card>
 
@@ -266,177 +226,106 @@ export default function ExpertRatingDialogFull({
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Icon name="FileText" size={20} className="text-blue-600" />
-                  Описание объекта
+                  Оценка описания
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-3 block">Оценка (1-5 звёзд)</label>
-                  <StarRating
-                    rating={siteRating.description.rating}
-                    onRatingChange={(rating) => setSiteRating({...siteRating, description: {...siteRating.description, rating}})}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Обратная связь</label>
-                  <Textarea
-                    value={siteRating.description.feedback}
-                    onChange={(e) => setSiteRating({...siteRating, description: {...siteRating.description, feedback: e.target.value}})}
-                    placeholder="Рекомендации по описанию объекта..."
-                    className="min-h-[80px]"
-                    maxLength={1000}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Icon name="ListChecks" size={20} className="text-green-600" />
-                  Наполняемость объекта
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-3 block">Оценка (1-5 звёзд)</label>
-                  <StarRating
-                    rating={siteRating.fullness.rating}
-                    onRatingChange={(rating) => setSiteRating({...siteRating, fullness: {...siteRating.fullness, rating}})}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Обратная связь</label>
-                  <Textarea
-                    value={siteRating.fullness.feedback}
-                    onChange={(e) => setSiteRating({...siteRating, fullness: {...siteRating.fullness, feedback: e.target.value}})}
-                    placeholder="Рекомендации по наполняемости объекта..."
-                    className="min-h-[80px]"
-                    maxLength={1000}
-                  />
-                </div>
+              <CardContent className="space-y-3">
+                {listing.description && (
+                  <div className="p-3 bg-gray-50 rounded text-sm mb-3">
+                    <p className="text-muted-foreground line-clamp-4">{listing.description}</p>
+                  </div>
+                )}
+                <StarRating
+                  rating={siteRating.description}
+                  onRatingChange={(rating) => setSiteRating({...siteRating, description: rating})}
+                />
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="rooms" className="space-y-4 mt-4">
-            {listing.rooms && listing.rooms.length > 0 ? (
+            {!listing.rooms || listing.rooms.length === 0 ? (
+              <Card>
+                <CardContent className="text-center py-8 text-muted-foreground">
+                  <Icon name="Bed" size={48} className="mx-auto mb-2 opacity-20" />
+                  <p>Нет категорий номеров для оценки</p>
+                </CardContent>
+              </Card>
+            ) : (
               listing.rooms.map((room, index) => {
-                const ratings = roomRatings.get(index) || { photo: { rating: 0, feedback: '' }, fullness: { rating: 0, feedback: '' } };
+                const ratings = roomRatings.get(index) || { photo: 0, description: 0 };
                 
                 return (
-                  <Card key={index}>
-                    <CardHeader>
-                      <CardTitle className="text-lg">{room.type} - {room.price} ₽/час</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
+                  <Card key={room.id || index} className="overflow-hidden">
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-3 border-b">
+                      <h3 className="font-semibold text-base flex items-center justify-between">
+                        <span>{room.type}</span>
+                        <span className="text-purple-600">{room.price} ₽</span>
+                      </h3>
+                    </div>
+
+                    <CardContent className="pt-4 space-y-4">
                       {room.images && room.images.length > 0 && (
-                        <div className="grid grid-cols-3 gap-2 mb-4">
-                          {room.images.slice(0, 6).map((img, imgIdx) => (
+                        <div className="grid grid-cols-4 gap-2 mb-3">
+                          {room.images.slice(0, 4).map((img, idx) => (
                             <img 
-                              key={imgIdx} 
+                              key={idx} 
                               src={img} 
-                              alt={`${room.type} ${imgIdx + 1}`} 
-                              className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity" 
+                              alt={`${room.type} ${idx + 1}`} 
+                              className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
                               onClick={() => {
                                 setLightboxImages(room.images || []);
-                                setLightboxIndex(imgIdx);
+                                setLightboxIndex(idx);
                                 setLightboxOpen(true);
                               }}
                             />
                           ))}
                         </div>
                       )}
-                      
-                      <div className="space-y-4">
-                        <h4 className="font-semibold flex items-center gap-2">
-                          <Icon name="Camera" size={18} className="text-purple-600" />
-                          Фотографии номера
-                        </h4>
-                        <div>
-                          <label className="text-sm font-medium mb-3 block">Оценка</label>
-                          <StarRating
-                            rating={ratings.photo.rating}
-                            onRatingChange={(rating) => {
-                              const newRatings = new Map(roomRatings);
-                              newRatings.set(index, {
-                                ...ratings,
-                                photo: { ...ratings.photo, rating },
-                              });
-                              setRoomRatings(newRatings);
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <Textarea
-                            value={ratings.photo.feedback}
-                            onChange={(e) => {
-                              const newRatings = new Map(roomRatings);
-                              newRatings.set(index, {
-                                ...ratings,
-                                photo: { ...ratings.photo, feedback: e.target.value },
-                              });
-                              setRoomRatings(newRatings);
-                            }}
-                            placeholder="Обратная связь по фотографиям номера..."
-                            className="min-h-[80px]"
-                            maxLength={1000}
-                          />
-                        </div>
+
+                      <div>
+                        <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                          <Icon name="Camera" size={16} className="text-purple-600" />
+                          Оценка фотографий номера
+                        </label>
+                        <StarRating
+                          rating={ratings.photo}
+                          onRatingChange={(rating) => {
+                            const newMap = new Map(roomRatings);
+                            newMap.set(index, { ...ratings, photo: rating });
+                            setRoomRatings(newMap);
+                          }}
+                        />
                       </div>
 
-                      <div className="space-y-4 pt-4 border-t">
-                        <h4 className="font-semibold flex items-center gap-2">
-                          <Icon name="ListChecks" size={18} className="text-blue-600" />
-                          Наполняемость номера
-                        </h4>
-                        <div>
-                          <label className="text-sm font-medium mb-3 block">Оценка</label>
-                          <StarRating
-                            rating={ratings.fullness.rating}
-                            onRatingChange={(rating) => {
-                              const newRatings = new Map(roomRatings);
-                              newRatings.set(index, {
-                                ...ratings,
-                                fullness: { ...ratings.fullness, rating },
-                              });
-                              setRoomRatings(newRatings);
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <Textarea
-                            value={ratings.fullness.feedback}
-                            onChange={(e) => {
-                              const newRatings = new Map(roomRatings);
-                              newRatings.set(index, {
-                                ...ratings,
-                                fullness: { ...ratings.fullness, feedback: e.target.value },
-                              });
-                              setRoomRatings(newRatings);
-                            }}
-                            placeholder="Обратная связь по наполняемости номера..."
-                            className="min-h-[80px]"
-                            maxLength={1000}
-                          />
-                        </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                          <Icon name="FileText" size={16} className="text-blue-600" />
+                          Оценка описания номера
+                        </label>
+                        {room.description && (
+                          <div className="p-3 bg-gray-50 rounded text-sm mb-3">
+                            <p className="text-muted-foreground line-clamp-3">{room.description}</p>
+                          </div>
+                        )}
+                        <StarRating
+                          rating={ratings.description}
+                          onRatingChange={(rating) => {
+                            const newMap = new Map(roomRatings);
+                            newMap.set(index, { ...ratings, description: rating });
+                            setRoomRatings(newMap);
+                          }}
+                        />
                       </div>
                     </CardContent>
                   </Card>
                 );
               })
-            ) : (
-              <Card>
-                <CardContent className="text-center py-8 text-muted-foreground">
-                  <Icon name="Bed" size={48} className="mx-auto mb-2 opacity-20" />
-                  У этого объекта нет категорий номеров
-                </CardContent>
-              </Card>
             )}
           </TabsContent>
         </Tabs>
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
+        <DialogFooter className="mt-6">
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             Отмена
           </Button>
@@ -453,20 +342,19 @@ export default function ExpertRatingDialogFull({
             ) : (
               <>
                 <Icon name="Save" size={16} className="mr-2" />
-                Сохранить все оценки
+                Сохранить оценки
               </>
             )}
           </Button>
-        </div>
-      </DialogContent>
+        </DialogFooter>
+        </DialogContent>
       </Dialog>
 
       <ImageLightbox
         images={lightboxImages}
         currentIndex={lightboxIndex}
-        isOpen={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
-        onNavigate={setLightboxIndex}
+        isOpen={lightboxOpen}
       />
     </>
   );

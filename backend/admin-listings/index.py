@@ -68,8 +68,7 @@ def handler(event: dict, context) -> dict:
                            type, price, rating, reviews, metro, metro_walk,
                            has_parking, features, min_hours,
                            square_meters, parking_type, parking_price_per_hour,
-                           expert_fullness_rating, expert_fullness_feedback,
-                           expert_photo_rating, expert_photo_feedback, short_title,
+                           expert_photo_rating, expert_description_rating, short_title,
                            price_warning_holidays, price_warning_daytime
                     FROM t_p39732784_hourly_rentals_platf.listings 
                     WHERE id = %s
@@ -90,8 +89,7 @@ def handler(event: dict, context) -> dict:
                 cur.execute("""
                     SELECT id, listing_id, type, price, description, square_meters, features, 
                            min_hours, payment_methods, cancellation_policy, images,
-                           expert_photo_rating, expert_photo_feedback,
-                           expert_fullness_rating, expert_fullness_feedback
+                           expert_photo_rating, expert_description_rating
                     FROM t_p39732784_hourly_rentals_platf.rooms 
                     WHERE listing_id = %s
                     ORDER BY id ASC
@@ -144,8 +142,7 @@ def handler(event: dict, context) -> dict:
                            l.type, l.price, l.rating, l.reviews, l.metro, l.metro_walk,
                            l.has_parking, l.features, l.min_hours,
                            l.square_meters, l.parking_type, l.parking_price_per_hour,
-                           l.expert_fullness_rating, l.expert_fullness_feedback,
-                           l.expert_photo_rating, l.expert_photo_feedback, l.short_title,
+                           l.expert_photo_rating, l.expert_description_rating, l.short_title,
                            a.name as created_by_employee_name,
                            o.full_name as owner_name
                     FROM t_p39732784_hourly_rentals_platf.listings l
@@ -168,8 +165,7 @@ def handler(event: dict, context) -> dict:
                            type, price, rating, reviews, metro, metro_walk,
                            has_parking, features, min_hours,
                            square_meters, parking_type, parking_price_per_hour,
-                           expert_fullness_rating, expert_fullness_feedback,
-                           expert_photo_rating, expert_photo_feedback, short_title
+                           expert_photo_rating, expert_description_rating, short_title
                     FROM t_p39732784_hourly_rentals_platf.listings 
                     WHERE is_archived = true 
                     ORDER BY created_at DESC 
@@ -185,8 +181,7 @@ def handler(event: dict, context) -> dict:
                            type, price, rating, reviews, metro, metro_walk,
                            has_parking, features, min_hours,
                            square_meters, parking_type, parking_price_per_hour,
-                           expert_fullness_rating, expert_fullness_feedback,
-                           expert_photo_rating, expert_photo_feedback, short_title
+                           expert_photo_rating, expert_description_rating, short_title
                     FROM t_p39732784_hourly_rentals_platf.listings 
                     WHERE is_archived = false 
                     ORDER BY auction ASC 
@@ -233,8 +228,7 @@ def handler(event: dict, context) -> dict:
                                     THEN array_length(images, 1)
                                     ELSE 0
                                END as images_count,
-                               expert_photo_rating, expert_photo_feedback,
-                               expert_fullness_rating, expert_fullness_feedback
+                               expert_photo_rating, expert_description_rating
                         FROM t_p39732784_hourly_rentals_platf.rooms 
                         WHERE listing_id IN ({listing_ids_str})"""
                 cur.execute(rooms_query)
@@ -288,7 +282,7 @@ def handler(event: dict, context) -> dict:
                         'price': r['price'],
                         'square_meters': r.get('square_meters'),
                         'expert_photo_rating': r.get('expert_photo_rating'),
-                        'expert_fullness_rating': r.get('expert_fullness_rating'),
+                        'expert_description_rating': r.get('expert_description_rating'),
                     }
                     rooms.append(room_dict)
                 
@@ -451,9 +445,7 @@ def handler(event: dict, context) -> dict:
                 cur.execute("""
                     UPDATE t_p39732784_hourly_rentals_platf.listings SET 
                         expert_photo_rating=%s,
-                        expert_photo_feedback=%s,
-                        expert_fullness_rating=%s,
-                        expert_fullness_feedback=%s,
+                        expert_description_rating=%s,
                         expert_rated_by=%s,
                         expert_rated_at=CURRENT_TIMESTAMP,
                         updated_at=CURRENT_TIMESTAMP
@@ -461,9 +453,7 @@ def handler(event: dict, context) -> dict:
                     RETURNING *
                 """, (
                     body.get('expert_photo_rating'),
-                    body.get('expert_photo_feedback'),
-                    body.get('expert_fullness_rating'),
-                    body.get('expert_fullness_feedback'),
+                    body.get('expert_description_rating'),
                     admin.get('admin_id'),
                     listing_id
                 ))
@@ -477,17 +467,13 @@ def handler(event: dict, context) -> dict:
                             cur.execute("""
                                 UPDATE t_p39732784_hourly_rentals_platf.rooms SET
                                     expert_photo_rating=%s,
-                                    expert_photo_feedback=%s,
-                                    expert_fullness_rating=%s,
-                                    expert_fullness_feedback=%s,
+                                    expert_description_rating=%s,
                                     expert_rated_by=%s,
                                     expert_rated_at=CURRENT_TIMESTAMP
                                 WHERE id=%s
                             """, (
                                 room_data.get('expert_photo_rating'),
-                                room_data.get('expert_photo_feedback'),
-                                room_data.get('expert_fullness_rating'),
-                                room_data.get('expert_fullness_feedback'),
+                                room_data.get('expert_description_rating'),
                                 admin.get('admin_id'),
                                 room_data['id']
                             ))
