@@ -181,7 +181,7 @@ export function useOwnerDashboard() {
 
   const loadAuctionInfo = async (city: string) => {
     try {
-      const info = await api.getAuctionInfo(city);
+      const info = await api.getAuctionInfo(city, parseInt(ownerId!));
       setAuctionInfo(info);
     } catch (error) {
       console.error('Failed to load auction info:', error);

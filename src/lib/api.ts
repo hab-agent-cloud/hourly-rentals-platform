@@ -300,8 +300,12 @@ export const api = {
   },
 
   // Аукцион
-  getAuctionInfo: async (city: string) => {
-    const response = await fetch(`${API_URLS.auction}?city=${encodeURIComponent(city)}`);
+  getAuctionInfo: async (city: string, owner_id?: number) => {
+    let url = `${API_URLS.auction}?city=${encodeURIComponent(city)}`;
+    if (owner_id) {
+      url += `&owner_id=${owner_id}`;
+    }
+    const response = await fetch(url);
     return response.json();
   },
 

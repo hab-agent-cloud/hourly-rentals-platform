@@ -33,6 +33,7 @@ def handler(event: dict, context) -> dict:
     try:
         if method == 'GET':
             city = event.get('queryStringParameters', {}).get('city', '')
+            owner_id = event.get('queryStringParameters', {}).get('owner_id')
             
             if not city:
                 return {
@@ -41,6 +42,9 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({'error': 'City parameter required'}),
                     'isBase64Encoded': False
                 }
+            
+            # Конвертируем owner_id в int если передан
+            requesting_owner_id = int(owner_id) if owner_id else None
             
             cur.execute("""
                 SELECT COUNT(*) as total
@@ -112,13 +116,30 @@ def handler(event: dict, context) -> dict:
                 if pos in final_positions:
                     current_bid = final_positions[pos]['paid_amount']
                     min_overbid = current_bid + 5 if current_bid > 0 else base_price
+                    
+                    # Проверяем, принадлежит ли позиция запрашивающему владельцу
+                    is_owner_position = (requesting_owner_id and 
+                                        final_positions[pos]['owner_id'] == requesting_owner_id)
+                    
+                    # Если это позиция владельца - показываем полные данные
+                    # Если чужая - скрываем конфиденциальную информацию
+                    if is_owner_position:
+                        booking_info = final_positions[pos]
+                    else:
+                        booking_info = {
+                            'listing_id': None,
+                            'listing_title': None,
+                            'owner_id': None,
+                            'paid_amount': current_bid
+                        }
+                    
                     position_data = {
                         'position': pos,
                         'base_price': base_price,
                         'current_bid': current_bid if current_bid > 0 else None,
                         'min_overbid': min_overbid,
                         'is_booked': True,
-                        'booking_info': final_positions[pos]
+                        'booking_info': booking_info
                     }
                 else:
                     position_data = {
