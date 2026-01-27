@@ -82,7 +82,13 @@ export default function Index() {
     .filter(l => selectedType === 'all' || l.type === selectedType)
     .filter(l => !hasParking || l.hasParking)
     .filter(l => minHours === null || l.minHours <= minHours)
-    .filter(l => l.title.toLowerCase().includes(searchCity.toLowerCase()) || l.city.toLowerCase().includes(searchCity.toLowerCase()))
+    .filter(l => {
+      const search = searchCity.toLowerCase();
+      return l.title.toLowerCase().includes(search) || 
+             l.city.toLowerCase().includes(search) ||
+             (l.metro && l.metro.toLowerCase().includes(search)) ||
+             (l.district && l.district.toLowerCase().includes(search));
+    })
     .filter(l => {
       if (selectedFeatures.length === 0) return true;
       return l.rooms && l.rooms.some((room: any) => 
@@ -142,6 +148,7 @@ export default function Index() {
             selectedFeatures={selectedFeatures}
             setSelectedFeatures={setSelectedFeatures}
             detectedCity={detectedCity}
+            onFilterChange={() => setTimeout(scrollToResults, 200)}
           />
 
           <main className="container mx-auto px-4 py-8" ref={resultsRef}>

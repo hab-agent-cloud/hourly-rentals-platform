@@ -20,6 +20,7 @@ interface SearchHeroProps {
   selectedFeatures: string[];
   setSelectedFeatures: (value: string[]) => void;
   detectedCity?: string | null;
+  onFilterChange?: () => void;
 }
 
 export default function SearchHero({
@@ -39,6 +40,7 @@ export default function SearchHero({
   selectedFeatures,
   setSelectedFeatures,
   detectedCity,
+  onFilterChange,
 }: SearchHeroProps) {
   const popularFeatures = [
     { name: 'Джакузи', icon: 'Bath' },
@@ -52,6 +54,7 @@ export default function SearchHero({
         ? prev.filter(f => f !== feature)
         : [...prev, feature]
     );
+    onFilterChange?.();
   };
   return (
     <section className="mb-6 sm:mb-12 pt-12 sm:pt-16 md:pt-20 text-center animate-fade-in px-2">
@@ -126,7 +129,10 @@ export default function SearchHero({
                   key={city}
                   variant={selectedCity === city ? "default" : "secondary"}
                   className={`cursor-pointer ${selectedCity === city ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
-                  onClick={() => setSelectedCity(city)}
+                  onClick={() => {
+                    setSelectedCity(city);
+                    onFilterChange?.();
+                  }}
                 >
                   {city}
                 </Badge>
@@ -141,7 +147,10 @@ export default function SearchHero({
               <Badge 
                 variant={hasParking ? "default" : "secondary"} 
                 className={`cursor-pointer ${hasParking ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
-                onClick={() => setHasParking(!hasParking)}
+                onClick={() => {
+                  setHasParking(!hasParking);
+                  onFilterChange?.();
+                }}
               >
                 <Icon name="Car" size={14} className="mr-1" />
                 С парковкой
@@ -149,7 +158,10 @@ export default function SearchHero({
               <Badge 
                 variant={minHours === 1 ? "default" : "secondary"} 
                 className={`cursor-pointer ${minHours === 1 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
-                onClick={() => setMinHours(minHours === 1 ? null : 1)}
+                onClick={() => {
+                  setMinHours(minHours === 1 ? null : 1);
+                  onFilterChange?.();
+                }}
               >
                 <Icon name="Clock" size={14} className="mr-1" />
                 От 1 часа
