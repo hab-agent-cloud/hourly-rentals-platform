@@ -1,5 +1,6 @@
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import OwnerDashboardHeader from '@/components/OwnerDashboardHeader';
 import OwnerOverviewTab from '@/components/OwnerOverviewTab';
@@ -8,8 +9,10 @@ import OwnerExpertTab from '@/components/OwnerExpertTab';
 
 import OwnerEditListingDialogNew from '@/components/OwnerEditListingDialogNew';
 import { useOwnerDashboard } from '@/hooks/useOwnerDashboard';
+import { useNavigate } from 'react-router-dom';
 
 export default function OwnerDashboard() {
+  const navigate = useNavigate();
   const {
     owner,
     listings,
@@ -55,6 +58,17 @@ export default function OwnerDashboard() {
       />
 
       <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <div className="mb-6">
+          <Button
+            onClick={() => navigate('/')}
+            size="lg"
+            className="w-full sm:w-auto text-lg font-semibold h-14 px-8"
+          >
+            <Icon name="ArrowLeft" size={24} className="mr-2" />
+            Все объекты
+          </Button>
+        </div>
+
         {listings.length === 0 ? (
           <Card className="text-center py-12">
             <CardHeader>
