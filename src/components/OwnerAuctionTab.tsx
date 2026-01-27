@@ -202,12 +202,18 @@ export default function OwnerAuctionTab({
                                 <div className="min-w-0">
                                   {pos.is_booked && pos.booking_info ? (
                                     <>
-                                      <div className="font-semibold text-sm truncate max-w-[200px]">
-                                        {pos.booking_info.listing_title}
+                                      <div className="font-semibold text-sm text-gray-700">
+                                        {isMyListing ? pos.booking_info.listing_title : 'Забронировано'}
                                       </div>
-                                      <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                        <Icon name="Coins" size={12} />
-                                        {pos.booking_info.paid_amount} ₽
+                                      <div className="text-xs text-muted-foreground">
+                                        {isMyListing ? (
+                                          <span className="flex items-center gap-1">
+                                            <Icon name="Coins" size={12} />
+                                            {pos.booking_info.paid_amount} ₽
+                                          </span>
+                                        ) : (
+                                          'Займите место большей ценой'
+                                        )}
                                       </div>
                                     </>
                                   ) : (
