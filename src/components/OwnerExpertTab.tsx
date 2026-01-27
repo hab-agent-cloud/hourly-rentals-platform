@@ -34,40 +34,13 @@ interface OwnerExpertTabProps {
   onUpdate: () => void;
 }
 
-const renderStars = (score: number) => {
-  return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Icon
-          key={star}
-          name="Star"
-          size={20}
-          className={star <= score ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
-        />
-      ))}
-    </div>
-  );
-};
 
-const getScoreColor = (score: number) => {
-  if (score <= 2) return 'text-red-600';
-  if (score === 3) return 'text-orange-600';
-  if (score === 4) return 'text-blue-600';
-  return 'text-green-600';
-};
-
-const getScoreBadgeVariant = (score: number): "default" | "secondary" | "destructive" | "outline" => {
-  if (score <= 2) return 'destructive';
-  if (score === 3) return 'secondary';
-  return 'default';
-};
 
 const RatingCard = ({ 
   icon, 
   iconColor, 
   iconBg, 
   title, 
-  rating, 
   image,
   text,
   images,
@@ -77,27 +50,23 @@ const RatingCard = ({
   iconColor: string; 
   iconBg: string; 
   title: string; 
-  rating: number; 
   image?: string;
   text?: string;
   images?: string[];
   onImageClick?: (imgs: string[], idx: number) => void;
 }) => (
   <div className="bg-white border rounded-lg p-5 hover:border-purple-300 transition-colors">
-    <div className="flex items-start justify-between mb-4">
+    <div className="flex items-start mb-4">
       <div className="flex items-center gap-3">
         <div className={`w-10 h-10 rounded-full ${iconBg} flex items-center justify-center`}>
           <Icon name={icon as any} size={20} className={iconColor} />
         </div>
         <h3 className="font-semibold text-base">{title}</h3>
       </div>
-      <Badge variant={getScoreBadgeVariant(rating)} className="text-sm px-2.5 py-0.5">
-        {rating}/5
-      </Badge>
     </div>
 
     {(image || images || text) && (
-      <div className="mb-3 p-3 bg-gray-50 rounded-lg border">
+      <div className="p-3 bg-gray-50 rounded-lg border">
         {image && (
           <img 
             src={image} 
@@ -120,19 +89,12 @@ const RatingCard = ({
           </div>
         )}
         {text && (
-          <div className="text-sm text-gray-700 line-clamp-3">
+          <div className="text-sm text-gray-700">
             {text}
           </div>
         )}
       </div>
     )}
-    
-    <div className="flex items-center gap-2">
-      {renderStars(rating)}
-      <span className={`font-bold text-base ml-1 ${getScoreColor(rating)}`}>
-        {rating}★
-      </span>
-    </div>
   </div>
 );
 
@@ -237,7 +199,6 @@ export default function OwnerExpertTab({ listings }: OwnerExpertTabProps) {
                               iconColor="text-purple-600"
                               iconBg="bg-purple-100"
                               title="Фотографии"
-                              rating={listing.expert_photo_rating}
                               image={listing.image_url}
                               onImageClick={handleImageClick}
                             />
@@ -248,7 +209,6 @@ export default function OwnerExpertTab({ listings }: OwnerExpertTabProps) {
                               iconColor="text-blue-600"
                               iconBg="bg-blue-100"
                               title="Описание"
-                              rating={listing.expert_description_rating}
                               text={`${listing.title} — ${listing.type} в ${listing.city}`}
                               onImageClick={handleImageClick}
                             />
@@ -279,7 +239,6 @@ export default function OwnerExpertTab({ listings }: OwnerExpertTabProps) {
                                       iconColor="text-purple-600"
                                       iconBg="bg-purple-100"
                                       title="Фотографии номера"
-                                      rating={room.expert_photo_rating}
                                       images={room.images}
                                       onImageClick={handleImageClick}
                                     />
@@ -290,7 +249,6 @@ export default function OwnerExpertTab({ listings }: OwnerExpertTabProps) {
                                       iconColor="text-blue-600"
                                       iconBg="bg-blue-100"
                                       title="Описание номера"
-                                      rating={room.expert_description_rating}
                                       text={room.description}
                                       onImageClick={handleImageClick}
                                     />
