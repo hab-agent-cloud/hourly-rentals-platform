@@ -49,23 +49,24 @@ export default function OwnerLogin() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 p-3 sm:p-4">
-      <div className="absolute top-4 left-4">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate('/')}
-          className="border-purple-300 hover:bg-purple-50"
-        >
-          <Icon name="Home" size={16} className="mr-2" />
-          Все объекты
-        </Button>
-      </div>
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center space-y-2 sm:space-y-3 pb-4 sm:pb-6">
-          <img 
-            src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg" 
-            alt="120 минут" 
-            className="h-16 w-16 sm:h-20 sm:w-20 object-contain mx-auto mb-2 sm:mb-4"
-          />
+          <div className="flex items-center justify-center gap-3 mb-2 sm:mb-4">
+            <img 
+              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg" 
+              alt="120 минут" 
+              className="h-16 w-16 sm:h-20 sm:w-20 object-contain"
+            />
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/')}
+              className="border-purple-300 hover:bg-purple-50"
+            >
+              <Icon name="Home" size={14} className="mr-1" />
+              <span className="text-xs sm:text-sm">Все объекты</span>
+            </Button>
+          </div>
           <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Вход для владельцев
           </CardTitle>
