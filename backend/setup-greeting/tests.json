@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Create greeting audio",
+      "method": "POST",
+      "body": {
+        "text": "Здравствуйте! Соединяем вас с владельцем.",
+        "voice": "Anna"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "file_id": "string",
+        "status": "created"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
