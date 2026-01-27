@@ -95,8 +95,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || '120 МИНУТ';
   const options = {
     body: data.body || 'Новое уведомление',
-    icon: 'https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg',
-    badge: 'https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg',
+    icon: 'https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/4704083c-96d9-4c09-a82a-1a932604e0be.jpg',
+    badge: 'https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/4704083c-96d9-4c09-a82a-1a932604e0be.jpg',
     vibrate: [200, 100, 200],
     data: data,
   };
