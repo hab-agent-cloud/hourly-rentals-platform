@@ -106,7 +106,7 @@ export default function CityCarousel({
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="text-purple-600 hover:text-purple-700"
           >
-            Показать все {cityListings.length} объектов в {city}
+            Показать все объекты в {city}
             <Icon name="ChevronUp" size={16} className="ml-2" />
           </Button>
         </div>
