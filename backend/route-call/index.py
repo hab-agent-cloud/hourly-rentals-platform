@@ -32,19 +32,53 @@ def handler(event: dict, context) -> dict:
                 conn = psycopg2.connect(os.environ['DATABASE_URL'])
                 cur = conn.cursor(cursor_factory=RealDictCursor)
                 
+                # Фильтры
+                listing_id = query_params.get('listing_id') if query_params else None
+                owner_id = query_params.get('owner_id') if query_params else None
+                
+                # Базовые условия WHERE
+                where_conditions = ["shown_at >= NOW() - INTERVAL '30 days'"]
+                params = []
+                
+                if listing_id:
+                    where_conditions.append("ct.listing_id = %s")
+                    params.append(int(listing_id))
+                elif owner_id:
+                    where_conditions.append("l.owner_id = %s")
+                    params.append(int(owner_id))
+                
+                where_clause = " AND ".join(where_conditions)
+                
                 # Общая статистика
-                cur.execute("""
+                cur.execute(f"""
                     SELECT 
                         COUNT(*) as total_shown,
                         COUNT(called_at) as total_called,
                         COUNT(CASE WHEN expires_at > NOW() AND called_at IS NULL THEN 1 END) as active_sessions
-                    FROM call_tracking
-                    WHERE shown_at >= NOW() - INTERVAL '30 days'
-                """)
+                    FROM call_tracking ct
+                    LEFT JOIN listings l ON ct.listing_id = l.id
+                    WHERE {where_clause}
+                """, params)
                 stats = cur.fetchone()
                 
-                # Последние 50 звонков
-                cur.execute("""
+                # Статистика по объектам
+                cur.execute(f"""
+                    SELECT 
+                        ct.listing_id,
+                        l.short_title as listing_title,
+                        COUNT(*) as shown_count,
+                        COUNT(ct.called_at) as called_count,
+                        ROUND(CAST(COUNT(ct.called_at) AS DECIMAL) / NULLIF(COUNT(*), 0) * 100, 1) as conversion_rate
+                    FROM call_tracking ct
+                    LEFT JOIN listings l ON ct.listing_id = l.id
+                    WHERE {where_clause}
+                    GROUP BY ct.listing_id, l.short_title
+                    ORDER BY shown_count DESC
+                """, params)
+                listings_stats = cur.fetchall()
+                
+                # История звонков (последние 100)
+                cur.execute(f"""
                     SELECT 
                         ct.id,
                         ct.virtual_number,
@@ -53,12 +87,14 @@ def handler(event: dict, context) -> dict:
                         ct.shown_at,
                         ct.called_at,
                         ct.expires_at,
-                        l.short_title as listing_title
+                        l.short_title as listing_title,
+                        l.owner_id
                     FROM call_tracking ct
                     LEFT JOIN listings l ON ct.listing_id = l.id
+                    WHERE {where_clause}
                     ORDER BY ct.shown_at DESC
-                    LIMIT 50
-                """)
+                    LIMIT 100
+                """, params)
                 calls = cur.fetchall()
                 
                 # Конвертируем datetime в строки
@@ -66,6 +102,10 @@ def handler(event: dict, context) -> dict:
                     for key in ['shown_at', 'called_at', 'expires_at']:
                         if call.get(key):
                             call[key] = call[key].isoformat()
+                
+                for listing_stat in listings_stats:
+                    if listing_stat.get('conversion_rate') is None:
+                        listing_stat['conversion_rate'] = 0
                 
                 conversion_rate = 0
                 if stats['total_shown'] > 0:
@@ -82,6 +122,7 @@ def handler(event: dict, context) -> dict:
                         'total_called': stats['total_called'],
                         'conversion_rate': conversion_rate,
                         'active_sessions': stats['active_sessions'],
+                        'listings_stats': listings_stats,
                         'calls': calls
                     })
                 }

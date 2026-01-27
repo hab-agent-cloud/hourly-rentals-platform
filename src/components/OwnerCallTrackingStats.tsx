@@ -4,13 +4,6 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Table,
   TableBody,
   TableCell,
@@ -30,22 +23,16 @@ interface CallRecord {
   shown_at: string;
   called_at: string | null;
   expires_at: string;
-  owner_id?: number;
 }
 
-interface ListingStats {
-  listing_id: number;
-  listing_title: string;
-  shown_count: number;
-  called_count: number;
-  conversion_rate: number;
+interface OwnerCallTrackingStatsProps {
+  ownerId: number;
+  listingId?: number;
 }
 
-export default function AdminCallTrackingTab() {
+export default function OwnerCallTrackingStats({ ownerId, listingId }: OwnerCallTrackingStatsProps) {
   const [calls, setCalls] = useState<CallRecord[]>([]);
-  const [listingsStats, setListingsStats] = useState<ListingStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedListing, setSelectedListing] = useState<string>('all');
   const [stats, setStats] = useState({
     total_shown: 0,
     total_called: 0,
@@ -57,15 +44,17 @@ export default function AdminCallTrackingTab() {
     setIsLoading(true);
     try {
       let url = `${API_URL}?action=stats`;
-      if (selectedListing !== 'all') {
-        url += `&listing_id=${selectedListing}`;
+      
+      if (listingId) {
+        url += `&listing_id=${listingId}`;
+      } else {
+        url += `&owner_id=${ownerId}`;
       }
       
       const response = await fetch(url);
       const data = await response.json();
       
       setCalls(data.calls || []);
-      setListingsStats(data.listings_stats || []);
       setStats({
         total_shown: data.total_shown || 0,
         total_called: data.total_called || 0,
@@ -81,7 +70,9 @@ export default function AdminCallTrackingTab() {
 
   useEffect(() => {
     loadCallStats();
-  }, [selectedListing]);
+    const interval = setInterval(loadCallStats, 60000);
+    return () => clearInterval(interval);
+  }, [ownerId, listingId]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -94,20 +85,12 @@ export default function AdminCallTrackingTab() {
     });
   };
 
-  const formatPhone = (phone: string) => {
-    if (phone.startsWith('web_user_')) {
-      return `🔒 Анонимный`;
-    }
-    return phone;
-  };
-
   const exportToCSV = () => {
-    const headers = ['Дата показа', 'Объект', 'Виртуальный номер', 'Клиент', 'Дата звонка', 'Статус'];
+    const headers = ['Дата показа', 'Объект', 'Виртуальный номер', 'Дата звонка', 'Статус'];
     const rows = calls.map(call => [
       formatDate(call.shown_at),
       call.listing_title || `ID ${call.listing_id}`,
       call.virtual_number,
-      formatPhone(call.client_phone),
       call.called_at ? formatDate(call.called_at) : '—',
       call.called_at ? 'Звонок' : (new Date(call.expires_at) > new Date() ? 'Активен' : 'Истек')
     ]);
@@ -121,14 +104,14 @@ export default function AdminCallTrackingTab() {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `call_tracking_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `call_stats_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  if (isLoading && calls.length === 0) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Icon name="Loader2" size={48} className="animate-spin text-purple-600" />
@@ -138,143 +121,85 @@ export default function AdminCallTrackingTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold">Статистика звонков</h2>
-          <p className="text-muted-foreground">Отслеживание подменных номеров</p>
+          <h3 className="text-2xl font-bold">Статистика звонков</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Данные за последние 30 дней
+          </p>
         </div>
         <div className="flex items-center gap-3">
-          <Select value={selectedListing} onValueChange={setSelectedListing}>
-            <SelectTrigger className="w-[250px]">
-              <SelectValue placeholder="Все объекты" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Все объекты</SelectItem>
-              {listingsStats.map((listing) => (
-                <SelectItem key={listing.listing_id} value={listing.listing_id.toString()}>
-                  {listing.listing_title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={exportToCSV} variant="outline">
-            <Icon name="Download" size={18} className="mr-2" />
-            Экспорт CSV
+          <Button onClick={exportToCSV} variant="outline" size="sm">
+            <Icon name="Download" size={16} className="mr-2" />
+            Скачать CSV
           </Button>
-          <Button onClick={loadCallStats} variant="outline">
-            <Icon name="RefreshCw" size={18} className="mr-2" />
+          <Button onClick={loadCallStats} variant="outline" size="sm">
+            <Icon name="RefreshCw" size={16} className="mr-2" />
             Обновить
           </Button>
         </div>
       </div>
 
-      {/* Статистика */}
+      {/* Карточки статистики */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Показано номеров</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-3">
-              <Icon name="Eye" size={24} className="text-purple-600" />
-              <div className="text-3xl font-bold">{stats.total_shown}</div>
+              <div className="p-2 bg-purple-200 rounded-lg">
+                <Icon name="Eye" size={20} className="text-purple-700" />
+              </div>
+              <div className="text-3xl font-bold text-purple-700">{stats.total_shown}</div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-green-50 to-green-100">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Совершено звонков</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-3">
-              <Icon name="Phone" size={24} className="text-green-600" />
-              <div className="text-3xl font-bold">{stats.total_called}</div>
+              <div className="p-2 bg-green-200 rounded-lg">
+                <Icon name="Phone" size={20} className="text-green-700" />
+              </div>
+              <div className="text-3xl font-bold text-green-700">{stats.total_called}</div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Конверсия</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-3">
-              <Icon name="TrendingUp" size={24} className="text-orange-600" />
-              <div className="text-3xl font-bold">{stats.conversion_rate.toFixed(1)}%</div>
+              <div className="p-2 bg-orange-200 rounded-lg">
+                <Icon name="TrendingUp" size={20} className="text-orange-700" />
+              </div>
+              <div className="text-3xl font-bold text-orange-700">
+                {stats.conversion_rate.toFixed(1)}%
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Активные сессии</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-3">
-              <Icon name="Activity" size={24} className="text-blue-600" />
-              <div className="text-3xl font-bold">{stats.active_sessions}</div>
+              <div className="p-2 bg-blue-200 rounded-lg">
+                <Icon name="Activity" size={20} className="text-blue-700" />
+              </div>
+              <div className="text-3xl font-bold text-blue-700">{stats.active_sessions}</div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Статистика по объектам */}
-      {listingsStats.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Статистика по объектам</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Объект</TableHead>
-                    <TableHead className="text-right">Показов</TableHead>
-                    <TableHead className="text-right">Звонков</TableHead>
-                    <TableHead className="text-right">Конверсия</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {listingsStats.map((listing) => (
-                    <TableRow 
-                      key={listing.listing_id}
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => setSelectedListing(listing.listing_id.toString())}
-                    >
-                      <TableCell className="font-medium">
-                        {listing.listing_title}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant="outline">
-                          <Icon name="Eye" size={12} className="mr-1" />
-                          {listing.shown_count}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant="outline" className="bg-green-50 text-green-700">
-                          <Icon name="Phone" size={12} className="mr-1" />
-                          {listing.called_count}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <span className={`font-bold ${
-                          listing.conversion_rate >= 50 ? 'text-green-600' :
-                          listing.conversion_rate >= 30 ? 'text-orange-600' :
-                          'text-red-600'
-                        }`}>
-                          {listing.conversion_rate.toFixed(1)}%
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Таблица звонков */}
       <Card>
@@ -286,6 +211,7 @@ export default function AdminCallTrackingTab() {
             <div className="text-center py-8 text-muted-foreground">
               <Icon name="PhoneOff" size={48} className="mx-auto mb-3 opacity-50" />
               <p>Пока нет данных о звонках</p>
+              <p className="text-sm mt-2">Когда клиенты будут звонить по вашим объектам, здесь появится статистика</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -294,10 +220,8 @@ export default function AdminCallTrackingTab() {
                   <TableRow>
                     <TableHead>Объект</TableHead>
                     <TableHead>Виртуальный номер</TableHead>
-                    <TableHead>Клиент</TableHead>
                     <TableHead>Показан</TableHead>
                     <TableHead>Звонок</TableHead>
-                    <TableHead>Истекает</TableHead>
                     <TableHead>Статус</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -312,11 +236,6 @@ export default function AdminCallTrackingTab() {
                           {call.virtual_number}
                         </code>
                       </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground">
-                          {formatPhone(call.client_phone)}
-                        </span>
-                      </TableCell>
                       <TableCell className="text-sm">
                         {formatDate(call.shown_at)}
                       </TableCell>
@@ -329,13 +248,10 @@ export default function AdminCallTrackingTab() {
                           <span className="text-sm text-muted-foreground">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {formatDate(call.expires_at)}
-                      </TableCell>
                       <TableCell>
                         {call.called_at ? (
-                          <Badge className="bg-green-100 text-green-700">
-                            <Icon name="Phone" size={12} className="mr-1" />
+                          <Badge className="bg-green-100 text-green-700 border-green-200">
+                            <Icon name="PhoneCall" size={12} className="mr-1" />
                             Звонок
                           </Badge>
                         ) : new Date(call.expires_at) > new Date() ? (
