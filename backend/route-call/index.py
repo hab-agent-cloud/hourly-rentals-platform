@@ -204,6 +204,8 @@ def handler(event: dict, context) -> dict:
                             'redirect_type': 1,
                             'event_extended': False,
                             'masking': False,
+                            'file_to_A': '287372',
+                            'answer': False,
                             'followme_struct': [1, [{
                                 'I_FOLLOW_ORDER': 1,
                                 'ACTIVE': True,
@@ -211,8 +213,7 @@ def handler(event: dict, context) -> dict:
                                 'REDIRECT_NUMBER': owner_phone,
                                 'PERIOD': 'always',
                                 'PERIOD_DESCRIPTION': 'always',
-                                'TIMEOUT': 60,
-                                'GREETING_TEXT': 'Здравствуйте! Соединяем вас с владельцем.'
+                                'TIMEOUT': 60
                             }]]
                         }
                     })
