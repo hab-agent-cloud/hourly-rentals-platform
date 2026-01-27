@@ -11,6 +11,7 @@ const API_URLS = {
   ownerAuth: 'https://functions.poehali.dev/381f57fd-5365-49e9-bb38-088d8db34102',
   ownerPasswordRecovery: 'https://functions.poehali.dev/e8d34dd8-8e0d-4d25-b36b-499898e019c7',
   auction: 'https://functions.poehali.dev/8e5ad1a2-e9bb-462c-baba-212ad26ae9a7',
+  promotion: 'https://functions.poehali.dev/a14c95bd-19c3-4fec-8499-d53a3b80121b',
   statistics: 'https://functions.poehali.dev/0b408e53-8bd4-4f19-a1b5-9403bb03cffd',
   payment: 'https://functions.poehali.dev/d3177c56-4fe4-4a52-a878-e17cca7a1397',
   ownerTransactions: 'https://functions.poehali.dev/d65e7c1b-75b3-4a33-965b-70ee3a543a50',
@@ -769,6 +770,28 @@ export const api = {
       const errorData = await response.json().catch(() => ({ error: 'Network error' }));
       throw new Error(errorData.error || `HTTP ${response.status}`);
     }
+    return response.json();
+  },
+
+  // Пакеты продвижения
+  getPromotionInfo: async (city: string, owner_id?: number) => {
+    let url = `${API_URLS.promotion}?city=${encodeURIComponent(city)}`;
+    if (owner_id) {
+      url += `&owner_id=${owner_id}`;
+    }
+    const response = await fetch(url);
+    return response.json();
+  },
+
+  purchasePromotionPackage: async (token: string, owner_id: number, listing_id: number, city: string, package_type: 'bronze' | 'silver' | 'gold') => {
+    const response = await fetch(API_URLS.promotion, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ action: 'purchase_package', owner_id, listing_id, city, package_type }),
+    });
     return response.json();
   },
 };

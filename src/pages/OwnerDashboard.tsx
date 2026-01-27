@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import OwnerDashboardHeader from '@/components/OwnerDashboardHeader';
 import OwnerOverviewTab from '@/components/OwnerOverviewTab';
-import OwnerAuctionTab from '@/components/OwnerAuctionTab';
+import OwnerPromotionTab from '@/components/OwnerPromotionTab';
 import OwnerExpertTab from '@/components/OwnerExpertTab';
 
 import OwnerEditListingDialogNew from '@/components/OwnerEditListingDialogNew';
@@ -14,30 +14,26 @@ export default function OwnerDashboard() {
     owner,
     listings,
     selectedListing,
-    auctionInfo,
-    stats,
+    promotionInfo,
     transactions,
     showCashbackAnimation,
     cashbackAmount,
-    selectedPosition,
     subscriptionInfo,
     isLoading,
     isTopupLoading,
-    timeUntilReset,
     activeTab,
     editingListing,
     token,
     setActiveTab,
     setEditingListing,
     handleListingSelect,
-    handleBookPosition,
+    handlePurchasePackage,
     handleTopup,
     handleExtendSubscription,
     handleEditListing,
     handleEditSuccess,
     handleUnarchiveListing,
     handleLogout,
-    loadStats,
   } = useOwnerDashboard();
 
   if (!owner) {
@@ -97,15 +93,14 @@ export default function OwnerDashboard() {
             </TabsContent>
 
             <TabsContent value="promotion">
-              <OwnerAuctionTab
+              <OwnerPromotionTab
                 listings={listings}
                 selectedListing={selectedListing}
-                auctionInfo={auctionInfo}
-                timeUntilReset={timeUntilReset}
+                promotionInfo={promotionInfo}
+                owner={owner}
                 isLoading={isLoading}
-                selectedPosition={selectedPosition}
                 onSelectListing={handleListingSelect}
-                onBookPosition={handleBookPosition}
+                onPurchasePackage={handlePurchasePackage}
               />
             </TabsContent>
 
@@ -114,7 +109,7 @@ export default function OwnerDashboard() {
                 listings={listings} 
                 token={token!}
                 ownerId={owner.id}
-                onUpdate={loadStats}
+                onUpdate={() => {}}
               />
             </TabsContent>
           </Tabs>

@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Get promotion packages for city",
+      "method": "GET",
+      "path": "/?city=Москва&owner_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "packages": "array",
+        "pricing": "object",
+        "city": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Purchase promotion package",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "purchase_package",
+        "owner_id": 1,
+        "listing_id": 1,
+        "city": "Москва",
+        "package_type": "bronze"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -45,40 +45,26 @@ interface SubscriptionInfo {
   };
 }
 
-interface AuctionInfo {
-  positions: Array<{
-    position: number;
-    base_price: number;
-    current_bid: number | null;
-    min_overbid: number | null;
-    is_booked: boolean;
-    booking_info?: {
-      listing_id: number;
-      listing_title: string;
-      owner_id: number;
-      paid_amount: number;
-    };
-  }>;
-  total_positions: number;
-  city: string;
+interface PromotionPackage {
+  id: number;
+  listing_id: number | null;
+  listing_title: string | null;
+  owner_id: number | null;
+  package_type: 'bronze' | 'silver' | 'gold';
+  price_paid: number;
+  start_date: string | null;
+  end_date: string | null;
+  current_position: number;
 }
 
-interface Stats {
-  stats: Array<{
-    date: string;
-    views: number;
-    clicks: number;
-    phone_clicks: number;
-    telegram_clicks: number;
-  }>;
-  summary: {
-    total_views: number;
-    total_clicks: number;
-    phone_clicks: number;
-    telegram_clicks: number;
-    ctr: number;
-    period_days: number;
+interface PromotionInfo {
+  packages: PromotionPackage[];
+  pricing: {
+    bronze: { price: number; range: string; description: string };
+    silver: { price: number; range: string; description: string };
+    gold: { price: number; range: string; description: string };
   };
+  city: string;
 }
 
 interface Transaction {
@@ -95,16 +81,13 @@ export function useOwnerDashboard() {
   const [owner, setOwner] = useState<Owner | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
-  const [auctionInfo, setAuctionInfo] = useState<AuctionInfo | null>(null);
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [promotionInfo, setPromotionInfo] = useState<PromotionInfo | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showCashbackAnimation, setShowCashbackAnimation] = useState(false);
   const [cashbackAmount, setCashbackAmount] = useState(0);
-  const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
   const [subscriptionInfo, setSubscriptionInfo] = useState<Map<number, SubscriptionInfo>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
   const [isTopupLoading, setIsTopupLoading] = useState(false);
-  const [timeUntilReset, setTimeUntilReset] = useState('');
   const [activeTab, setActiveTab] = useState<'overview' | 'promotion' | 'expert'>('overview');
   const [editingListing, setEditingListing] = useState<any | null>(null);
   const navigate = useNavigate();
@@ -129,26 +112,6 @@ export function useOwnerDashboard() {
 
     loadOwnerListings();
     loadTransactions();
-
-    const updateTimer = () => {
-      const now = new Date();
-      const moscowTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Moscow' }));
-      const tomorrow = new Date(moscowTime);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      
-      const diff = tomorrow.getTime() - moscowTime.getTime();
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      
-      setTimeUntilReset(`${hours}ч ${minutes}м ${seconds}с`);
-    };
-
-    updateTimer();
-    const timer = setInterval(updateTimer, 1000);
-
-    return () => clearInterval(timer);
   }, [token, ownerId, navigate]);
 
   const loadOwnerListings = async () => {
@@ -171,29 +134,19 @@ export function useOwnerDashboard() {
 
       if (ownerListings.length > 0) {
         setSelectedListing(ownerListings[0]);
-        loadAuctionInfo(ownerListings[0].city);
-        loadStats(ownerListings[0].id);
+        loadPromotionInfo(ownerListings[0].city);
       }
     } catch (error) {
       console.error('Failed to load listings:', error);
     }
   };
 
-  const loadAuctionInfo = async (city: string) => {
+  const loadPromotionInfo = async (city: string) => {
     try {
-      const info = await api.getAuctionInfo(city, parseInt(ownerId!));
-      setAuctionInfo(info);
+      const info = await api.getPromotionInfo(city, parseInt(ownerId!));
+      setPromotionInfo(info);
     } catch (error) {
-      console.error('Failed to load auction info:', error);
-    }
-  };
-
-  const loadStats = async (listingId: number) => {
-    try {
-      const statistics = await api.getStatistics(listingId, 7);
-      setStats(statistics);
-    } catch (error) {
-      console.error('Failed to load stats:', error);
+      console.error('Failed to load promotion info:', error);
     }
   };
 
@@ -208,75 +161,64 @@ export function useOwnerDashboard() {
 
   const handleListingSelect = (listing: Listing) => {
     setSelectedListing(listing);
-    loadAuctionInfo(listing.city);
-    loadStats(listing.id);
+    loadPromotionInfo(listing.city);
   };
 
-  const handleBookPosition = async (position: number, offeredAmount: number) => {
-    if (!selectedListing) return;
-
+  const handlePurchasePackage = async (listingId: number, city: string, packageType: 'bronze' | 'silver' | 'gold') => {
+    const packagePrices = { bronze: 3000, silver: 5000, gold: 7000 };
+    const price = packagePrices[packageType];
     const totalBalance = (owner?.balance || 0) + (owner?.bonus_balance || 0);
 
-    if (offeredAmount > totalBalance) {
+    if (price > totalBalance) {
       toast({
         title: 'Недостаточно средств',
-        description: `Нужно ${offeredAmount} ₽, у вас ${totalBalance} ₽`,
+        description: `Нужно ${price} ₽, у вас ${totalBalance} ₽`,
         variant: 'destructive',
       });
       return;
     }
 
     setIsLoading(true);
-    setSelectedPosition(position);
 
     try {
-      const response = await fetch('https://functions.poehali.dev/8e5ad1a2-e9bb-462c-baba-212ad26ae9a7', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          action: 'place_bid',
-          owner_id: parseInt(ownerId!),
-          listing_id: selectedListing.id,
-          city: selectedListing.city,
-          target_position: position,
-          offered_amount: offeredAmount
-        }),
-      });
+      const response = await api.purchasePromotionPackage(
+        token!,
+        parseInt(ownerId!),
+        listingId,
+        city,
+        packageType
+      );
 
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
+      if (response.error) {
+        throw new Error(response.error);
       }
 
       toast({
         title: 'Успешно!',
-        description: data.message,
+        description: response.message,
       });
 
       const updatedOwnerData = {
         ...owner!,
-        balance: Math.max(0, owner!.balance - (offeredAmount - Math.min(owner!.bonus_balance, offeredAmount))),
-        bonus_balance: Math.max(0, owner!.bonus_balance - Math.min(owner!.bonus_balance, offeredAmount))
+        balance: Math.max(0, owner!.balance - (price - Math.min(owner!.bonus_balance, price))),
+        bonus_balance: Math.max(0, owner!.bonus_balance - Math.min(owner!.bonus_balance, price))
       };
       setOwner(updatedOwnerData);
       localStorage.setItem('ownerData', JSON.stringify(updatedOwnerData));
 
       loadOwnerListings();
-      loadAuctionInfo(selectedListing.city);
+      if (selectedListing) {
+        loadPromotionInfo(selectedListing.city);
+      }
       loadTransactions();
     } catch (error: any) {
       toast({
         title: 'Ошибка',
-        description: error.message || 'Не удалось забронировать позицию',
+        description: error.message || 'Не удалось купить пакет',
         variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
-      setSelectedPosition(null);
     }
   };
 
@@ -401,29 +343,25 @@ export function useOwnerDashboard() {
     owner,
     listings,
     selectedListing,
-    auctionInfo,
-    stats,
+    promotionInfo,
     transactions,
     showCashbackAnimation,
     cashbackAmount,
-    selectedPosition,
     subscriptionInfo,
     isLoading,
     isTopupLoading,
-    timeUntilReset,
     activeTab,
     editingListing,
     token,
     setActiveTab,
     setEditingListing,
     handleListingSelect,
-    handleBookPosition,
+    handlePurchasePackage,
     handleTopup,
     handleExtendSubscription,
     handleEditListing,
     handleEditSuccess,
     handleUnarchiveListing,
     handleLogout,
-    loadStats,
   };
 }
