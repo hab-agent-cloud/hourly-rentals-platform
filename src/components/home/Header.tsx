@@ -22,7 +22,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
               <h1 className="text-lg sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 120 минут
               </h1>
-              <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground whitespace-nowrap">500+ объектов в 21 городе России</p>
+              <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground whitespace-nowrap">Почасовая аренда по всей России</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

@@ -67,25 +67,25 @@ export default function AboutSection() {
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 border border-purple-200">
-          <h3 className="text-2xl font-semibold mb-6 text-purple-900">Чем мы занимаемся?</h3>
-          <div className="space-y-4 text-muted-foreground">
-            <p className="text-base leading-relaxed">
-              <strong className="text-purple-900">120 МИНУТ</strong> — первая российская платформа для почасовой аренды отелей и апартаментов. 
-              Мы создали сервис, который объединяет владельцев жилья и гостей для быстрых и удобных сделок без посредников.
-            </p>
-            <p className="text-base leading-relaxed">
-              <strong className="text-purple-900">Наша миссия:</strong> сделать краткосрочную аренду номеров доступной, безопасной и выгодной для всех участников. 
-              Мы помогаем владельцам эффективно управлять своими объектами, а гостям — быстро находить подходящие варианты размещения от 2 часов.
-            </p>
-            <p className="text-base leading-relaxed">
-              <strong className="text-purple-900">География:</strong> более 500 проверенных объектов в 21 городе России. 
-              Все отели и апартаменты проходят тщательную модерацию на соответствие стандартам качества и безопасности.
-            </p>
-            <p className="text-base leading-relaxed">
-              <strong className="text-purple-900">Преимущества:</strong> прямая связь с владельцами, прозрачные цены без скрытых комиссий, 
-              удобный каталог с фотографиями и актуальными ценами, быстрое бронирование через телефон или Telegram.
-            </p>
-          </div>
+          <h3 className="text-2xl font-semibold mb-4 text-purple-900">Как это работает?</h3>
+          <ol className="space-y-4 text-muted-foreground">
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center font-semibold">1</span>
+              <span>Выберите город и тип размещения</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center font-semibold">2</span>
+              <span>Просмотрите доступные объекты с фотографиями и ценами</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center font-semibold">3</span>
+              <span>Свяжитесь с владельцем по телефону или в Telegram</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full flex items-center justify-center font-semibold">4</span>
+              <span>Забронируйте номер на нужное количество часов</span>
+            </li>
+          </ol>
         </div>
       </div>
     </div>
