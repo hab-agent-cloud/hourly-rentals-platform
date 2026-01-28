@@ -53,9 +53,9 @@ export default function OwnerLogin() {
         <CardHeader className="text-center space-y-2 sm:space-y-3 pb-4 sm:pb-6">
           <div className="flex items-center justify-center gap-3 mb-2 sm:mb-4">
             <img 
-              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/bf20e2e8-1c4a-4b03-843e-7c04a00e5f9b.png" 
+              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/eb1f7656-79bf-458f-a9d8-00f75775f384.jpg" 
               alt="120 минут" 
-              className="h-16 w-16 sm:h-20 sm:w-20 object-contain rounded-full"
+              className="h-16 w-16 sm:h-20 sm:w-20 object-contain"
             />
             <Button 
               variant="outline" 

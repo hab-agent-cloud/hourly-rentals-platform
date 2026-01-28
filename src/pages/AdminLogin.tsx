@@ -59,9 +59,9 @@ export default function AdminLogin() {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <img 
-              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/bf20e2e8-1c4a-4b03-843e-7c04a00e5f9b.png" 
+              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/eb1f7656-79bf-458f-a9d8-00f75775f384.jpg" 
               alt="120 минут" 
-              className="h-20 w-20 object-contain rounded-full"
+              className="h-20 w-20 object-contain"
             />
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">

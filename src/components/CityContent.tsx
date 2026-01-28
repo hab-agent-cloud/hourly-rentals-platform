@@ -407,9 +407,9 @@ export default function CityContent({ city, citySlug }: CityContentProps) {
             <div>
               <Link to="/" className="inline-block">
                 <img 
-                  src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/bf20e2e8-1c4a-4b03-843e-7c04a00e5f9b.png" 
+                  src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/eb1f7656-79bf-458f-a9d8-00f75775f384.jpg" 
                   alt="120 минут" 
-                  className="h-16 w-16 object-contain mb-4 rounded-full"
+                  className="h-16 w-16 object-contain mb-4"
                 />
               </Link>
               <h3 className="text-xl font-bold mb-4">120 МИНУТ</h3>
