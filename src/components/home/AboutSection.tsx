@@ -7,9 +7,9 @@ export default function AboutSection() {
       <div className="max-w-4xl mx-auto">
         <div className="flex flex-col items-center mb-8">
           <img 
-            src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg" 
+            src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/bf20e2e8-1c4a-4b03-843e-7c04a00e5f9b.png" 
             alt="120 минут" 
-            className="h-20 w-20 object-contain mb-4"
+            className="h-20 w-20 object-contain mb-4 rounded-full"
           />
           <h2 className="text-4xl font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             О платформе 120 минут

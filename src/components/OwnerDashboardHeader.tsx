@@ -65,9 +65,9 @@ export default function OwnerDashboardHeader({
           <div className="flex items-center justify-between gap-2 sm:gap-3">
             <div className="flex items-center gap-2 sm:gap-3">
               <img 
-                src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/8251a8b2-9b61-4cee-9e68-aae6e7ec6e96.jpg" 
+                src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/bf20e2e8-1c4a-4b03-843e-7c04a00e5f9b.png" 
                 alt="120 минут" 
-                className="h-10 w-10 sm:h-14 sm:w-14 object-contain flex-shrink-0"
+                className="h-10 w-10 sm:h-14 sm:w-14 object-contain flex-shrink-0 rounded-full"
               />
               <div>
                 <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
