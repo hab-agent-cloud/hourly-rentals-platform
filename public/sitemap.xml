@@ -7,7 +7,7 @@
 <!-- Главная страница -->
 <url>
   <loc>https://120minut.ru/</loc>
-  <lastmod>2026-01-28</lastmod>
+  <lastmod>2026-01-29</lastmod>
   <changefreq>daily</changefreq>
   <priority>1.0</priority>
 </url>
@@ -15,24 +15,369 @@
 <!-- Добавление объекта -->
 <url>
   <loc>https://120minut.ru/add-listing</loc>
-  <lastmod>2026-01-28</lastmod>
+  <lastmod>2026-01-29</lastmod>
   <changefreq>monthly</changefreq>
   <priority>0.8</priority>
 </url>
 
-<!-- Входы -->
+<!-- Экстранет для владельцев -->
 <url>
-  <loc>https://120minut.ru/admin/login</loc>
-  <lastmod>2026-01-28</lastmod>
+  <loc>https://120minut.ru/owner/login</loc>
+  <lastmod>2026-01-29</lastmod>
   <changefreq>yearly</changefreq>
   <priority>0.3</priority>
 </url>
 
+<!-- Админ панель -->
 <url>
-  <loc>https://120minut.ru/owner/login</loc>
-  <lastmod>2026-01-28</lastmod>
+  <loc>https://120minut.ru/admin/login</loc>
+  <lastmod>2026-01-29</lastmod>
   <changefreq>yearly</changefreq>
   <priority>0.3</priority>
+</url>
+
+<!-- Страницы городов -->
+<url>
+  <loc>https://120minut.ru/city/moskva</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/sankt-peterburg</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/kazan</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/ekaterinburg</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/novosibirsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/nizhniy-novgorod</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/chelyabinsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/samara</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/omsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/rostov-na-donu</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/ufa</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/krasnoyarsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/perm</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/voronezh</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/volgograd</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/krasnodar</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/saratov</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/tyumen</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/tolyatti</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/izhevsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/barnaul</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/ulyanovsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/irkutsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/khabarovsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/yaroslavl</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/vladivostok</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/makhachkala</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/tomsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/orenburg</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/kemerovo</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/novokuznetsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/ryazan</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/astrakhan</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/naberezhnye-chelny</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/penza</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/lipetsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/kirov</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/cheboksary</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/kaliningrad</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/tula</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/kursk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/sochi</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/stavropol</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/ulan-ude</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/tver</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/magnitogorsk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/ivanovo</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/bryansk</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+
+<url>
+  <loc>https://120minut.ru/city/belgorod</loc>
+  <lastmod>2026-01-29</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
 </url>
 
 </urlset>
