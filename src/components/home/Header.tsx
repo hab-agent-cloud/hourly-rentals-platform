@@ -16,7 +16,12 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
             <img 
               src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/eb1f7656-79bf-458f-a9d8-00f75775f384.jpg" 
               alt="120 минут" 
-              className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 object-contain hover:scale-110 transition-transform duration-300 cursor-pointer"
+              className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 object-cover rounded-lg hover:scale-110 transition-transform duration-300 cursor-pointer shadow-sm"
+              loading="eager"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
             />
             <div>
               <h1 className="text-lg sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
