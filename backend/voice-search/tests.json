@@ -1,0 +1,47 @@
+{
+  "tests": [
+    {
+      "name": "Поиск в Москве с ценой",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "transcript": "Москва, метро Чистые пруды, до 1000 рублей"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "city": "moskva",
+        "priceMax": 1000,
+        "metro": "string",
+        "query": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Поиск в Питере с диапазоном цен",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "transcript": "Санкт-Петербург, центр, 500-800 рублей"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "city": "sankt-peterburg",
+        "priceMin": 500,
+        "priceMax": 800
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Пустой transcript возвращает 400",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "transcript": ""
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "Transcript is required"
+      }
+    }
+  ]
+}

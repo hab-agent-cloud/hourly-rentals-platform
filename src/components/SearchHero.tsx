@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { useState } from 'react';
 
 interface SearchHeroProps {
   searchCity: string;
@@ -56,6 +57,83 @@ export default function SearchHero({
     );
     onFilterChange?.();
   };
+
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+
+  const handleVoiceSearch = async () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      setVoiceError('Голосовой поиск не поддерживается в вашем браузере');
+      return;
+    }
+
+    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'ru-RU';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceError(null);
+    };
+
+    recognition.onresult = async (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      
+      try {
+        const response = await fetch('https://functions.poehali.dev/a514ac2a-d7c5-4a67-8d39-fe10a3bfdef8', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ transcript })
+        });
+
+        if (!response.ok) {
+          throw new Error('Ошибка обработки запроса');
+        }
+
+        const filters = await response.json();
+        
+        if (filters.city) {
+          const cityMap: Record<string, string> = {
+            'moskva': 'Москва',
+            'sankt-peterburg': 'Санкт-Петербург',
+            'kazan': 'Казань',
+            'samara': 'Самара',
+            'ekaterinburg': 'Екатеринбург'
+          };
+          const cityName = cityMap[filters.city];
+          if (cityName) {
+            setSelectedCity(cityName);
+            setSearchCity(cityName);
+          }
+        }
+        
+        if (filters.metro) {
+          setSearchCity(prev => prev ? `${prev}, ${filters.metro}` : filters.metro);
+        }
+        
+        onFilterChange?.();
+      } catch (error) {
+        setVoiceError('Не удалось обработать запрос');
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      setIsListening(false);
+      if (event.error === 'no-speech') {
+        setVoiceError('Речь не распознана. Попробуйте еще раз');
+      } else {
+        setVoiceError('Ошибка распознавания речи');
+      }
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
   return (
     <section className="mb-6 sm:mb-12 pt-12 sm:pt-16 md:pt-20 text-center animate-fade-in px-2">
       <div className="max-w-4xl mx-auto">
@@ -99,7 +177,7 @@ export default function SearchHero({
                 <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Город, адрес, метро..."
-                  className="pl-10 h-10 sm:h-12 text-base sm:text-lg border-purple-200"
+                  className="pl-10 pr-12 h-10 sm:h-12 text-base sm:text-lg border-purple-200"
                   value={searchCity}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -115,7 +193,18 @@ export default function SearchHero({
                     }
                   }}
                 />
+                <button
+                  onClick={handleVoiceSearch}
+                  disabled={isListening}
+                  className="md:hidden absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  title="Голосовой поиск"
+                >
+                  <Icon name={isListening ? "Loader2" : "Mic"} size={16} className={isListening ? "animate-spin" : ""} />
+                </button>
               </div>
+              {voiceError && (
+                <p className="text-xs text-red-500 mt-1 md:hidden">{voiceError}</p>
+              )}
             </div>
 
             <Button size="lg" className="h-10 sm:h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-sm sm:text-base">
