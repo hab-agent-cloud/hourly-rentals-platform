@@ -61,6 +61,38 @@ export default function SearchHero({
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
 
+  const parseVoiceQuery = (text: string) => {
+    const lowerText = text.toLowerCase();
+    
+    // Парсинг города
+    const cityPatterns = [
+      { pattern: /москв/i, city: 'Москва' },
+      { pattern: /(санкт[- ]петербург|питер|спб)/i, city: 'Санкт-Петербург' },
+      { pattern: /казан/i, city: 'Казань' },
+      { pattern: /самар/i, city: 'Самара' },
+      { pattern: /екатеринбург/i, city: 'Екатеринбург' },
+      { pattern: /уф/i, city: 'Уфа' },
+      { pattern: /ростов/i, city: 'Ростов-на-Дону' },
+      { pattern: /краснодар/i, city: 'Краснодар' },
+      { pattern: /(нижний новгород|нижний)/i, city: 'Нижний Новгород' },
+      { pattern: /новосибирск/i, city: 'Новосибирск' }
+    ];
+    
+    let detectedCity = '';
+    for (const { pattern, city } of cityPatterns) {
+      if (pattern.test(lowerText)) {
+        detectedCity = city;
+        break;
+      }
+    }
+    
+    // Парсинг метро (простое извлечение слова после "метро")
+    const metroMatch = lowerText.match(/метро\s+([а-яё\s-]+?)(?:\s|,|$)/i);
+    const metro = metroMatch ? metroMatch[1].trim() : '';
+    
+    return { city: detectedCity, metro };
+  };
+
   const handleVoiceSearch = async () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       setVoiceError('Голосовой поиск не поддерживается в вашем браузере');
@@ -78,45 +110,20 @@ export default function SearchHero({
       setVoiceError(null);
     };
 
-    recognition.onresult = async (event: any) => {
+    recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
+      const parsed = parseVoiceQuery(transcript);
       
-      try {
-        const response = await fetch('https://functions.poehali.dev/a514ac2a-d7c5-4a67-8d39-fe10a3bfdef8', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ transcript })
-        });
-
-        if (!response.ok) {
-          throw new Error('Ошибка обработки запроса');
-        }
-
-        const filters = await response.json();
-        
-        if (filters.city) {
-          const cityMap: Record<string, string> = {
-            'moskva': 'Москва',
-            'sankt-peterburg': 'Санкт-Петербург',
-            'kazan': 'Казань',
-            'samara': 'Самара',
-            'ekaterinburg': 'Екатеринбург'
-          };
-          const cityName = cityMap[filters.city];
-          if (cityName) {
-            setSelectedCity(cityName);
-            setSearchCity(cityName);
-          }
-        }
-        
-        if (filters.metro) {
-          setSearchCity(prev => prev ? `${prev}, ${filters.metro}` : filters.metro);
-        }
-        
-        onFilterChange?.();
-      } catch (error) {
-        setVoiceError('Не удалось обработать запрос');
+      if (parsed.city) {
+        setSelectedCity(parsed.city);
+        setSearchCity(parsed.metro ? `${parsed.city}, ${parsed.metro}` : parsed.city);
+      } else if (parsed.metro) {
+        setSearchCity(parsed.metro);
+      } else {
+        setSearchCity(transcript);
       }
+      
+      onFilterChange?.();
     };
 
     recognition.onerror = (event: any) => {
