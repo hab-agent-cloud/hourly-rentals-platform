@@ -126,6 +126,9 @@ export default function AdminPanel() {
       setModerationComment('');
       
       handleModerationUpdate(moderationDialog.listing.id, moderationStatus, moderationComment);
+      
+      // Перезагружаем список объектов для обновления данных
+      await loadListings();
     } catch (error: any) {
       toast({
         title: 'Ошибка',
@@ -156,6 +159,9 @@ export default function AdminPanel() {
       
       setSubscriptionDialog({ open: false, listing: null });
       setSubscriptionDays(30);
+      
+      // Перезагружаем список объектов для обновления данных
+      await loadListings();
     } catch (error: any) {
       toast({
         title: 'Ошибка',
