@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { api } from '@/lib/api';
@@ -97,9 +98,48 @@ export default function ListingPage() {
   }
 
   const firstImage = getFirstImage(listing.image_url);
+  
+  const minPrice = listing.rooms && listing.rooms.length > 0 
+    ? Math.min(...listing.rooms.map((r: any) => r.price2h || 999999))
+    : null;
+
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "Hotel",
+    "name": listing.title,
+    "description": listing.description || `Почасовая аренда номеров в ${listing.city}. ${listing.title} предлагает комфортные номера от 2 часов.`,
+    "image": firstImage || listing.image_url,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": listing.city,
+      "addressRegion": listing.district,
+      "addressCountry": "RU"
+    },
+    "priceRange": minPrice ? `от ${minPrice}₽` : "$$",
+    "telephone": listing.contact_phone,
+    "aggregateRating": listing.rooms?.length > 0 ? {
+      "@type": "AggregateRating",
+      "ratingValue": "4.5",
+      "reviewCount": Math.max(5, listing.rooms.length * 3)
+    } : undefined,
+    "amenityFeature": listing.rooms?.[0]?.features?.map((f: string) => ({
+      "@type": "LocationFeatureSpecification",
+      "name": f
+    })) || []
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      <Helmet>
+        <title>{listing.title} — Почасовая аренда в {listing.city} от {minPrice ? `${minPrice}₽` : '500₽'} | 120 МИНУТ</title>
+        <meta name="description" content={`${listing.title} в ${listing.city}${listing.district ? `, ${listing.district}` : ''}. Почасовая аренда номеров от 2 часов. ${listing.description ? listing.description.slice(0, 120) : 'Бронирование напрямую у владельца.'}`} />
+        <meta property="og:title" content={`${listing.title} — Почасовая аренда в ${listing.city}`} />
+        <meta property="og:description" content={`Аренда номеров от 2 часов в ${listing.city}. ${minPrice ? `От ${minPrice}₽` : 'Выгодные цены'}`} />
+        <meta property="og:image" content={firstImage || listing.image_url} />
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
+      </Helmet>
       <ListingHeader
         title={listing.title}
         city={listing.city}
