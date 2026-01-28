@@ -101,7 +101,19 @@ export default function SearchHero({
                   placeholder="Город, адрес, метро..."
                   className="pl-10 h-10 sm:h-12 text-base sm:text-lg border-purple-200"
                   value={searchCity}
-                  onChange={(e) => setSearchCity(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearchCity(value);
+                    // Если введенное значение точно совпадает с городом из списка, выбираем его
+                    const matchingCity = cities.find(city => 
+                      city.toLowerCase() === value.toLowerCase()
+                    );
+                    if (matchingCity) {
+                      setSelectedCity(matchingCity);
+                    } else if (value === '') {
+                      setSelectedCity('');
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -131,6 +143,7 @@ export default function SearchHero({
                   className={`cursor-pointer ${selectedCity === city ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
                   onClick={() => {
                     setSelectedCity(city);
+                    setSearchCity(city);
                     onFilterChange?.();
                   }}
                 >
