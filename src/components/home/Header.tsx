@@ -21,7 +21,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
               <img 
                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect width='80' height='80' rx='8' fill='url(%23grad)'/%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:rgb(147,51,234)'/%3E%3Cstop offset='100%25' style='stop-color:rgb(219,39,119)'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-size='32' font-weight='bold' font-family='system-ui'%3E120%3C/text%3E%3C/svg%3E"
                 alt="120 минут" 
-                className="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 object-cover rounded-lg hover:scale-110 transition-transform duration-300 cursor-pointer shadow-sm"
+                className="h-16 w-16 sm:h-16 sm:w-16 md:h-20 md:w-20 object-cover rounded-lg hover:scale-110 transition-transform duration-300 cursor-pointer shadow-sm"
                 loading="eager"
               />
             </picture>
