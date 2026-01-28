@@ -14,7 +14,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-4">
             <img 
-              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/eb1f7656-79bf-458f-a9d8-00f75775f384.jpg" 
+              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/008f171e-27f6-47bb-9816-d1328901d901.jpg" 
               alt="120 минут" 
               className="flex-shrink-0 min-w-[64px] min-h-[64px] h-16 w-16 sm:h-16 sm:w-16 md:h-20 md:w-20 md:min-w-[80px] md:min-h-[80px] object-cover rounded-lg hover:scale-110 transition-transform duration-300 cursor-pointer shadow-lg"
               loading="eager"
