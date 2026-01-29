@@ -1,7 +1,22 @@
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
-export default function VoiceSearchBanner() {
+interface VoiceSearchBannerProps {
+  onTryVoiceSearch?: () => void;
+}
+
+export default function VoiceSearchBanner({ onTryVoiceSearch }: VoiceSearchBannerProps) {
+  const handleTryClick = () => {
+    const searchInput = document.querySelector('input[placeholder*="Город"]') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        searchInput.focus();
+      }, 500);
+    }
+    onTryVoiceSearch?.();
+  };
   return (
     <Card className="border-2 border-purple-300 bg-gradient-to-r from-purple-100 via-pink-100 to-purple-100 mb-6 overflow-hidden relative">
       <div className="absolute top-0 right-0 w-32 h-32 bg-purple-300/20 rounded-full -mr-16 -mt-16"></div>
@@ -21,7 +36,7 @@ export default function VoiceSearchBanner() {
               Нажмите на микрофон в поисковой строке и скажите, что ищете — город, станцию метро, район. 
               Фильтры применятся автоматически!
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/60 rounded-full text-xs font-medium text-purple-700">
                 <Icon name="Smartphone" size={12} />
                 <span>Только для мобильных</span>
@@ -34,6 +49,14 @@ export default function VoiceSearchBanner() {
                 <Icon name="Shield" size={12} />
                 <span>Без интернета</span>
               </div>
+              <Button
+                onClick={handleTryClick}
+                size="sm"
+                className="md:hidden bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-xs h-7"
+              >
+                <Icon name="Mic" size={12} className="mr-1" />
+                Попробовать
+              </Button>
             </div>
           </div>
         </div>
