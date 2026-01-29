@@ -229,7 +229,7 @@ export default function SearchHero({
                 <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Город, адрес, метро..."
-                  className="pl-10 pr-16 h-10 sm:h-12 text-base sm:text-lg border-purple-200"
+                  className="pl-10 pr-20 h-10 sm:h-12 text-base sm:text-lg border-purple-200"
                   value={searchCity}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -245,19 +245,20 @@ export default function SearchHero({
                     }
                   }}
                 />
-                <button
-                  onClick={handleVoiceSearch}
-                  disabled={isListening}
-                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:cursor-not-allowed transition-all shadow-2xl border-2 border-white ${isListening ? 'animate-pulse scale-110' : ''}`}
-                  style={{ zIndex: 9999 }}
-                  title="Голосовой поиск"
-                  aria-label="Голосовой поиск"
-                >
-                  {isListening && (
-                    <span className="absolute inset-0 rounded-full bg-purple-400 animate-ping opacity-75"></span>
-                  )}
-                  <Icon name={isListening ? "Radio" : "Mic"} size={20} className="relative" style={{ zIndex: 10000 }} />
-                </button>
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2" style={{ zIndex: 9999 }}>
+                  <button
+                    onClick={handleVoiceSearch}
+                    disabled={isListening}
+                    className={`p-2 sm:p-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:cursor-not-allowed transition-all shadow-2xl border-2 border-white ${isListening ? 'animate-pulse scale-110' : ''}`}
+                    title="Голосовой поиск"
+                    aria-label="Голосовой поиск"
+                  >
+                    {isListening && (
+                      <span className="absolute inset-0 rounded-full bg-purple-400 animate-ping opacity-75"></span>
+                    )}
+                    <Icon name={isListening ? "Radio" : "Mic"} size={20} className="relative" style={{ zIndex: 10000 }} />
+                  </button>
+                </div>
               </div>
               {voiceError && (
                 <p className="text-xs text-red-500 mt-1">{voiceError}</p>
