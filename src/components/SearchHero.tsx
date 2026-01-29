@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface SearchHeroProps {
   searchCity: string;
@@ -57,6 +57,21 @@ export default function SearchHero({
     );
     onFilterChange?.();
   };
+
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const messages = [
+    { icon: 'UserX', text: 'БЕЗ ПОСРЕДНИКОВ' },
+    { icon: 'UserCheck', text: 'БЕЗ РЕГИСТРАЦИИ НА САЙТЕ' },
+    { icon: 'WifiOff', text: 'РАБОТАЕТ БЕЗ ИНТЕРНЕТА' },
+    { icon: 'Mic', text: 'УМНЫЙ ГОЛОСОВОЙ ПОИСК' }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessageIndex(prev => (prev + 1) % messages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
@@ -150,14 +165,14 @@ export default function SearchHero({
         <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
           ОТЕЛЕЙ И АПАРТАМЕНТОВ
         </h3>
-        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 sm:gap-4 md:gap-8 mb-4 sm:mb-6">
-          <div className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700">
+        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 sm:gap-4 md:gap-8 mb-4 sm:mb-6 min-h-[32px] sm:min-h-[40px]">
+          <div className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 transition-all duration-500">
             <Icon name="CheckCircle2" size={20} className="text-green-500 flex-shrink-0" />
-            <span>БЕЗ ПОСРЕДНИКОВ</span>
+            <span className="animate-fade-in">{messages[currentMessageIndex].text}</span>
           </div>
-          <div className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700">
-            <Icon name="CheckCircle2" size={20} className="text-green-500 flex-shrink-0" />
-            <span>БЕЗ РЕГИСТРАЦИИ НА САЙТЕ</span>
+          <div className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 transition-all duration-500">
+            <Icon name={messages[(currentMessageIndex + 1) % messages.length].icon} size={20} className="text-green-500 flex-shrink-0" />
+            <span className="animate-fade-in">{messages[(currentMessageIndex + 1) % messages.length].text}</span>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 md:gap-6 mb-6 sm:mb-8 text-[11px] sm:text-base md:text-lg font-medium">
