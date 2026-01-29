@@ -68,10 +68,14 @@ export default function SearchHero({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentMessageIndex(prev => (prev + 1) % messages.length);
+      setCurrentMessageIndex(prev => {
+        const newIndex = (prev + 2) % messages.length;
+        console.log('Message index changed:', prev, '->', newIndex);
+        return newIndex;
+      });
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [messages.length]);
 
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
@@ -199,7 +203,7 @@ export default function SearchHero({
                 <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Город, адрес, метро..."
-                  className="pl-10 pr-12 h-10 sm:h-12 text-base sm:text-lg border-purple-200"
+                  className="pl-10 pr-16 h-10 sm:h-12 text-base sm:text-lg border-purple-200"
                   value={searchCity}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -218,7 +222,7 @@ export default function SearchHero({
                 <button
                   onClick={handleVoiceSearch}
                   disabled={isListening}
-                  className={`md:hidden absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:cursor-not-allowed transition-all ${isListening ? 'animate-pulse' : ''}`}
+                  className={`md:hidden absolute right-3 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:cursor-not-allowed transition-all z-20 ${isListening ? 'animate-pulse' : ''}`}
                   title="Голосовой поиск"
                 >
                   {isListening && (
