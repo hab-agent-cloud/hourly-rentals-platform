@@ -68,11 +68,7 @@ export default function SearchHero({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentMessageIndex(prev => {
-        const newIndex = (prev + 2) % messages.length;
-        console.log('Message index changed:', prev, '->', newIndex);
-        return newIndex;
-      });
+      setCurrentMessageIndex(prev => (prev + 1) % messages.length);
     }, 3000);
     return () => clearInterval(interval);
   }, [messages.length]);
@@ -113,6 +109,14 @@ export default function SearchHero({
   };
 
   const handleVoiceSearch = async () => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    
+    if (isIOS && !isSafari) {
+      setVoiceError('На iOS голосовой поиск работает только в Safari');
+      return;
+    }
+    
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       setVoiceError('Голосовой поиск не поддерживается в вашем браузере');
       return;
@@ -169,14 +173,10 @@ export default function SearchHero({
         <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
           ОТЕЛЕЙ И АПАРТАМЕНТОВ
         </h3>
-        <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 sm:gap-4 md:gap-8 mb-4 sm:mb-6 min-h-[32px] sm:min-h-[40px]">
-          <div key={`msg1-${currentMessageIndex}`} className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
+        <div className="flex justify-center items-center mb-4 sm:mb-6 min-h-[32px] sm:min-h-[40px]">
+          <div key={currentMessageIndex} className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
             <Icon name={messages[currentMessageIndex].icon as any} size={20} className="text-green-500 flex-shrink-0" />
             <span>{messages[currentMessageIndex].text}</span>
-          </div>
-          <div key={`msg2-${currentMessageIndex}`} className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
-            <Icon name={messages[(currentMessageIndex + 1) % messages.length].icon as any} size={20} className="text-green-500 flex-shrink-0" />
-            <span>{messages[(currentMessageIndex + 1) % messages.length].text}</span>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 md:gap-6 mb-6 sm:mb-8 text-[11px] sm:text-base md:text-lg font-medium">
@@ -222,8 +222,9 @@ export default function SearchHero({
                 <button
                   onClick={handleVoiceSearch}
                   disabled={isListening}
-                  className={`md:hidden absolute right-3 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:cursor-not-allowed transition-all z-20 ${isListening ? 'animate-pulse' : ''}`}
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:cursor-not-allowed transition-all z-20 shadow-lg ${isListening ? 'animate-pulse' : ''}`}
                   title="Голосовой поиск"
+                  aria-label="Голосовой поиск"
                 >
                   {isListening && (
                     <span className="absolute inset-0 rounded-full bg-purple-400 animate-ping opacity-75"></span>
@@ -232,16 +233,16 @@ export default function SearchHero({
                 </button>
               </div>
               {voiceError && (
-                <p className="text-xs text-red-500 mt-1 md:hidden">{voiceError}</p>
+                <p className="text-xs text-red-500 mt-1">{voiceError}</p>
               )}
               {!isListening && !voiceError && (
-                <p className="text-xs text-purple-600 mt-1 md:hidden flex items-center gap-1">
+                <p className="text-xs text-purple-600 mt-1 flex items-center gap-1">
                   <Icon name="Info" size={12} />
                   <span>Нажмите на микрофон и скажите: "Москва, метро Чистые пруды"</span>
                 </p>
               )}
               {isListening && (
-                <p className="text-xs text-purple-600 mt-1 md:hidden flex items-center gap-1 animate-pulse">
+                <p className="text-xs text-purple-600 mt-1 flex items-center gap-1 animate-pulse">
                   <Icon name="Radio" size={12} />
                   <span>Слушаю...</span>
                 </p>
