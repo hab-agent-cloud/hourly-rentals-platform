@@ -155,7 +155,8 @@ export default function SearchHero({
         
         if (parsed.city) {
           setSelectedCity(parsed.city);
-          setSearchCity(parsed.metro ? `${parsed.city}, ${parsed.metro}` : parsed.city);
+          // Если есть метро - ищем только по метро, город уже выбран фильтром
+          setSearchCity(parsed.metro || '');
         } else if (parsed.metro) {
           setSearchCity(parsed.metro);
         } else {
