@@ -215,6 +215,18 @@ export default function SearchHero({
               {voiceError && (
                 <p className="text-xs text-red-500 mt-1 md:hidden">{voiceError}</p>
               )}
+              {!isListening && !voiceError && (
+                <p className="text-xs text-purple-600 mt-1 md:hidden flex items-center gap-1">
+                  <Icon name="Info" size={12} />
+                  <span>Нажмите на микрофон и скажите: "Москва, метро Чистые пруды"</span>
+                </p>
+              )}
+              {isListening && (
+                <p className="text-xs text-purple-600 mt-1 md:hidden flex items-center gap-1 animate-pulse">
+                  <Icon name="Radio" size={12} />
+                  <span>Слушаю...</span>
+                </p>
+              )}
             </div>
 
             <Button size="lg" className="h-10 sm:h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-sm sm:text-base">
