@@ -101,9 +101,20 @@ export default function SearchHero({
       }
     }
     
-    // Парсинг метро (простое извлечение слова после "метро")
-    const metroMatch = lowerText.match(/метро\s+([а-яё\s-]+?)(?:\s|,|$)/i);
-    const metro = metroMatch ? metroMatch[1].trim() : '';
+    // Парсинг метро - ищем слово после "метро" ИЛИ после названия города
+    let metro = '';
+    const metroMatch = lowerText.match(/метро\s+([а-яё\s-]+?)(?:\s*,|\s*$)/i);
+    if (metroMatch) {
+      metro = metroMatch[1].trim();
+    } else if (detectedCity) {
+      // Если город найден, берём всё что после него (убираем название города из текста)
+      const cityInText = lowerText.match(new RegExp(detectedCity, 'i'));
+      if (cityInText) {
+        const afterCity = lowerText.substring(cityInText.index! + cityInText[0].length).trim();
+        // Убираем знаки препинания и берём первое слово
+        metro = afterCity.replace(/^[,\s]+/, '').split(/[\s,]+/)[0] || '';
+      }
+    }
     
     return { city: detectedCity, metro };
   };
