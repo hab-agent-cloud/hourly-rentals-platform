@@ -248,14 +248,15 @@ export default function SearchHero({
                 <button
                   onClick={handleVoiceSearch}
                   disabled={isListening}
-                  className={`absolute right-3 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:cursor-not-allowed transition-all z-20 shadow-lg ${isListening ? 'animate-pulse' : ''}`}
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:cursor-not-allowed transition-all shadow-2xl border-2 border-white ${isListening ? 'animate-pulse scale-110' : ''}`}
+                  style={{ zIndex: 9999 }}
                   title="Голосовой поиск"
                   aria-label="Голосовой поиск"
                 >
                   {isListening && (
                     <span className="absolute inset-0 rounded-full bg-purple-400 animate-ping opacity-75"></span>
                   )}
-                  <Icon name={isListening ? "Radio" : "Mic"} size={16} className="relative z-10" />
+                  <Icon name={isListening ? "Radio" : "Mic"} size={20} className="relative" style={{ zIndex: 10000 }} />
                 </button>
               </div>
               {voiceError && (
