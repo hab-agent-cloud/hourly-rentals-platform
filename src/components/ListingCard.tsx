@@ -9,12 +9,14 @@ type Listing = {
   type: string;
   city: string;
   district: string;
+  address?: string;
   price: number;
   auction: number;
   image_url: string;
   logo_url?: string;
   metro: string;
   metroWalk: number;
+  metro_stations?: { station_name: string; walk_minutes: number }[];
   hasParking: boolean;
   features?: string[];
   lat: number;
@@ -97,18 +99,34 @@ export default function ListingCard({
           <h4 className="font-bold text-lg line-clamp-2 flex-1">{listing.title}</h4>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
           <Icon name="MapPin" size={14} />
-          <span className="truncate">{listing.city}, {listing.district}</span>
+          <span className="truncate">{listing.address || listing.district}</span>
         </div>
 
-        {listing.metro && (
+        {listing.metro_stations && listing.metro_stations.length > 0 ? (
+          <div className="flex flex-col gap-1 mb-3">
+            {listing.metro_stations.slice(0, 2).map((station, idx) => (
+              <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="text-blue-600">Ⓜ️</span>
+                <span className="truncate">{station.station_name}</span>
+                <Icon name="PersonStanding" size={13} />
+                <span className="text-xs">{station.walk_minutes} мин</span>
+              </div>
+            ))}
+          </div>
+        ) : listing.metro ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
             <span className="text-blue-600">Ⓜ️</span>
             <span>{listing.metro}</span>
-            <span className="text-xs">• {listing.metroWalk} мин</span>
+            <Icon name="PersonStanding" size={13} />
+            <span className="text-xs">{listing.metroWalk} мин</span>
           </div>
-        )}
+        ) : listing.district ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+            <span>р-н {listing.district}</span>
+          </div>
+        ) : null}
 
         <div className="flex flex-wrap gap-2 mb-3">
           {listing.hasParking && (

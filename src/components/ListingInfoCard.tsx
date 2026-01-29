@@ -70,31 +70,33 @@ export default function ListingInfoCard({ listing }: ListingInfoCardProps) {
                   Местоположение
                 </h3>
                 <div className="space-y-2 text-sm">
-                  <p className="text-muted-foreground">{listing.city}</p>
-                  <p className="text-muted-foreground">{listing.district}</p>
+                  <p className="text-muted-foreground font-medium">{listing.address || listing.district}</p>
+                  
                   {listing.metro_stations && listing.metro_stations.length > 0 ? (
-                    <div className="space-y-1">
+                    <div className="space-y-1.5 mt-3">
                       {listing.metro_stations.map((station: any, idx: number) => (
                         <div key={idx} className="flex items-center gap-2 text-muted-foreground">
                           <span className="text-blue-600">Ⓜ️</span>
                           <span>{station.station_name}</span>
                           <Icon name="PersonStanding" size={14} className="ml-1" />
-                          <span>{station.walk_minutes} мин</span>
+                          <span>{station.walk_minutes} мин пешком</span>
                         </div>
                       ))}
                     </div>
-                  ) : listing.metro && listing.metro !== '-' && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                  ) : listing.metro && listing.metro !== '-' ? (
+                    <div className="flex items-center gap-2 text-muted-foreground mt-3">
                       <span className="text-blue-600">Ⓜ️</span>
                       <span>{listing.metro}</span>
                       {listing.metroWalk > 0 && (
                         <>
                           <Icon name="PersonStanding" size={14} className="ml-1" />
-                          <span>{listing.metroWalk} мин</span>
+                          <span>{listing.metroWalk} мин пешком</span>
                         </>
                       )}
                     </div>
-                  )}
+                  ) : listing.district ? (
+                    <p className="text-sm text-muted-foreground mt-2">Район: {listing.district}</p>
+                  ) : null}
                   {listing.hasParking && (
                     <div className="flex items-center gap-2 text-green-600 font-semibold">
                       <Icon name="Car" size={16} />

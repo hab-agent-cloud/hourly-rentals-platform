@@ -60,7 +60,7 @@ def handler(event: dict, context) -> dict:
             if listing_id:
                 print(f"[DEBUG] Fetching single listing with id={listing_id}")
                 cur.execute("""
-                    SELECT id, owner_id, title, city, district, lat, lng,
+                    SELECT id, owner_id, title, city, district, address, lat, lng,
                            phone, telegram, description, image_url, logo_url,
                            auction, is_archived, moderation_status, moderation_comment,
                            created_at, updated_at, created_by_employee_id,
@@ -134,7 +134,7 @@ def handler(event: dict, context) -> dict:
                 print(f"[DEBUG] Fetching moderation listings with status: {moderation_filter}")
                 # ⚠️ Явно указываем поля БЕЗ images для экономии памяти
                 query = f"""
-                    SELECT l.id, l.owner_id, l.title, l.city, l.district, l.lat, l.lng,
+                    SELECT l.id, l.owner_id, l.title, l.city, l.district, l.address, l.lat, l.lng,
                            l.phone, l.telegram, l.description, l.image_url, l.logo_url,
                            l.auction, l.is_archived, l.moderation_status, l.moderation_comment,
                            l.created_at, l.updated_at, l.created_by_employee_id,
@@ -157,7 +157,7 @@ def handler(event: dict, context) -> dict:
             elif show_archived:
                 print(f"[DEBUG] Fetching archived listings")
                 # ⚠️ Явно указываем поля БЕЗ images для экономии памяти
-                cur.execute(f"""SELECT id, owner_id, title, city, district, lat, lng,
+                cur.execute(f"""SELECT id, owner_id, title, city, district, address, lat, lng,
                            phone, telegram, description, image_url, logo_url,
                            auction, is_archived, moderation_status, moderation_comment,
                            created_at, updated_at, created_by_employee_id,
@@ -173,7 +173,7 @@ def handler(event: dict, context) -> dict:
             else:
                 print(f"[DEBUG] Fetching active listings")
                 # ⚠️ Явно указываем поля БЕЗ images для экономии памяти
-                cur.execute(f"""SELECT id, owner_id, title, city, district, lat, lng,
+                cur.execute(f"""SELECT id, owner_id, title, city, district, address, lat, lng,
                            phone, telegram, description, image_url, logo_url,
                            auction, is_archived, moderation_status, moderation_comment,
                            created_at, updated_at, created_by_employee_id,

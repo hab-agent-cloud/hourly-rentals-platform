@@ -86,7 +86,7 @@ def handler(event: dict, context) -> dict:
         # Получаем все активные объекты одним запросом (БЕЗ тяжелых полей features, image_url оптимизируем)
         cur.execute("""
             SELECT 
-                l.id, l.title, l.type, l.city, l.district, l.price, l.rating, l.reviews, 
+                l.id, l.title, l.type, l.city, l.district, l.address, l.price, l.rating, l.reviews, 
                 l.auction, 
                 CASE 
                     WHEN l.image_url LIKE '[%' THEN (l.image_url::json->>0)
