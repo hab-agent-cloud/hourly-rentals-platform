@@ -7,6 +7,7 @@ import AboutSection from '@/components/home/AboutSection';
 import PartnersSection from '@/components/home/PartnersSection';
 import SupportSection from '@/components/home/SupportSection';
 import InstallAppBanner from '@/components/InstallAppBanner';
+import VoiceSearchBanner from '@/components/VoiceSearchBanner';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -153,6 +154,7 @@ export default function Index() {
 
           <main className="container mx-auto px-4 py-8" ref={resultsRef}>
             <div className="mb-8">
+              <VoiceSearchBanner />
               <InstallAppBanner />
             </div>
 
