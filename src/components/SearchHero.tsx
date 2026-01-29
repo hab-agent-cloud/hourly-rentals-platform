@@ -109,60 +109,86 @@ export default function SearchHero({
   };
 
   const handleVoiceSearch = async () => {
+    console.log('[Voice] Button clicked');
+    console.log('[Voice] User agent:', navigator.userAgent);
+    
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     
+    console.log('[Voice] isIOS:', isIOS, 'isSafari:', isSafari);
+    
     if (isIOS && !isSafari) {
+      console.log('[Voice] Error: iOS but not Safari');
       setVoiceError('На iOS голосовой поиск работает только в Safari');
       return;
     }
     
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    const hasWebkit = 'webkitSpeechRecognition' in window;
+    const hasStandard = 'SpeechRecognition' in window;
+    console.log('[Voice] webkitSpeechRecognition:', hasWebkit, 'SpeechRecognition:', hasStandard);
+    
+    if (!hasWebkit && !hasStandard) {
+      console.log('[Voice] Error: No speech recognition support');
       setVoiceError('Голосовой поиск не поддерживается в вашем браузере');
       return;
     }
 
-    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'ru-RU';
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    try {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      console.log('[Voice] Creating recognition instance');
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ru-RU';
+      recognition.continuous = false;
+      recognition.interimResults = false;
 
-    recognition.onstart = () => {
-      setIsListening(true);
-      setVoiceError(null);
-    };
+      recognition.onstart = () => {
+        console.log('[Voice] Recognition started');
+        setIsListening(true);
+        setVoiceError(null);
+      };
 
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      const parsed = parseVoiceQuery(transcript);
-      
-      if (parsed.city) {
-        setSelectedCity(parsed.city);
-        setSearchCity(parsed.metro ? `${parsed.city}, ${parsed.metro}` : parsed.city);
-      } else if (parsed.metro) {
-        setSearchCity(parsed.metro);
-      } else {
-        setSearchCity(transcript);
-      }
-      
-      onFilterChange?.();
-    };
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        console.log('[Voice] Transcript:', transcript);
+        const parsed = parseVoiceQuery(transcript);
+        console.log('[Voice] Parsed:', parsed);
+        
+        if (parsed.city) {
+          setSelectedCity(parsed.city);
+          setSearchCity(parsed.metro ? `${parsed.city}, ${parsed.metro}` : parsed.city);
+        } else if (parsed.metro) {
+          setSearchCity(parsed.metro);
+        } else {
+          setSearchCity(transcript);
+        }
+        
+        onFilterChange?.();
+      };
 
-    recognition.onerror = (event: any) => {
+      recognition.onerror = (event: any) => {
+        console.log('[Voice] Error:', event.error);
+        setIsListening(false);
+        if (event.error === 'no-speech') {
+          setVoiceError('Речь не распознана. Попробуйте еще раз');
+        } else if (event.error === 'not-allowed') {
+          setVoiceError('Доступ к микрофону запрещен. Проверьте настройки браузера');
+        } else {
+          setVoiceError(`Ошибка: ${event.error}`);
+        }
+      };
+
+      recognition.onend = () => {
+        console.log('[Voice] Recognition ended');
+        setIsListening(false);
+      };
+
+      console.log('[Voice] Starting recognition...');
+      recognition.start();
+    } catch (error) {
+      console.error('[Voice] Exception:', error);
+      setVoiceError('Ошибка инициализации голосового поиска');
       setIsListening(false);
-      if (event.error === 'no-speech') {
-        setVoiceError('Речь не распознана. Попробуйте еще раз');
-      } else {
-        setVoiceError('Ошибка распознавания речи');
-      }
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognition.start();
+    }
   };
   return (
     <section className="mb-6 sm:mb-12 pt-12 sm:pt-16 md:pt-20 text-center animate-fade-in px-2">
