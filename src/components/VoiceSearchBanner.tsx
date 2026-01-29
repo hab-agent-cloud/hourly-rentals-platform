@@ -18,7 +18,7 @@ export default function VoiceSearchBanner({ onTryVoiceSearch }: VoiceSearchBanne
     onTryVoiceSearch?.();
   };
   return (
-    <Card className="border-2 border-purple-300 bg-gradient-to-r from-purple-100 via-pink-100 to-purple-100 mb-6 overflow-hidden relative">
+    <Card className="md:hidden border-2 border-purple-300 bg-gradient-to-r from-purple-100 via-pink-100 to-purple-100 mb-6 overflow-hidden relative">
       <div className="absolute top-0 right-0 w-32 h-32 bg-purple-300/20 rounded-full -mr-16 -mt-16"></div>
       <div className="absolute bottom-0 left-0 w-24 h-24 bg-pink-300/20 rounded-full -ml-12 -mb-12"></div>
       

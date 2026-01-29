@@ -166,13 +166,13 @@ export default function SearchHero({
           ОТЕЛЕЙ И АПАРТАМЕНТОВ
         </h3>
         <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 sm:gap-4 md:gap-8 mb-4 sm:mb-6 min-h-[32px] sm:min-h-[40px]">
-          <div className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 transition-all duration-500">
-            <Icon name="CheckCircle2" size={20} className="text-green-500 flex-shrink-0" />
-            <span className="animate-fade-in">{messages[currentMessageIndex].text}</span>
+          <div key={`msg1-${currentMessageIndex}`} className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
+            <Icon name={messages[currentMessageIndex].icon as any} size={20} className="text-green-500 flex-shrink-0" />
+            <span>{messages[currentMessageIndex].text}</span>
           </div>
-          <div className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 transition-all duration-500">
-            <Icon name={messages[(currentMessageIndex + 1) % messages.length].icon} size={20} className="text-green-500 flex-shrink-0" />
-            <span className="animate-fade-in">{messages[(currentMessageIndex + 1) % messages.length].text}</span>
+          <div key={`msg2-${currentMessageIndex}`} className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
+            <Icon name={messages[(currentMessageIndex + 1) % messages.length].icon as any} size={20} className="text-green-500 flex-shrink-0" />
+            <span>{messages[(currentMessageIndex + 1) % messages.length].text}</span>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 md:gap-6 mb-6 sm:mb-8 text-[11px] sm:text-base md:text-lg font-medium">
