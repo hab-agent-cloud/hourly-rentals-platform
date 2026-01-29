@@ -200,9 +200,9 @@ export default function SearchHero({
           ОТЕЛЕЙ И АПАРТАМЕНТОВ
         </h3>
         <div className="flex justify-center items-center mb-4 sm:mb-6 min-h-[32px] sm:min-h-[40px]">
-          <div key={currentMessageIndex} className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
+          <div key={`anim-${currentMessageIndex}`} className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
             <Icon name={messages[currentMessageIndex].icon as any} size={20} className="text-green-500 flex-shrink-0" />
-            <span>{messages[currentMessageIndex].text}</span>
+            <span className="inline-block">{messages[currentMessageIndex].text}</span>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 md:gap-6 mb-6 sm:mb-8 text-[11px] sm:text-base md:text-lg font-medium">
@@ -245,20 +245,17 @@ export default function SearchHero({
                     }
                   }}
                 />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2" style={{ zIndex: 9999 }}>
-                  <button
-                    onClick={handleVoiceSearch}
-                    disabled={isListening}
-                    className={`p-2 sm:p-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:cursor-not-allowed transition-all shadow-2xl border-2 border-white ${isListening ? 'animate-pulse scale-110' : ''}`}
-                    title="Голосовой поиск"
-                    aria-label="Голосовой поиск"
-                  >
-                    {isListening && (
-                      <span className="absolute inset-0 rounded-full bg-purple-400 animate-ping opacity-75"></span>
-                    )}
-                    <Icon name={isListening ? "Radio" : "Mic"} size={20} className="relative" style={{ zIndex: 10000 }} />
-                  </button>
-                </div>
+                <button
+                  onClick={handleVoiceSearch}
+                  disabled={isListening}
+                  type="button"
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-3 rounded-full bg-red-600 text-white hover:bg-red-700 shadow-2xl border-4 border-yellow-400 ${isListening ? 'animate-bounce' : 'animate-pulse'}`}
+                  style={{ zIndex: 99999 }}
+                  title="🎤 ГОЛОСОВОЙ ПОИСК"
+                  aria-label="Голосовой поиск"
+                >
+                  <Icon name="Mic" size={24} />
+                </button>
               </div>
               {voiceError && (
                 <p className="text-xs text-red-500 mt-1">{voiceError}</p>
