@@ -70,7 +70,8 @@ def handler(event: dict, context) -> dict:
             
             # GET - получить список всех сотрудников
             if method == 'GET':
-                employee_id = event.get('queryStringParameters', {}).get('employee_id')
+                query_params = event.get('queryStringParameters') or {}
+                employee_id = query_params.get('employee_id') or query_params.get('id')
                 
                 # Если запрашивается информация о конкретном сотруднике
                 # Разрешить, если это superadmin ИЛИ сотрудник запрашивает свои данные
