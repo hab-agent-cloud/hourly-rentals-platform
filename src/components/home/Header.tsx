@@ -85,47 +85,47 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
               </Sheet>
               
               <nav className="hidden md:flex items-center gap-3">
-            <Button 
-              variant={activeTab === 'catalog' ? 'default' : 'ghost'} 
-              onClick={() => onTabChange('catalog')}
-              className={activeTab === 'catalog' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white' : 'text-purple-700 hover:bg-purple-50 hover:text-purple-800'}
-            >
-              Каталог
-            </Button>
-            <Button 
-              variant={activeTab === 'about' ? 'default' : 'ghost'} 
-              onClick={() => onTabChange('about')}
-              className={activeTab === 'about' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white' : 'text-purple-700 hover:bg-purple-50 hover:text-purple-800'}
-            >
-              О платформе
-            </Button>
-            <Button 
-              variant={activeTab === 'partners' ? 'default' : 'ghost'} 
-              onClick={() => onTabChange('partners')}
-              className={activeTab === 'partners' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white' : 'text-purple-700 hover:bg-purple-50 hover:text-purple-800'}
-            >
-              Партнерам
-            </Button>
-            <Button 
-              variant={activeTab === 'support' ? 'default' : 'ghost'} 
-              onClick={() => onTabChange('support')}
-              className={activeTab === 'support' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white' : 'text-purple-700 hover:bg-purple-50 hover:text-purple-800'}
-            >
-              Поддержка
-            </Button>
-            <a href="/add-listing">
-              <Button variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:text-purple-800">
-                <Icon name="Plus" size={18} className="mr-2" />
-                Добавить объект
-              </Button>
-            </a>
-            <a href="/owner/login">
-              <Button variant="outline">
-                Экстранет для владельцев
-              </Button>
-            </a>
-          </nav>
-          </div>
+                <Button 
+                  variant={activeTab === 'catalog' ? 'default' : 'ghost'} 
+                  onClick={() => onTabChange('catalog')}
+                  className={activeTab === 'catalog' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white' : 'text-purple-700 hover:bg-purple-50 hover:text-purple-800'}
+                >
+                  Каталог
+                </Button>
+                <Button 
+                  variant={activeTab === 'about' ? 'default' : 'ghost'} 
+                  onClick={() => onTabChange('about')}
+                  className={activeTab === 'about' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white' : 'text-purple-700 hover:bg-purple-50 hover:text-purple-800'}
+                >
+                  О платформе
+                </Button>
+                <Button 
+                  variant={activeTab === 'partners' ? 'default' : 'ghost'} 
+                  onClick={() => onTabChange('partners')}
+                  className={activeTab === 'partners' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white' : 'text-purple-700 hover:bg-purple-50 hover:text-purple-800'}
+                >
+                  Партнерам
+                </Button>
+                <Button 
+                  variant={activeTab === 'support' ? 'default' : 'ghost'} 
+                  onClick={() => onTabChange('support')}
+                  className={activeTab === 'support' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white' : 'text-purple-700 hover:bg-purple-50 hover:text-purple-800'}
+                >
+                  Поддержка
+                </Button>
+                <a href="/add-listing">
+                  <Button variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-50 hover:text-purple-800">
+                    <Icon name="Plus" size={18} className="mr-2" />
+                    Добавить объект
+                  </Button>
+                </a>
+                <a href="/owner/login">
+                  <Button variant="outline">
+                    Экстранет для владельцев
+                  </Button>
+                </a>
+              </nav>
+            </div>
         
           <div className="flex items-center justify-center pt-2 border-t border-purple-100">
             <a href="tel:88002347120" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 hover:from-green-100 hover:to-emerald-100 transition-all">
