@@ -16,6 +16,7 @@ interface AdminListingsFiltersProps {
   onArchiveToggle: () => void;
   onUnratedToggle: () => void;
   onCreate: () => void;
+  isSuperAdmin?: boolean;
 }
 
 export default function AdminListingsFilters({
@@ -31,6 +32,7 @@ export default function AdminListingsFilters({
   onArchiveToggle,
   onUnratedToggle,
   onCreate,
+  isSuperAdmin = false,
 }: AdminListingsFiltersProps) {
   return (
     <div className="flex items-center justify-between mb-6">
@@ -82,14 +84,16 @@ export default function AdminListingsFilters({
             </SelectItem>
           </SelectContent>
         </Select>
-        <Button
-          variant={showOnlyUnrated ? 'default' : 'outline'}
-          onClick={onUnratedToggle}
-          className={showOnlyUnrated ? 'bg-purple-600 hover:bg-purple-700' : ''}
-        >
-          <Icon name="Award" size={18} className="mr-2" />
-          {showOnlyUnrated ? 'Показать все' : 'Без оценки'}
-        </Button>
+        {isSuperAdmin && (
+          <Button
+            variant={showOnlyUnrated ? 'default' : 'outline'}
+            onClick={onUnratedToggle}
+            className={showOnlyUnrated ? 'bg-purple-600 hover:bg-purple-700' : ''}
+          >
+            <Icon name="Award" size={18} className="mr-2" />
+            {showOnlyUnrated ? 'Показать все' : 'Без оценки'}
+          </Button>
+        )}
         <Button
           variant={showArchived ? 'default' : 'outline'}
           onClick={onArchiveToggle}

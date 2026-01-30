@@ -223,6 +223,7 @@ export default function AdminPanel() {
           onArchiveToggle={() => setShowArchived(!showArchived)}
           onUnratedToggle={() => setShowOnlyUnrated(!showOnlyUnrated)}
           onCreate={handleCreate}
+          isSuperAdmin={adminInfo?.role === 'superadmin'}
         />
 
         <AdminListingsContent
@@ -237,7 +238,6 @@ export default function AdminPanel() {
           onChangePosition={handleChangePosition}
           onSetSubscription={(listing) => setSubscriptionDialog({ open: true, listing })}
           onModerate={handleModerate}
-          onExpertRate={(listing) => setExpertRatingDialog({ open: true, listing })}
         />
 
         <SubscriptionDialog

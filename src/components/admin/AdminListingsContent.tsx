@@ -14,7 +14,7 @@ interface AdminListingsContentProps {
   onChangePosition: (listingId: number, newPosition: number) => void;
   onSetSubscription: (listing: any) => void;
   onModerate: (listing: any) => void;
-  onExpertRate: (listing: any) => void;
+  onExpertRate?: (listing: any) => void;
 }
 
 export default function AdminListingsContent({
