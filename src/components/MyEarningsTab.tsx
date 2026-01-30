@@ -248,24 +248,6 @@ export default function MyEarningsTab({ token, adminInfo }: MyEarningsTabProps) 
               </div>
             </div>
           </div>
-          <div className="flex items-start gap-2">
-            <Icon name="Edit" size={18} className="text-blue-600 mt-0.5 flex-shrink-0" />
-            <div>
-              <div className="font-semibold">Обновление информации</div>
-              <div className="text-sm text-muted-foreground">
-                За значительные улучшения описания и фотографий объектов
-              </div>
-            </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <Icon name="Calendar" size={18} className="text-purple-600 mt-0.5 flex-shrink-0" />
-            <div>
-              <div className="font-semibold">Выплаты</div>
-              <div className="text-sm text-muted-foreground">
-                Производятся два раза в месяц: 15-го и 30-го числа
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
