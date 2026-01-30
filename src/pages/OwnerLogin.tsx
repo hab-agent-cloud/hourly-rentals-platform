@@ -11,6 +11,7 @@ import Icon from '@/components/ui/icon';
 export default function OwnerLogin() {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -94,15 +95,26 @@ export default function OwnerLogin() {
 
             <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="password" className="text-sm sm:text-base">Пароль</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Введите пароль"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="h-10 sm:h-11 text-sm sm:text-base"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Введите пароль"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="h-10 sm:h-11 text-sm sm:text-base pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-10 sm:h-11 px-3 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <Icon name={showPassword ? "EyeOff" : "Eye"} size={18} className="text-muted-foreground" />
+                </Button>
+              </div>
             </div>
 
             <Button

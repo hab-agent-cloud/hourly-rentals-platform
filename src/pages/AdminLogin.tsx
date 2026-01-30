@@ -13,6 +13,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [phonePassword, setPhonePassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -104,14 +105,23 @@ export default function AdminLogin() {
               <div className="relative">
                 <Icon name="Lock" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 pr-10"
                   autoComplete="current-password"
                   required
                 />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <Icon name={showPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                </Button>
               </div>
             </div>
             <Button
@@ -159,17 +169,26 @@ export default function AdminLogin() {
               <div className="relative">
                 <Icon name="Lock" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={phonePassword}
                   onChange={(e) => {
                     setPhonePassword(e.target.value);
                     setPassword(e.target.value);
                   }}
-                  className="pl-10"
+                  className="pl-10 pr-10"
                   autoComplete="current-password"
                   required
                 />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <Icon name={showPassword ? "EyeOff" : "Eye"} size={16} className="text-muted-foreground" />
+                </Button>
               </div>
             </div>
             <Button
