@@ -12,6 +12,7 @@ import AdminBonusesTab from '@/components/AdminBonusesTab';
 import AdminAllActionsTab from '@/components/AdminAllActionsTab';
 import AdminModerationTab from '@/components/AdminModerationTab';
 import AdminCallTrackingTab from '@/components/AdminCallTrackingTab';
+import MyEarningsTab from '@/components/MyEarningsTab';
 import AdminPanelHeader from '@/components/admin/AdminPanelHeader';
 import AdminListingsFilters from '@/components/admin/AdminListingsFilters';
 import AdminListingsContent from '@/components/admin/AdminListingsContent';
@@ -21,7 +22,7 @@ import OwnerModerationDialog from '@/components/admin/OwnerModerationDialog';
 import ExpertRatingDialogFull from '@/components/ExpertRatingDialogFull';
 
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState<'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking'>('listings');
+  const [activeTab, setActiveTab] = useState<'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings'>('listings');
   const [selectedListing, setSelectedListing] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
   const [subscriptionDialog, setSubscriptionDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
@@ -61,6 +62,9 @@ export default function AdminPanel() {
   useEffect(() => {
     if (token && adminInfo) {
       loadListings();
+      if (adminInfo.role === 'employee' && activeTab === 'listings') {
+        setActiveTab('my-earnings');
+      }
     }
   }, [token, adminInfo]);
 
@@ -208,6 +212,8 @@ export default function AdminPanel() {
           <AdminAllActionsTab token={token!} />
         ) : activeTab === 'call-tracking' && adminInfo?.role === 'superadmin' ? (
           <AdminCallTrackingTab />
+        ) : activeTab === 'my-earnings' && adminInfo?.role === 'employee' ? (
+          <MyEarningsTab token={token!} adminInfo={adminInfo} />
         ) : hasPermission('listings') ? (
         <>
         <AdminListingsFilters

@@ -4,8 +4,8 @@ import Icon from '@/components/ui/icon';
 interface AdminPanelHeaderProps {
   adminInfo: any;
   hasPermission: (permission: string) => boolean;
-  activeTab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking';
-  onTabChange: (tab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking') => void;
+  activeTab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings';
+  onTabChange: (tab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings') => void;
   onLogout: () => void;
 }
 
@@ -26,7 +26,7 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
                   Админ-панель
                 </h1>
                 <p className="text-xs text-muted-foreground">
-                  {adminInfo?.name} • {adminInfo?.role === 'superadmin' ? 'Суперадминистратор' : 'Сотрудник'}
+                  {adminInfo?.name} • {adminInfo?.role === 'superadmin' ? 'Суперадминистратор' : 'Копирайтер'}
                 </p>
               </div>
             </div>
@@ -124,6 +124,16 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
                 Звонки
               </Button>
             </>
+          )}
+          {adminInfo?.role === 'employee' && (
+            <Button
+              variant={activeTab === 'my-earnings' ? 'default' : 'ghost'}
+              onClick={() => onTabChange('my-earnings')}
+              className="rounded-b-none"
+            >
+              <Icon name="Wallet" size={18} className="mr-2" />
+              Мой заработок
+            </Button>
           )}
         </div>
       </div>
