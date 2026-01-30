@@ -33,9 +33,15 @@ export default function MyEarningsTab({ token, adminInfo }: MyEarningsTabProps) 
   });
   const [actions, setActions] = useState<EmployeeAction[]>([]);
 
+  console.log('[MyEarningsTab] Component mounted, adminInfo:', adminInfo);
+
   useEffect(() => {
+    console.log('[MyEarningsTab] useEffect triggered, adminInfo?.id:', adminInfo?.id);
     if (adminInfo?.id) {
       fetchMyEarnings();
+    } else {
+      console.warn('[MyEarningsTab] adminInfo.id is not available, waiting...');
+      setIsLoading(false);
     }
   }, [adminInfo?.id]);
 
