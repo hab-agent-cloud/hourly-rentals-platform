@@ -84,7 +84,7 @@ export default function AdminLogin() {
             </TabsList>
             
             <TabsContent value="login">
-          <form onSubmit={handleLogin} className="space-y-4" noValidate>
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Логин или Email</label>
               <div className="relative">
@@ -96,7 +96,7 @@ export default function AdminLogin() {
                   onChange={(e) => setLogin(e.target.value)}
                   className="pl-10"
                   autoComplete="username"
-                  required
+                  inputMode="text"
                 />
               </div>
             </div>
@@ -111,7 +111,6 @@ export default function AdminLogin() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10"
                   autoComplete="current-password"
-                  required
                 />
                 <Button
                   type="button"
@@ -145,7 +144,7 @@ export default function AdminLogin() {
             </TabsContent>
             
             <TabsContent value="phone">
-          <form onSubmit={handleLogin} className="space-y-4" noValidate>
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Номер телефона</label>
               <div className="relative">
@@ -160,7 +159,7 @@ export default function AdminLogin() {
                   }}
                   className="pl-10"
                   autoComplete="tel"
-                  required
+                  inputMode="numeric"
                 />
               </div>
             </div>
@@ -178,7 +177,6 @@ export default function AdminLogin() {
                   }}
                   className="pl-10 pr-10"
                   autoComplete="current-password"
-                  required
                 />
                 <Button
                   type="button"

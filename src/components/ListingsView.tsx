@@ -185,12 +185,6 @@ export default function ListingsView({
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          <Badge variant="outline" className="text-lg px-4 py-2">
-            <Icon name="Building2" size={18} className="mr-2" />
-            {sortedListings.length} объектов
-          </Badge>
-        </div>
 
         <div className="flex items-center gap-3 flex-wrap">
           <Select value={sortBy} onValueChange={setSortBy}>
