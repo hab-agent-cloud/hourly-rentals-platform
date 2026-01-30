@@ -33,29 +33,21 @@ export default function MyEarningsTab({ token, adminInfo }: MyEarningsTabProps) 
   });
   const [actions, setActions] = useState<EmployeeAction[]>([]);
 
-  console.log('[MyEarningsTab] Component mounted, adminInfo:', adminInfo);
-  console.log('[MyEarningsTab] adminInfo keys:', adminInfo ? Object.keys(adminInfo) : 'null');
-  console.log('[MyEarningsTab] adminInfo.id:', adminInfo?.id);
-
   useEffect(() => {
-    console.log('[MyEarningsTab] useEffect triggered, adminInfo?.id:', adminInfo?.id);
-    if (adminInfo?.id) {
+    if (adminInfo?.admin_id) {
       fetchMyEarnings();
     } else {
-      console.warn('[MyEarningsTab] adminInfo.id is not available, waiting...', adminInfo);
       setIsLoading(false);
     }
-  }, [adminInfo?.id]);
+  }, [adminInfo?.admin_id]);
 
   const fetchMyEarnings = async () => {
-    if (!adminInfo?.id) {
-      console.warn('[MyEarningsTab] adminInfo.id is not available yet');
+    if (!adminInfo?.admin_id) {
       return;
     }
     
     try {
-      console.log('[MyEarningsTab] Fetching earnings for employee ID:', adminInfo.id, 'Type:', typeof adminInfo.id);
-      const data = await api.getEmployeeDetails(token, adminInfo.id);
+      const data = await api.getEmployeeDetails(token, adminInfo.admin_id);
       
       setEarnings({
         total: data.employee.earnings?.total || 0,
