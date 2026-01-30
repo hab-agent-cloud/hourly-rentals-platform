@@ -34,10 +34,17 @@ export default function MyEarningsTab({ token, adminInfo }: MyEarningsTabProps) 
   const [actions, setActions] = useState<EmployeeAction[]>([]);
 
   useEffect(() => {
-    fetchMyEarnings();
-  }, []);
+    if (adminInfo?.id) {
+      fetchMyEarnings();
+    }
+  }, [adminInfo?.id]);
 
   const fetchMyEarnings = async () => {
+    if (!adminInfo?.id) {
+      console.warn('[MyEarningsTab] adminInfo.id is not available yet');
+      return;
+    }
+    
     try {
       console.log('[MyEarningsTab] Fetching earnings for employee ID:', adminInfo.id, 'Type:', typeof adminInfo.id);
       const data = await api.getEmployeeDetails(token, adminInfo.id);
