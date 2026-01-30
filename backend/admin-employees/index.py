@@ -98,7 +98,7 @@ def handler(event: dict, context) -> dict:
                     }
                 
                 if employee_id:
-                    # Получить историю действий конкретного сотрудника
+                    # Получить данные сотрудника
                     cur.execute("""
                         SELECT id, email, name, role, permissions, is_active, 
                                created_at, last_login, login
@@ -115,23 +115,43 @@ def handler(event: dict, context) -> dict:
                             'isBase64Encoded': False
                         }
                     
-                    # Получить историю действий
+                    # Подсчитать заработок из таблицы employee_bonuses
                     cur.execute("""
                         SELECT 
-                            l.id, l.action_type, l.entity_type, l.entity_id, 
-                            l.entity_name, l.description, l.created_at, l.metadata
-                        FROM t_p39732784_hourly_rentals_platf.admin_action_logs l
-                        WHERE l.admin_id = %s
-                        ORDER BY l.created_at DESC
+                            COALESCE(SUM(bonus_amount), 0) as total,
+                            COALESCE(SUM(CASE WHEN is_paid = true THEN bonus_amount ELSE 0 END), 0) as paid,
+                            COALESCE(SUM(CASE WHEN is_paid = false OR is_paid IS NULL THEN bonus_amount ELSE 0 END), 0) as pending
+                        FROM t_p39732784_hourly_rentals_platf.employee_bonuses
+                        WHERE admin_id = %s
+                    """, (employee_id,))
+                    earnings = cur.fetchone()
+                    
+                    # Получить историю бонусов
+                    cur.execute("""
+                        SELECT 
+                            b.id, b.entity_type, b.entity_id, b.entity_name,
+                            b.bonus_amount as earning, b.is_paid as earning_paid,
+                            b.created_at, b.notes as description
+                        FROM t_p39732784_hourly_rentals_platf.employee_bonuses b
+                        WHERE b.admin_id = %s
+                        ORDER BY b.created_at DESC
                         LIMIT 100
                     """, (employee_id,))
                     actions = cur.fetchall()
+                    
+                    # Добавить заработок в данные сотрудника
+                    employee_dict = dict(employee)
+                    employee_dict['earnings'] = {
+                        'total': float(earnings['total']) if earnings else 0,
+                        'paid': float(earnings['paid']) if earnings else 0,
+                        'pending': float(earnings['pending']) if earnings else 0
+                    }
                     
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({
-                            'employee': dict(employee),
+                            'employee': employee_dict,
                             'actions': [dict(a) for a in actions]
                         }, default=str),
                         'isBase64Encoded': False
