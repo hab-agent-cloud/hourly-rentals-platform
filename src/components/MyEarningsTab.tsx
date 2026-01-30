@@ -39,6 +39,7 @@ export default function MyEarningsTab({ token, adminInfo }: MyEarningsTabProps) 
 
   const fetchMyEarnings = async () => {
     try {
+      console.log('[MyEarningsTab] Fetching earnings for employee ID:', adminInfo.id, 'Type:', typeof adminInfo.id);
       const data = await api.getEmployeeDetails(token, adminInfo.id);
       
       setEarnings({

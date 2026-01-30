@@ -60,11 +60,13 @@ def handler(event: dict, context) -> dict:
             """, (admin_id,))
             admin = cur.fetchone()
             
+            print(f"[DEBUG] Admin check: admin_id={admin_id}, admin={admin}")
+            
             if not admin:
                 return {
                     'statusCode': 403,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Access denied'}),
+                    'body': json.dumps({'error': 'Access denied - admin not found'}),
                     'isBase64Encoded': False
                 }
             
@@ -73,13 +75,16 @@ def handler(event: dict, context) -> dict:
                 query_params = event.get('queryStringParameters') or {}
                 employee_id = query_params.get('employee_id') or query_params.get('id')
                 
+                print(f"[DEBUG] GET request: employee_id={employee_id}, admin_id={admin_id}, admin_role={admin['role']}")
+                
                 # Если запрашивается информация о конкретном сотруднике
                 # Разрешить, если это superadmin ИЛИ сотрудник запрашивает свои данные
                 if employee_id and (admin['role'] != 'superadmin' and str(admin_id) != str(employee_id)):
+                    print(f"[DEBUG] Access denied: employee_id={employee_id}, admin_id={admin_id}, role={admin['role']}")
                     return {
                         'statusCode': 403,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Access denied'}),
+                        'body': json.dumps({'error': f'Access denied - employee requesting: {employee_id}, logged in as: {admin_id}'}),
                         'isBase64Encoded': False
                     }
                 
