@@ -99,37 +99,41 @@ export default function ListingCard({
           <h4 className="font-bold text-lg line-clamp-2 flex-1">{listing.title}</h4>
         </div>
 
-        {listing.address && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-            <Icon name="MapPin" size={14} />
-            <span className="truncate">{listing.address}</span>
-          </div>
-        )}
+        <div className="space-y-1 mb-3">
+          {listing.address && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Icon name="MapPin" size={14} />
+              <span className="truncate">{listing.address}</span>
+            </div>
+          )}
 
-        {listing.metro_stations && listing.metro_stations.length > 0 ? (
-          <div className="flex flex-col gap-1 mb-3">
-            {listing.metro_stations.slice(0, 2).map((station, idx) => (
-              <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="text-blue-600">Ⓜ️</span>
-                <span className="truncate">{station.station_name}</span>
-                <Icon name="PersonStanding" size={13} />
-                <span className="text-xs">{station.walk_minutes} мин</span>
-              </div>
-            ))}
-          </div>
-        ) : listing.metro ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-            <span className="text-blue-600">Ⓜ️</span>
-            <span className="truncate">{listing.metro}</span>
-            <Icon name="PersonStanding" size={13} />
-            <span className="text-xs">{listing.metroWalk} мин</span>
-          </div>
-        ) : listing.district && !listing.address ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-            <Icon name="MapPin" size={14} />
-            <span className="truncate">р-н {listing.district}</span>
-          </div>
-        ) : null}
+          {listing.metro_stations && listing.metro_stations.length > 0 ? (
+            <div className="flex flex-col gap-1">
+              {listing.metro_stations.slice(0, 2).map((station, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span className="text-blue-600">Ⓜ️</span>
+                  <span className="truncate">{station.station_name}</span>
+                  <Icon name="PersonStanding" size={13} />
+                  <span className="text-xs">{station.walk_minutes} мин</span>
+                </div>
+              ))}
+            </div>
+          ) : listing.metro ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span className="text-blue-600">Ⓜ️</span>
+              <span className="truncate">{listing.metro}</span>
+              <Icon name="PersonStanding" size={13} />
+              <span className="text-xs">{listing.metroWalk} мин</span>
+            </div>
+          ) : null}
+
+          {!listing.address && !listing.metro && !listing.metro_stations?.length && listing.district && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Icon name="MapPin" size={14} />
+              <span className="truncate">р-н {listing.district}</span>
+            </div>
+          )}
+        </div>
 
         <div className="flex flex-wrap gap-2 mb-3">
           {listing.hasParking && (
