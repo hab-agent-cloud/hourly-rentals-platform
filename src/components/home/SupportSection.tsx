@@ -17,7 +17,25 @@ export default function SupportSection() {
           </h2>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <Card className="border-purple-200 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow">
+            <CardContent className="p-6">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center mb-4">
+                <Icon name="Phone" size={24} className="text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-purple-900">Телефон</h3>
+              <p className="text-muted-foreground mb-4">
+                Бесплатная горячая линия поддержки
+              </p>
+              <a href="tel:88002347120">
+                <Button variant="outline" className="w-full border-purple-300">
+                  <Icon name="Phone" size={18} className="mr-2" />
+                  8 800 234-71-20
+                </Button>
+              </a>
+            </CardContent>
+          </Card>
+
           <Card className="border-purple-200 bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center mb-4">
@@ -105,6 +123,12 @@ export default function SupportSection() {
                 Свяжитесь с нами любым удобным способом, и мы ответим на все ваши вопросы
               </p>
               <div className="flex flex-wrap gap-2">
+                <a href="tel:88002347120">
+                  <Button size="sm" variant="outline" className="border-purple-300">
+                    <Icon name="Phone" size={16} className="mr-2" />
+                    8 800 234-71-20
+                  </Button>
+                </a>
                 <a href="https://t.me/HELP120MINUT" target="_blank" rel="noopener noreferrer">
                   <Button size="sm" variant="outline" className="border-purple-300">
                     <Icon name="Send" size={16} className="mr-2" />

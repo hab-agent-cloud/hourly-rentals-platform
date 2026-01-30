@@ -180,10 +180,21 @@ export default function OwnerDashboardHeader({
                 </div>
               </div>
             </Card>
-            <Button variant="outline" onClick={onLogout} className="w-full sm:w-auto h-8 text-xs sm:text-sm">
-              <Icon name="LogOut" size={14} className="sm:mr-2" />
-              <span className="hidden sm:inline">Выйти</span>
-            </Button>
+            <div className="flex flex-col gap-2">
+              <div className="text-center px-3 py-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+                <div className="flex items-center justify-center gap-2 text-green-700 mb-1">
+                  <Icon name="Phone" size={16} />
+                  <span className="text-xs font-semibold">Бесплатная горячая линия поддержки</span>
+                </div>
+                <a href="tel:88002347120" className="text-lg font-bold text-green-600 hover:text-green-700 transition-colors">
+                  8 800 234-71-20
+                </a>
+              </div>
+              <Button variant="outline" onClick={onLogout} className="w-full sm:w-auto h-8 text-xs sm:text-sm">
+                <Icon name="LogOut" size={14} className="sm:mr-2" />
+                <span className="hidden sm:inline">Выйти</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
