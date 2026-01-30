@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
@@ -70,28 +70,40 @@ export default function ListingsView({
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 30;
 
-  const sortedListings = [...filteredListings].sort((a, b) => {
-    switch (sortBy) {
-      case 'price-asc':
-        return a.price - b.price;
-      case 'price-desc':
-        return b.price - a.price;
-      case 'auction':
-      default:
-        if (a.city !== b.city) {
-          return a.city.localeCompare(b.city);
-        }
-        return a.auction - b.auction;
-    }
-  });
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredListings.length]);
 
-  const groupedByCity = sortedListings.reduce((acc, listing) => {
-    if (!acc[listing.city]) {
-      acc[listing.city] = [];
-    }
-    acc[listing.city].push(listing);
-    return acc;
-  }, {} as Record<string, Listing[]>);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
+
+  const sortedListings = useMemo(() => {
+    return [...filteredListings].sort((a, b) => {
+      switch (sortBy) {
+        case 'price-asc':
+          return a.price - b.price;
+        case 'price-desc':
+          return b.price - a.price;
+        case 'auction':
+        default:
+          if (a.city !== b.city) {
+            return a.city.localeCompare(b.city);
+          }
+          return a.auction - b.auction;
+      }
+    });
+  }, [filteredListings, sortBy]);
+
+  const groupedByCity = useMemo(() => {
+    return sortedListings.reduce((acc, listing) => {
+      if (!acc[listing.city]) {
+        acc[listing.city] = [];
+      }
+      acc[listing.city].push(listing);
+      return acc;
+    }, {} as Record<string, Listing[]>);
+  }, [sortedListings]);
 
   const getPositionInCity = (listing: Listing): number => {
     const sameCity = groupedByCity[listing.city] || [];
@@ -237,38 +249,84 @@ export default function ListingsView({
           </div>
 
           {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
+            <>
+              <div className="text-center text-sm text-muted-foreground mt-6">
+                Показаны объекты {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, sortedListings.length)} из {sortedListings.length}
+              </div>
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-2 mt-4">
               <Button
                 variant="outline"
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
+                className="w-full sm:w-auto"
               >
                 <Icon name="ChevronLeft" size={18} />
                 Назад
               </Button>
               
-              <div className="flex items-center gap-2">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    onClick={() => setCurrentPage(page)}
-                    className="w-10"
-                  >
-                    {page}
-                  </Button>
-                ))}
+              <div className="flex items-center gap-2 flex-wrap justify-center">
+                {totalPages <= 7 ? (
+                  Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      onClick={() => setCurrentPage(page)}
+                      className="w-10"
+                    >
+                      {page}
+                    </Button>
+                  ))
+                ) : (
+                  <>
+                    <Button
+                      variant={currentPage === 1 ? "default" : "outline"}
+                      onClick={() => setCurrentPage(1)}
+                      className="w-10"
+                    >
+                      1
+                    </Button>
+                    
+                    {currentPage > 3 && <span className="px-2">...</span>}
+                    
+                    {Array.from({ length: 3 }, (_, i) => {
+                      const page = currentPage - 1 + i;
+                      if (page <= 1 || page >= totalPages) return null;
+                      return (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          onClick={() => setCurrentPage(page)}
+                          className="w-10"
+                        >
+                          {page}
+                        </Button>
+                      );
+                    })}
+                    
+                    {currentPage < totalPages - 2 && <span className="px-2">...</span>}
+                    
+                    <Button
+                      variant={currentPage === totalPages ? "default" : "outline"}
+                      onClick={() => setCurrentPage(totalPages)}
+                      className="w-10"
+                    >
+                      {totalPages}
+                    </Button>
+                  </>
+                )}
               </div>
 
               <Button
                 variant="outline"
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
+                className="w-full sm:w-auto"
               >
                 Вперёд
                 <Icon name="ChevronRight" size={18} />
               </Button>
             </div>
+            </>
           )}
         </>
       )}

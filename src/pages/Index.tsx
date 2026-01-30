@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import SearchHero from '@/components/SearchHero';
 import ListingsView from '@/components/ListingsView';
 import HotelModal from '@/components/HotelModal';
@@ -50,11 +50,15 @@ export default function Index() {
 
   const loadListings = async () => {
     try {
+      const startTime = performance.now();
       const data = await api.getPublicListings();
+      const loadTime = performance.now() - startTime;
+      
       console.log('=== PUBLIC LISTINGS LOADED ===');
       console.log('Data type:', typeof data);
       console.log('Is array:', Array.isArray(data));
       console.log('Data length:', Array.isArray(data) ? data.length : 'N/A');
+      console.log(`Load time: ${loadTime.toFixed(2)}ms`);
       
       if (data && data.error) {
         throw new Error(data.error);
@@ -75,27 +79,34 @@ export default function Index() {
     }
   };
 
-  const uniqueCities = ['Все города', ...new Set(Array.isArray(allListings) ? allListings.map(l => l.city) : [])];
+  const uniqueCities = useMemo(() => 
+    ['Все города', ...new Set(Array.isArray(allListings) ? allListings.map(l => l.city) : [])],
+    [allListings]
+  );
 
-  const filteredListings = (Array.isArray(allListings) ? allListings : [])
-    .filter(l => !l.is_archived)
-    .filter(l => selectedCity === 'Все города' || l.city === selectedCity)
-    .filter(l => selectedType === 'all' || l.type === selectedType)
-    .filter(l => !hasParking || l.hasParking)
-    .filter(l => minHours === null || l.minHours <= minHours)
-    .filter(l => {
-      const search = searchCity.toLowerCase();
-      return l.title.toLowerCase().includes(search) || 
-             l.city.toLowerCase().includes(search) ||
-             (l.metro && l.metro.toLowerCase().includes(search)) ||
-             (l.district && l.district.toLowerCase().includes(search));
-    })
-    .filter(l => {
-      if (selectedFeatures.length === 0) return true;
-      return l.rooms && l.rooms.some((room: any) => 
-        selectedFeatures.every((feature) => room.features && room.features.includes(feature))
-      );
-    });
+  const filteredListings = useMemo(() => {
+    const listings = Array.isArray(allListings) ? allListings : [];
+    const search = searchCity.toLowerCase();
+    
+    return listings
+      .filter(l => !l.is_archived)
+      .filter(l => selectedCity === 'Все города' || l.city === selectedCity)
+      .filter(l => selectedType === 'all' || l.type === selectedType)
+      .filter(l => !hasParking || l.hasParking)
+      .filter(l => minHours === null || l.minHours <= minHours)
+      .filter(l => {
+        return l.title.toLowerCase().includes(search) || 
+               l.city.toLowerCase().includes(search) ||
+               (l.metro && l.metro.toLowerCase().includes(search)) ||
+               (l.district && l.district.toLowerCase().includes(search));
+      })
+      .filter(l => {
+        if (selectedFeatures.length === 0) return true;
+        return l.rooms && l.rooms.some((room: any) => 
+          selectedFeatures.every((feature) => room.features && room.features.includes(feature))
+        );
+      });
+  }, [allListings, selectedCity, selectedType, hasParking, minHours, searchCity, selectedFeatures]);
 
   const handleCardClick = (listing: any) => {
     window.location.href = `/listing/${listing.id}`;
