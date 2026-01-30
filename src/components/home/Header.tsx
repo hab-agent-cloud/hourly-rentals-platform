@@ -126,7 +126,6 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
             </a>
           </nav>
           </div>
-        </div>
         
         <div className="flex items-center justify-center pt-2 border-t border-purple-100">
           <a href="tel:88002347120" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 hover:from-green-100 hover:to-emerald-100 transition-all">
