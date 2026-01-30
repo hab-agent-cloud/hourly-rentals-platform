@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Icon from '@/components/ui/icon';
 
 export default function CityFooter() {
   return (
@@ -14,9 +15,18 @@ export default function CityFooter() {
               />
             </Link>
             <h3 className="text-xl font-bold mb-4">120 МИНУТ</h3>
-            <p className="text-purple-200 text-sm">
+            <p className="text-purple-200 text-sm mb-4">
               Платформа для поиска отелей с почасовой арендой по всей России
             </p>
+            <div className="bg-white/10 rounded-lg px-4 py-3 backdrop-blur-sm border border-white/20">
+              <div className="text-xs text-purple-200 mb-1 flex items-center gap-1">
+                <Icon name="Phone" size={12} />
+                Бесплатная горячая линия
+              </div>
+              <a href="tel:88002347120" className="text-lg font-bold text-white hover:text-purple-200 transition-colors">
+                8 800 234-71-20
+              </a>
+            </div>
           </div>
           <div>
             <h4 className="font-semibold mb-3">О сервисе</h4>
