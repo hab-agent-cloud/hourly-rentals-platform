@@ -64,6 +64,22 @@ export default function AboutSection() {
               </p>
             </CardContent>
           </Card>
+
+          <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 backdrop-blur-sm hover:shadow-lg transition-shadow md:col-span-2">
+            <CardContent className="p-6">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg flex items-center justify-center mb-4">
+                <Icon name="Phone" size={24} className="text-white" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-green-900">Бесплатная линия поддержки</h3>
+              <p className="text-muted-foreground mb-3">
+                Круглосуточная бесплатная горячая линия для гостей сайта и владельцев объектов. Мы всегда готовы помочь с любыми вопросами.
+              </p>
+              <a href="tel:88002347120" className="inline-flex items-center gap-2 text-lg font-bold text-green-700 hover:text-green-800 transition-colors">
+                <Icon name="Phone" size={20} />
+                8 800 234-71-20
+              </a>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 border border-purple-200">
