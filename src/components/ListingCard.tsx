@@ -99,10 +99,12 @@ export default function ListingCard({
           <h4 className="font-bold text-lg line-clamp-2 flex-1">{listing.title}</h4>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-          <Icon name="MapPin" size={14} />
-          <span className="truncate">{listing.address || listing.district}</span>
-        </div>
+        {listing.address && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+            <Icon name="MapPin" size={14} />
+            <span className="truncate">{listing.address}</span>
+          </div>
+        )}
 
         {listing.metro_stations && listing.metro_stations.length > 0 ? (
           <div className="flex flex-col gap-1 mb-3">
@@ -118,13 +120,14 @@ export default function ListingCard({
         ) : listing.metro ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
             <span className="text-blue-600">Ⓜ️</span>
-            <span>{listing.metro}</span>
+            <span className="truncate">{listing.metro}</span>
             <Icon name="PersonStanding" size={13} />
             <span className="text-xs">{listing.metroWalk} мин</span>
           </div>
-        ) : listing.district ? (
+        ) : listing.district && !listing.address ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-            <span>р-н {listing.district}</span>
+            <Icon name="MapPin" size={14} />
+            <span className="truncate">р-н {listing.district}</span>
           </div>
         ) : null}
 
