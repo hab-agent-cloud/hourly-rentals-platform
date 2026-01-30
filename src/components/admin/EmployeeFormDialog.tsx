@@ -172,7 +172,7 @@ export default function EmployeeFormDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="employee">Сотрудник</SelectItem>
+                <SelectItem value="employee">Копирайтер</SelectItem>
                 <SelectItem value="superadmin">Суперадмин</SelectItem>
               </SelectContent>
             </Select>

@@ -22,6 +22,11 @@ interface Employee {
   created_at: string;
   last_login?: string;
   action_count?: number;
+  earnings?: {
+    total: number;
+    paid: number;
+    pending: number;
+  };
 }
 
 interface EmployeeAction {
@@ -33,6 +38,8 @@ interface EmployeeAction {
   description: string;
   created_at: string;
   metadata: any;
+  earning?: number;
+  earning_paid?: boolean;
 }
 
 interface EmployeeDetailsDialogProps {
@@ -108,7 +115,7 @@ export default function EmployeeDetailsDialog({
             <div>
               <div className="text-sm text-muted-foreground mb-1">Роль</div>
               <Badge variant={employee.role === 'superadmin' ? 'default' : 'secondary'}>
-                {employee.role === 'superadmin' ? 'Суперадмин' : 'Сотрудник'}
+                {employee.role === 'superadmin' ? 'Суперадмин' : 'Копирайтер'}
               </Badge>
             </div>
             <div>
@@ -151,9 +158,38 @@ export default function EmployeeDetailsDialog({
             </div>
           </div>
 
+          {employee.role === 'employee' && employee.earnings && (
+            <div className="p-4 bg-gradient-to-br from-green-50 to-blue-50 rounded-lg border-2 border-green-200">
+              <div className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <Icon name="Wallet" size={20} className="text-green-600" />
+                Заработок копирайтера
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <div className="text-sm text-muted-foreground mb-1">Всего заработано</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {employee.earnings.total.toLocaleString('ru-RU')} ₽
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <div className="text-sm text-muted-foreground mb-1">Выплачено</div>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {employee.earnings.paid.toLocaleString('ru-RU')} ₽
+                  </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                  <div className="text-sm text-muted-foreground mb-1">К выплате</div>
+                  <div className="text-2xl font-bold text-orange-600">
+                    {employee.earnings.pending.toLocaleString('ru-RU')} ₽
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div>
             <div className="text-lg font-semibold mb-3">
-              История действий ({actions.length})
+              История действий и заработка ({actions.length})
             </div>
             {actions.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
@@ -170,12 +206,26 @@ export default function EmployeeDetailsDialog({
                       <Icon name={getActionIcon(action.action_type)} size={18} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium">{action.description}</div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {action.entity_type}: {action.entity_name}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {new Date(action.created_at).toLocaleString('ru-RU')}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="font-medium">{action.description}</div>
+                          <div className="text-sm text-muted-foreground mt-1">
+                            {action.entity_type}: {action.entity_name}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {new Date(action.created_at).toLocaleString('ru-RU')}
+                          </div>
+                        </div>
+                        {action.earning && action.earning > 0 && (
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="text-lg font-bold text-green-600">
+                              +{action.earning.toLocaleString('ru-RU')} ₽
+                            </div>
+                            <Badge variant={action.earning_paid ? 'default' : 'secondary'} className="text-xs">
+                              {action.earning_paid ? 'Выплачено' : 'К выплате'}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

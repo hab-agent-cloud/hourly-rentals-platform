@@ -18,6 +18,11 @@ interface Employee {
   created_at: string;
   last_login?: string;
   action_count?: number;
+  earnings?: {
+    total: number;
+    paid: number;
+    pending: number;
+  };
 }
 
 interface EmployeeCardProps {
@@ -48,7 +53,7 @@ export default function EmployeeCard({ employee, onEdit, onDelete, onViewDetails
             </div>
           </div>
           <Badge variant={getRoleBadgeVariant(employee.role)}>
-            {employee.role === 'superadmin' ? 'Суперадмин' : 'Сотрудник'}
+            {employee.role === 'superadmin' ? 'Суперадмин' : 'Копирайтер'}
           </Badge>
         </div>
       </CardHeader>
@@ -87,6 +92,26 @@ export default function EmployeeCard({ employee, onEdit, onDelete, onViewDetails
             <div className="text-sm text-muted-foreground flex items-center gap-2">
               <Icon name="LogIn" size={14} />
               Вход: {new Date(employee.last_login).toLocaleDateString('ru-RU')}
+            </div>
+          )}
+          
+          {employee.role === 'employee' && employee.earnings && (
+            <div className="space-y-2 pt-3 border-t">
+              <div className="text-sm font-semibold">Заработок:</div>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="bg-green-50 p-2 rounded">
+                  <div className="text-muted-foreground">Всего</div>
+                  <div className="font-bold text-green-700">{employee.earnings.total.toLocaleString('ru-RU')} ₽</div>
+                </div>
+                <div className="bg-blue-50 p-2 rounded">
+                  <div className="text-muted-foreground">Выплачено</div>
+                  <div className="font-bold text-blue-700">{employee.earnings.paid.toLocaleString('ru-RU')} ₽</div>
+                </div>
+                <div className="bg-orange-50 p-2 rounded">
+                  <div className="text-muted-foreground">К выплате</div>
+                  <div className="font-bold text-orange-700">{employee.earnings.pending.toLocaleString('ru-RU')} ₽</div>
+                </div>
+              </div>
             </div>
           )}
           

@@ -23,6 +23,11 @@ interface Employee {
   created_at: string;
   last_login?: string;
   action_count?: number;
+  earnings?: {
+    total: number;
+    paid: number;
+    pending: number;
+  };
 }
 
 interface EmployeeAction {
@@ -72,7 +77,17 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
     try {
       const data = await api.getEmployees(token);
       console.log('Employees data:', data);
-      setEmployees(data);
+      
+      const employeesWithEarnings = data.map((emp: Employee) => ({
+        ...emp,
+        earnings: emp.role === 'employee' ? {
+          total: emp.earnings?.total || 0,
+          paid: emp.earnings?.paid || 0,
+          pending: emp.earnings?.pending || 0,
+        } : undefined
+      }));
+      
+      setEmployees(employeesWithEarnings);
     } catch (error: any) {
       console.error('Failed to fetch employees:', error);
       toast({
@@ -88,8 +103,24 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
   const fetchEmployeeDetails = async (employeeId: number) => {
     try {
       const data = await api.getEmployeeDetails(token, employeeId);
-      setSelectedEmployee(data.employee);
-      setEmployeeActions(data.actions);
+      
+      const employeeWithEarnings = {
+        ...data.employee,
+        earnings: data.employee.role === 'employee' ? {
+          total: data.employee.earnings?.total || 0,
+          paid: data.employee.earnings?.paid || 0,
+          pending: data.employee.earnings?.pending || 0,
+        } : undefined
+      };
+      
+      const actionsWithEarnings = (data.actions || []).map((action: EmployeeAction) => ({
+        ...action,
+        earning: action.earning || 0,
+        earning_paid: action.earning_paid || false,
+      }));
+      
+      setSelectedEmployee(employeeWithEarnings);
+      setEmployeeActions(actionsWithEarnings);
       setShowDetailsDialog(true);
     } catch (error: any) {
       toast({
