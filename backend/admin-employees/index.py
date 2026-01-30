@@ -53,14 +53,14 @@ def handler(event: dict, context) -> dict:
             }
         
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # Проверка прав доступа - только superadmin
+            # Проверка прав доступа
             cur.execute("""
                 SELECT id, role, name FROM t_p39732784_hourly_rentals_platf.admins 
                 WHERE id = %s AND is_active = true
             """, (admin_id,))
             admin = cur.fetchone()
             
-            if not admin or admin['role'] != 'superadmin':
+            if not admin:
                 return {
                     'statusCode': 403,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -71,6 +71,25 @@ def handler(event: dict, context) -> dict:
             # GET - получить список всех сотрудников
             if method == 'GET':
                 employee_id = event.get('queryStringParameters', {}).get('employee_id')
+                
+                # Если запрашивается информация о конкретном сотруднике
+                # Разрешить, если это superadmin ИЛИ сотрудник запрашивает свои данные
+                if employee_id and (admin['role'] != 'superadmin' and str(admin_id) != str(employee_id)):
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
+                
+                # Для просмотра списка всех сотрудников - только superadmin
+                if not employee_id and admin['role'] != 'superadmin':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
                 
                 if employee_id:
                     # Получить историю действий конкретного сотрудника
@@ -142,8 +161,15 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
             
-            # POST - создать нового сотрудника
+            # POST - создать нового сотрудника (только superadmin)
             elif method == 'POST':
+                if admin['role'] != 'superadmin':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
                 data = json.loads(event.get('body', '{}'))
                 email = data.get('email')
                 name = data.get('name')
@@ -192,8 +218,16 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            # PUT - обновить сотрудника
+            # PUT - обновить сотрудника (только superadmin)
             elif method == 'PUT':
+                if admin['role'] != 'superadmin':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
+                
                 data = json.loads(event.get('body', '{}'))
                 employee_id = data.get('id')
                 
@@ -265,8 +299,16 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            # DELETE - удалить сотрудника
+            # DELETE - удалить сотрудника (только superadmin)
             elif method == 'DELETE':
+                if admin['role'] != 'superadmin':
+                    return {
+                        'statusCode': 403,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Access denied'}),
+                        'isBase64Encoded': False
+                    }
+                
                 query_params = event.get('queryStringParameters', {})
                 employee_id = query_params.get('id')
                 
