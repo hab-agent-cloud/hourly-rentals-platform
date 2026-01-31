@@ -55,8 +55,8 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center p-4 sm:p-6">
+      <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <img 
@@ -94,9 +94,10 @@ export default function AdminLogin() {
                   placeholder="Логин или email"
                   value={login}
                   onChange={(e) => setLogin(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 text-base"
                   autoComplete="username"
                   inputMode="text"
+                  required
                 />
               </div>
             </div>
@@ -109,8 +110,9 @@ export default function AdminLogin() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
+                  className="pl-10 pr-10 text-base"
                   autoComplete="current-password"
+                  required
                 />
                 <Button
                   type="button"
@@ -157,9 +159,10 @@ export default function AdminLogin() {
                     setPhone(e.target.value);
                     setLogin(e.target.value);
                   }}
-                  className="pl-10"
+                  className="pl-10 text-base"
                   autoComplete="tel"
                   inputMode="numeric"
+                  required
                 />
               </div>
             </div>
@@ -175,8 +178,9 @@ export default function AdminLogin() {
                     setPhonePassword(e.target.value);
                     setPassword(e.target.value);
                   }}
-                  className="pl-10 pr-10"
+                  className="pl-10 pr-10 text-base"
                   autoComplete="current-password"
+                  required
                 />
                 <Button
                   type="button"

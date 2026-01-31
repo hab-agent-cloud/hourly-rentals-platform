@@ -100,6 +100,20 @@
   body {
     @apply bg-background text-foreground;
     font-family: "Rubik", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  @media (max-width: 768px) {
+    input:focus {
+      font-size: 16px !important;
+    }
   }
 
   h1,
