@@ -303,6 +303,7 @@ export default function AdminPanel() {
         <ListingStatsDialog
           open={statsDialog.open}
           listing={statsDialog.listing}
+          token={token!}
           onClose={() => setStatsDialog({ open: false, listing: null })}
         />
 

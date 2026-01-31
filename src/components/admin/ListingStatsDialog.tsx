@@ -2,13 +2,24 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 
 interface ListingStatsDialogProps {
   open: boolean;
   onClose: () => void;
   listing: any;
+  token: string;
+}
+
+interface StatsReport {
+  id: number;
+  sent_to_email: string;
+  sent_at: string;
+  admin_name: string;
+  stats_data: any;
 }
 
 interface StatsData {
@@ -21,15 +32,18 @@ interface StatsData {
   conversionRate: number;
 }
 
-export default function ListingStatsDialog({ open, onClose, listing }: ListingStatsDialogProps) {
+export default function ListingStatsDialog({ open, onClose, listing, token }: ListingStatsDialogProps) {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [history, setHistory] = useState<StatsReport[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     if (open && listing) {
       loadStats();
+      loadHistory();
     }
   }, [open, listing]);
 
@@ -61,23 +75,34 @@ export default function ListingStatsDialog({ open, onClose, listing }: ListingSt
     }
   };
 
+  const loadHistory = async () => {
+    try {
+      const response = await api.getStatsReports(token, listing.id);
+      setHistory(response.reports || []);
+    } catch (error) {
+      console.error('Ошибка загрузки истории:', error);
+    }
+  };
+
   const handleSendStats = async () => {
     if (!stats) return;
     
     setIsSending(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const ownerEmail = listing.owner_email || 'owner@example.com';
+      await api.createStatsReport(token, listing.id, ownerEmail, stats);
       
       toast({
         title: 'Статистика отправлена',
-        description: `Отчёт по объекту "${listing.title}" успешно отправлен владельцу`,
+        description: `Отчёт по объекту "${listing.title}" успешно отправлен на ${ownerEmail}`,
       });
       
-      onClose();
-    } catch (error) {
+      await loadHistory();
+      setShowHistory(true);
+    } catch (error: any) {
       toast({
         title: 'Ошибка',
-        description: 'Не удалось отправить статистику',
+        description: error.message || 'Не удалось отправить статистику',
         variant: 'destructive',
       });
     } finally {
@@ -243,7 +268,57 @@ export default function ListingStatsDialog({ open, onClose, listing }: ListingSt
                 <Icon name="Download" size={18} className="mr-2" />
                 Скачать PDF
               </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowHistory(!showHistory)}
+              >
+                <Icon name="History" size={18} className="mr-2" />
+                {showHistory ? 'Скрыть' : 'История'}
+              </Button>
             </div>
+
+            {showHistory && history.length > 0 && (
+              <Card className="mt-4">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon name="History" size={20} />
+                    История отправки ({history.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {history.map((report) => (
+                      <div key={report.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Icon name="Mail" size={14} className="text-gray-500" />
+                            <span className="font-medium text-sm">{report.sent_to_email}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Icon name="User" size={12} />
+                            <span>{report.admin_name}</span>
+                            <span>•</span>
+                            <Icon name="Calendar" size={12} />
+                            <span>{new Date(report.sent_at).toLocaleString('ru-RU')}</span>
+                          </div>
+                        </div>
+                        <Badge variant="secondary" className="ml-3">
+                          <Icon name="Eye" size={12} className="mr-1" />
+                          {report.stats_data.views || 0}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {showHistory && history.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                <Icon name="Inbox" size={40} className="mx-auto mb-2 opacity-50" />
+                <p>История отправки пуста</p>
+              </div>
+            )}
           </div>
         ) : null}
       </DialogContent>

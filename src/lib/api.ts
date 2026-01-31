@@ -5,6 +5,7 @@ const API_URLS = {
   adminOwners: 'https://functions.poehali.dev/25475092-b74f-493d-a43c-082847302085',
   adminEmployees: 'https://functions.poehali.dev/ca59381a-030d-421c-8c98-057bb7ae12e4',
   employeeBonuses: 'https://functions.poehali.dev/e7b4566b-8aa8-4db2-a866-4ba2231208a3',
+  statsReports: 'https://functions.poehali.dev/b6760e3a-8946-40dd-bf5f-d44d9fa3ff81',
   ownerListings: 'https://functions.poehali.dev/f431775b-031f-4417-b3eb-9e0475119162',
   ownerUpdateListing: 'https://functions.poehali.dev/3e708f67-7174-4fd3-84a6-6541bcc2186b',
   publicListings: 'https://functions.poehali.dev/38a2f104-026e-40ea-80dc-0c07c014f868',
@@ -751,6 +752,40 @@ export const api = {
         'X-Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ action: 'mark_unpaid', bonus_ids: bonusIds }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
+  getStatsReports: async (token: string, listingId?: number) => {
+    const url = listingId 
+      ? `${API_URLS.statsReports}?listing_id=${listingId}`
+      : API_URLS.statsReports;
+    const response = await fetch(url, {
+      headers: { 'X-Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
+  createStatsReport: async (token: string, listingId: number, email: string, statsData: any) => {
+    const response = await fetch(API_URLS.statsReports, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        listing_id: listingId,
+        sent_to_email: email,
+        stats_data: statsData,
+      }),
     });
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: 'Network error' }));
