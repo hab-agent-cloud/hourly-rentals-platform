@@ -25,23 +25,34 @@ export const api = {
   // Авторизация
   login: async (login: string, password: string) => {
     try {
-      console.log('[API] Отправка запроса авторизации...');
+      console.log('[API] Отправка запроса авторизации...', API_URLS.adminAuth);
+      console.log('[API] Данные:', { email: login, password: '***' });
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      
       const response = await fetch(API_URLS.adminAuth, {
         method: 'POST',
         mode: 'cors',
+        credentials: 'omit',
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: JSON.stringify({ email: login, password }),
+        signal: controller.signal,
       });
       
+      clearTimeout(timeoutId);
       console.log('[API] Получен ответ:', response.status, response.statusText);
+      console.log('[API] Headers:', Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         let errorData;
         try {
-          errorData = await response.json();
+          const text = await response.text();
+          console.log('[API] Error response body:', text);
+          errorData = JSON.parse(text);
         } catch (e) {
           errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
         }
@@ -49,10 +60,21 @@ export const api = {
       }
       
       const data = await response.json();
-      console.log('[API] Успешная авторизация');
+      console.log('[API] Успешная авторизация, токен получен:', !!data.token);
       return data;
     } catch (error: any) {
-      console.error('[API] Ошибка входа:', error);
+      console.error('[API] Полная ошибка входа:', error);
+      console.error('[API] Error name:', error.name);
+      console.error('[API] Error message:', error.message);
+      
+      if (error.name === 'AbortError') {
+        throw new Error('Превышено время ожидания ответа от сервера. Проверьте соединение.');
+      }
+      
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        throw new Error('Ошибка сети. Проверьте подключение к интернету.');
+      }
+      
       throw error;
     }
   },

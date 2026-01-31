@@ -15,6 +15,7 @@ export default function AdminLogin() {
   const [phonePassword, setPhonePassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -22,6 +23,7 @@ export default function AdminLogin() {
     e.preventDefault();
     console.log('[LOGIN] Попытка входа с логином:', login);
     setIsLoading(true);
+    setErrorMessage('');
 
     try {
       console.log('[LOGIN] Отправляю запрос к API...');
@@ -36,17 +38,21 @@ export default function AdminLogin() {
         });
         navigate('/admin');
       } else {
+        const errorMsg = data.error || 'Неверные учётные данные';
+        setErrorMessage(errorMsg);
         toast({
           title: 'Ошибка входа',
-          description: data.error || 'Неверные учётные данные',
+          description: errorMsg,
           variant: 'destructive',
         });
       }
     } catch (error: any) {
       console.error('Detailed login error:', error);
+      const errorMsg = error?.message || 'Не удалось подключиться к серверу';
+      setErrorMessage(errorMsg);
       toast({
         title: 'Ошибка подключения',
-        description: error?.message || 'Не удалось подключиться к серверу. Проверьте консоль браузера (F12)',
+        description: errorMsg,
         variant: 'destructive',
       });
     } finally {
@@ -85,6 +91,12 @@ export default function AdminLogin() {
             
             <TabsContent value="login">
           <form onSubmit={handleLogin} className="space-y-4">
+            {errorMessage && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                <Icon name="AlertCircle" size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-800">{errorMessage}</p>
+              </div>
+            )}
             <div>
               <label className="text-sm font-medium mb-2 block">Логин или Email</label>
               <div className="relative">
@@ -147,6 +159,12 @@ export default function AdminLogin() {
             
             <TabsContent value="phone">
           <form onSubmit={handleLogin} className="space-y-4">
+            {errorMessage && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                <Icon name="AlertCircle" size={18} className="text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-800">{errorMessage}</p>
+              </div>
+            )}
             <div>
               <label className="text-sm font-medium mb-2 block">Номер телефона</label>
               <div className="relative">
