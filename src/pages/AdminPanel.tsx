@@ -15,7 +15,6 @@ import AdminCallTrackingTab from '@/components/AdminCallTrackingTab';
 import MyEarningsTab from '@/components/MyEarningsTab';
 import AdminAnalyticsTab from '@/components/AdminAnalyticsTab';
 import AdminPanelHeader from '@/components/admin/AdminPanelHeader';
-import AdminStatsWidget from '@/components/admin/AdminStatsWidget';
 import AdminListingsFilters from '@/components/admin/AdminListingsFilters';
 import AdminListingsContent from '@/components/admin/AdminListingsContent';
 import SubscriptionDialog from '@/components/admin/SubscriptionDialog';
@@ -228,7 +227,6 @@ export default function AdminPanel() {
           console.log('[AdminPanel] Current activeTab:', activeTab);
           console.log('[AdminPanel] hasPermission(listings):', hasPermission('listings'));
         })()}
-        {activeTab === 'listings' && <AdminStatsWidget />}
         {showForm ? (
           <AdminListingForm
             listing={selectedListing}
