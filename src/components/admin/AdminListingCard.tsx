@@ -18,6 +18,7 @@ interface AdminListingCardProps {
   onSetSubscription: (listing: any) => void;
   onModerate: (listing: any) => void;
   onExpertRate?: (listing: any) => void;
+  onViewStats?: (listing: any) => void;
 }
 
 const AdminListingCard = memo(function AdminListingCard({
@@ -32,6 +33,7 @@ const AdminListingCard = memo(function AdminListingCard({
   onSetSubscription,
   onModerate,
   onExpertRate,
+  onViewStats,
 }: AdminListingCardProps) {
   return (
     <Card className={listing.is_archived ? 'opacity-60' : ''}>
@@ -188,6 +190,18 @@ const AdminListingCard = memo(function AdminListingCard({
               >
                 <Icon name="CheckCircle" size={16} className="mr-1" />
                 {listing.moderation_status === 'approved' ? 'Изменить модерацию' : 'Модерировать'}
+              </Button>
+            )}
+            
+            {onViewStats && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => onViewStats(listing)}
+              >
+                <Icon name="BarChart3" size={16} className="mr-1" />
+                Статистика
               </Button>
             )}
           </div>

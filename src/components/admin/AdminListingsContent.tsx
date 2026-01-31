@@ -15,6 +15,7 @@ interface AdminListingsContentProps {
   onSetSubscription: (listing: any) => void;
   onModerate: (listing: any) => void;
   onExpertRate?: (listing: any) => void;
+  onViewStats?: (listing: any) => void;
 }
 
 export default function AdminListingsContent({
@@ -30,6 +31,7 @@ export default function AdminListingsContent({
   onSetSubscription,
   onModerate,
   onExpertRate,
+  onViewStats,
 }: AdminListingsContentProps) {
   if (isLoading) {
     return (
@@ -69,6 +71,7 @@ export default function AdminListingsContent({
                       onSetSubscription={onSetSubscription}
                       onModerate={onModerate}
                       onExpertRate={onExpertRate}
+                      onViewStats={onViewStats}
                     />
                   </div>
                 ))}

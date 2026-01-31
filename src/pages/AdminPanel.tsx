@@ -22,6 +22,7 @@ import SubscriptionDialog from '@/components/admin/SubscriptionDialog';
 import ModerationDialog from '@/components/admin/ModerationDialog';
 import OwnerModerationDialog from '@/components/admin/OwnerModerationDialog';
 import ExpertRatingDialogFull from '@/components/ExpertRatingDialogFull';
+import ListingStatsDialog from '@/components/admin/ListingStatsDialog';
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState<'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics'>('listings');
@@ -33,6 +34,7 @@ export default function AdminPanel() {
   const [moderationStatus, setModerationStatus] = useState<string>('approved');
   const [moderationComment, setModerationComment] = useState<string>('');
   const [expertRatingDialog, setExpertRatingDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
+  const [statsDialog, setStatsDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
   const { toast } = useToast();
 
   const { adminInfo, token, hasPermission, handleLogout } = useAdminAuth();
@@ -249,6 +251,7 @@ export default function AdminPanel() {
           onChangePosition={handleChangePosition}
           onSetSubscription={(listing) => setSubscriptionDialog({ open: true, listing })}
           onModerate={handleModerate}
+          onViewStats={(listing) => setStatsDialog({ open: true, listing })}
         />
 
         <SubscriptionDialog
@@ -295,6 +298,12 @@ export default function AdminPanel() {
             setExpertRatingDialog({ open: false, listing: null });
             loadListings();
           }}
+        />
+
+        <ListingStatsDialog
+          open={statsDialog.open}
+          listing={statsDialog.listing}
+          onClose={() => setStatsDialog({ open: false, listing: null })}
         />
 
         {!isLoading && filteredListings.length === 0 && listings.length > 0 && (
