@@ -37,7 +37,9 @@ export default function ListingStatsDialog({ open, onClose, listing, token }: Li
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [history, setHistory] = useState<StatsReport[]>([]);
+  const [filteredHistory, setFilteredHistory] = useState<StatsReport[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [dateFilter, setDateFilter] = useState<'all' | 'week' | 'month' | '3months'>('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -79,10 +81,34 @@ export default function ListingStatsDialog({ open, onClose, listing, token }: Li
     try {
       const response = await api.getStatsReports(token, listing.id);
       setHistory(response.reports || []);
+      setFilteredHistory(response.reports || []);
     } catch (error) {
       console.error('Ошибка загрузки истории:', error);
     }
   };
+
+  useEffect(() => {
+    if (history.length === 0) {
+      setFilteredHistory([]);
+      return;
+    }
+
+    const now = new Date();
+    let filtered = [...history];
+
+    if (dateFilter === 'week') {
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      filtered = history.filter(r => new Date(r.sent_at) >= weekAgo);
+    } else if (dateFilter === 'month') {
+      const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      filtered = history.filter(r => new Date(r.sent_at) >= monthAgo);
+    } else if (dateFilter === '3months') {
+      const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      filtered = history.filter(r => new Date(r.sent_at) >= threeMonthsAgo);
+    }
+
+    setFilteredHistory(filtered);
+  }, [dateFilter, history]);
 
   const handleSendStats = async () => {
     if (!stats) return;
@@ -280,14 +306,46 @@ export default function ListingStatsDialog({ open, onClose, listing, token }: Li
             {showHistory && history.length > 0 && (
               <Card className="mt-4">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Icon name="History" size={20} />
-                    История отправки ({history.length})
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Icon name="History" size={20} />
+                      История отправки ({filteredHistory.length})
+                    </CardTitle>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant={dateFilter === 'all' ? 'default' : 'outline'}
+                        onClick={() => setDateFilter('all')}
+                      >
+                        Все
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={dateFilter === 'week' ? 'default' : 'outline'}
+                        onClick={() => setDateFilter('week')}
+                      >
+                        Неделя
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={dateFilter === 'month' ? 'default' : 'outline'}
+                        onClick={() => setDateFilter('month')}
+                      >
+                        Месяц
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={dateFilter === '3months' ? 'default' : 'outline'}
+                        onClick={() => setDateFilter('3months')}
+                      >
+                        3 месяца
+                      </Button>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 max-h-60 overflow-y-auto">
-                    {history.map((report) => (
+                    {filteredHistory.map((report) => (
                       <div key={report.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
@@ -314,10 +372,29 @@ export default function ListingStatsDialog({ open, onClose, listing, token }: Li
             )}
 
             {showHistory && history.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <Icon name="Inbox" size={40} className="mx-auto mb-2 opacity-50" />
-                <p>История отправки пуста</p>
-              </div>
+              <Card className="mt-4">
+                <CardContent className="text-center py-8 text-muted-foreground">
+                  <Icon name="Inbox" size={40} className="mx-auto mb-2 opacity-50" />
+                  <p>История отправки пуста</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {showHistory && history.length > 0 && filteredHistory.length === 0 && (
+              <Card className="mt-4">
+                <CardContent className="text-center py-8 text-muted-foreground">
+                  <Icon name="Filter" size={40} className="mx-auto mb-2 opacity-50" />
+                  <p>Нет отправок за выбранный период</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-3"
+                    onClick={() => setDateFilter('all')}
+                  >
+                    Показать все
+                  </Button>
+                </CardContent>
+              </Card>
             )}
           </div>
         ) : null}
