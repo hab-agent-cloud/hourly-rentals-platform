@@ -8,6 +8,7 @@ import PartnersSection from '@/components/home/PartnersSection';
 import SupportSection from '@/components/home/SupportSection';
 import InstallAppBanner from '@/components/InstallAppBanner';
 import VoiceSearchBanner from '@/components/VoiceSearchBanner';
+import SEOStructuredData from '@/components/SEOStructuredData';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -139,6 +140,7 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      <SEOStructuredData listings={filteredListings} cities={uniqueCities.filter(c => c !== 'Все города')} />
       <Header activeTab={activeTab} onTabChange={setActiveTab} />
 
       {activeTab === 'catalog' && (
