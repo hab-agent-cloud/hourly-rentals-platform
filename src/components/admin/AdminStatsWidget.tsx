@@ -27,7 +27,7 @@ export default function AdminStatsWidget() {
           k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
           (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
           
-          ym(99147864, "init", {
+          ym(106549814, "init", {
             clickmap:true,
             trackLinks:true,
             accurateTrackBounce:true,
