@@ -4,8 +4,8 @@ import Icon from '@/components/ui/icon';
 interface AdminPanelHeaderProps {
   adminInfo: any;
   hasPermission: (permission: string) => boolean;
-  activeTab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings';
-  onTabChange: (tab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings') => void;
+  activeTab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics';
+  onTabChange: (tab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics') => void;
   onLogout: () => void;
 }
 
@@ -122,6 +122,14 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
               >
                 <Icon name="Phone" size={18} className="mr-2" />
                 Звонки
+              </Button>
+              <Button
+                variant={activeTab === 'analytics' ? 'default' : 'ghost'}
+                onClick={() => onTabChange('analytics')}
+                className="rounded-b-none"
+              >
+                <Icon name="BarChart3" size={18} className="mr-2" />
+                Аналитика
               </Button>
             </>
           )}
