@@ -9,6 +9,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminPanel from "./pages/AdminPanel";
 import ListingPage from "./pages/ListingPage";
 import RoomDetails from "./pages/RoomDetails";
+import OfflineIndicator from "./components/OfflineIndicator";
 
 import OwnerLogin from "./pages/OwnerLogin";
 import OwnerForgotPassword from "./pages/OwnerForgotPassword";
@@ -24,6 +25,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <OfflineIndicator />
       <Toaster />
       <Sonner />
       <BrowserRouter>
