@@ -14,24 +14,20 @@ export function useAdminListings(token: string | null) {
   const loadListings = async () => {
     setIsLoading(true);
     try {
-      const limit = 1000;
+      const limit = 100;
       console.log('[useAdminListings] Loading with limit:', limit);
       
-      const [activeData, archivedData] = await Promise.all([
-        api.getListings(token!, false, limit, 0),
-        api.getListings(token!, true, limit, 0)
-      ]);
+      const activeData = await api.getListings(token!, false, limit, 0);
       
-      if (activeData.error || archivedData.error) {
-        throw new Error(activeData.error || archivedData.error);
+      if (activeData.error) {
+        throw new Error(activeData.error);
       }
       
-      if (!Array.isArray(activeData) || !Array.isArray(archivedData)) {
+      if (!Array.isArray(activeData)) {
         throw new Error('API вернул некорректный формат данных');
       }
       
-      const allListings = [...activeData, ...archivedData.filter((l: any) => l.is_archived)];
-      const sortedData = [...allListings].sort((a, b) => b.id - a.id);
+      const sortedData = [...activeData].sort((a, b) => b.id - a.id);
       setListings(sortedData);
     } catch (error: any) {
       toast({
