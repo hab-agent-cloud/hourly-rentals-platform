@@ -13,7 +13,7 @@ interface Employee {
   email: string;
   name: string;
   login: string;
-  role: 'superadmin' | 'employee';
+  role: 'superadmin' | 'employee' | 'manager' | 'operational_manager' | 'chief_manager';
   permissions: {
     owners: boolean;
     listings: boolean;
@@ -60,7 +60,7 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
     login: '',
     password: '',
     loginType: 'phone' as 'phone' | 'email',
-    role: 'employee' as 'employee' | 'superadmin',
+    role: 'employee' as 'employee' | 'superadmin' | 'manager' | 'operational_manager' | 'chief_manager',
     permissions: {
       owners: false,
       listings: true,

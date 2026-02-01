@@ -23,7 +23,7 @@ interface Employee {
   email: string;
   name: string;
   login: string;
-  role: 'superadmin' | 'employee';
+  role: 'superadmin' | 'employee' | 'manager' | 'operational_manager' | 'chief_manager';
   permissions: {
     owners: boolean;
     listings: boolean;
@@ -41,7 +41,7 @@ interface FormData {
   login: string;
   password: string;
   loginType: 'phone' | 'email';
-  role: 'employee' | 'superadmin';
+  role: 'employee' | 'superadmin' | 'manager' | 'operational_manager' | 'chief_manager';
   permissions: {
     owners: boolean;
     listings: boolean;
@@ -164,7 +164,7 @@ export default function EmployeeFormDialog({
             <Label>Роль</Label>
             <Select
               value={formData.role}
-              onValueChange={(value: 'employee' | 'superadmin') =>
+              onValueChange={(value: 'employee' | 'superadmin' | 'manager' | 'operational_manager' | 'chief_manager') =>
                 onFormDataChange({ role: value })
               }
             >
@@ -173,6 +173,9 @@ export default function EmployeeFormDialog({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="employee">Копирайтер</SelectItem>
+                <SelectItem value="manager">Менеджер</SelectItem>
+                <SelectItem value="operational_manager">Оперативный менеджер (ОМ)</SelectItem>
+                <SelectItem value="chief_manager">Управляющий менеджер (УМ)</SelectItem>
                 <SelectItem value="superadmin">Суперадмин</SelectItem>
               </SelectContent>
             </Select>

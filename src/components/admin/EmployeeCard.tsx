@@ -8,7 +8,7 @@ interface Employee {
   email: string;
   name: string;
   login: string;
-  role: 'superadmin' | 'employee';
+  role: 'superadmin' | 'employee' | 'manager' | 'operational_manager' | 'chief_manager';
   permissions: {
     owners: boolean;
     listings: boolean;
@@ -34,7 +34,20 @@ interface EmployeeCardProps {
 
 export default function EmployeeCard({ employee, onEdit, onDelete, onViewDetails }: EmployeeCardProps) {
   const getRoleBadgeVariant = (role: string) => {
-    return role === 'superadmin' ? 'default' : 'secondary';
+    if (role === 'superadmin') return 'default';
+    if (role === 'manager' || role === 'operational_manager' || role === 'chief_manager') return 'outline';
+    return 'secondary';
+  };
+  
+  const getRoleLabel = (role: string) => {
+    const labels: Record<string, string> = {
+      'superadmin': 'Суперадмин',
+      'employee': 'Копирайтер',
+      'manager': 'Менеджер',
+      'operational_manager': 'ОМ',
+      'chief_manager': 'УМ'
+    };
+    return labels[role] || role;
   };
 
   return (
@@ -53,7 +66,7 @@ export default function EmployeeCard({ employee, onEdit, onDelete, onViewDetails
             </div>
           </div>
           <Badge variant={getRoleBadgeVariant(employee.role)}>
-            {employee.role === 'superadmin' ? 'Суперадмин' : 'Копирайтер'}
+            {getRoleLabel(employee.role)}
           </Badge>
         </div>
       </CardHeader>

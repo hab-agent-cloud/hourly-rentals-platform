@@ -12,7 +12,7 @@ interface Employee {
   email: string;
   name: string;
   login: string;
-  role: 'superadmin' | 'employee';
+  role: 'superadmin' | 'employee' | 'manager' | 'operational_manager' | 'chief_manager';
   permissions: {
     owners: boolean;
     listings: boolean;
