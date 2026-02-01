@@ -79,6 +79,7 @@ export default function AdminPanel() {
     selectedType,
     showArchived,
     showOnlyUnrated,
+    searchQuery,
     cities,
     filteredListings,
     groupedByCity,
@@ -87,6 +88,7 @@ export default function AdminPanel() {
     setSelectedType,
     setShowArchived,
     setShowOnlyUnrated,
+    setSearchQuery,
     loadListings,
     handleArchive,
     handleDelete,
@@ -262,11 +264,13 @@ export default function AdminPanel() {
           selectedType={selectedType}
           showArchived={showArchived}
           showOnlyUnrated={showOnlyUnrated}
+          searchQuery={searchQuery}
           cities={cities}
           onCityChange={setSelectedCity}
           onTypeChange={setSelectedType}
           onArchiveToggle={() => setShowArchived(!showArchived)}
           onUnratedToggle={() => setShowOnlyUnrated(!showOnlyUnrated)}
+          onSearchChange={setSearchQuery}
           onCreate={handleCreate}
           isSuperAdmin={adminInfo?.role === 'superadmin'}
         />

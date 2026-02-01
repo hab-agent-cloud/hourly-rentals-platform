@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 
 interface AdminListingsFiltersProps {
@@ -10,11 +11,13 @@ interface AdminListingsFiltersProps {
   selectedType: string;
   showArchived: boolean;
   showOnlyUnrated: boolean;
+  searchQuery: string;
   cities: string[];
   onCityChange: (city: string) => void;
   onTypeChange: (type: string) => void;
   onArchiveToggle: () => void;
   onUnratedToggle: () => void;
+  onSearchChange: (query: string) => void;
   onCreate: () => void;
   isSuperAdmin?: boolean;
 }
@@ -26,16 +29,19 @@ export default function AdminListingsFilters({
   selectedType,
   showArchived,
   showOnlyUnrated,
+  searchQuery,
   cities,
   onCityChange,
   onTypeChange,
   onArchiveToggle,
   onUnratedToggle,
+  onSearchChange,
   onCreate,
   isSuperAdmin = false,
 }: AdminListingsFiltersProps) {
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="space-y-4 mb-6">
+      <div className="flex items-center justify-between">
       <div className="flex items-center gap-4">
         <h2 className="text-3xl font-bold">Объекты</h2>
         <Badge variant="secondary" className="text-lg px-4 py-1">
@@ -112,6 +118,24 @@ export default function AdminListingsFilters({
           <Icon name="Plus" size={18} className="mr-2" />
           Добавить объект
         </Button>
+      </div>
+      <div className="relative">
+        <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          type="text"
+          placeholder="Поиск по названию объекта..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-10 w-full"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => onSearchChange('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <Icon name="X" size={18} />
+          </button>
+        )}
       </div>
     </div>
   );

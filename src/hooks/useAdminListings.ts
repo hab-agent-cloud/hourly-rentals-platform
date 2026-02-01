@@ -9,6 +9,7 @@ export function useAdminListings(token: string | null) {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [showArchived, setShowArchived] = useState(false);
   const [showOnlyUnrated, setShowOnlyUnrated] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const { toast } = useToast();
 
   const loadListings = async () => {
@@ -162,6 +163,10 @@ export function useAdminListings(token: string | null) {
       const cityMatch = selectedCity === 'all' || listing.city === selectedCity;
       const typeMatch = selectedType === 'all' || listing.type === selectedType;
       
+      const searchMatch = !searchQuery || 
+        listing.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        listing.district?.toLowerCase().includes(searchQuery.toLowerCase());
+      
       if (showOnlyUnrated) {
         const hasMainRating = (listing.expert_photo_rating && listing.expert_photo_rating > 0) || 
                               (listing.expert_fullness_rating && listing.expert_fullness_rating > 0);
@@ -170,12 +175,12 @@ export function useAdminListings(token: string | null) {
           (room.expert_fullness_rating && room.expert_fullness_rating > 0)
         );
         const ratedMatch = !hasMainRating && !hasRoomRatings;
-        return cityMatch && typeMatch && ratedMatch;
+        return cityMatch && typeMatch && ratedMatch && searchMatch;
       }
       
-      return cityMatch && typeMatch;
+      return cityMatch && typeMatch && searchMatch;
     });
-  }, [listings, selectedCity, selectedType, showOnlyUnrated, showArchived]);
+  }, [listings, selectedCity, selectedType, showOnlyUnrated, showArchived, searchQuery]);
 
   const groupedByCity = useMemo(() => {
     const groups: { [city: string]: any[] } = {};
@@ -204,6 +209,7 @@ export function useAdminListings(token: string | null) {
     selectedType,
     showArchived,
     showOnlyUnrated,
+    searchQuery,
     cities,
     filteredListings,
     groupedByCity,
@@ -212,6 +218,7 @@ export function useAdminListings(token: string | null) {
     setSelectedType,
     setShowArchived,
     setShowOnlyUnrated,
+    setSearchQuery,
     loadListings,
     handleArchive,
     handleDelete,
