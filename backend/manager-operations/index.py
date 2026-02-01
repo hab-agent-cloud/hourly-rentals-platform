@@ -11,11 +11,34 @@ def get_db_connection():
 
 def log_action(conn, manager_id: int, action_type: str, listing_id: int = None, details: dict = None):
     """Логирование действий менеджера"""
+    manager_id_int = int(manager_id)
+    action_type_esc = action_type.replace("'", "''")
+    
     with conn.cursor() as cur:
-        cur.execute("""
-            INSERT INTO manager_actions_log (manager_id, action_type, listing_id, details)
-            VALUES (%s, %s, %s, %s)
-        """, (manager_id, action_type, listing_id, json.dumps(details) if details else None))
+        if listing_id is not None and details is not None:
+            listing_id_int = int(listing_id)
+            details_esc = json.dumps(details).replace("'", "''")
+            cur.execute(f"""
+                INSERT INTO manager_actions_log (manager_id, action_type, listing_id, details)
+                VALUES ({manager_id_int}, '{action_type_esc}', {listing_id_int}, '{details_esc}')
+            """)
+        elif listing_id is not None:
+            listing_id_int = int(listing_id)
+            cur.execute(f"""
+                INSERT INTO manager_actions_log (manager_id, action_type, listing_id, details)
+                VALUES ({manager_id_int}, '{action_type_esc}', {listing_id_int}, NULL)
+            """)
+        elif details is not None:
+            details_esc = json.dumps(details).replace("'", "''")
+            cur.execute(f"""
+                INSERT INTO manager_actions_log (manager_id, action_type, listing_id, details)
+                VALUES ({manager_id_int}, '{action_type_esc}', NULL, '{details_esc}')
+            """)
+        else:
+            cur.execute(f"""
+                INSERT INTO manager_actions_log (manager_id, action_type, listing_id, details)
+                VALUES ({manager_id_int}, '{action_type_esc}', NULL, NULL)
+            """)
 
 def handler(event: dict, context) -> dict:
     """
@@ -34,14 +57,16 @@ def handler(event: dict, context) -> dict:
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     if method != 'POST':
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'})
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
         }
     
     try:
@@ -56,8 +81,13 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Не указаны обязательные поля'})
+                'body': json.dumps({'error': 'Не указаны обязательные поля'}),
+                'isBase64Encoded': False
             }
+        
+        manager_id_int = int(manager_id)
+        listing_id_int = int(listing_id)
+        reason_esc = reason.replace("'", "''")
         
         conn = get_db_connection()
         conn.autocommit = False
@@ -65,34 +95,36 @@ def handler(event: dict, context) -> dict:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 # Проверяем права менеджера
-                cur.execute("""
+                cur.execute(f"""
                     SELECT role, object_limit, manager_level 
                     FROM admins 
-                    WHERE id = %s AND is_active = true
-                """, (manager_id,))
+                    WHERE id = {manager_id_int} AND is_active = true
+                """)
                 manager = cur.fetchone()
                 
                 if not manager or manager['role'] not in ['manager', 'operational_manager', 'chief_manager', 'superadmin']:
                     return {
                         'statusCode': 403,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Нет прав доступа'})
+                        'body': json.dumps({'error': 'Нет прав доступа'}),
+                        'isBase64Encoded': False
                     }
                 
                 # Действие: ВЗЯТЬ В СОПРОВОЖДЕНИЕ
                 if action == 'take':
                     # Проверяем, свободен ли объект
-                    cur.execute("SELECT manager_id FROM manager_listings WHERE listing_id = %s", (listing_id,))
+                    cur.execute(f"SELECT manager_id FROM manager_listings WHERE listing_id = {listing_id_int}")
                     existing = cur.fetchone()
                     if existing:
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Объект уже занят другим менеджером'})
+                            'body': json.dumps({'error': 'Объект уже занят другим менеджером'}),
+                            'isBase64Encoded': False
                         }
                     
                     # Проверяем лимит объектов
-                    cur.execute("SELECT COUNT(*) as count FROM manager_listings WHERE manager_id = %s", (manager_id,))
+                    cur.execute(f"SELECT COUNT(*) as count FROM manager_listings WHERE manager_id = {manager_id_int}")
                     current_count = cur.fetchone()['count']
                     if current_count >= manager['object_limit']:
                         return {
@@ -102,109 +134,118 @@ def handler(event: dict, context) -> dict:
                         }
                     
                     # Привязываем объект
-                    cur.execute("""
+                    cur.execute(f"""
                         INSERT INTO manager_listings (manager_id, listing_id)
-                        VALUES (%s, %s)
-                    """, (manager_id, listing_id))
+                        VALUES ({manager_id_int}, {listing_id_int})
+                    """)
                     
-                    log_action(conn, manager_id, 'take_listing', listing_id, {'reason': reason})
+                    log_action(conn, manager_id_int, 'take_listing', listing_id_int, {'reason': reason})
                     message = 'Объект взят в сопровождение'
                 
                 # Действие: СНЯТЬ С СОПРОВОЖДЕНИЯ
                 elif action == 'release':
-                    cur.execute("""
+                    cur.execute(f"""
                         DELETE FROM manager_listings 
-                        WHERE manager_id = %s AND listing_id = %s
-                    """, (manager_id, listing_id))
+                        WHERE manager_id = {manager_id_int} AND listing_id = {listing_id_int}
+                    """)
                     if cur.rowcount == 0:
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Объект не в вашем сопровождении'})
+                            'body': json.dumps({'error': 'Объект не в вашем сопровождении'}),
+                            'isBase64Encoded': False
                         }
                     
-                    log_action(conn, manager_id, 'release_listing', listing_id, {'reason': reason})
+                    log_action(conn, manager_id_int, 'release_listing', listing_id_int, {'reason': reason})
                     message = 'Объект снят с сопровождения'
                 
                 # Действие: ЗАМОРОЗИТЬ
                 elif action == 'freeze':
                     # Проверяем, что менеджер сопровождает объект
-                    cur.execute("SELECT 1 FROM manager_listings WHERE manager_id = %s AND listing_id = %s", (manager_id, listing_id))
+                    cur.execute(f"SELECT 1 FROM manager_listings WHERE manager_id = {manager_id_int} AND listing_id = {listing_id_int}")
                     if not cur.fetchone() and manager['role'] not in ['superadmin', 'chief_manager', 'operational_manager']:
                         return {
                             'statusCode': 403,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Вы не сопровождаете этот объект'})
+                            'body': json.dumps({'error': 'Вы не сопровождаете этот объект'}),
+                            'isBase64Encoded': False
                         }
                     
-                    cur.execute("""
+                    cur.execute(f"""
                         UPDATE listings 
                         SET status = 'frozen', frozen_at = NOW()
-                        WHERE id = %s
-                    """, (listing_id,))
+                        WHERE id = {listing_id_int}
+                    """)
                     
-                    log_action(conn, manager_id, 'freeze_listing', listing_id, {'reason': reason})
+                    log_action(conn, manager_id_int, 'freeze_listing', listing_id_int, {'reason': reason})
                     message = 'Объект заморожен'
                 
                 # Действие: РАЗМОРОЗИТЬ
                 elif action == 'unfreeze':
-                    cur.execute("SELECT 1 FROM manager_listings WHERE manager_id = %s AND listing_id = %s", (manager_id, listing_id))
+                    cur.execute(f"SELECT 1 FROM manager_listings WHERE manager_id = {manager_id_int} AND listing_id = {listing_id_int}")
                     if not cur.fetchone() and manager['role'] not in ['superadmin', 'chief_manager', 'operational_manager']:
                         return {
                             'statusCode': 403,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Вы не сопровождаете этот объект'})
+                            'body': json.dumps({'error': 'Вы не сопровождаете этот объект'}),
+                            'isBase64Encoded': False
                         }
                     
-                    cur.execute("""
+                    cur.execute(f"""
                         UPDATE listings 
                         SET status = 'active', frozen_at = NULL
-                        WHERE id = %s
-                    """, (listing_id,))
+                        WHERE id = {listing_id_int}
+                    """)
                     
-                    log_action(conn, manager_id, 'unfreeze_listing', listing_id, {'reason': reason})
+                    log_action(conn, manager_id_int, 'unfreeze_listing', listing_id_int, {'reason': reason})
                     message = 'Объект разморожен и опубликован'
                 
                 # Действие: АРХИВИРОВАТЬ
                 elif action == 'archive':
                     # Проверяем статус объекта
-                    cur.execute("SELECT status FROM listings WHERE id = %s", (listing_id,))
+                    cur.execute(f"SELECT status FROM listings WHERE id = {listing_id_int}")
                     listing = cur.fetchone()
                     if not listing or listing['status'] != 'frozen':
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Можно архивировать только замороженные объекты'})
+                            'body': json.dumps({'error': 'Можно архивировать только замороженные объекты'}),
+                            'isBase64Encoded': False
                         }
                     
                     # Проверяем подписку
-                    cur.execute("""
+                    cur.execute(f"""
                         SELECT end_date FROM subscriptions 
-                        WHERE listing_id = %s AND end_date > NOW()
+                        WHERE listing_id = {listing_id_int} AND end_date > NOW()
                         ORDER BY end_date DESC LIMIT 1
-                    """, (listing_id,))
-                    subscription = cur.fetchone()
-                    if subscription:
+                    """)
+                    active_sub = cur.fetchone()
+                    if active_sub:
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Нельзя архивировать объект с активной подпиской'})
+                            'body': json.dumps({'error': 'Нельзя архивировать объект с активной подпиской'}),
+                            'isBase64Encoded': False
                         }
                     
-                    cur.execute("""
+                    cur.execute(f"""
                         UPDATE listings 
-                        SET status = 'archived', archived_at = NOW(), archive_reason = %s
-                        WHERE id = %s
-                    """, (reason, listing_id))
+                        SET status = 'archived', archived_at = NOW()
+                        WHERE id = {listing_id_int}
+                    """)
                     
-                    log_action(conn, manager_id, 'archive_listing', listing_id, {'reason': reason})
+                    # Снимаем привязку менеджера
+                    cur.execute(f"DELETE FROM manager_listings WHERE listing_id = {listing_id_int}")
+                    
+                    log_action(conn, manager_id_int, 'archive_listing', listing_id_int, {'reason': reason})
                     message = 'Объект перенесен в архив'
                 
                 else:
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Неизвестное действие'})
+                        'body': json.dumps({'error': 'Неизвестное действие'}),
+                        'isBase64Encoded': False
                     }
                 
                 conn.commit()
@@ -212,7 +253,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'success': True, 'message': message})
+                    'body': json.dumps({'success': True, 'message': message}),
+                    'isBase64Encoded': False
                 }
                 
         except Exception as e:
@@ -221,9 +263,17 @@ def handler(event: dict, context) -> dict:
         finally:
             conn.close()
             
+    except ValueError:
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Неверный формат данных'}),
+            'isBase64Encoded': False
+        }
     except Exception as e:
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({'error': str(e)}),
+            'isBase64Encoded': False
         }

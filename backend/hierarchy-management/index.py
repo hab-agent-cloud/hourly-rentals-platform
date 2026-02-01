@@ -19,14 +19,16 @@ def handler(event: dict, context) -> dict:
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     if method != 'POST':
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'})
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
         }
     
     try:
@@ -39,8 +41,12 @@ def handler(event: dict, context) -> dict:
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Не указаны обязательные поля'})
+                'body': json.dumps({'error': 'Не указаны обязательные поля'}),
+                'isBase64Encoded': False
             }
+        
+        initiator_id_int = int(initiator_id)
+        target_id_int = int(target_id)
         
         conn = get_db_connection()
         conn.autocommit = False
@@ -48,16 +54,17 @@ def handler(event: dict, context) -> dict:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 # Проверяем права инициатора
-                cur.execute("""
-                    SELECT role FROM admins WHERE id = %s AND is_active = true
-                """, (initiator_id,))
+                cur.execute(f"""
+                    SELECT role FROM admins WHERE id = {initiator_id_int} AND is_active = true
+                """)
                 initiator = cur.fetchone()
                 
                 if not initiator:
                     return {
                         'statusCode': 403,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Нет прав доступа'})
+                        'body': json.dumps({'error': 'Нет прав доступа'}),
+                        'isBase64Encoded': False
                     }
                 
                 # ПРИВЯЗАТЬ МЕНЕДЖЕРА К ОМ
@@ -66,44 +73,47 @@ def handler(event: dict, context) -> dict:
                         return {
                             'statusCode': 403,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Только ОМ/УМ/суперадмин может привязывать менеджеров'})
+                            'body': json.dumps({'error': 'Только ОМ/УМ/суперадмин может привязывать менеджеров'}),
+                            'isBase64Encoded': False
                         }
                     
                     # Проверяем, что target - менеджер
-                    cur.execute("SELECT role FROM admins WHERE id = %s", (target_id,))
+                    cur.execute(f"SELECT role FROM admins WHERE id = {target_id_int}")
                     target = cur.fetchone()
                     if not target or target['role'] != 'manager':
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Целевой пользователь не является менеджером'})
+                            'body': json.dumps({'error': 'Целевой пользователь не является менеджером'}),
+                            'isBase64Encoded': False
                         }
                     
                     # Проверяем, не привязан ли уже
-                    cur.execute("""
-                        SELECT operational_manager_id FROM manager_hierarchy WHERE manager_id = %s
-                    """, (target_id,))
+                    cur.execute(f"""
+                        SELECT operational_manager_id FROM manager_hierarchy WHERE manager_id = {target_id_int}
+                    """)
                     existing = cur.fetchone()
                     
                     if existing and existing['operational_manager_id']:
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Менеджер уже привязан к другому ОМ'})
+                            'body': json.dumps({'error': 'Менеджер уже привязан к другому ОМ'}),
+                            'isBase64Encoded': False
                         }
                     
                     # Привязываем
                     if existing:
-                        cur.execute("""
+                        cur.execute(f"""
                             UPDATE manager_hierarchy 
-                            SET operational_manager_id = %s, updated_at = NOW()
-                            WHERE manager_id = %s
-                        """, (initiator_id, target_id))
+                            SET operational_manager_id = {initiator_id_int}, updated_at = NOW()
+                            WHERE manager_id = {target_id_int}
+                        """)
                     else:
-                        cur.execute("""
+                        cur.execute(f"""
                             INSERT INTO manager_hierarchy (manager_id, operational_manager_id)
-                            VALUES (%s, %s)
-                        """, (target_id, initiator_id))
+                            VALUES ({target_id_int}, {initiator_id_int})
+                        """)
                     
                     message = 'Менеджер привязан к ОМ'
                 
@@ -113,20 +123,22 @@ def handler(event: dict, context) -> dict:
                         return {
                             'statusCode': 403,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Нет прав для отвязки менеджера'})
+                            'body': json.dumps({'error': 'Нет прав для отвязки менеджера'}),
+                            'isBase64Encoded': False
                         }
                     
-                    cur.execute("""
+                    cur.execute(f"""
                         UPDATE manager_hierarchy 
                         SET operational_manager_id = NULL, updated_at = NOW()
-                        WHERE manager_id = %s AND operational_manager_id = %s
-                    """, (target_id, initiator_id))
+                        WHERE manager_id = {target_id_int} AND operational_manager_id = {initiator_id_int}
+                    """)
                     
                     if cur.rowcount == 0:
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Менеджер не привязан к вам'})
+                            'body': json.dumps({'error': 'Менеджер не привязан к вам'}),
+                            'isBase64Encoded': False
                         }
                     
                     message = 'Менеджер отвязан от ОМ'
@@ -137,25 +149,27 @@ def handler(event: dict, context) -> dict:
                         return {
                             'statusCode': 403,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Только УМ/суперадмин может привязывать ОМ'})
+                            'body': json.dumps({'error': 'Только УМ/суперадмин может привязывать ОМ'}),
+                            'isBase64Encoded': False
                         }
                     
                     # Проверяем, что target - ОМ
-                    cur.execute("SELECT role FROM admins WHERE id = %s", (target_id,))
+                    cur.execute(f"SELECT role FROM admins WHERE id = {target_id_int}")
                     target = cur.fetchone()
                     if not target or target['role'] != 'operational_manager':
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Целевой пользователь не является ОМ'})
+                            'body': json.dumps({'error': 'Целевой пользователь не является ОМ'}),
+                            'isBase64Encoded': False
                         }
                     
                     # Обновляем всех менеджеров этого ОМ
-                    cur.execute("""
+                    cur.execute(f"""
                         UPDATE manager_hierarchy 
-                        SET chief_manager_id = %s, updated_at = NOW()
-                        WHERE operational_manager_id = %s
-                    """, (initiator_id, target_id))
+                        SET chief_manager_id = {initiator_id_int}, updated_at = NOW()
+                        WHERE operational_manager_id = {target_id_int}
+                    """)
                     
                     message = 'ОМ привязан к УМ'
                 
@@ -165,14 +179,15 @@ def handler(event: dict, context) -> dict:
                         return {
                             'statusCode': 403,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Нет прав для отвязки ОМ'})
+                            'body': json.dumps({'error': 'Нет прав для отвязки ОМ'}),
+                            'isBase64Encoded': False
                         }
                     
-                    cur.execute("""
+                    cur.execute(f"""
                         UPDATE manager_hierarchy 
                         SET chief_manager_id = NULL, updated_at = NOW()
-                        WHERE operational_manager_id = %s AND chief_manager_id = %s
-                    """, (target_id, initiator_id))
+                        WHERE operational_manager_id = {target_id_int} AND chief_manager_id = {initiator_id_int}
+                    """)
                     
                     message = 'ОМ отвязан от УМ'
                 
@@ -180,7 +195,8 @@ def handler(event: dict, context) -> dict:
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Неизвестное действие'})
+                        'body': json.dumps({'error': 'Неизвестное действие'}),
+                        'isBase64Encoded': False
                     }
                 
                 conn.commit()
@@ -188,7 +204,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'success': True, 'message': message})
+                    'body': json.dumps({'success': True, 'message': message}),
+                    'isBase64Encoded': False
                 }
                 
         except Exception as e:
@@ -197,9 +214,17 @@ def handler(event: dict, context) -> dict:
         finally:
             conn.close()
             
+    except ValueError:
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Неверный формат данных'}),
+            'isBase64Encoded': False
+        }
     except Exception as e:
         return {
             'statusCode': 500,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({'error': str(e)}),
+            'isBase64Encoded': False
         }
