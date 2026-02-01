@@ -32,11 +32,24 @@ export default function AdminLogin() {
 
       if (data.token) {
         localStorage.setItem('adminToken', data.token);
+        
+        const role = data.admin?.role || 'employee';
+        
+        const roleRedirects: Record<string, string> = {
+          'manager': '/manager',
+          'operational_manager': '/om',
+          'chief_manager': '/um',
+          'superadmin': '/admin',
+          'employee': '/admin'
+        };
+        
+        const redirectPath = roleRedirects[role] || '/admin';
+        
         toast({
           title: 'Успешный вход',
-          description: 'Добро пожаловать в админ-панель',
+          description: `Добро пожаловать, ${data.admin?.name || 'пользователь'}!`,
         });
-        navigate('/admin');
+        navigate(redirectPath);
       } else {
         const errorMsg = data.error || 'Неверные учётные данные';
         setErrorMessage(errorMsg);

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,16 +11,45 @@ const FUNC_URLS = {
   managerSubscription: 'https://functions.poehali.dev/e4343b5f-706a-45d1-b658-8fe3cb25e2e7'
 };
 
+function decodeJWT(token: string) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => 
+      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+}
+
 export default function ManagerDashboard() {
   const [managerData, setManagerData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  
-  // Временно используем admin_id = 1 для демонстрации
-  const adminId = 1;
+  const [adminId, setAdminId] = useState<number | null>(null);
+  const navigate = useNavigate();
   
   useEffect(() => {
-    fetchManagerData();
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+      navigate('/admin/login');
+      return;
+    }
+    
+    const decoded = decodeJWT(token);
+    if (decoded?.admin_id) {
+      setAdminId(decoded.admin_id);
+    } else {
+      navigate('/admin/login');
+    }
   }, []);
+  
+  useEffect(() => {
+    if (adminId) {
+      fetchManagerData();
+    }
+  }, [adminId]);
   
   const fetchManagerData = async () => {
     try {
