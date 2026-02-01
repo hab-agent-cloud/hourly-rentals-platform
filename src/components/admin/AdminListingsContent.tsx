@@ -16,7 +16,6 @@ interface AdminListingsContentProps {
   onSetSubscription: (listing: any) => void;
   onModerate: (listing: any) => void;
   onExpertRate?: (listing: any) => void;
-  onViewStats?: (listing: any) => void;
 }
 
 export default function AdminListingsContent({
@@ -32,7 +31,6 @@ export default function AdminListingsContent({
   onSetSubscription,
   onModerate,
   onExpertRate,
-  onViewStats,
 }: AdminListingsContentProps) {
   const [expandedCities, setExpandedCities] = useState<Set<string>>(new Set());
   const ITEMS_PER_CITY = 20;
@@ -92,7 +90,6 @@ export default function AdminListingsContent({
                         onSetSubscription={onSetSubscription}
                         onModerate={onModerate}
                         onExpertRate={onExpertRate}
-                        onViewStats={onViewStats}
                       />
                     </div>
                   ))}
