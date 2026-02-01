@@ -19,6 +19,7 @@ import Offer from "./pages/Offer";
 import NotFound from "./pages/NotFound";
 import AddListing from "./pages/AddListing";
 import CityPage from "./pages/CityPage";
+import ManagerDashboard from "./pages/ManagerDashboard";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,9 @@ const App = () => (
           <Route path="/owner/login" element={<OwnerLogin />} />
           <Route path="/owner/forgot-password" element={<OwnerForgotPassword />} />
           <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+          
+          <Route path="/manager" element={<ManagerDashboard />} />
+          
           <Route path="/company-info" element={<CompanyInfo />} />
           <Route path="/offer" element={<Offer />} />
           <Route path="/listing/:listingId" element={<ListingPage />} />

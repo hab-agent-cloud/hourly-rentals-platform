@@ -1,4 +1,8 @@
 {
+  "manager-data": "https://functions.poehali.dev/ccbc7231-4004-46e0-9caa-8afc6d0fa9db",
+  "hierarchy-management": "https://functions.poehali.dev/1ef1407d-2bec-452a-8716-5b45c87501ce",
+  "manager-operations": "https://functions.poehali.dev/6c4f7ec8-42fb-47e5-9187-fcc55e47eceb",
+  "manager-subscription": "https://functions.poehali.dev/e4343b5f-706a-45d1-b658-8fe3cb25e2e7",
   "stats-reports": "https://functions.poehali.dev/b6760e3a-8946-40dd-bf5f-d44d9fa3ff81",
   "sitemap": "https://functions.poehali.dev/e91ff51d-3390-405c-a791-2fc89fb86706",
   "daily-rotation": "https://functions.poehali.dev/34172fa3-9c6c-45b1-ad46-7e7d37c6a6e6",

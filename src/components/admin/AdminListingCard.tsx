@@ -120,6 +120,16 @@ const AdminListingCard = memo(function AdminListingCard({
             </div>
           </div>
           
+          {listing.manager_name && (
+            <div className="flex items-center justify-between pt-2 border-t">
+              <span className="text-sm text-muted-foreground">Менеджер:</span>
+              <div className="flex items-center gap-2">
+                <Icon name="User" size={14} className="text-blue-600" />
+                <span className="text-sm font-semibold text-blue-600">{listing.manager_name}</span>
+              </div>
+            </div>
+          )}
+          
           {listing.submitted_for_moderation && (
             <div className="pt-2 border-t">
               <div className="flex items-center justify-between mb-2">

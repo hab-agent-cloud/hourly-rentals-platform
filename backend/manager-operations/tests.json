@@ -1,0 +1,36 @@
+{
+  "tests": [
+    {
+      "name": "Take listing into supervision",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "take",
+        "manager_id": 1,
+        "listing_id": 1
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Freeze listing",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "freeze",
+        "manager_id": 1,
+        "listing_id": 1,
+        "reason": "Test freeze"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

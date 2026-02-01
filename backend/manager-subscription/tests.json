@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Activate subscription",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "activate",
+        "manager_id": 1,
+        "listing_id": 1,
+        "days": 3
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

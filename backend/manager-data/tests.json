@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Get manager data",
+      "method": "GET",
+      "path": "/?admin_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "id": "number",
+        "name": "string",
+        "role": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
