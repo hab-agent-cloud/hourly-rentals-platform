@@ -42,13 +42,13 @@ export default function AdminListingsFilters({
   return (
     <div className="space-y-4 mb-6">
       <div className="flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <h2 className="text-3xl font-bold">Объекты</h2>
-        <Badge variant="secondary" className="text-lg px-4 py-1">
-          {filteredCount} из {totalCount}
-        </Badge>
-      </div>
-      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <h2 className="text-3xl font-bold">Объекты</h2>
+          <Badge variant="secondary" className="text-lg px-4 py-1">
+            {filteredCount} из {totalCount}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-3">
         <Select value={selectedCity} onValueChange={onCityChange}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Город" />
@@ -118,6 +118,7 @@ export default function AdminListingsFilters({
           <Icon name="Plus" size={18} className="mr-2" />
           Добавить объект
         </Button>
+        </div>
       </div>
       <div className="relative">
         <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
