@@ -80,7 +80,7 @@ export const api = {
   },
 
   // Получение списка объектов (для админа)  
-  getListings: async (token: string, showArchived = false, limit = 1000, offset = 0) => {
+  getListings: async (token: string, showArchived = false, limit = 10000, offset = 0) => {
     console.log(`[API] getListings called with: token=${!!token}, archived=${showArchived}, limit=${limit}, offset=${offset}`);
     const url = showArchived 
       ? `${API_URLS.adminListings}?archived=true&limit=${limit}&offset=${offset}`

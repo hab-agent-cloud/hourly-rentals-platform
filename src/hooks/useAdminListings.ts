@@ -15,7 +15,7 @@ export function useAdminListings(token: string | null) {
   const loadListings = async () => {
     setIsLoading(true);
     try {
-      const limit = 500;
+      const limit = 10000;
       console.log('[useAdminListings] Loading with limit:', limit);
       
       const activeData = await api.getListings(token!, false, limit, 0);

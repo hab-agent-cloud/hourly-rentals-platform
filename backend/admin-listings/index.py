@@ -122,9 +122,9 @@ def handler(event: dict, context) -> dict:
             # Список объектов (без полных данных images)
             show_archived = params.get('archived') == 'true'
             moderation_filter = params.get('moderation')
-            limit_param = params.get('limit', '100')
+            limit_param = params.get('limit', '10000')
             print(f"[DEBUG] limit_param string value: '{limit_param}'")
-            limit = min(int(limit_param), 1000)
+            limit = min(int(limit_param), 10000)
             offset = int(params.get('offset', 0))
             
             print(f"[DEBUG] Params: archived={show_archived}, moderation={moderation_filter}, limit={limit} (requested={limit_param}), offset={offset}")
