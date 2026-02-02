@@ -102,17 +102,15 @@ def handler(event: dict, context) -> dict:
                         SELECT 
                             l.id, l.title as name, l.district, l.status,
                             l.subscription_expires_at as subscription_end,
-                            o.first_payment_date,
-                            l.photos,
+                            l.image_url as photo,
                             CASE 
                                 WHEN l.subscription_expires_at < NOW() + INTERVAL '1 day' THEN 'critical'
                                 WHEN l.subscription_expires_at < NOW() + INTERVAL '3 days' THEN 'warning'
                                 ELSE 'ok'
                             END as urgency,
-                            CASE WHEN o.first_payment_date IS NULL THEN true ELSE false END as no_payments
+                            CASE WHEN l.owner_id IS NULL THEN true ELSE false END as no_payments
                         FROM t_p39732784_hourly_rentals_platf.manager_listings ml
                         JOIN t_p39732784_hourly_rentals_platf.listings l ON ml.listing_id = l.id
-                        LEFT JOIN t_p39732784_hourly_rentals_platf.owners o ON l.owner_id = o.id
                         WHERE ml.manager_id = %s
                         ORDER BY 
                             CASE 
@@ -122,22 +120,7 @@ def handler(event: dict, context) -> dict:
                             END,
                             l.subscription_expires_at ASC
                     """, (admin_id_int,))
-                    listings = []
-                    for row in cur.fetchall():
-                        listing = dict(row)
-                        if listing.get('photos'):
-                            try:
-                                import json as json_module
-                                photos = json_module.loads(listing['photos']) if isinstance(listing['photos'], str) else listing['photos']
-                                listing['photo'] = photos[0] if photos and len(photos) > 0 else None
-                            except Exception as e:
-                                print(f"[PHOTO ERROR] {e}")
-                                listing['photo'] = None
-                        else:
-                            listing['photo'] = None
-                        del listing['photos']
-                        listings.append(listing)
-                    result['listings'] = listings
+                    result['listings'] = [dict(row) for row in cur.fetchall()]
                     
                     # Статистика комиссий за месяц
                     cur.execute("""
