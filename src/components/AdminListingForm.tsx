@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,16 +14,16 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+
+import { RoomItem, featureIcons } from './listing-form/RoomItem';
+import { useRoomManagement, roomTemplates, availableFeatures } from './listing-form/useRoomManagement';
+import { usePhotoUpload } from './listing-form/usePhotoUpload';
 
 interface AdminListingFormProps {
   listing: any;
@@ -31,186 +31,12 @@ interface AdminListingFormProps {
   onClose: () => void;
 }
 
-interface SortableRoomItemProps {
-  room: any;
-  index: number;
-  onEdit: (index: number) => void;
-  onRemove: (index: number) => void;
-  onDuplicate: (index: number) => void;
-  isEditing: boolean;
-}
-
-function SortableRoomItem({ room, index, onEdit, onRemove, onDuplicate, isEditing }: SortableRoomItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: `room-${index}` });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  const featureIcons: Record<string, string> = {
-    'WiFi': 'Wifi',
-    'Двуспальная кровать': 'BedDouble',
-    '2 односпальные кровати': 'BedSingle',
-    'Смарт ТВ': 'Tv',
-    'Телевизор': 'Monitor',
-    'Кондиционер': 'Wind',
-    'Джакузи': 'Bath',
-    'Душевая кабина': 'ShowerHead',
-    'Ванная': 'Bath',
-    'Сауна': 'Flame',
-    'Фен': 'Wind',
-    'Халаты': 'Shirt',
-    'Тапочки': 'Footprints',
-    'Холодильник': 'Refrigerator',
-    'Микроволновка': 'Microwave',
-    'Чайник': 'Coffee',
-    'Посуда': 'UtensilsCrossed',
-    'Сейф': 'Lock',
-    'Зеркала': 'Sparkles',
-    'Музыкальная система': 'Music',
-    'Настольные игры': 'Dices',
-    'PlayStation': 'Gamepad2',
-    'Бар': 'Wine',
-    'Косметика': 'Sparkles',
-    'Полотенца': 'Sheet',
-    'Постельное бельё': 'Bed',
-    'Кухня': 'ChefHat',
-    'Обеденный стол': 'Utensils',
-    'Диван': 'Sofa',
-    'Ароматерапия': 'Flower',
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`p-4 border rounded-lg transition-all ${
-        isEditing 
-          ? 'bg-purple-100 border-purple-400 border-2 shadow-md' 
-          : 'bg-purple-50 border-gray-200'
-      }`}
-    >
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-start gap-3 flex-1">
-          <div
-            {...attributes}
-            {...listeners}
-            className="mt-1 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-purple-600 transition-colors"
-          >
-            <Icon name="GripVertical" size={20} />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="font-semibold text-lg">{room.type}</div>
-              {isEditing && (
-                <Badge variant="default" className="bg-purple-600">
-                  <Icon name="Edit" size={12} className="mr-1" />
-                  Редактируется
-                </Badge>
-              )}
-            </div>
-            <div className="text-purple-600 font-bold text-xl">{room.price} ₽/час</div>
-            {room.square_meters > 0 && (
-              <Badge variant="secondary" className="mt-1">
-                {room.square_meters} м²
-              </Badge>
-            )}
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onEdit(index)}
-            title="Редактировать"
-          >
-            <Icon name="Edit" size={16} />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onDuplicate(index)}
-            title="Дублировать"
-          >
-            <Icon name="Copy" size={16} />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onRemove(index)}
-            title="Удалить"
-          >
-            <Icon name="Trash2" size={16} />
-          </Button>
-        </div>
-      </div>
-      
-      {room.images && Array.isArray(room.images) && room.images.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto mb-3 ml-8">
-          {room.images.map((img: string, imgIdx: number) => (
-            <div key={imgIdx} className="relative flex-shrink-0">
-              <img 
-                src={img} 
-                alt={`${room.type} ${imgIdx + 1}`} 
-                className="w-24 h-24 object-cover rounded border-2 border-purple-200" 
-              />
-              <div className="absolute top-1 left-1 bg-purple-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                {imgIdx + 1}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {room.features && Array.isArray(room.features) && room.features.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-2 ml-8">
-          {room.features.map((feature: string, fIdx: number) => {
-            const iconName = featureIcons[feature] || 'Check';
-            return (
-              <div
-                key={fIdx}
-                className="group relative inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 transition-all cursor-help"
-                title={feature}
-              >
-                <Icon name={iconName} size={14} className="text-purple-600" />
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  {feature}
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {room.description && (
-        <p className="text-sm text-muted-foreground ml-8">{room.description}</p>
-      )}
-    </div>
-  );
-}
-
 export default function AdminListingForm({ listing, token, onClose }: AdminListingFormProps) {
   console.log('✅ AdminListingForm component loaded - RESTORED VERSION');
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const logoInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const [uploadingLogo, setUploadingLogo] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
+  const [owners, setOwners] = useState<any[]>([]);
+  const [loadingOwners, setLoadingOwners] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -254,24 +80,44 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     };
   });
 
-  const [newRoom, setNewRoom] = useState({ 
-    type: '', 
-    price: 0, 
-    description: '', 
-    images: [] as string[], 
-    square_meters: 0,
-    features: [] as string[],
-    min_hours: 1,
-    payment_methods: 'Наличные, банковская карта при заселении' as string,
-    cancellation_policy: 'Бесплатная отмена за 1 час до заселения' as string
-  });
-  const [uploadingRoomPhotos, setUploadingRoomPhotos] = useState(false);
-  const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
-  const [draggingPhotoIndex, setDraggingPhotoIndex] = useState<number | null>(null);
-  const [owners, setOwners] = useState<any[]>([]);
-  const [loadingOwners, setLoadingOwners] = useState(false);
+  const roomManagement = useRoomManagement(formData, setFormData);
+  const {
+    newRoom,
+    setNewRoom,
+    editingRoomIndex,
+    addRoom,
+    handleDragEnd,
+    startEditRoom,
+    saveEditedRoom,
+    cancelEditRoom,
+    removeRoom,
+    duplicateRoom,
+    applyTemplate,
+    toggleNewRoomFeature,
+    handlePhotoDragStart,
+    handlePhotoDragOver,
+    handlePhotoDragEnd,
+    draggingPhotoIndex,
+  } = roomManagement;
 
-  // Обновляем formData при изменении listing (загрузка полных данных)
+  const photoUpload = usePhotoUpload(token, formData, setFormData, newRoom, setNewRoom);
+  const {
+    fileInputRef,
+    logoInputRef,
+    uploadingPhoto,
+    uploadingLogo,
+    uploadingRoomPhotos,
+    isDragging,
+    handlePhotoUpload,
+    handleLogoUpload,
+    handleNewRoomPhotosUpload,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    removeNewRoomPhoto,
+    replaceRoomPhoto,
+  } = photoUpload;
+
   useEffect(() => {
     if (listing) {
       console.log('=== UPDATING FORM DATA FROM LISTING PROP ===');
@@ -321,117 +167,6 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     };
     loadOwners();
   }, [token]);
-
-  const roomTemplates = [
-    {
-      name: 'Стандарт',
-      type: 'Стандарт',
-      description: 'Комфортный номер с базовым набором удобств',
-      square_meters: 18,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Фен', 'Холодильник', 'Чайник'],
-    },
-    {
-      name: 'Комфорт',
-      type: 'Комфорт',
-      description: 'Улучшенный номер с расширенным набором удобств',
-      square_meters: 25,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Сейф'],
-    },
-    {
-      name: 'Люкс',
-      type: 'Люкс',
-      description: 'Роскошный номер премиум класса',
-      square_meters: 35,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Сейф', 'Зеркала', 'Музыкальная система'],
-    },
-    {
-      name: 'Студия',
-      type: 'Студия',
-      description: 'Просторный номер с кухонной зоной',
-      square_meters: 30,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Душевая кабина', 'Фен', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Обеденный стол', 'Диван', 'Кухня'],
-    },
-    {
-      name: 'Романтик',
-      type: 'Романтик',
-      description: 'Номер с романтической атмосферой для пар',
-      square_meters: 28,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Чайник', 'Зеркала', 'Музыкальная система', 'Ароматерапия', 'Косметика'],
-    },
-    {
-      name: 'VIP',
-      type: 'VIP',
-      description: 'Эксклюзивный номер с максимальным комфортом',
-      square_meters: 45,
-      features: ['WiFi', 'Двуспальная кровать', 'Смарт ТВ', 'Кондиционер', 'Джакузи', 'Фен', 'Халаты', 'Тапочки', 'Холодильник', 'Микроволновка', 'Чайник', 'Посуда', 'Сейф', 'Зеркала', 'Музыкальная система', 'PlayStation', 'Настольные игры', 'Диван', 'Обеденный стол', 'Бар', 'Косметика', 'Полотенца', 'Постельное бельё'],
-    },
-  ];
-
-  const availableFeatures = [
-    'WiFi',
-    'Двуспальная кровать',
-    '2 односпальные кровати',
-    'Смарт ТВ',
-    'Телевизор',
-    'Кондиционер',
-    'Джакузи',
-    'Душевая кабина',
-    'Ванная',
-    'Сауна',
-    'Фен',
-    'Халаты',
-    'Тапочки',
-    'Холодильник',
-    'Микроволновка',
-    'Чайник',
-    'Посуда',
-    'Сейф',
-    'Зеркала',
-    'Музыкальная система',
-    'Настольные игры',
-    'PlayStation',
-    'Бар',
-    'Косметика',
-    'Полотенца',
-    'Постельное бельё',
-    'Кухня',
-    'Обеденный стол',
-    'Диван',
-    'Ароматерапия',
-  ];
-
-  const featureIcons: Record<string, string> = {
-    'WiFi': 'Wifi',
-    'Двуспальная кровать': 'BedDouble',
-    '2 односпальные кровати': 'BedSingle',
-    'Смарт ТВ': 'Tv',
-    'Телевизор': 'Monitor',
-    'Кондиционер': 'Wind',
-    'Джакузи': 'Bath',
-    'Душевая кабина': 'ShowerHead',
-    'Ванная': 'Bath',
-    'Сауна': 'Flame',
-    'Фен': 'Wind',
-    'Халаты': 'Shirt',
-    'Тапочки': 'Footprints',
-    'Холодильник': 'Refrigerator',
-    'Микроволновка': 'Microwave',
-    'Чайник': 'Coffee',
-    'Посуда': 'UtensilsCrossed',
-    'Сейф': 'Lock',
-    'Зеркала': 'Sparkles',
-    'Музыкальная система': 'Music',
-    'Настольные игры': 'Dices',
-    'PlayStation': 'Gamepad2',
-    'Бар': 'Wine',
-    'Косметика': 'Sparkles',
-    'Полотенца': 'Sheet',
-    'Постельное бельё': 'Bed',
-    'Кухня': 'ChefHat',
-    'Обеденный стол': 'Utensils',
-    'Диван': 'Sofa',
-    'Ароматерапия': 'Flower',
-  };
 
   const geocodeAddress = async (city: string, address: string): Promise<{ lat: number; lng: number } | null> => {
     try {
@@ -596,7 +331,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
         payment_methods: 'Наличные, банковская карта при заселении',
         cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
       });
-      setEditingRoomIndex(null);
+      roomManagement.setEditingRoomIndex(null);
       
       onClose();
     } catch (error: any) {
@@ -610,571 +345,19 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
     }
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, isRoomPhoto = false, roomIndex?: number) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingPhoto(true);
-    try {
-      const reader = new FileReader();
-      const uploadPromise = new Promise<string>((resolve, reject) => {
-        reader.onload = async (event) => {
-          try {
-            const base64 = event.target?.result?.toString().split(',')[1];
-            if (!base64) {
-              reject('Ошибка чтения файла');
-              return;
-            }
-
-            const result = await api.uploadPhoto(token, base64, file.type);
-            
-            if (result.url) {
-              resolve(result.url);
-            } else {
-              reject('Не удалось получить URL фото');
-            }
-          } catch (err) {
-            reject(err);
-          }
-        };
-        reader.onerror = () => reject('Ошибка чтения файла');
-      });
-      
-      reader.readAsDataURL(file);
-      const url = await uploadPromise;
-      
-      if (isRoomPhoto && roomIndex !== undefined) {
-        const updatedRooms = [...formData.rooms];
-        updatedRooms[roomIndex].image_url = url;
-        setFormData({ ...formData, rooms: updatedRooms });
-      } else {
-        setFormData({ ...formData, image_url: url });
-      }
-      
-      toast({
-        title: 'Успешно',
-        description: 'Фото загружено',
-      });
-    } catch (error: any) {
-      console.error('Photo upload error:', error);
-      toast({
-        title: 'Ошибка',
-        description: error?.message || 'Не удалось загрузить фото',
-        variant: 'destructive',
-      });
-    } finally {
-      setUploadingPhoto(false);
-    }
-  };
-
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingLogo(true);
-    try {
-      const reader = new FileReader();
-      const uploadPromise = new Promise<string>((resolve, reject) => {
-        reader.onload = async (event) => {
-          try {
-            const base64 = event.target?.result?.toString().split(',')[1];
-            if (!base64) {
-              reject('Ошибка чтения файла');
-              return;
-            }
-
-            const result = await api.uploadPhoto(token, base64, file.type);
-            
-            if (result.url) {
-              resolve(result.url);
-            } else {
-              reject('Не удалось получить URL логотипа');
-            }
-          } catch (err) {
-            reject(err);
-          }
-        };
-        reader.onerror = () => reject('Ошибка чтения файла');
-      });
-      
-      reader.readAsDataURL(file);
-      const url = await uploadPromise;
-      
-      setFormData({ ...formData, logo_url: url });
-      toast({
-        title: 'Успешно',
-        description: 'Логотип загружен',
-      });
-    } catch (error: any) {
-      console.error('Logo upload error:', error);
-      toast({
-        title: 'Ошибка',
-        description: error?.message || 'Не удалось загрузить логотип',
-        variant: 'destructive',
-      });
-    } finally {
-      setUploadingLogo(false);
-    }
-  };
-
-  const compressImage = (file: File, maxWidth = 800, quality = 0.6): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-
-          // Ограничиваем размер
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-
-          // Пробуем разные уровни качества, пока не получим нужный размер
-          let currentQuality = quality;
-          const tryCompress = () => {
-            canvas.toBlob(
-              (blob) => {
-                if (!blob) {
-                  reject('Ошибка сжатия');
-                  return;
-                }
-                
-                // Проверяем размер (макс 2MB для base64)
-                const estimatedBase64Size = (blob.size * 4) / 3;
-                console.log(`Compressed size: ${blob.size} bytes (base64: ~${Math.round(estimatedBase64Size / 1024)}KB), quality: ${currentQuality}`);
-                
-                if (estimatedBase64Size > 2 * 1024 * 1024 && currentQuality > 0.3) {
-                  // Слишком большой, уменьшаем качество
-                  currentQuality -= 0.1;
-                  console.log(`Too large, retrying with quality ${currentQuality}`);
-                  tryCompress();
-                  return;
-                }
-                
-                const reader2 = new FileReader();
-                reader2.onload = () => {
-                  const base64 = reader2.result?.toString().split(',')[1];
-                  if (base64) {
-                    console.log(`Final base64 size: ${Math.round(base64.length / 1024)}KB`);
-                    resolve(base64);
-                  } else {
-                    reject('Ошибка чтения');
-                  }
-                };
-                reader2.onerror = reject;
-                reader2.readAsDataURL(blob);
-              },
-              'image/jpeg',
-              currentQuality
-            );
-          };
-          
-          tryCompress();
-        };
-        img.onerror = reject;
-        img.src = e.target?.result as string;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const uploadRoomPhotosFiles = async (files: File[]) => {
-    console.log('=== UPLOAD ROOM PHOTOS START ===');
-    console.log('Files count:', files.length);
-    
-    if (files.length === 0) {
-      console.log('No files selected');
-      return;
-    }
-    
-    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
-    console.log('Current room images:', currentImages.length);
-    
-    if (currentImages.length + files.length > 10) {
-      console.log('Too many photos:', currentImages.length + files.length);
-      toast({
-        title: 'Ошибка',
-        description: 'Максимум 10 фото на номер',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setUploadingRoomPhotos(true);
-    const uploadedUrls: string[] = [];
-
-    try {
-      for (const file of files) {
-        console.log('Processing file:', file.name, file.type, file.size);
-        
-        // Сжимаем изображение
-        console.log('Compressing image...');
-        const base64 = await compressImage(file);
-        console.log('Compressed base64 length:', base64.length);
-
-        try {
-          console.log('Calling api.uploadPhoto...');
-          const uploadResult = await api.uploadPhoto(token, base64, 'image/jpeg');
-          console.log('Upload result:', uploadResult);
-          
-          if (uploadResult.url) {
-            console.log('Photo uploaded successfully:', uploadResult.url);
-            uploadedUrls.push(uploadResult.url);
-          } else {
-            console.error('No URL in upload result:', uploadResult);
-            throw new Error('Не удалось загрузить');
-          }
-        } catch (err) {
-          console.error('Upload API error:', err);
-          throw err;
-        }
-      }
-
-      console.log('All photos uploaded:', uploadedUrls);
-      setNewRoom({ ...newRoom, images: [...currentImages, ...uploadedUrls] });
-      toast({
-        title: 'Успешно',
-        description: `Загружено ${uploadedUrls.length} фото`,
-      });
-    } catch (error: any) {
-      console.error('=== UPLOAD ROOM PHOTOS ERROR ===');
-      console.error('Error:', error);
-      console.error('Error message:', error?.message);
-      console.error('Error stack:', error?.stack);
-      toast({
-        title: 'Ошибка',
-        description: error?.message || 'Не удалось загрузить фото',
-        variant: 'destructive',
-      });
-    } finally {
-      setUploadingRoomPhotos(false);
-      console.log('=== UPLOAD ROOM PHOTOS END ===');
-    }
-  };
-
-  const handleNewRoomPhotosUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    await uploadRoomPhotosFiles(files);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-
-    const files = Array.from(e.dataTransfer.files).filter(file => 
-      file.type.startsWith('image/')
-    );
-
-    if (files.length > 0) {
-      await uploadRoomPhotosFiles(files);
-    }
-  };
-
-  const removeNewRoomPhoto = (index: number) => {
-    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
-    setNewRoom({
-      ...newRoom,
-      images: currentImages.filter((_, i) => i !== index),
-    });
-    toast({
-      title: 'Фото удалено',
-      description: `Осталось ${currentImages.length - 1} фото`,
-    });
-  };
-
-  const replaceRoomPhoto = async (index: number, file: File) => {
-    setUploadingRoomPhotos(true);
-    try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64 = event.target?.result?.toString().split(',')[1];
-        if (!base64) return;
-
-        const result = await api.uploadPhoto(token, base64, file.type);
-        
-        if (result.url) {
-          const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
-          const updatedImages = [...currentImages];
-          updatedImages[index] = result.url;
-          
-          setNewRoom({
-            ...newRoom,
-            images: updatedImages,
-          });
-
-          toast({
-            title: 'Фото заменено',
-            description: 'Новое фото успешно загружено',
-          });
-        }
-      };
-      reader.readAsDataURL(file);
-    } catch (error: any) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось заменить фото',
-        variant: 'destructive',
-      });
-    } finally {
-      setUploadingRoomPhotos(false);
-    }
-  };
-
-  const handlePhotoDragStart = (index: number) => {
-    setDraggingPhotoIndex(index);
-  };
-
-  const handlePhotoDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    if (draggingPhotoIndex === null || draggingPhotoIndex === index) return;
-
-    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
-    const newImages = [...currentImages];
-    const draggedImage = newImages[draggingPhotoIndex];
-    newImages.splice(draggingPhotoIndex, 1);
-    newImages.splice(index, 0, draggedImage);
-
-    setNewRoom({ ...newRoom, images: newImages });
-    setDraggingPhotoIndex(index);
-  };
-
-  const handlePhotoDragEnd = () => {
-    setDraggingPhotoIndex(null);
-  };
-
-  const toggleNewRoomFeature = (feature: string) => {
-    const features = Array.isArray(newRoom.features) ? newRoom.features : [];
-    if (features.includes(feature)) {
-      setNewRoom({
-        ...newRoom,
-        features: features.filter((f) => f !== feature),
-      });
-    } else {
-      setNewRoom({
-        ...newRoom,
-        features: [...features, feature],
-      });
-    }
-  };
-
-  const addRoom = () => {
-    if (newRoom.type && newRoom.price > 0) {
-      const roomToAdd = {
-        type: newRoom.type,
-        price: newRoom.price,
-        description: newRoom.description,
-        images: [...(Array.isArray(newRoom.images) ? newRoom.images : [])],
-        square_meters: newRoom.square_meters,
-        features: [...(Array.isArray(newRoom.features) ? newRoom.features : [])],
-        min_hours: newRoom.min_hours,
-        payment_methods: newRoom.payment_methods,
-        cancellation_policy: newRoom.cancellation_policy
-      };
-      
-      const updatedRooms = [...formData.rooms, roomToAdd];
-      console.log('Adding room. Current rooms:', formData.rooms.length, 'After add:', updatedRooms.length);
-      console.log('Room added:', roomToAdd);
-      
-      setFormData({
-        ...formData,
-        rooms: updatedRooms,
-      });
-      
-      setNewRoom({ 
-        type: '', 
-        price: 0, 
-        description: '', 
-        images: [], 
-        square_meters: 0,
-        features: [],
-        min_hours: 1,
-        payment_methods: 'Наличные, банковская карта при заселении',
-        cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
-      });
-      
-      toast({
-        title: 'Успешно',
-        description: `Категория "${roomToAdd.type}" добавлена (всего: ${updatedRooms.length})`,
-      });
-    } else {
-      toast({
-        title: 'Ошибка',
-        description: 'Заполните название категории и цену',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      const oldIndex = parseInt(active.id.toString().replace('room-', ''));
-      const newIndex = parseInt(over.id.toString().replace('room-', ''));
-
-      setFormData({
-        ...formData,
-        rooms: arrayMove(formData.rooms, oldIndex, newIndex),
-      });
-
-      toast({
-        title: 'Порядок изменён',
-        description: 'Перетащите номера в нужном порядке',
-      });
-    }
-  };
-
-  const startEditRoom = (index: number) => {
-    const room = formData.rooms[index];
-    setNewRoom({
-      type: room.type || '',
-      price: room.price || 0,
-      description: room.description || '',
-      images: Array.isArray(room.images) ? room.images : [],
-      square_meters: room.square_meters || 0,
-      features: Array.isArray(room.features) ? room.features : [],
-      min_hours: room.min_hours || 1,
-      payment_methods: room.payment_methods || 'Наличные, банковская карта при заселении',
-      cancellation_policy: room.cancellation_policy || 'Бесплатная отмена за 1 час до заселения'
-    });
-    setEditingRoomIndex(index);
-  };
-
-  const saveEditedRoom = () => {
-    if (editingRoomIndex !== null && newRoom.type && newRoom.price > 0) {
-      const updatedRooms = [...formData.rooms];
-      updatedRooms[editingRoomIndex] = {
-        type: newRoom.type,
-        price: newRoom.price,
-        description: newRoom.description,
-        images: [...(Array.isArray(newRoom.images) ? newRoom.images : [])],
-        square_meters: newRoom.square_meters,
-        features: [...(Array.isArray(newRoom.features) ? newRoom.features : [])],
-        min_hours: newRoom.min_hours,
-        payment_methods: newRoom.payment_methods,
-        cancellation_policy: newRoom.cancellation_policy
-      };
-      setFormData({
-        ...formData,
-        rooms: updatedRooms,
-      });
-      setEditingRoomIndex(null);
-      setNewRoom({ 
-        type: '', 
-        price: 0, 
-        description: '', 
-        images: [], 
-        square_meters: 0,
-        features: [],
-        min_hours: 1,
-        payment_methods: 'Наличные, банковская карта при заселении',
-        cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
-      });
-      toast({
-        title: 'Успешно',
-        description: 'Категория обновлена',
-      });
-    }
-  };
-
-  const cancelEditRoom = () => {
-    setEditingRoomIndex(null);
-    setNewRoom({ 
-      type: '', 
-      price: 0, 
-      description: '', 
-      images: [], 
-      square_meters: 0,
-      features: [],
-      min_hours: 1,
-      payment_methods: 'Наличные, банковская карта при заселении',
-      cancellation_policy: 'Бесплатная отмена за 1 час до заселения'
-    });
-  };
-
-  const applyTemplate = (templateName: string) => {
-    const template = roomTemplates.find(t => t.name === templateName);
-    if (!template) return;
-
-    const currentImages = Array.isArray(newRoom.images) ? newRoom.images : [];
-    setNewRoom({
-      type: template.type,
-      price: newRoom.price || 0,
-      description: template.description,
-      images: [...currentImages],
-      square_meters: template.square_meters,
-      features: [...template.features],
-      min_hours: newRoom.min_hours || 1,
-      payment_methods: newRoom.payment_methods || 'Наличные, банковская карта при заселении',
-      cancellation_policy: newRoom.cancellation_policy || 'Бесплатная отмена за 1 час до заселения'
-    });
-
-    toast({
-      title: 'Шаблон применён',
-      description: `Загружены настройки для категории "${template.name}"`,
-    });
-  };
-
-  const removeRoom = (index: number) => {
-    setFormData({
-      ...formData,
-      rooms: formData.rooms.filter((_: any, i: number) => i !== index),
-    });
-  };
-
-  const duplicateRoom = (index: number) => {
-    const roomToDuplicate = { ...formData.rooms[index] };
-    roomToDuplicate.type = `${roomToDuplicate.type} (копия)`;
-    setFormData({
-      ...formData,
-      rooms: [...formData.rooms.slice(0, index + 1), roomToDuplicate, ...formData.rooms.slice(index + 1)],
-    });
-    toast({
-      title: 'Успешно',
-      description: 'Категория дублирована',
-    });
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" onClick={onClose}>
-              <Icon name="ArrowLeft" size={20} />
-            </Button>
-            <h1 className="text-2xl font-bold">
-              {listing ? 'Редактирование объекта' : 'Новый объект'}
-            </h1>
-          </div>
+    <div className="fixed inset-0 bg-black/50 flex items-start justify-center p-4 overflow-y-auto z-50">
+      <main className="bg-white rounded-lg shadow-xl w-full max-w-4xl my-8">
+        <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between z-10 rounded-t-lg">
+          <h1 className="text-2xl font-bold">
+            {listing ? 'Редактирование объекта' : 'Новый объект'}
+          </h1>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <Icon name="X" size={20} />
+          </Button>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Основная информация</CardTitle>
@@ -1192,9 +375,12 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Тип</label>
-                  <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
+                  <Select
+                    value={formData.type}
+                    onValueChange={(value) => setFormData({ ...formData, type: value })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Выберите тип" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="hotel">Отель</SelectItem>
@@ -1447,8 +633,9 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                 </div>
                 
                 <div className="p-4 border-2 border-red-200 rounded-lg bg-red-50 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-red-800">⚠️ Важные уведомления о ценах</label>
+                  <div className="flex items-center gap-2">
+                    <Icon name="AlertTriangle" size={18} className="text-red-600" />
+                    <span className="text-sm font-semibold text-red-700">Ценовые предупреждения</span>
                   </div>
                   
                   <div className="flex items-start gap-3">
@@ -1500,12 +687,12 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                   onDragEnd={handleDragEnd}
                 >
                   <SortableContext
-                    items={formData.rooms.map((_, index) => `room-${index}`)}
+                    items={formData.rooms.map((_: any, index: number) => `room-${index}`)}
                     strategy={verticalListSortingStrategy}
                   >
                     {formData.rooms.map((room: any, index: number) => (
                       <div key={`room-${index}`} className="space-y-4">
-                        <SortableRoomItem
+                        <RoomItem
                           room={room}
                           index={index}
                           onEdit={startEditRoom}
@@ -1649,7 +836,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                                     </div>
                                   </div>
                                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                                    {newRoom.images.map((url, idx) => (
+                                    {newRoom.images.map((url: string, idx: number) => (
                                       <div
                                         key={idx}
                                         draggable
@@ -1682,38 +869,38 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                                             {idx + 1}
                                           </div>
                                           {idx === 0 && (
-                                            <div className="absolute top-2 right-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md">
+                                            <div className="absolute top-2 right-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md">
                                               Главное
                                             </div>
                                           )}
-                                        </div>
-                                        <div className="absolute -top-2 -right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                                          <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                              const file = e.target.files?.[0];
-                                              if (file) replaceRoomPhoto(idx, file);
-                                            }}
-                                            className="hidden"
-                                            id={`replace-photo-${idx}`}
-                                          />
-                                          <button
-                                            type="button"
-                                            onClick={() => document.getElementById(`replace-photo-${idx}`)?.click()}
-                                            className="bg-blue-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-blue-600 hover:scale-110 transition-all shadow-lg group/btn relative"
-                                            title="Заменить фото"
-                                          >
-                                            <Icon name="RefreshCw" size={13} />
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => removeNewRoomPhoto(idx)}
-                                            className="bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all shadow-lg"
-                                            title="Удалить фото"
-                                          >
-                                            <Icon name="Trash2" size={13} />
-                                          </button>
+                                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <input
+                                              type="file"
+                                              accept="image/*"
+                                              id={`replace-photo-${idx}`}
+                                              onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) replaceRoomPhoto(idx, file);
+                                              }}
+                                              className="hidden"
+                                            />
+                                            <button
+                                              type="button"
+                                              onClick={() => document.getElementById(`replace-photo-${idx}`)?.click()}
+                                              className="bg-blue-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-blue-600 hover:scale-110 transition-all shadow-lg group/btn relative"
+                                              title="Заменить фото"
+                                            >
+                                              <Icon name="RefreshCw" size={13} />
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() => removeNewRoomPhoto(idx)}
+                                              className="bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all shadow-lg"
+                                              title="Удалить фото"
+                                            >
+                                              <Icon name="Trash2" size={13} />
+                                            </button>
+                                          </div>
                                         </div>
                                       </div>
                                     ))}
@@ -2031,7 +1218,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                           </div>
                         </div>
                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                          {newRoom.images.map((url, idx) => (
+                          {newRoom.images.map((url: string, idx: number) => (
                             <div
                               key={idx}
                               draggable
@@ -2064,38 +1251,38 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                                   {idx + 1}
                                 </div>
                                 {idx === 0 && (
-                                  <div className="absolute top-2 right-2 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md">
+                                  <div className="absolute top-2 right-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md">
                                     Главное
                                   </div>
                                 )}
-                              </div>
-                              <div className="absolute -top-2 -right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) replaceRoomPhoto(idx, file);
-                                  }}
-                                  className="hidden"
-                                  id={`replace-photo-new-${idx}`}
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => document.getElementById(`replace-photo-new-${idx}`)?.click()}
-                                  className="bg-blue-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-blue-600 hover:scale-110 transition-all shadow-lg"
-                                  title="Заменить фото"
-                                >
-                                  <Icon name="RefreshCw" size={13} />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => removeNewRoomPhoto(idx)}
-                                  className="bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all shadow-lg"
-                                  title="Удалить фото"
-                                >
-                                  <Icon name="Trash2" size={13} />
-                                </button>
+                                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    id={`replace-photo-add-${idx}`}
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) replaceRoomPhoto(idx, file);
+                                    }}
+                                    className="hidden"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => document.getElementById(`replace-photo-add-${idx}`)?.click()}
+                                    className="bg-blue-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-blue-600 hover:scale-110 transition-all shadow-lg"
+                                    title="Заменить фото"
+                                  >
+                                    <Icon name="RefreshCw" size={13} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeNewRoomPhoto(idx)}
+                                    className="bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-600 hover:scale-110 transition-all shadow-lg"
+                                    title="Удалить фото"
+                                  >
+                                    <Icon name="Trash2" size={13} />
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -2152,11 +1339,11 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                                 multiple
                                 onChange={handleNewRoomPhotosUpload}
                                 className="hidden"
-                                id="room-photos-input-new"
+                                id="room-photos-input-add"
                               />
                               <Button
                                 type="button"
-                                onClick={() => document.getElementById('room-photos-input-new')?.click()}
+                                onClick={() => document.getElementById('room-photos-input-add')?.click()}
                                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md hover:shadow-lg transition-all mt-2"
                               >
                                 <Icon name="Upload" size={16} className="mr-2" />
