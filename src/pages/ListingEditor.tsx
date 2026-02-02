@@ -1,14 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { api } from '@/lib/api';
+import ListingPhotoSection from '@/components/listing-editor/ListingPhotoSection';
+import ListingBasicInfoSection from '@/components/listing-editor/ListingBasicInfoSection';
+import ListingRoomsPhotosSection from '@/components/listing-editor/ListingRoomsPhotosSection';
 
 const FUNC_URL = 'https://functions.poehali.dev/4d42288a-e311-4754-98a2-944dfc667bd2';
 
@@ -23,9 +22,6 @@ export default function ListingEditor() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingRoomPhoto, setUploadingRoomPhoto] = useState<number | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const logoInputRef = useRef<HTMLInputElement>(null);
-  const roomPhotoInputRef = useRef<HTMLInputElement>(null);
   const [selectedRoomForPhoto, setSelectedRoomForPhoto] = useState<number | null>(null);
   
   const [formData, setFormData] = useState({
@@ -268,6 +264,10 @@ export default function ListingEditor() {
       setSaving(false);
     }
   };
+
+  const handleFormChange = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value });
+  };
   
   if (loading) {
     return (
@@ -332,347 +332,28 @@ export default function ListingEditor() {
         </div>
         
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="Image" size={20} />
-                Фотографии
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <Label>Главное фото</Label>
-                  {formData.image_url ? (
-                    <div className="relative mt-2">
-                      <img src={formData.image_url} alt="Главное фото" className="w-full h-48 object-cover rounded-lg border-2 border-primary" />
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="destructive"
-                        className="absolute top-2 right-2"
-                        onClick={() => setFormData({ ...formData, image_url: '' })}
-                      >
-                        <Icon name="Trash2" size={16} />
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full h-48 mt-2 border-dashed"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploadingPhoto}
-                    >
-                      {uploadingPhoto ? (
-                        <Icon name="Loader2" size={32} className="animate-spin" />
-                      ) : (
-                        <div className="text-center">
-                          <Icon name="Upload" size={32} className="mx-auto mb-2" />
-                          <p className="text-sm">Загрузить главное фото</p>
-                        </div>
-                      )}
-                    </Button>
-                  )}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handlePhotoUpload}
-                  />
-                </div>
+          <ListingPhotoSection
+            imageUrl={formData.image_url}
+            logoUrl={formData.logo_url}
+            uploadingPhoto={uploadingPhoto}
+            uploadingLogo={uploadingLogo}
+            onPhotoUpload={handlePhotoUpload}
+            onLogoUpload={handleLogoUpload}
+            onRemovePhoto={() => setFormData({ ...formData, image_url: '' })}
+            onRemoveLogo={() => setFormData({ ...formData, logo_url: '' })}
+          />
 
-                <div>
-                  <Label>Логотип</Label>
-                  {formData.logo_url ? (
-                    <div className="relative mt-2">
-                      <img src={formData.logo_url} alt="Логотип" className="w-full h-48 object-contain rounded-lg border-2 border-primary bg-gray-50" />
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="destructive"
-                        className="absolute top-2 right-2"
-                        onClick={() => setFormData({ ...formData, logo_url: '' })}
-                      >
-                        <Icon name="Trash2" size={16} />
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full h-48 mt-2 border-dashed"
-                      onClick={() => logoInputRef.current?.click()}
-                      disabled={uploadingLogo}
-                    >
-                      {uploadingLogo ? (
-                        <Icon name="Loader2" size={32} className="animate-spin" />
-                      ) : (
-                        <div className="text-center">
-                          <Icon name="Upload" size={32} className="mx-auto mb-2" />
-                          <p className="text-sm">Загрузить логотип</p>
-                        </div>
-                      )}
-                    </Button>
-                  )}
-                  <input
-                    ref={logoInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleLogoUpload}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ListingBasicInfoSection
+            formData={formData}
+            onFormChange={handleFormChange}
+          />
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Основная информация</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="name">Название объекта</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Квартира в центре"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="description">Описание</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Уютная квартира с отличным ремонтом..."
-                  rows={4}
-                />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Адрес и расположение</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="address">Адрес</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="ул. Ленина, д. 10"
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="district">Район</Label>
-                  <Input
-                    id="district"
-                    value={formData.district}
-                    onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                    placeholder="Центральный"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="metro_station">Метро</Label>
-                  <Input
-                    id="metro_station"
-                    value={formData.metro_station}
-                    onChange={(e) => setFormData({ ...formData, metro_station: e.target.value })}
-                    placeholder="Площадь Ленина"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Контактная информация</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="contact_phone">Телефон</Label>
-                  <Input
-                    id="contact_phone"
-                    value={formData.contact_phone}
-                    onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                    placeholder="+7 (999) 123-45-67"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="contact_telegram">Telegram</Label>
-                  <Input
-                    id="contact_telegram"
-                    value={formData.contact_telegram}
-                    onChange={(e) => setFormData({ ...formData, contact_telegram: e.target.value })}
-                    placeholder="@username"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Цены и характеристики</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="price_per_day">Цена за сутки (₽)</Label>
-                  <Input
-                    id="price_per_day"
-                    type="number"
-                    value={formData.price_per_day}
-                    onChange={(e) => setFormData({ ...formData, price_per_day: e.target.value })}
-                    placeholder="2500"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="square_meters">Площадь (м²)</Label>
-                  <Input
-                    id="square_meters"
-                    type="number"
-                    value={formData.square_meters}
-                    onChange={(e) => setFormData({ ...formData, square_meters: e.target.value })}
-                    placeholder="45"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="type">Тип объекта</Label>
-                  <Input
-                    id="type"
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                    placeholder="hotel / apartment"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="parking_type">Тип парковки</Label>
-                  <Input
-                    id="parking_type"
-                    value={formData.parking_type}
-                    onChange={(e) => setFormData({ ...formData, parking_type: e.target.value })}
-                    placeholder="free / paid / none"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="parking_price_per_hour">Цена парковки/час (₽)</Label>
-                  <Input
-                    id="parking_price_per_hour"
-                    type="number"
-                    value={formData.parking_price_per_hour}
-                    onChange={(e) => setFormData({ ...formData, parking_price_per_hour: e.target.value })}
-                    placeholder="100"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="short_title">Короткое название</Label>
-                <Input
-                  id="short_title"
-                  value={formData.short_title}
-                  onChange={(e) => setFormData({ ...formData, short_title: e.target.value })}
-                  placeholder="hotel Москва"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {formData.rooms && formData.rooms.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Bed" size={20} />
-                  Номера и их фотографии ({formData.rooms.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {formData.rooms.map((room: any, roomIdx: number) => (
-                  <div key={roomIdx} className="p-4 border rounded-lg bg-purple-50">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-                      <div>
-                        <div className="font-semibold text-lg">{room.type}</div>
-                        <div className="text-purple-600 font-bold">{room.price} ₽/час</div>
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedRoomForPhoto(roomIdx);
-                          roomPhotoInputRef.current?.click();
-                        }}
-                        disabled={uploadingRoomPhoto === roomIdx}
-                      >
-                        {uploadingRoomPhoto === roomIdx ? (
-                          <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />Загрузка...</>
-                        ) : (
-                          <><Icon name="Upload" size={16} className="mr-2" />Добавить фото</>
-                        )}
-                      </Button>
-                    </div>
-
-                    {room.images && Array.isArray(room.images) && room.images.length > 0 && (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                        {room.images.map((img: string, imgIdx: number) => (
-                          <div key={imgIdx} className="relative group">
-                            <img 
-                              src={img} 
-                              alt={`${room.type} ${imgIdx + 1}`} 
-                              className="w-full aspect-square object-cover rounded-lg border-2 border-purple-300" 
-                            />
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="destructive"
-                              className="absolute top-1 right-1 h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => handleDeleteRoomPhoto(roomIdx, imgIdx)}
-                            >
-                              <Icon name="Trash2" size={14} />
-                            </Button>
-                            <div className="absolute bottom-1 left-1 bg-purple-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-                              {imgIdx + 1}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {(!room.images || room.images.length === 0) && (
-                      <p className="text-sm text-muted-foreground text-center py-4">Нет фотографий для этого номера</p>
-                    )}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-
-          <input
-            ref={roomPhotoInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={handleRoomPhotoUpload}
+          <ListingRoomsPhotosSection
+            rooms={formData.rooms}
+            uploadingRoomPhoto={uploadingRoomPhoto}
+            onRoomPhotoUpload={handleRoomPhotoUpload}
+            onSelectRoom={(roomIdx) => setSelectedRoomForPhoto(roomIdx)}
+            onDeleteRoomPhoto={handleDeleteRoomPhoto}
           />
           
           <div className="flex justify-between items-center pt-4">
