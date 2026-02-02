@@ -105,9 +105,9 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="relative">
-          <Icon name="MessageCircle" size={18} className="mr-2" />
-          Сообщения
+        <Button variant="outline" size="sm" className="relative">
+          <Icon name="MessageCircle" size={16} className="sm:mr-2" />
+          <span className="hidden sm:inline">Сообщения</span>
           {unreadCount > 0 && (
             <Badge 
               variant="destructive" 
@@ -118,20 +118,20 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
           )}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[80vh]">
+      <DialogContent className="max-w-2xl max-h-[85vh] w-[95vw] sm:w-full">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Icon name="MessageCircle" size={24} />
-            Сообщения с {getRecipientLabel()}
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Icon name="MessageCircle" size={20} className="sm:size-6" />
+            <span className="truncate">Сообщения с {getRecipientLabel()}</span>
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Пишите вопросы, получайте задачи и уведомления
           </p>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* История сообщений */}
-          <ScrollArea className="h-[400px] border rounded-lg p-4">
+          <ScrollArea className="h-[300px] sm:h-[400px] border rounded-lg p-3 sm:p-4">
             {loading ? (
               <div className="flex items-center justify-center h-full">
                 <Icon name="Loader2" size={32} className="animate-spin" />

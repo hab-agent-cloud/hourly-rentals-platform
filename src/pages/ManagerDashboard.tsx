@@ -283,13 +283,14 @@ export default function ManagerDashboard() {
   });
   
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-background via-purple-50/20 to-background">
+      <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 bg-white rounded-xl shadow-sm border">
         <div>
-          <h1 className="text-3xl font-bold">Личный кабинет менеджера</h1>
-          <p className="text-muted-foreground mt-1">{managerData.name}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Личный кабинет менеджера</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">{managerData.name}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <MessagesDialog 
             adminId={adminId!} 
             role={managerData.role === 'operational_manager' ? 'om' : managerData.role === 'unit_manager' ? 'um' : 'manager'} 
@@ -297,16 +298,16 @@ export default function ManagerDashboard() {
           {managerData.role === 'operational_manager' && (
             <ManageLimitsDialog omId={adminId!} onSuccess={fetchManagerData} />
           )}
-          <Button onClick={() => navigate('/career')}>
-            <Icon name="TrendingUp" size={18} className="mr-2" />
-            Карьера
+          <Button size="sm" onClick={() => navigate('/career')}>
+            <Icon name="TrendingUp" size={16} className="sm:mr-2" />
+            <span className="hidden sm:inline">Карьера</span>
           </Button>
-          <Button variant="outline" onClick={() => {
+          <Button variant="outline" size="sm" onClick={() => {
             localStorage.removeItem('adminToken');
             navigate('/admin/login');
           }}>
-            <Icon name="LogOut" size={18} className="mr-2" />
-            Выйти
+            <Icon name="LogOut" size={16} className="sm:mr-2" />
+            <span className="hidden sm:inline">Выйти</span>
           </Button>
         </div>
       </div>
@@ -336,26 +337,40 @@ export default function ManagerDashboard() {
       )}
       
       {(managerData.om_name || managerData.um_name) && (
-        <Card>
+        <Card className="shadow-md">
           <CardHeader>
-            <CardTitle>Моя команда</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Users" size={20} />
+              Моя команда
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-3">
             {managerData.om_name && (
-              <div className="flex items-center gap-2">
-                <Icon name="User" size={18} />
-                <span className="text-sm">Оперативный менеджер: <strong>{managerData.om_name}</strong></span>
+              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                  <Icon name="User" size={20} className="text-white" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">Оперативный менеджер</div>
+                  <div className="font-semibold">{managerData.om_name}</div>
+                </div>
               </div>
             )}
             {managerData.um_name && (
-              <div className="flex items-center gap-2">
-                <Icon name="Crown" size={18} />
-                <span className="text-sm">Управляющий менеджер: <strong>{managerData.um_name}</strong></span>
+              <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg">
+                <div className="w-10 h-10 rounded-full bg-amber-600 flex items-center justify-center flex-shrink-0">
+                  <Icon name="Crown" size={20} className="text-white" />
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">Управляющий менеджер</div>
+                  <div className="font-semibold">{managerData.um_name}</div>
+                </div>
               </div>
             )}
           </CardContent>
         </Card>
       )}
+      </div>
     </div>
   );
 }

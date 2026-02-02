@@ -123,12 +123,12 @@ export default function AddOwnerDialog({ adminId, managedListings, onSuccess }: 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <Icon name="UserPlus" size={18} className="mr-2" />
-          Добавить владельца
+        <Button variant="outline" size="sm">
+          <Icon name="UserPlus" size={16} className="sm:mr-2" />
+          <span className="hidden sm:inline">Добавить владельца</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] w-[95vw] sm:w-full overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Добавить владельца объекта</DialogTitle>
           <p className="text-sm text-muted-foreground">
@@ -155,7 +155,7 @@ export default function AddOwnerDialog({ adminId, managedListings, onSuccess }: 
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="phone">Телефон *</Label>
                 <Input
@@ -186,7 +186,7 @@ export default function AddOwnerDialog({ adminId, managedListings, onSuccess }: 
               Паспортные данные
             </h3>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="passport_series">Серия паспорта</Label>
                 <Input

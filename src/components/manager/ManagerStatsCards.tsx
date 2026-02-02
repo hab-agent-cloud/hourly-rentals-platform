@@ -55,15 +55,18 @@ export default function ManagerStatsCards({ managerData, onWithdraw }: ManagerSt
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <Card>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <Card className="shadow-md hover:shadow-lg transition-shadow">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+              <Icon name="Wallet" size={16} className="text-green-600" />
+            </div>
             Баланс
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{managerData.balance || 0} ₽</div>
+          <div className="text-2xl sm:text-3xl font-bold text-green-600">{managerData.balance || 0} ₽</div>
           <p className="text-xs text-muted-foreground mt-1">
             За месяц: +{managerData.month_commission || 0} ₽
           </p>
@@ -74,7 +77,7 @@ export default function ManagerStatsCards({ managerData, onWithdraw }: ManagerSt
                 Вывести
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Вывод средств</DialogTitle>
               </DialogHeader>
@@ -203,14 +206,13 @@ export default function ManagerStatsCards({ managerData, onWithdraw }: ManagerSt
                         value={withdrawData.cardNumber}
                         onChange={(e) => setWithdrawData({ ...withdrawData, cardNumber: e.target.value })}
                       />
-                      <p className="text-xs text-muted-foreground mt-1">Корпоративная карта будет сохранена в вашем профиле</p>
                     </div>
                   </div>
                 )}
                 
                 <Button onClick={handleWithdrawClick} className="w-full">
-                  <Icon name="Check" size={16} className="mr-2" />
-                  Вывести {withdrawAmount ? `${withdrawAmount} ₽` : 'сумму'}
+                  <Icon name="Send" size={16} className="mr-2" />
+                  Отправить заявку
                 </Button>
               </div>
             </DialogContent>
@@ -218,48 +220,56 @@ export default function ManagerStatsCards({ managerData, onWithdraw }: ManagerSt
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="shadow-md hover:shadow-lg transition-shadow">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Объектов
+          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+              <Icon name="Building" size={16} className="text-blue-600" />
+            </div>
+            Объекты
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {managerData.objects_count || 0} / {managerData.object_limit}
-          </div>
+          <div className="text-2xl sm:text-3xl font-bold text-blue-600">{managerData.objects_count || 0} / {managerData.object_limit || 200}</div>
           <p className="text-xs text-muted-foreground mt-1">
-            Уровень: {getLevelEmoji(managerData.manager_level)} {getLevelName(managerData.manager_level)}
+            Доступно: {(managerData.object_limit || 200) - (managerData.objects_count || 0)}
           </p>
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="shadow-md hover:shadow-lg transition-shadow">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
+          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+              <Icon name="Award" size={16} className="text-amber-600" />
+            </div>
+            Уровень
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+            <span className="text-3xl">{getLevelEmoji(managerData.level)}</span>
+            <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">{getLevelName(managerData.level)}</span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Ставка: {managerData.commission_percent}%
+          </p>
+        </CardContent>
+      </Card>
+      
+      <Card className="shadow-md hover:shadow-lg transition-shadow">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+              <Icon name="Percent" size={16} className="text-purple-600" />
+            </div>
             Комиссия
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{managerData.commission_percent}%</div>
+          <div className="text-2xl sm:text-3xl font-bold text-purple-600">{managerData.commission_percent || 0}%</div>
           <p className="text-xs text-muted-foreground mt-1">
-            От подписок и продвижений
-          </p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Предупреждения
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {managerData.warnings_count} / 3
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {managerData.warnings_count === 0 ? 'Всё отлично!' : 'Будьте осторожны'}
+            От пополнений объектов
           </p>
         </CardContent>
       </Card>

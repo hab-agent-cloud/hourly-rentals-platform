@@ -32,12 +32,15 @@ export default function ManagerListingsSection({
 
   return (
     <>
-      <Card>
+      <Card className="shadow-md">
         <CardHeader>
-          <div className="flex items-center justify-between gap-4">
-            <CardTitle>Мои объекты ({managerData.listings?.length || 0})</CardTitle>
-            <div className="flex items-center gap-3">
-              <div className="relative w-64">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Building2" size={20} />
+              Мои объекты ({managerData.listings?.length || 0})
+            </CardTitle>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="relative w-full sm:w-64">
                 <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Поиск по адресу..."
@@ -72,18 +75,18 @@ export default function ManagerListingsSection({
               {filteredListings.map((listing: any) => (
                 <div 
                   key={listing.id}
-                  className={`border rounded-lg p-4 ${
+                  className={`border rounded-lg p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow ${
                     listing.urgency === 'critical' ? 'border-red-500 bg-red-50' :
                     listing.urgency === 'warning' ? 'border-yellow-500 bg-yellow-50' :
-                    'border-border'
+                    'border-border bg-white'
                   }`}
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                     {listing.photo && (
                       <img 
                         src={listing.photo} 
                         alt={listing.name}
-                        className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
+                        className="w-full sm:w-24 h-48 sm:h-24 object-cover rounded-lg flex-shrink-0"
                       />
                     )}
                     <div className="flex-1">
@@ -123,7 +126,7 @@ export default function ManagerListingsSection({
                           Подписка до: {new Date(listing.subscription_end).toLocaleDateString()}
                         </p>
                       )}
-                      <div className="flex gap-2 mt-3">
+                      <div className="flex flex-wrap gap-2 mt-3">
                         {listing.status === 'active' ? (
                           <Button 
                             size="sm" 
@@ -172,24 +175,28 @@ export default function ManagerListingsSection({
       </Card>
       
       {managerData.tasks && managerData.tasks.length > 0 && (
-        <Card>
+        <Card className="shadow-md">
           <CardHeader>
-            <CardTitle>Задачи от ОМ ({managerData.tasks.length})</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="CheckSquare" size={20} />
+              Задачи от ОМ ({managerData.tasks.length})
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {managerData.tasks.map((task: any) => (
-                <div key={task.id} className="flex items-center justify-between p-3 border rounded">
-                  <div>
+                <div key={task.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border rounded-lg shadow-sm bg-white">
+                  <div className="flex-1">
                     <p className="font-medium">{task.title}</p>
-                    <p className="text-sm text-muted-foreground">{task.description}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
                     {task.deadline && (
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                        <Icon name="Clock" size={12} />
                         До: {new Date(task.deadline).toLocaleString()}
                       </p>
                     )}
                   </div>
-                  <Button size="sm">
+                  <Button size="sm" className="w-full sm:w-auto">
                     <Icon name="Check" size={16} className="mr-1" />
                     Выполнено
                   </Button>

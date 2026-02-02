@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
+import { api } from '@/lib/api';
 
 const FUNC_URL = 'https://functions.poehali.dev/4d42288a-e311-4754-98a2-944dfc667bd2';
 
@@ -19,6 +20,13 @@ export default function ListingEditor() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [listing, setListing] = useState<any>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingRoomPhoto, setUploadingRoomPhoto] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const roomPhotoInputRef = useRef<HTMLInputElement>(null);
+  const [selectedRoomForPhoto, setSelectedRoomForPhoto] = useState<number | null>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -33,7 +41,10 @@ export default function ListingEditor() {
     square_meters: '',
     parking_type: '',
     parking_price_per_hour: '',
-    short_title: ''
+    short_title: '',
+    image_url: '',
+    logo_url: '',
+    rooms: [] as any[]
   });
   
   useEffect(() => {
@@ -66,7 +77,10 @@ export default function ListingEditor() {
           square_meters: data.listing.square_meters || '',
           parking_type: data.listing.parking_type || '',
           parking_price_per_hour: data.listing.parking_price_per_hour || '',
-          short_title: data.listing.short_title || ''
+          short_title: data.listing.short_title || '',
+          image_url: data.listing.image_url || '',
+          logo_url: data.listing.logo_url || '',
+          rooms: data.listing.rooms || []
         });
       }
     } catch (error) {
@@ -81,6 +95,141 @@ export default function ListingEditor() {
     }
   };
   
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxWidth = 1200;
+
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject('Ошибка сжатия');
+                return;
+              }
+              const reader2 = new FileReader();
+              reader2.onload = () => {
+                const base64 = reader2.result?.toString().split(',')[1];
+                if (base64) resolve(base64);
+                else reject('Ошибка чтения');
+              };
+              reader2.readAsDataURL(blob);
+            },
+            'image/jpeg',
+            0.7
+          );
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+
+    setUploadingPhoto(true);
+    try {
+      const base64 = await compressImage(file);
+      const result = await api.uploadPhoto(token, base64, 'image/jpeg');
+      
+      if (result.url) {
+        setFormData({ ...formData, image_url: result.url });
+        toast({ title: 'Успешно', description: 'Фото загружено' });
+      }
+    } catch (error: any) {
+      toast({ title: 'Ошибка', description: 'Не удалось загрузить фото', variant: 'destructive' });
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+
+    setUploadingLogo(true);
+    try {
+      const base64 = await compressImage(file);
+      const result = await api.uploadPhoto(token, base64, 'image/jpeg');
+      
+      if (result.url) {
+        setFormData({ ...formData, logo_url: result.url });
+        toast({ title: 'Успешно', description: 'Логотип загружен' });
+      }
+    } catch (error: any) {
+      toast({ title: 'Ошибка', description: 'Не удалось загрузить логотип', variant: 'destructive' });
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const handleRoomPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || selectedRoomForPhoto === null) return;
+
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+
+    setUploadingRoomPhoto(selectedRoomForPhoto);
+    try {
+      const uploadedUrls: string[] = [];
+
+      for (const file of Array.from(files)) {
+        const base64 = await compressImage(file);
+        const result = await api.uploadPhoto(token, base64, 'image/jpeg');
+        
+        if (result.url) {
+          uploadedUrls.push(result.url);
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
+        const updatedRooms = [...formData.rooms];
+        const currentImages = Array.isArray(updatedRooms[selectedRoomForPhoto].images) 
+          ? updatedRooms[selectedRoomForPhoto].images 
+          : [];
+        updatedRooms[selectedRoomForPhoto].images = [...currentImages, ...uploadedUrls];
+        setFormData({ ...formData, rooms: updatedRooms });
+        toast({ title: 'Успешно', description: `Загружено ${uploadedUrls.length} фото` });
+      }
+    } catch (error: any) {
+      toast({ title: 'Ошибка', description: 'Не удалось загрузить фото', variant: 'destructive' });
+    } finally {
+      setUploadingRoomPhoto(null);
+      setSelectedRoomForPhoto(null);
+    }
+  };
+
+  const handleDeleteRoomPhoto = (roomIndex: number, photoIndex: number) => {
+    const updatedRooms = [...formData.rooms];
+    updatedRooms[roomIndex].images = updatedRooms[roomIndex].images.filter((_: any, idx: number) => idx !== photoIndex);
+    setFormData({ ...formData, rooms: updatedRooms });
+    toast({ title: 'Удалено', description: 'Фото удалено' });
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -183,6 +332,102 @@ export default function ListingEditor() {
         </div>
         
         <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Icon name="Image" size={20} />
+                Фотографии
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <Label>Главное фото</Label>
+                  {formData.image_url ? (
+                    <div className="relative mt-2">
+                      <img src={formData.image_url} alt="Главное фото" className="w-full h-48 object-cover rounded-lg border-2 border-primary" />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        className="absolute top-2 right-2"
+                        onClick={() => setFormData({ ...formData, image_url: '' })}
+                      >
+                        <Icon name="Trash2" size={16} />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-48 mt-2 border-dashed"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingPhoto}
+                    >
+                      {uploadingPhoto ? (
+                        <Icon name="Loader2" size={32} className="animate-spin" />
+                      ) : (
+                        <div className="text-center">
+                          <Icon name="Upload" size={32} className="mx-auto mb-2" />
+                          <p className="text-sm">Загрузить главное фото</p>
+                        </div>
+                      )}
+                    </Button>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
+                </div>
+
+                <div>
+                  <Label>Логотип</Label>
+                  {formData.logo_url ? (
+                    <div className="relative mt-2">
+                      <img src={formData.logo_url} alt="Логотип" className="w-full h-48 object-contain rounded-lg border-2 border-primary bg-gray-50" />
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="destructive"
+                        className="absolute top-2 right-2"
+                        onClick={() => setFormData({ ...formData, logo_url: '' })}
+                      >
+                        <Icon name="Trash2" size={16} />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-48 mt-2 border-dashed"
+                      onClick={() => logoInputRef.current?.click()}
+                      disabled={uploadingLogo}
+                    >
+                      {uploadingLogo ? (
+                        <Icon name="Loader2" size={32} className="animate-spin" />
+                      ) : (
+                        <div className="text-center">
+                          <Icon name="Upload" size={32} className="mx-auto mb-2" />
+                          <p className="text-sm">Загрузить логотип</p>
+                        </div>
+                      )}
+                    </Button>
+                  )}
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleLogoUpload}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Основная информация</CardTitle>
@@ -352,6 +597,83 @@ export default function ListingEditor() {
               </div>
             </CardContent>
           </Card>
+
+          {formData.rooms && formData.rooms.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Bed" size={20} />
+                  Номера и их фотографии ({formData.rooms.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {formData.rooms.map((room: any, roomIdx: number) => (
+                  <div key={roomIdx} className="p-4 border rounded-lg bg-purple-50">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                      <div>
+                        <div className="font-semibold text-lg">{room.type}</div>
+                        <div className="text-purple-600 font-bold">{room.price} ₽/час</div>
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedRoomForPhoto(roomIdx);
+                          roomPhotoInputRef.current?.click();
+                        }}
+                        disabled={uploadingRoomPhoto === roomIdx}
+                      >
+                        {uploadingRoomPhoto === roomIdx ? (
+                          <><Icon name="Loader2" size={16} className="mr-2 animate-spin" />Загрузка...</>
+                        ) : (
+                          <><Icon name="Upload" size={16} className="mr-2" />Добавить фото</>
+                        )}
+                      </Button>
+                    </div>
+
+                    {room.images && Array.isArray(room.images) && room.images.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                        {room.images.map((img: string, imgIdx: number) => (
+                          <div key={imgIdx} className="relative group">
+                            <img 
+                              src={img} 
+                              alt={`${room.type} ${imgIdx + 1}`} 
+                              className="w-full aspect-square object-cover rounded-lg border-2 border-purple-300" 
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="destructive"
+                              className="absolute top-1 right-1 h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleDeleteRoomPhoto(roomIdx, imgIdx)}
+                            >
+                              <Icon name="Trash2" size={14} />
+                            </Button>
+                            <div className="absolute bottom-1 left-1 bg-purple-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                              {imgIdx + 1}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {(!room.images || room.images.length === 0) && (
+                      <p className="text-sm text-muted-foreground text-center py-4">Нет фотографий для этого номера</p>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          <input
+            ref={roomPhotoInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={handleRoomPhotoUpload}
+          />
           
           <div className="flex justify-between items-center pt-4">
             <Button variant="outline" onClick={() => navigate('/manager')}>
