@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Get managers list for OM",
+      "method": "GET",
+      "path": "/?om_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "managers": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Update manager limits",
+      "method": "PUT",
+      "path": "/",
+      "body": {
+        "om_id": 1,
+        "manager_id": 2,
+        "object_limit": 300
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

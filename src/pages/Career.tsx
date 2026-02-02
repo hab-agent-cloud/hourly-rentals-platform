@@ -102,7 +102,7 @@ export default function Career() {
                   </div>
                 </div>
                 <Badge className="bg-blue-600 text-white text-lg px-4 py-2">
-                  15% от оборота
+                  20% от оборота
                 </Badge>
               </div>
             </CardHeader>
@@ -137,8 +137,8 @@ export default function Career() {
                     </h4>
                     <div className="space-y-2 text-sm">
                       <p className="text-muted-foreground">200 объектов × 5000 ₽ = 1 000 000 ₽</p>
-                      <p className="text-2xl font-bold text-blue-600">150 000 ₽</p>
-                      <p className="text-xs text-muted-foreground">15% комиссия</p>
+                      <p className="text-2xl font-bold text-blue-600">200 000 ₽</p>
+                      <p className="text-xs text-muted-foreground">20% комиссия</p>
                     </div>
                   </div>
                   
@@ -149,8 +149,8 @@ export default function Career() {
                     </h4>
                     <div className="space-y-2 text-sm">
                       <p className="text-muted-foreground">400 объектов × 5000 ₽ = 2 000 000 ₽</p>
-                      <p className="text-2xl font-bold text-green-600">300 000 ₽</p>
-                      <p className="text-xs text-muted-foreground">15% комиссия</p>
+                      <p className="text-2xl font-bold text-green-600">400 000 ₽</p>
+                      <p className="text-xs text-muted-foreground">20% комиссия</p>
                     </div>
                   </div>
                 </div>
@@ -172,7 +172,7 @@ export default function Career() {
                   </div>
                 </div>
                 <Badge className="bg-orange-600 text-white text-lg px-4 py-2">
-                  5% от оборота команды
+                  7% от оборота команды
                 </Badge>
               </div>
             </CardHeader>
@@ -209,8 +209,8 @@ export default function Career() {
                       <p className="text-muted-foreground">15 менеджеров × 200 объектов × 5000 ₽</p>
                       <p className="text-muted-foreground">или</p>
                       <p className="text-muted-foreground">30 менеджеров × 100 объектов × 5000 ₽</p>
-                      <p className="text-2xl font-bold text-orange-600 mt-2">600 000 ₽</p>
-                      <p className="text-xs text-muted-foreground">5% комиссия</p>
+                      <p className="text-2xl font-bold text-orange-600 mt-2">840 000 ₽</p>
+                      <p className="text-xs text-muted-foreground">7% комиссия</p>
                     </div>
                   </div>
                   
@@ -221,8 +221,8 @@ export default function Career() {
                     </h4>
                     <div className="space-y-2 text-sm">
                       <p className="text-muted-foreground">30 менеджеров × 200 объектов × 5000 ₽</p>
-                      <p className="text-2xl font-bold text-green-600 mt-2">1 500 000 ₽</p>
-                      <p className="text-xs text-muted-foreground">5% комиссия от полной команды</p>
+                      <p className="text-2xl font-bold text-green-600 mt-2">2 100 000 ₽</p>
+                      <p className="text-xs text-muted-foreground">7% комиссия от полной команды</p>
                     </div>
                   </div>
                 </div>
@@ -244,7 +244,7 @@ export default function Career() {
                   </div>
                 </div>
                 <Badge className="bg-red-600 text-white text-lg px-4 py-2">
-                  2% от оборота всех ОМ
+                  3% от оборота всех ОМ
                 </Badge>
               </div>
             </CardHeader>
@@ -279,8 +279,8 @@ export default function Career() {
                     </h4>
                     <div className="space-y-2 text-sm">
                       <p className="text-muted-foreground">Совокупный оборот всех ОМ</p>
-                      <p className="text-2xl font-bold text-red-600 mt-2">900 000 ₽</p>
-                      <p className="text-xs text-muted-foreground">2% комиссия</p>
+                      <p className="text-2xl font-bold text-red-600 mt-2">1 350 000 ₽</p>
+                      <p className="text-xs text-muted-foreground">3% комиссия</p>
                     </div>
                   </div>
                   
@@ -291,8 +291,8 @@ export default function Career() {
                     </h4>
                     <div className="space-y-2 text-sm">
                       <p className="text-muted-foreground">При полной загрузке всех ОМ</p>
-                      <p className="text-2xl font-bold text-green-600 mt-2">2 400 000 ₽</p>
-                      <p className="text-xs text-muted-foreground">2% комиссия</p>
+                      <p className="text-2xl font-bold text-green-600 mt-2">3 600 000 ₽</p>
+                      <p className="text-xs text-muted-foreground">3% комиссия</p>
                     </div>
                   </div>
                 </div>

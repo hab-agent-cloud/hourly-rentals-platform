@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 import ManagerStatsCards from '@/components/manager/ManagerStatsCards';
 import ManagerListingsSection from '@/components/manager/ManagerListingsSection';
 import ManagerCashSection from '@/components/manager/ManagerCashSection';
+import ManageLimitsDialog from '@/components/om/ManageLimitsDialog';
 
 const FUNC_URLS = {
   managerData: 'https://functions.poehali.dev/ccbc7231-4004-46e0-9caa-8afc6d0fa9db',
@@ -287,6 +288,9 @@ export default function ManagerDashboard() {
           <p className="text-muted-foreground mt-1">{managerData.name}</p>
         </div>
         <div className="flex items-center gap-2">
+          {managerData.role === 'operational_manager' && (
+            <ManageLimitsDialog omId={adminId!} onSuccess={fetchManagerData} />
+          )}
           <Button onClick={() => navigate('/career')}>
             <Icon name="TrendingUp" size={18} className="mr-2" />
             Карьера
