@@ -150,7 +150,7 @@ export default function ManagerListingsSection({
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => window.open(`/listing/${listing.id}`, '_blank')}
+                          onClick={() => window.location.href = `/listing/${listing.id}/edit`}
                         >
                           <Icon name="Edit" size={16} className="mr-1" />
                           Редактировать
