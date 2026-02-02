@@ -1,0 +1,36 @@
+{
+  "tests": [
+    {
+      "name": "Create owner without listing",
+      "method": "POST",
+      "body": {
+        "manager_id": 1,
+        "full_name": "Иванов Иван Иванович",
+        "phone": "+79991234567",
+        "email": "test@example.com",
+        "username": "test_owner_123",
+        "password": "testpass123"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "owner_id": "number",
+        "username": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing required fields",
+      "method": "POST",
+      "body": {
+        "manager_id": 1,
+        "full_name": "Test"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

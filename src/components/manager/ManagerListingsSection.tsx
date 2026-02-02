@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import AddListingsDialog from './AddListingsDialog';
+import AddOwnerDialog from './AddOwnerDialog';
 
 interface ManagerListingsSectionProps {
   managerData: any;
@@ -45,6 +46,11 @@ export default function ManagerListingsSection({
                   className="pl-10"
                 />
               </div>
+              <AddOwnerDialog
+                adminId={adminId}
+                managedListings={managerData.listings || []}
+                onSuccess={onRefresh}
+              />
               <AddListingsDialog
                 adminId={adminId}
                 currentCount={managerData.objects_count || 0}
