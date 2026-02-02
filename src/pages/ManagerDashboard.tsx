@@ -645,6 +645,16 @@ export default function ManagerDashboard() {
                             Разморозить
                           </Button>
                         ) : null}
+                        {listing.owner_phone && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => window.location.href = `tel:${listing.owner_phone}`}
+                          >
+                            <Icon name="Phone" size={16} className="mr-1" />
+                            Позвонить владельцу
+                          </Button>
+                        )}
                         <Button size="sm" variant="outline">
                           <Icon name="Edit" size={16} className="mr-1" />
                           Редактировать

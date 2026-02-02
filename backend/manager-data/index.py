@@ -103,6 +103,7 @@ def handler(event: dict, context) -> dict:
                             l.id, l.title as name, l.district, l.status,
                             l.subscription_expires_at as subscription_end,
                             l.image_url as photo,
+                            l.phone as owner_phone,
                             CASE 
                                 WHEN l.subscription_expires_at < NOW() + INTERVAL '1 day' THEN 'critical'
                                 WHEN l.subscription_expires_at < NOW() + INTERVAL '3 days' THEN 'warning'
