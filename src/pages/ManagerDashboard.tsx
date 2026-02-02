@@ -299,8 +299,10 @@ export default function ManagerDashboard() {
       
       <ManagerListingsSection 
         managerData={managerData}
+        adminId={adminId!}
         onFreezeListing={handleFreezeListing}
         onUnfreezeListing={handleUnfreezeListing}
+        onRefresh={fetchManagerData}
       />
       
       <ManagerCashSection 

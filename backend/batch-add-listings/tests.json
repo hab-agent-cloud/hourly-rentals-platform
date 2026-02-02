@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "Add listings in batch",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "manager_id": 14,
+        "listing_ids": [601, 820]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "added": "number",
+        "skipped": "number",
+        "total_now": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing manager_id",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "listing_ids": [601]
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

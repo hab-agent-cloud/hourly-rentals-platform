@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Get available listings for Москва",
+      "method": "GET",
+      "path": "/?city=Москва",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "city": "string",
+        "listings": "array",
+        "total": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing city parameter",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

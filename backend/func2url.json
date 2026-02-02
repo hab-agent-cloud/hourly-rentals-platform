@@ -1,4 +1,6 @@
 {
+  "batch-add-listings": "https://functions.poehali.dev/a751cc09-fbdf-4794-b6cc-3492abd05772",
+  "available-listings": "https://functions.poehali.dev/5b32d012-f4bf-4544-8fba-4495a89cb57d",
   "accounting": "https://functions.poehali.dev/359ed3ad-7f46-4e49-bd1c-c9661b096ac5",
   "withdrawal-request": "https://functions.poehali.dev/39662dfc-8b4b-447a-a9ff-8ea20ae47e09",
   "manager-payment-history": "https://functions.poehali.dev/e3d0194a-0a92-4570-ad62-6c0a6308045b",

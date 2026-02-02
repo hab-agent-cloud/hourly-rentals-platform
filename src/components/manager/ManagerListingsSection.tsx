@@ -4,17 +4,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
+import AddListingsDialog from './AddListingsDialog';
 
 interface ManagerListingsSectionProps {
   managerData: any;
+  adminId: number;
   onFreezeListing: (listingId: number) => void;
   onUnfreezeListing: (listingId: number) => void;
+  onRefresh: () => void;
 }
 
 export default function ManagerListingsSection({ 
-  managerData, 
+  managerData,
+  adminId, 
   onFreezeListing, 
-  onUnfreezeListing 
+  onUnfreezeListing,
+  onRefresh
 }: ManagerListingsSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -28,15 +33,23 @@ export default function ManagerListingsSection({
     <>
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <CardTitle>Мои объекты ({managerData.listings?.length || 0})</CardTitle>
-            <div className="relative w-64">
-              <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Поиск по адресу..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+            <div className="flex items-center gap-3">
+              <div className="relative w-64">
+                <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Поиск по адресу..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <AddListingsDialog
+                adminId={adminId}
+                currentCount={managerData.objects_count || 0}
+                objectLimit={managerData.object_limit || 200}
+                onSuccess={onRefresh}
               />
             </div>
           </div>
