@@ -21,6 +21,7 @@ import AddListing from "./pages/AddListing";
 import Accounting from "./pages/Accounting";
 import CityPage from "./pages/CityPage";
 import ManagerDashboard from "./pages/ManagerDashboard";
+import Career from "./pages/Career";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/om" element={<ManagerDashboard />} />
           <Route path="/um" element={<ManagerDashboard />} />
           <Route path="/accounting" element={<Accounting />} />
+          <Route path="/career" element={<Career />} />
           
           <Route path="/company-info" element={<CompanyInfo />} />
           <Route path="/offer" element={<Offer />} />

@@ -286,10 +286,19 @@ export default function ManagerDashboard() {
           <h1 className="text-3xl font-bold">Личный кабинет менеджера</h1>
           <p className="text-muted-foreground mt-1">{managerData.name}</p>
         </div>
-        <Button>
-          <Icon name="Briefcase" size={18} className="mr-2" />
-          Карьера
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => navigate('/career')}>
+            <Icon name="TrendingUp" size={18} className="mr-2" />
+            Карьера
+          </Button>
+          <Button variant="outline" onClick={() => {
+            localStorage.removeItem('adminToken');
+            navigate('/admin/login');
+          }}>
+            <Icon name="LogOut" size={18} className="mr-2" />
+            Выйти
+          </Button>
+        </div>
       </div>
       
       <ManagerStatsCards 

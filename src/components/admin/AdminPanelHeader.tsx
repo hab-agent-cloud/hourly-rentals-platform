@@ -40,6 +40,10 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
                   Бухгалтерия
                 </Button>
               )}
+              <Button variant="outline" onClick={() => navigate('/career')}>
+                <Icon name="TrendingUp" size={18} className="mr-2" />
+                Карьера
+              </Button>
               <Button variant="outline" onClick={onLogout}>
                 <Icon name="LogOut" size={18} className="mr-2" />
                 Выйти

@@ -147,7 +147,11 @@ export default function ManagerListingsSection({
                             Позвонить владельцу
                           </Button>
                         )}
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => window.open(`/listing/${listing.id}`, '_blank')}
+                        >
                           <Icon name="Edit" size={16} className="mr-1" />
                           Редактировать
                         </Button>
