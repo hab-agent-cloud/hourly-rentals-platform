@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
+import DocumentsLibraryDialog from './DocumentsLibraryDialog';
 
 interface AdminPanelHeaderProps {
   adminInfo: any;
@@ -8,10 +10,12 @@ interface AdminPanelHeaderProps {
   activeTab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics';
   onTabChange: (tab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics') => void;
   onLogout: () => void;
+  token: string;
 }
 
-export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, onTabChange, onLogout }: AdminPanelHeaderProps) {
+export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, onTabChange, onLogout, token }: AdminPanelHeaderProps) {
   const navigate = useNavigate();
+  const [showLibrary, setShowLibrary] = useState(false);
   
   return (
     <>
@@ -35,10 +39,16 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
             </div>
             <div className="flex items-center gap-2">
               {adminInfo?.role === 'superadmin' && (
-                <Button variant="outline" onClick={() => navigate('/accounting')}>
-                  <Icon name="Banknote" size={18} className="mr-2" />
-                  Бухгалтерия
-                </Button>
+                <>
+                  <Button variant="outline" onClick={() => setShowLibrary(true)}>
+                    <Icon name="Library" size={18} className="mr-2" />
+                    Библиотека
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate('/accounting')}>
+                    <Icon name="Banknote" size={18} className="mr-2" />
+                    Бухгалтерия
+                  </Button>
+                </>
               )}
               <Button variant="outline" onClick={() => navigate('/career')}>
                 <Icon name="TrendingUp" size={18} className="mr-2" />
@@ -160,6 +170,12 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
           )}
         </div>
       </div>
+
+      <DocumentsLibraryDialog 
+        show={showLibrary} 
+        onClose={() => setShowLibrary(false)} 
+        token={token}
+      />
     </>
   );
 }

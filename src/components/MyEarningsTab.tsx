@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import CopywriterInstructionDialog from './CopywriterInstructionDialog';
 
 interface MyEarningsTabProps {
   token: string;
@@ -26,6 +28,7 @@ interface EmployeeAction {
 export default function MyEarningsTab({ token, adminInfo }: MyEarningsTabProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
+  const [showInstruction, setShowInstruction] = useState(false);
   const [earnings, setEarnings] = useState({
     total: 0,
     paid: 0,
@@ -118,12 +121,23 @@ export default function MyEarningsTab({ token, adminInfo }: MyEarningsTabProps) 
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold mb-2">Мой заработок</h2>
-        <p className="text-muted-foreground">
-          Здесь вы можете отслеживать свой заработок за добавление и обработку объектов
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-3xl font-bold mb-2">Мой заработок</h2>
+          <p className="text-muted-foreground">
+            Здесь вы можете отслеживать свой заработок за добавление и обработку объектов
+          </p>
+        </div>
+        <Button onClick={() => setShowInstruction(true)} variant="outline">
+          <Icon name="BookOpen" size={18} className="mr-2" />
+          Инструкция для стажёров
+        </Button>
       </div>
+
+      <CopywriterInstructionDialog 
+        show={showInstruction} 
+        onClose={() => setShowInstruction(false)} 
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">

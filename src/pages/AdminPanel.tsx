@@ -222,6 +222,7 @@ export default function AdminPanel() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onLogout={handleLogout}
+        token={token!}
       />
 
       <main className="container mx-auto px-4 py-8">
