@@ -21,6 +21,7 @@ import SubscriptionDialog from '@/components/admin/SubscriptionDialog';
 import ModerationDialog from '@/components/admin/ModerationDialog';
 import OwnerModerationDialog from '@/components/admin/OwnerModerationDialog';
 import ExpertRatingDialogFull from '@/components/ExpertRatingDialogFull';
+import CopywriterInstructionDialog from '@/components/CopywriterInstructionDialog';
 
 
 export default function AdminPanel() {
@@ -33,6 +34,7 @@ export default function AdminPanel() {
   const [moderationStatus, setModerationStatus] = useState<string>('approved');
   const [moderationComment, setModerationComment] = useState<string>('');
   const [expertRatingDialog, setExpertRatingDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
+  const [showInstruction, setShowInstruction] = useState(false);
 
   const { toast } = useToast();
 
@@ -273,6 +275,7 @@ export default function AdminPanel() {
           onUnratedToggle={() => setShowOnlyUnrated(!showOnlyUnrated)}
           onSearchChange={setSearchQuery}
           onCreate={handleCreate}
+          onShowInstruction={() => setShowInstruction(true)}
           isSuperAdmin={adminInfo?.role === 'superadmin'}
         />
 
@@ -324,6 +327,11 @@ export default function AdminPanel() {
             onSubmit={handleModerationSubmit}
           />
         )}
+
+        <CopywriterInstructionDialog 
+          show={showInstruction} 
+          onClose={() => setShowInstruction(false)} 
+        />
 
         <ExpertRatingDialogFull
           open={expertRatingDialog.open}

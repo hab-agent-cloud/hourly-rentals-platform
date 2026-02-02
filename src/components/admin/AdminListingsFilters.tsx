@@ -19,6 +19,7 @@ interface AdminListingsFiltersProps {
   onUnratedToggle: () => void;
   onSearchChange: (query: string) => void;
   onCreate: () => void;
+  onShowInstruction?: () => void;
   isSuperAdmin?: boolean;
 }
 
@@ -37,6 +38,7 @@ export default function AdminListingsFilters({
   onUnratedToggle,
   onSearchChange,
   onCreate,
+  onShowInstruction,
   isSuperAdmin = false,
 }: AdminListingsFiltersProps) {
   return (
@@ -107,6 +109,16 @@ export default function AdminListingsFilters({
           <Icon name="Archive" size={18} className="mr-2" />
           {showArchived ? 'Скрыть архив' : 'Показать архив'}
         </Button>
+        {onShowInstruction && (
+          <Button
+            variant="outline"
+            onClick={onShowInstruction}
+            className="border-purple-300 hover:bg-purple-50"
+          >
+            <Icon name="BookOpen" size={18} className="mr-2" />
+            Инструкция
+          </Button>
+        )}
         <Button
           className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
           onClick={(e) => {
