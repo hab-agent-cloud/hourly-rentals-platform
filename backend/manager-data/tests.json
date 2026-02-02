@@ -1,9 +1,21 @@
 {
   "tests": [
     {
-      "name": "Get manager data",
+      "name": "Get manager data (admin)",
       "method": "GET",
       "path": "/?admin_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "id": "number",
+        "name": "string",
+        "role": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get manager data (manager)",
+      "method": "GET",
+      "path": "/?admin_id=14",
       "expectedStatus": 200,
       "expectedBody": {
         "id": "number",
