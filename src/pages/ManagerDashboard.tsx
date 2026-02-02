@@ -60,11 +60,14 @@ export default function ManagerDashboard() {
   
   const fetchManagerData = async () => {
     try {
+      console.log('[MANAGER] Загрузка данных для admin_id:', adminId);
       const response = await fetch(`${FUNC_URLS.managerData}?admin_id=${adminId}`);
+      console.log('[MANAGER] Ответ получен, status:', response.status);
       const data = await response.json();
+      console.log('[MANAGER] Данные получены:', data);
       setManagerData(data);
     } catch (error) {
-      console.error('Ошибка загрузки данных:', error);
+      console.error('[MANAGER] Ошибка загрузки данных:', error);
     } finally {
       setLoading(false);
     }
@@ -108,11 +111,50 @@ export default function ManagerDashboard() {
       });
       
       if (response.ok) {
-        alert('Объект заморожен!');
+        toast({
+          title: 'Успешно',
+          description: 'Объект заморожен'
+        });
         fetchManagerData();
       } else {
         const error = await response.json();
-        alert(error.error);
+        toast({
+          title: 'Ошибка',
+          description: error.error,
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+  const handleUnfreezeListing = async (listingId: number) => {
+    try {
+      const response = await fetch(FUNC_URLS.managerOperations, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'unfreeze',
+          manager_id: adminId,
+          listing_id: listingId,
+          reason: 'Разморозка через интерфейс'
+        })
+      });
+      
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: 'Объект разморожен и опубликован'
+        });
+        fetchManagerData();
+      } else {
+        const error = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: error.error,
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       console.error(error);
@@ -155,12 +197,34 @@ export default function ManagerDashboard() {
   }) || [];
   
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">Загрузка...</div>;
+    return <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <Icon name="Loader2" size={48} className="animate-spin mx-auto mb-4" />
+        <p>Загрузка данных менеджера...</p>
+      </div>
+    </div>;
   }
   
   if (!managerData) {
-    return <div className="flex items-center justify-center h-screen">Ошибка загрузки данных</div>;
+    return <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <Icon name="AlertCircle" size={48} className="mx-auto mb-4 text-destructive" />
+        <p className="text-lg font-semibold">Ошибка загрузки данных</p>
+        <p className="text-sm text-muted-foreground mt-2">Проверьте консоль для деталей</p>
+        <Button onClick={() => window.location.reload()} className="mt-4">
+          Перезагрузить
+        </Button>
+      </div>
+    </div>;
   }
+  
+  console.log('[MANAGER] Отображаем данные:', {
+    role: managerData.role,
+    listings: managerData.listings?.length,
+    tasks: managerData.tasks?.length,
+    om_name: managerData.om_name,
+    um_name: managerData.um_name
+  });
   
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -349,7 +413,7 @@ export default function ManagerDashboard() {
                         </p>
                       )}
                       <div className="flex gap-2 mt-3">
-                        {listing.status === 'active' && (
+                        {listing.status === 'active' ? (
                           <Button 
                             size="sm" 
                             variant="outline"
@@ -358,7 +422,16 @@ export default function ManagerDashboard() {
                             <Icon name="Snowflake" size={16} className="mr-1" />
                             Заморозить
                           </Button>
-                        )}
+                        ) : listing.status === 'frozen' ? (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleUnfreezeListing(listing.id)}
+                          >
+                            <Icon name="Flame" size={16} className="mr-1" />
+                            Разморозить
+                          </Button>
+                        ) : null}
                         <Button size="sm" variant="outline">
                           <Icon name="Edit" size={16} className="mr-1" />
                           Редактировать
