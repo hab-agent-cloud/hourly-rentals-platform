@@ -8,6 +8,7 @@ import ManagerStatsCards from '@/components/manager/ManagerStatsCards';
 import ManagerListingsSection from '@/components/manager/ManagerListingsSection';
 import ManagerCashSection from '@/components/manager/ManagerCashSection';
 import ManageLimitsDialog from '@/components/om/ManageLimitsDialog';
+import TeamAnalytics from '@/components/om/TeamAnalytics';
 
 const FUNC_URLS = {
   managerData: 'https://functions.poehali.dev/ccbc7231-4004-46e0-9caa-8afc6d0fa9db',
@@ -321,6 +322,13 @@ export default function ManagerDashboard() {
       <ManagerCashSection 
         paymentHistory={paymentHistory}
       />
+      
+      {managerData.role === 'operational_manager' && managerData.managers && (
+        <TeamAnalytics 
+          managers={managerData.managers}
+          monthCommission={managerData.month_commission || 0}
+        />
+      )}
       
       {(managerData.om_name || managerData.um_name) && (
         <Card>
