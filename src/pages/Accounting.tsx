@@ -68,9 +68,9 @@ export default function Accounting() {
       const adminId = decoded.admin_id;
       
       const response = await fetch(FUNC_URL, {
-        method: 'PUT',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.dumps({
+        body: JSON.stringify({
           request_id: requestId,
           action,
           paid_amount: action === 'approve' ? parseFloat(paidAmount) : undefined,

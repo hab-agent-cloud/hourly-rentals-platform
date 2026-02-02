@@ -13,7 +13,7 @@ def handler(event: dict, context) -> dict:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-Authorization'
             },
             'body': '',
@@ -75,8 +75,8 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
         
-        # PUT - обработать заявку (оплатить или отклонить)
-        elif method == 'PUT':
+        # POST - обработать заявку (оплатить или отклонить)
+        elif method == 'POST':
             body = json.loads(event.get('body', '{}'))
             request_id = body.get('request_id')
             action = body.get('action')  # 'approve' или 'reject'
