@@ -598,6 +598,19 @@ export const api = {
     return response.json();
   },
 
+  getAllOwners: async (token: string) => {
+    const response = await fetch(API_URLS.adminOwners, {
+      headers: {
+        'X-Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
   updateListingPosition: async (token: string, listingId: number, newPosition: number) => {
     const response = await fetch(API_URLS.adminListings, {
       method: 'PATCH',

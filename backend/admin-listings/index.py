@@ -322,8 +322,8 @@ def handler(event: dict, context) -> dict:
                                      auction, image_url, metro, metro_walk, has_parking, 
                                      parking_type, parking_price_per_hour,
                                      features, lat, lng, min_hours, phone, telegram, logo_url,
-                                     price_warning_holidays, price_warning_daytime)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                     price_warning_holidays, price_warning_daytime, owner_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
             """, (
                 body['title'].strip() if isinstance(body.get('title'), str) else body['title'], 
@@ -337,7 +337,7 @@ def handler(event: dict, context) -> dict:
                 body.get('features', []), body.get('lat'), body.get('lng'),
                 body.get('min_hours', 1), body.get('phone'), body.get('telegram'),
                 body.get('logo_url'), body.get('price_warning_holidays', False),
-                body.get('price_warning_daytime', False)
+                body.get('price_warning_daytime', False), body.get('owner_id')
             ))
             
             new_listing = cur.fetchone()
@@ -497,7 +497,7 @@ def handler(event: dict, context) -> dict:
                         has_parking=%s, parking_type=%s, parking_price_per_hour=%s,
                         features=%s, lat=%s, lng=%s, min_hours=%s, 
                         phone=%s, telegram=%s, logo_url=%s, is_archived=%s,
-                        price_warning_holidays=%s, price_warning_daytime=%s, updated_at=CURRENT_TIMESTAMP
+                        price_warning_holidays=%s, price_warning_daytime=%s, owner_id=%s, updated_at=CURRENT_TIMESTAMP
                     WHERE id=%s
                     RETURNING *
                 """, (
@@ -513,7 +513,7 @@ def handler(event: dict, context) -> dict:
                     body.get('min_hours', 1), body.get('phone'), body.get('telegram'),
                     body.get('logo_url'), body.get('is_archived', False),
                     body.get('price_warning_holidays', False), body.get('price_warning_daytime', False),
-                    listing_id
+                    body.get('owner_id'), listing_id
                 ))
             
             updated_listing = cur.fetchone()

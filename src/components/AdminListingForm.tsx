@@ -250,6 +250,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       telegram: listing?.telegram || '',
       price_warning_holidays: listing?.price_warning_holidays || false,
       price_warning_daytime: listing?.price_warning_daytime || false,
+      owner_id: listing?.owner_id || null,
     };
   });
 
@@ -267,6 +268,8 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   const [uploadingRoomPhotos, setUploadingRoomPhotos] = useState(false);
   const [editingRoomIndex, setEditingRoomIndex] = useState<number | null>(null);
   const [draggingPhotoIndex, setDraggingPhotoIndex] = useState<number | null>(null);
+  const [owners, setOwners] = useState<any[]>([]);
+  const [loadingOwners, setLoadingOwners] = useState(false);
 
   // Обновляем formData при изменении listing (загрузка полных данных)
   useEffect(() => {
@@ -299,9 +302,25 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
         telegram: listing.telegram || '',
         price_warning_holidays: listing.price_warning_holidays || false,
         price_warning_daytime: listing.price_warning_daytime || false,
+        owner_id: listing.owner_id || null,
       });
     }
   }, [listing]);
+
+  useEffect(() => {
+    const loadOwners = async () => {
+      setLoadingOwners(true);
+      try {
+        const response = await api.getAllOwners(token);
+        setOwners(response || []);
+      } catch (error) {
+        console.error('Failed to load owners:', error);
+      } finally {
+        setLoadingOwners(false);
+      }
+    };
+    loadOwners();
+  }, [token]);
 
   const roomTemplates = [
     {
@@ -1241,6 +1260,41 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
                     className={formData.telegram ? 'border-blue-300 bg-blue-50' : ''}
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                  <Icon name="User" size={16} className="text-purple-600" />
+                  Владелец объекта
+                  {formData.owner_id && (
+                    <Badge variant="secondary" className="ml-auto">
+                      <Icon name="Check" size={12} className="mr-1 text-green-600" />
+                      Привязан
+                    </Badge>
+                  )}
+                </label>
+                <Select
+                  value={formData.owner_id?.toString() || 'none'}
+                  onValueChange={(value) => setFormData({ ...formData, owner_id: value === 'none' ? null : parseInt(value) })}
+                  disabled={loadingOwners}
+                >
+                  <SelectTrigger className={`w-full ${formData.owner_id ? 'border-purple-300 bg-purple-50' : ''}`}>
+                    <SelectValue placeholder={loadingOwners ? 'Загрузка...' : 'Выберите владельца'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Без владельца</SelectItem>
+                    {owners.filter(o => !o.is_archived).map((owner) => (
+                      <SelectItem key={owner.id} value={owner.id.toString()}>
+                        {owner.full_name} ({owner.phone || owner.email})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formData.owner_id && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Объект будет доступен этому владельцу в личном кабинете
+                  </p>
+                )}
               </div>
 
               <div>
