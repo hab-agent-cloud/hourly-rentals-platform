@@ -38,15 +38,12 @@ export default function CopywriterInstructionDialog({
 
 💰 УСЛОВИЯ ОПЛАТЫ
 -----------------
-Ваш заработок зависит от активности и качества работы:
+Ваш заработок зависит от типа объекта:
 
-• Добавление нового объекта: 150 ₽
-• Добавление категории номера: 50 ₽
-• Обновление информации об объекте: 30 ₽
-• Добавление фотографии номера: 20 ₽
+• Добавление отеля с несколькими категориями номеров: 200 ₽ за объект
+• Добавление апартамента: 100 ₽ за объект
 
 Оплата производится после проверки и одобрения объектов модератором.
-Выплаты осуществляются два раза в месяц: 15-го и 30-го числа.
 
 📊 ПЛАН РАБОТЫ ПО ГОРОДАМ
 --------------------------
@@ -271,26 +268,18 @@ export default function CopywriterInstructionDialog({
                 <Icon name="Wallet" size={18} className="text-green-600" />
                 Условия оплаты
               </h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white p-3 rounded border border-green-200">
-                  <div className="text-2xl font-bold text-green-600">150 ₽</div>
-                  <div className="text-xs text-muted-foreground">Добавление объекта</div>
+              <div className="space-y-3">
+                <div className="bg-white p-4 rounded border-2 border-green-300">
+                  <div className="text-3xl font-bold text-green-600 mb-1">200 ₽</div>
+                  <div className="text-sm font-medium">Добавление отеля с несколькими категориями номеров</div>
                 </div>
-                <div className="bg-white p-3 rounded border border-green-200">
-                  <div className="text-2xl font-bold text-green-600">50 ₽</div>
-                  <div className="text-xs text-muted-foreground">Добавление категории</div>
-                </div>
-                <div className="bg-white p-3 rounded border border-blue-200">
-                  <div className="text-2xl font-bold text-blue-600">30 ₽</div>
-                  <div className="text-xs text-muted-foreground">Обновление объекта</div>
-                </div>
-                <div className="bg-white p-3 rounded border border-blue-200">
-                  <div className="text-2xl font-bold text-blue-600">20 ₽</div>
-                  <div className="text-xs text-muted-foreground">Добавление фото номера</div>
+                <div className="bg-white p-4 rounded border-2 border-blue-300">
+                  <div className="text-3xl font-bold text-blue-600 mb-1">100 ₽</div>
+                  <div className="text-sm font-medium">Добавление апартамента</div>
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">
-                💰 Выплаты: два раза в месяц (15-го и 30-го числа)
+                💰 Оплата производится после проверки и одобрения объектов модератором
               </p>
             </div>
 
