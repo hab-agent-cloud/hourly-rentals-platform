@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminPanelHeaderProps {
   adminInfo: any;
@@ -10,6 +11,8 @@ interface AdminPanelHeaderProps {
 }
 
 export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, onTabChange, onLogout }: AdminPanelHeaderProps) {
+  const navigate = useNavigate();
+  
   return (
     <>
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
@@ -30,10 +33,18 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
                 </p>
               </div>
             </div>
-            <Button variant="outline" onClick={onLogout}>
-              <Icon name="LogOut" size={18} className="mr-2" />
-              Выйти
-            </Button>
+            <div className="flex items-center gap-2">
+              {adminInfo?.role === 'superadmin' && (
+                <Button variant="outline" onClick={() => navigate('/accounting')}>
+                  <Icon name="Banknote" size={18} className="mr-2" />
+                  Бухгалтерия
+                </Button>
+              )}
+              <Button variant="outline" onClick={onLogout}>
+                <Icon name="LogOut" size={18} className="mr-2" />
+                Выйти
+              </Button>
+            </div>
           </div>
         </div>
       </header>

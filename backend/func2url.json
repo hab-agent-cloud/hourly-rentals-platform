@@ -1,4 +1,7 @@
 {
+  "accounting": "https://functions.poehali.dev/359ed3ad-7f46-4e49-bd1c-c9661b096ac5",
+  "withdrawal-request": "https://functions.poehali.dev/39662dfc-8b4b-447a-a9ff-8ea20ae47e09",
+  "manager-payment-history": "https://functions.poehali.dev/e3d0194a-0a92-4570-ad62-6c0a6308045b",
   "manager-data": "https://functions.poehali.dev/ccbc7231-4004-46e0-9caa-8afc6d0fa9db",
   "hierarchy-management": "https://functions.poehali.dev/1ef1407d-2bec-452a-8716-5b45c87501ce",
   "manager-operations": "https://functions.poehali.dev/6c4f7ec8-42fb-47e5-9187-fcc55e47eceb",

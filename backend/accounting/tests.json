@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Get pending requests",
+      "method": "GET",
+      "path": "/?action=pending",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "requests": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get payment history",
+      "method": "GET",
+      "path": "/?action=history",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "history": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

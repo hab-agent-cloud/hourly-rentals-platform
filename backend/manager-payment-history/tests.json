@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Get manager payment history",
+      "method": "GET",
+      "path": "/?manager_id=14",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "active_requests": "array",
+        "history": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

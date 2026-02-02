@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "Create withdrawal request",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "manager_id": 14,
+        "amount": 1000,
+        "withdrawal_method": "sbp",
+        "phone": "+79001234567",
+        "card_number": "1234567890123456",
+        "recipient_name": "Иван Иванов"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "request_id": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

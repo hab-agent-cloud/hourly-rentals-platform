@@ -18,6 +18,7 @@ import CompanyInfo from "./pages/CompanyInfo";
 import Offer from "./pages/Offer";
 import NotFound from "./pages/NotFound";
 import AddListing from "./pages/AddListing";
+import Accounting from "./pages/Accounting";
 import CityPage from "./pages/CityPage";
 import ManagerDashboard from "./pages/ManagerDashboard";
 
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/manager" element={<ManagerDashboard />} />
           <Route path="/om" element={<ManagerDashboard />} />
           <Route path="/um" element={<ManagerDashboard />} />
+          <Route path="/accounting" element={<Accounting />} />
           
           <Route path="/company-info" element={<CompanyInfo />} />
           <Route path="/offer" element={<Offer />} />

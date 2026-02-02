@@ -13,7 +13,9 @@ import Icon from '@/components/ui/icon';
 const FUNC_URLS = {
   managerData: 'https://functions.poehali.dev/ccbc7231-4004-46e0-9caa-8afc6d0fa9db',
   managerOperations: 'https://functions.poehali.dev/6c4f7ec8-42fb-47e5-9187-fcc55e47eceb',
-  managerSubscription: 'https://functions.poehali.dev/e4343b5f-706a-45d1-b658-8fe3cb25e2e7'
+  managerSubscription: 'https://functions.poehali.dev/e4343b5f-706a-45d1-b658-8fe3cb25e2e7',
+  withdrawalRequest: 'https://functions.poehali.dev/39662dfc-8b4b-447a-a9ff-8ea20ae47e09',
+  paymentHistory: 'https://functions.poehali.dev/e3d0194a-0a92-4570-ad62-6c0a6308045b'
 };
 
 function decodeJWT(token: string) {
@@ -219,20 +221,55 @@ export default function ManagerDashboard() {
       }
     }
     
-    const methodNames = {
-      sbp: 'СБП',
-      card: 'банковскую карту',
-      salary: 'зарплатную карту'
-    };
-    
-    toast({
-      title: 'Заявка создана',
-      description: `Заявка на вывод ${amount} ₽ через ${methodNames[withdrawMethod]} отправлена на рассмотрение`,
-    });
-    
-    setWithdrawAmount('');
-    setWithdrawData({ phone: '', cardNumber: '', recipientName: '', bankName: '' });
-    setWithdrawDialogOpen(false);
+    try {
+      const response = await fetch(FUNC_URLS.withdrawalRequest, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          manager_id: adminId,
+          amount,
+          withdrawal_method: withdrawMethod,
+          phone: withdrawData.phone,
+          card_number: withdrawData.cardNumber,
+          recipient_name: withdrawData.recipientName,
+          bank_name: withdrawData.bankName
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        const methodNames = {
+          sbp: 'СБП',
+          card: 'банковскую карту',
+          salary: 'зарплатную карту'
+        };
+        
+        toast({
+          title: 'Заявка создана',
+          description: `Заявка на вывод ${amount} ₽ через ${methodNames[withdrawMethod]} отправлена на рассмотрение`,
+        });
+        
+        setWithdrawAmount('');
+        setWithdrawData({ phone: '', cardNumber: '', recipientName: '', bankName: '' });
+        setWithdrawDialogOpen(false);
+        
+        fetchManagerData();
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось создать заявку',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: 'Ошибка',
+        description: 'Произошла ошибка при отправке заявки',
+        variant: 'destructive'
+      });
+    }
   };
   
   const filteredListings = managerData?.listings?.filter((listing: any) => {
