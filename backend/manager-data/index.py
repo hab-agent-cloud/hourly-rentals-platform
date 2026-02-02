@@ -103,6 +103,7 @@ def handler(event: dict, context) -> dict:
                             l.id, l.title as name, l.district, l.status,
                             l.subscription_expires_at as subscription_end,
                             o.first_payment_date,
+                            l.photos,
                             CASE 
                                 WHEN l.subscription_expires_at < NOW() + INTERVAL '1 day' THEN 'critical'
                                 WHEN l.subscription_expires_at < NOW() + INTERVAL '3 days' THEN 'warning'
@@ -121,7 +122,20 @@ def handler(event: dict, context) -> dict:
                             END,
                             l.subscription_expires_at ASC
                     """)
-                    result['listings'] = [dict(row) for row in cur.fetchall()]
+                    listings = []
+                    for row in cur.fetchall():
+                        listing = dict(row)
+                        if listing.get('photos'):
+                            try:
+                                import json as json_module
+                                photos = json_module.loads(listing['photos']) if isinstance(listing['photos'], str) else listing['photos']
+                                listing['photo'] = photos[0] if photos and len(photos) > 0 else None
+                            except:
+                                listing['photo'] = None
+                        else:
+                            listing['photo'] = None
+                        listings.append(listing)
+                    result['listings'] = listings
                     
                     # Статистика комиссий за месяц
                     cur.execute(f"""

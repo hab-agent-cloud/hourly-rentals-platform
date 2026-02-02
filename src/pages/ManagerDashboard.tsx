@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 
 const FUNC_URLS = {
@@ -28,7 +31,11 @@ export default function ManagerDashboard() {
   const [managerData, setManagerData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [adminId, setAdminId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -112,6 +119,41 @@ export default function ManagerDashboard() {
     }
   };
   
+  const handleWithdraw = async () => {
+    const amount = parseFloat(withdrawAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        title: 'Ошибка',
+        description: 'Введите корректную сумму',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    if (amount > managerData.balance) {
+      toast({
+        title: 'Ошибка',
+        description: 'Недостаточно средств на балансе',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    toast({
+      title: 'Заявка создана',
+      description: `Заявка на вывод ${amount} ₽ отправлена на рассмотрение`,
+    });
+    
+    setWithdrawAmount('');
+    setWithdrawDialogOpen(false);
+  };
+  
+  const filteredListings = managerData?.listings?.filter((listing: any) => {
+    const query = searchQuery.toLowerCase();
+    return listing.name?.toLowerCase().includes(query) || 
+           listing.district?.toLowerCase().includes(query);
+  }) || [];
+  
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Загрузка...</div>;
   }
@@ -147,6 +189,36 @@ export default function ManagerDashboard() {
             <p className="text-xs text-muted-foreground mt-1">
               За месяц: +{managerData.month_commission || 0} ₽
             </p>
+            <Dialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="w-full mt-3" variant="outline">
+                  <Icon name="ArrowDownToLine" size={14} className="mr-1" />
+                  Вывести
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Вывод средств</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Доступно: {managerData.balance} ₽</label>
+                    <Input
+                      type="number"
+                      placeholder="Введите сумму"
+                      value={withdrawAmount}
+                      onChange={(e) => setWithdrawAmount(e.target.value)}
+                      min="0"
+                      max={managerData.balance}
+                    />
+                  </div>
+                  <Button onClick={handleWithdraw} className="w-full">
+                    <Icon name="Check" size={16} className="mr-2" />
+                    Вывести {withdrawAmount ? `${withdrawAmount} ₽` : 'сумму'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </CardContent>
         </Card>
         
@@ -200,18 +272,29 @@ export default function ManagerDashboard() {
       {/* Список объектов */}
       <Card>
         <CardHeader>
-          <CardTitle>Мои объекты ({managerData.listings?.length || 0})</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Мои объекты ({managerData.listings?.length || 0})</CardTitle>
+            <div className="relative w-64">
+              <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Поиск по адресу..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          {!managerData.listings || managerData.listings.length === 0 ? (
+          {filteredListings.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Icon name="Building" size={48} className="mx-auto mb-4 opacity-50" />
-              <p>У вас пока нет объектов в сопровождении</p>
-              <p className="text-sm mt-2">Возьмите объект из списка свободных</p>
+              <p>{searchQuery ? 'Объекты не найдены' : 'У вас пока нет объектов в сопровождении'}</p>
+              <p className="text-sm mt-2">{searchQuery ? 'Попробуйте изменить поисковый запрос' : 'Возьмите объект из списка свободных'}</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {managerData.listings.map((listing: any) => (
+              {filteredListings.map((listing: any) => (
                 <div 
                   key={listing.id}
                   className={`border rounded-lg p-4 ${
@@ -220,10 +303,24 @@ export default function ManagerDashboard() {
                     'border-border'
                   }`}
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    {listing.photo && (
+                      <img 
+                        src={listing.photo} 
+                        alt={listing.name}
+                        className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
+                      />
+                    )}
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">{listing.name}</h3>
+                        <a 
+                          href={`/?listing=${listing.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-semibold hover:text-primary underline-offset-2 hover:underline"
+                        >
+                          {listing.name}
+                        </a>
                         <Badge variant={listing.status === 'frozen' ? 'secondary' : 'default'}>
                           {listing.status === 'frozen' ? '🧊 Заморожен' : '✅ Активен'}
                         </Badge>
@@ -241,29 +338,33 @@ export default function ManagerDashboard() {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">{listing.district}</p>
+                      {listing.district && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          📍 {listing.district}
+                        </p>
+                      )}
                       {listing.subscription_end && (
                         <p className="text-sm mt-1">
                           Подписка до: {new Date(listing.subscription_end).toLocaleDateString()}
                         </p>
                       )}
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      {listing.status === 'active' && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleFreezeListing(listing.id)}
-                        >
-                          <Icon name="Snowflake" size={16} className="mr-1" />
-                          Заморозить
+                      <div className="flex gap-2 mt-3">
+                        {listing.status === 'active' && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleFreezeListing(listing.id)}
+                          >
+                            <Icon name="Snowflake" size={16} className="mr-1" />
+                            Заморозить
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline">
+                          <Icon name="Edit" size={16} className="mr-1" />
+                          Редактировать
                         </Button>
-                      )}
-                      <Button size="sm" variant="outline">
-                        <Icon name="Edit" size={16} className="mr-1" />
-                        Редактировать
-                      </Button>
+                      </div>
+                    </div>
                     </div>
                   </div>
                 </div>
