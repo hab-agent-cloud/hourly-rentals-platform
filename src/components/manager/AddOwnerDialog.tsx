@@ -121,9 +121,19 @@ export default function AddOwnerDialog({ adminId, managedListings, onSuccess }: 
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      console.log('AddOwnerDialog state changed:', newOpen);
+      setOpen(newOpen);
+    }}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => {
+            console.log('AddOwnerDialog trigger clicked');
+            setOpen(true);
+          }}
+        >
           <Icon name="UserPlus" size={16} className="sm:mr-2" />
           <span className="hidden sm:inline">Добавить владельца</span>
         </Button>
