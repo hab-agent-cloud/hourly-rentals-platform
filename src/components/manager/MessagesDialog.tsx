@@ -20,7 +20,10 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -45,11 +48,81 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
     }
   };
 
-  const handleSend = async () => {
-    if (!newMessage.trim()) {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles = files.filter(file => {
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        toast({
+          title: 'Ошибка',
+          description: `Файл ${file.name} слишком большой (макс. 10МБ)`,
+          variant: 'destructive'
+        });
+        return false;
+      }
+      return true;
+    });
+    
+    setAttachments(prev => [...prev, ...validFiles]);
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadFiles = async () => {
+    if (attachments.length === 0) return [];
+
+    setUploading(true);
+    const uploadedUrls: string[] = [];
+
+    try {
+      const UPLOAD_URL = 'https://functions.poehali.dev/3ecc5e66-2ea4-44e6-ac8d-35fdec8dc27e';
+      
+      for (const file of attachments) {
+        const reader = new FileReader();
+        const base64Promise = new Promise<string>((resolve) => {
+          reader.onloadend = () => {
+            const base64 = (reader.result as string).split(',')[1];
+            resolve(base64);
+          };
+          reader.readAsDataURL(file);
+        });
+
+        const base64 = await base64Promise;
+        const response = await fetch(UPLOAD_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image: base64,
+            filename: file.name
+          })
+        });
+
+        const data = await response.json();
+        if (data.url) {
+          uploadedUrls.push(data.url);
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки файлов:', error);
       toast({
         title: 'Ошибка',
-        description: 'Введите текст сообщения',
+        description: 'Не удалось загрузить файлы',
+        variant: 'destructive'
+      });
+    } finally {
+      setUploading(false);
+    }
+
+    return uploadedUrls;
+  };
+
+  const handleSend = async () => {
+    if (!newMessage.trim() && attachments.length === 0) {
+      toast({
+        title: 'Ошибка',
+        description: 'Введите текст или прикрепите файл',
         variant: 'destructive'
       });
       return;
@@ -57,12 +130,15 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
 
     setSending(true);
     try {
+      const fileUrls = await uploadFiles();
+      
       const response = await fetch(FUNC_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           admin_id: adminId,
-          message: newMessage
+          message: newMessage,
+          attachments: fileUrls
         })
       });
 
@@ -74,6 +150,8 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
           description: 'Сообщение отправлено'
         });
         setNewMessage('');
+        setAttachments([]);
+        setUploadedUrls([]);
         fetchMessages();
       } else {
         toast({
@@ -172,6 +250,36 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
                       </span>
                     </div>
                     <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                    {msg.attachments && msg.attachments.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {msg.attachments.map((url: string, idx: number) => {
+                          const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                          return (
+                            <div key={idx}>
+                              {isImage ? (
+                                <a href={url} target="_blank" rel="noopener noreferrer">
+                                  <img 
+                                    src={url} 
+                                    alt="Вложение" 
+                                    className="max-w-full max-h-48 rounded border cursor-pointer hover:opacity-80"
+                                  />
+                                </a>
+                              ) : (
+                                <a 
+                                  href={url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 text-blue-600 hover:underline text-sm"
+                                >
+                                  <Icon name="FileText" size={16} />
+                                  Скачать файл
+                                </a>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -189,20 +297,68 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Напишите ваше сообщение..."
               rows={3}
-              disabled={sending}
+              disabled={sending || uploading}
             />
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-muted-foreground">
-                {newMessage.length} / 1000 символов
-              </span>
+            
+            {/* Прикрепленные файлы */}
+            {attachments.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Прикрепленные файлы:</p>
+                <div className="space-y-1">
+                  {attachments.map((file, idx) => (
+                    <div key={idx} className="flex items-center justify-between bg-white p-2 rounded border">
+                      <div className="flex items-center gap-2">
+                        <Icon name={file.type.startsWith('image/') ? 'Image' : 'File'} size={16} />
+                        <span className="text-sm truncate max-w-[200px]">{file.name}</span>
+                        <span className="text-xs text-muted-foreground">({(file.size / 1024).toFixed(1)} КБ)</span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleRemoveAttachment(idx)}
+                        disabled={sending || uploading}
+                      >
+                        <Icon name="X" size={16} />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center gap-2">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  id="file-upload"
+                  className="hidden"
+                  multiple
+                  accept="image/*,.pdf,.doc,.docx,.txt"
+                  onChange={handleFileSelect}
+                  disabled={sending || uploading}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('file-upload')?.click()}
+                  disabled={sending || uploading}
+                >
+                  <Icon name="Paperclip" size={16} className="mr-2" />
+                  Файл
+                </Button>
+                <span className="text-xs text-muted-foreground hidden sm:inline">
+                  {newMessage.length} / 1000
+                </span>
+              </div>
               <Button 
                 onClick={handleSend}
-                disabled={sending || !newMessage.trim()}
+                disabled={sending || uploading || (!newMessage.trim() && attachments.length === 0)}
               >
-                {sending ? (
+                {sending || uploading ? (
                   <>
                     <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                    Отправка...
+                    {uploading ? 'Загрузка...' : 'Отправка...'}
                   </>
                 ) : (
                   <>
