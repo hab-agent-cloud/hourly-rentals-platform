@@ -5,12 +5,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import DocumentFilters from './documents/DocumentFilters';
+import DocumentsList from './documents/DocumentsList';
+import DocumentForm from './documents/DocumentForm';
 
 interface Document {
   id: string;
@@ -74,22 +73,18 @@ export default function DocumentsLibraryDialog({
         const docs = JSON.parse(stored);
         setDocuments(docs);
         
-        // Проверяем, есть ли уже инструкция для стажёров
         const hasTraineeInstruction = docs.some((doc: Document) => 
           doc.title === 'Инструкция для стажёров-копирайтеров'
         );
         
-        // Если нет - добавляем автоматически
         if (!hasTraineeInstruction) {
           addTraineeInstruction(docs);
         }
       } catch (e) {
         console.error('Failed to parse documents:', e);
-        // Если ошибка парсинга - создаём инструкцию
         addTraineeInstruction([]);
       }
     } else {
-      // Если библиотека пустая - добавляем инструкцию
       addTraineeInstruction([]);
     }
   };
@@ -425,151 +420,35 @@ export default function DocumentsLibraryDialog({
         <div className="space-y-4">
           {!showAddForm ? (
             <>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Поиск документов..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1"
-                />
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="px-3 rounded-md border border-input bg-background"
-                >
-                  <option value="all">Все категории</option>
-                  {Object.entries(categoryLabels).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
-                  ))}
-                </select>
-                <Button onClick={() => setShowAddForm(true)}>
-                  <Icon name="Plus" size={18} className="mr-2" />
-                  Добавить документ
-                </Button>
-              </div>
+              <DocumentFilters
+                searchQuery={searchQuery}
+                filterCategory={filterCategory}
+                categoryLabels={categoryLabels}
+                onSearchChange={setSearchQuery}
+                onCategoryChange={setFilterCategory}
+                onAddClick={() => setShowAddForm(true)}
+              />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-2">
-                {filteredDocuments.length === 0 ? (
-                  <div className="col-span-2 text-center py-12 text-muted-foreground">
-                    <Icon name="FileSearch" size={48} className="mx-auto mb-4 opacity-50" />
-                    <p>Документы не найдены</p>
-                  </div>
-                ) : (
-                  filteredDocuments.map(doc => (
-                    <Card key={doc.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-start gap-3 flex-1">
-                            <Icon 
-                              name={categoryIcons[doc.category]} 
-                              size={24} 
-                              className="text-blue-600 mt-1" 
-                            />
-                            <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-lg mb-1 truncate">{doc.title}</h3>
-                              <Badge variant="outline" className="mb-2">
-                                {categoryLabels[doc.category]}
-                              </Badge>
-                              {doc.description && (
-                                <p className="text-sm text-muted-foreground line-clamp-2">
-                                  {doc.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="text-xs text-muted-foreground mb-3">
-                          Создан: {new Date(doc.createdAt).toLocaleString('ru-RU')}
-                          {doc.updatedAt !== doc.createdAt && (
-                            <> • Обновлён: {new Date(doc.updatedAt).toLocaleString('ru-RU')}</>
-                          )}
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDownloadDocument(doc)}
-                            className="flex-1"
-                          >
-                            <Icon name="Download" size={14} className="mr-1" />
-                            Скачать
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => startEdit(doc)}
-                          >
-                            <Icon name="Edit" size={14} />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteDocument(doc.id)}
-                          >
-                            <Icon name="Trash2" size={14} />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                )}
+                <DocumentsList
+                  documents={filteredDocuments}
+                  categoryLabels={categoryLabels}
+                  categoryIcons={categoryIcons}
+                  onDownload={handleDownloadDocument}
+                  onEdit={startEdit}
+                  onDelete={handleDeleteDocument}
+                />
               </div>
             </>
           ) : (
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-              <div>
-                <label className="block text-sm font-medium mb-1">Название документа *</label>
-                <Input
-                  value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Например: Инструкция для копирайтера"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Категория</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value as Document['category'] }))}
-                  className="w-full px-3 py-2 rounded-md border border-input bg-background"
-                >
-                  {Object.entries(categoryLabels).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Описание</label>
-                <Input
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Краткое описание документа"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Содержимое документа *</label>
-                <textarea
-                  value={formData.content}
-                  onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                  className="w-full min-h-[300px] px-3 py-2 rounded-md border border-input bg-background font-mono text-sm"
-                  placeholder="Введите текст документа..."
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <Button onClick={editingDoc ? handleUpdateDocument : handleAddDocument} className="flex-1">
-                  <Icon name={editingDoc ? "Save" : "Plus"} size={18} className="mr-2" />
-                  {editingDoc ? 'Сохранить изменения' : 'Добавить документ'}
-                </Button>
-                <Button onClick={resetForm} variant="outline">
-                  Отмена
-                </Button>
-              </div>
-            </div>
+            <DocumentForm
+              formData={formData}
+              editingDoc={editingDoc}
+              categoryLabels={categoryLabels}
+              onFormChange={setFormData}
+              onSubmit={editingDoc ? handleUpdateDocument : handleAddDocument}
+              onCancel={resetForm}
+            />
           )}
         </div>
       </DialogContent>
