@@ -28,13 +28,8 @@ export default function AddOwnerDialog({ adminId, managedListings, onSuccess }: 
     full_name: '',
     phone: '',
     email: '',
-    passport_series: '',
-    passport_number: '',
-    passport_issued_by: '',
-    passport_issued_date: '',
-    registration_address: '',
-    actual_address: '',
-    inn: '',
+    telegram_name: '',
+    manager_comment: '',
     username: '',
     password: '',
     listing_id: ''
@@ -116,13 +111,8 @@ export default function AddOwnerDialog({ adminId, managedListings, onSuccess }: 
           full_name: '',
           phone: '',
           email: '',
-          passport_series: '',
-          passport_number: '',
-          passport_issued_by: '',
-          passport_issued_date: '',
-          registration_address: '',
-          actual_address: '',
-          inn: '',
+          telegram_name: '',
+          manager_comment: '',
           username: '',
           password: '',
           listing_id: ''
@@ -214,86 +204,24 @@ export default function AddOwnerDialog({ adminId, managedListings, onSuccess }: 
                 />
               </div>
             </div>
-          </div>
-
-          {/* Паспортные данные */}
-          <div className="space-y-4 p-4 border rounded-lg bg-purple-50">
-            <h3 className="font-semibold flex items-center gap-2">
-              <Icon name="FileText" size={18} className="text-purple-600" />
-              Паспортные данные
-            </h3>
-            
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="passport_series">Серия паспорта</Label>
-                <Input
-                  id="passport_series"
-                  value={formData.passport_series}
-                  onChange={(e) => setFormData({ ...formData, passport_series: e.target.value })}
-                  placeholder="1234"
-                  maxLength={4}
-                />
-              </div>
-              <div>
-                <Label htmlFor="passport_number">Номер паспорта</Label>
-                <Input
-                  id="passport_number"
-                  value={formData.passport_number}
-                  onChange={(e) => setFormData({ ...formData, passport_number: e.target.value })}
-                  placeholder="567890"
-                  maxLength={6}
-                />
-              </div>
-            </div>
 
             <div>
-              <Label htmlFor="passport_issued_by">Кем выдан</Label>
+              <Label htmlFor="telegram_name">Имя в Telegram (необязательно)</Label>
               <Input
-                id="passport_issued_by"
-                value={formData.passport_issued_by}
-                onChange={(e) => setFormData({ ...formData, passport_issued_by: e.target.value })}
-                placeholder="УФМС России по..."
+                id="telegram_name"
+                value={formData.telegram_name}
+                onChange={(e) => setFormData({ ...formData, telegram_name: e.target.value })}
+                placeholder="@username или полное имя"
               />
             </div>
 
             <div>
-              <Label htmlFor="passport_issued_date">Дата выдачи</Label>
+              <Label htmlFor="manager_comment">Комментарий (видно только менеджменту)</Label>
               <Input
-                id="passport_issued_date"
-                type="date"
-                value={formData.passport_issued_date}
-                onChange={(e) => setFormData({ ...formData, passport_issued_date: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="registration_address">Адрес регистрации</Label>
-              <Input
-                id="registration_address"
-                value={formData.registration_address}
-                onChange={(e) => setFormData({ ...formData, registration_address: e.target.value })}
-                placeholder="г. Москва, ул. Ленина, д. 1, кв. 1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="actual_address">Фактический адрес проживания</Label>
-              <Input
-                id="actual_address"
-                value={formData.actual_address}
-                onChange={(e) => setFormData({ ...formData, actual_address: e.target.value })}
-                placeholder="г. Москва, ул. Ленина, д. 1, кв. 1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="inn">ИНН</Label>
-              <Input
-                id="inn"
-                value={formData.inn}
-                onChange={(e) => setFormData({ ...formData, inn: e.target.value })}
-                placeholder="123456789012"
-                maxLength={12}
+                id="manager_comment"
+                value={formData.manager_comment}
+                onChange={(e) => setFormData({ ...formData, manager_comment: e.target.value })}
+                placeholder="Дополнительная информация для менеджеров"
               />
             </div>
           </div>

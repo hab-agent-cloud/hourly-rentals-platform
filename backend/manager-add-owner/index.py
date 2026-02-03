@@ -37,13 +37,8 @@ def handler(event, context):
         full_name = body.get('full_name')
         phone = body.get('phone')
         email = body.get('email', '')
-        passport_series = body.get('passport_series', '')
-        passport_number = body.get('passport_number', '')
-        passport_issued_by = body.get('passport_issued_by', '')
-        passport_issued_date = body.get('passport_issued_date', None)
-        registration_address = body.get('registration_address', '')
-        actual_address = body.get('actual_address', '')
-        inn = body.get('inn', '')
+        telegram_name = body.get('telegram_name', '')
+        manager_comment = body.get('manager_comment', '')
         username = body.get('username')
         password = body.get('password')
         listing_id = body.get('listing_id')
@@ -111,14 +106,12 @@ def handler(event, context):
         # Создание владельца
         cur.execute("""
             INSERT INTO t_p39732784_hourly_rentals_platf.owners 
-            (full_name, phone, email, passport_series, passport_number, passport_issued_by, 
-             passport_issued_date, registration_address, actual_address, inn, username, 
+            (full_name, phone, email, telegram_name, manager_comment, username, 
              password_hash, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+            VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
             RETURNING id
         """, (
-            full_name, phone, email, passport_series, passport_number, passport_issued_by,
-            passport_issued_date, registration_address, actual_address, inn, username, password_hash
+            full_name, phone, email, telegram_name, manager_comment, username, password_hash
         ))
         
         owner_id = cur.fetchone()[0]

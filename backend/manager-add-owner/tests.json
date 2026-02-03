@@ -7,15 +7,18 @@
         "manager_id": 1,
         "full_name": "Иванов Иван Иванович",
         "phone": "+79991234567",
-        "email": "test@example.com",
-        "username": "test_owner_123",
+        "email": "",
+        "telegram_name": "@ivanov",
+        "manager_comment": "Тестовый владелец",
+        "username": "test_owner_unique_456",
         "password": "testpass123"
       },
       "expectedStatus": 200,
       "expectedBody": {
         "success": true,
         "owner_id": "number",
-        "username": "string"
+        "username": "string",
+        "message": "string"
       },
       "bodyMatcher": "partial"
     },
