@@ -54,8 +54,10 @@ def handler(event: dict, context) -> dict:
         })
         
         cities = [
-            'moskva', 'sankt-peterburg', 'kazan', 'ekaterinburg', 
-            'ufa', 'rostov-na-donu', 'krasnodar', 'nizhniy-novgorod', 'novosibirsk'
+            'moskva', 'sankt-peterburg', 'kazan', 'ekaterinburg', 'novosibirsk',
+            'nizhniy-novgorod', 'chelyabinsk', 'samara', 'omsk', 'rostov-na-donu',
+            'ufa', 'krasnoyarsk', 'perm', 'voronezh', 'volgograd', 'krasnodar',
+            'sochi', 'tyumen', 'barnaul', 'vladivostok', 'irkutsk'
         ]
         
         for city_slug in cities:

@@ -1,14 +1,43 @@
 # Robots.txt для 120 МИНУТ
 User-agent: *
 Allow: /
+Allow: /city/*
+Allow: /listing/*
 Disallow: /admin
 Disallow: /admin/*
+Disallow: /manager
+Disallow: /manager/*
 Disallow: /owner/dashboard
 Disallow: /owner/login
 Disallow: /owner/forgot-password
+Disallow: /*/edit
+Disallow: /listing/*/edit
 
 # Sitemap
 Sitemap: https://120minut.ru/sitemap.xml
+
+# Города для индексации (21 город)
+Allow: /city/moskva
+Allow: /city/sankt-peterburg
+Allow: /city/kazan
+Allow: /city/ekaterinburg
+Allow: /city/novosibirsk
+Allow: /city/nizhniy-novgorod
+Allow: /city/chelyabinsk
+Allow: /city/samara
+Allow: /city/omsk
+Allow: /city/rostov-na-donu
+Allow: /city/ufa
+Allow: /city/krasnoyarsk
+Allow: /city/perm
+Allow: /city/voronezh
+Allow: /city/volgograd
+Allow: /city/krasnodar
+Allow: /city/sochi
+Allow: /city/tyumen
+Allow: /city/barnaul
+Allow: /city/vladivostok
+Allow: /city/irkutsk
 
 # Основные поисковые боты
 User-agent: Yandex
