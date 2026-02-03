@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface AddOwnerDialogProps {
   adminId: number;
@@ -18,6 +20,8 @@ const FUNC_URL = 'https://functions.poehali.dev/681b8831-6c0b-46b6-8535-b010c496
 export default function AddOwnerDialog({ adminId, managedListings, onSuccess }: AddOwnerDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [listingSearchOpen, setListingSearchOpen] = useState(false);
+  const [listingSearchQuery, setListingSearchQuery] = useState('');
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -35,6 +39,29 @@ export default function AddOwnerDialog({ adminId, managedListings, onSuccess }: 
     password: '',
     listing_id: ''
   });
+
+  const filteredListings = useMemo(() => {
+    if (!listingSearchQuery) return managedListings;
+    
+    const query = listingSearchQuery.toLowerCase();
+    return managedListings.filter((listing: any) => {
+      const searchableText = [
+        listing.name || '',
+        listing.title || '',
+        listing.city || '',
+        listing.district || '',
+        listing.metro || '',
+        listing.address || ''
+      ].join(' ').toLowerCase();
+      
+      return searchableText.includes(query);
+    });
+  }, [managedListings, listingSearchQuery]);
+
+  const selectedListing = useMemo(() => {
+    if (!formData.listing_id) return null;
+    return managedListings.find((l: any) => l.id.toString() === formData.listing_id);
+  }, [formData.listing_id, managedListings]);
 
   const handleSubmit = async () => {
     // Валидация
@@ -279,25 +306,95 @@ export default function AddOwnerDialog({ adminId, managedListings, onSuccess }: 
             </h3>
             
             <div>
-              <Label htmlFor="listing_id">Объект (необязательно)</Label>
-              <Select 
-                value={formData.listing_id || undefined} 
-                onValueChange={(value) => setFormData({ ...formData, listing_id: value === 'none' ? '' : value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Выберите объект или оставьте пустым" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Без объекта</SelectItem>
-                  {managedListings.map((listing) => (
-                    <SelectItem key={listing.id} value={listing.id.toString()}>
-                      {listing.name} ({listing.district})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>Объект (необязательно)</Label>
+              <Popover open={listingSearchOpen} onOpenChange={setListingSearchOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={listingSearchOpen}
+                    className="w-full justify-between"
+                  >
+                    {selectedListing ? (
+                      <span className="flex items-center gap-2">
+                        <Icon name="Building2" size={16} />
+                        {selectedListing.title || selectedListing.name} · {selectedListing.city}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">Поиск по городу, метро, улице...</span>
+                    )}
+                    <Icon name="ChevronsUpDown" size={16} className="ml-2 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[400px] p-0" align="start">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Город, метро, улица, название..." 
+                      value={listingSearchQuery}
+                      onValueChange={setListingSearchQuery}
+                    />
+                    <CommandList>
+                      <CommandEmpty>Объекты не найдены</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="none"
+                          onSelect={() => {
+                            setFormData({ ...formData, listing_id: '' });
+                            setListingSearchQuery('');
+                            setListingSearchOpen(false);
+                          }}
+                        >
+                          <Icon name="X" size={16} className="mr-2" />
+                          Без объекта
+                        </CommandItem>
+                        {filteredListings.map((listing: any) => (
+                          <CommandItem
+                            key={listing.id}
+                            value={`${listing.id}-${listing.title || listing.name}-${listing.city}-${listing.district}-${listing.metro || ''}-${listing.address || ''}`}
+                            onSelect={() => {
+                              setFormData({ ...formData, listing_id: listing.id.toString() });
+                              setListingSearchOpen(false);
+                            }}
+                          >
+                            <div className="flex flex-col gap-1 w-full">
+                              <div className="flex items-center gap-2">
+                                <Icon 
+                                  name={listing.type === 'hotel' ? 'Hotel' : 'Home'} 
+                                  size={16} 
+                                  className="text-green-600" 
+                                />
+                                <span className="font-medium">
+                                  {listing.title || listing.name}
+                                </span>
+                              </div>
+                              <div className="text-xs text-muted-foreground flex flex-wrap gap-2">
+                                <span className="flex items-center gap-1">
+                                  <Icon name="MapPin" size={12} />
+                                  {listing.city}, {listing.district}
+                                </span>
+                                {listing.metro && (
+                                  <span className="flex items-center gap-1">
+                                    <Icon name="Train" size={12} />
+                                    {listing.metro}
+                                  </span>
+                                )}
+                                {listing.address && (
+                                  <span className="flex items-center gap-1">
+                                    <Icon name="Home" size={12} />
+                                    {listing.address}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               <p className="text-xs text-muted-foreground mt-1">
-                Можно привязать позже через редактирование объекта
+                Введите город, метро или улицу для поиска объекта
               </p>
             </div>
           </div>
