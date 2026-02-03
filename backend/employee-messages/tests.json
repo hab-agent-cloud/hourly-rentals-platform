@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Get messages for employee",
+      "method": "GET",
+      "path": "/?admin_id=14",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "messages": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Send new message",
+      "method": "POST",
+      "body": {
+        "sender_id": 14,
+        "recipient_id": 1,
+        "message": "Тестовое сообщение",
+        "message_type": "regular"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message_id": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

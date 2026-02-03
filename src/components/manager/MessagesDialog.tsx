@@ -13,7 +13,7 @@ interface MessagesDialogProps {
   role: 'manager' | 'om' | 'um' | 'superadmin';
 }
 
-const FUNC_URL = 'https://functions.poehali.dev/TODO'; // TODO: создать функцию для сообщений
+const FUNC_URL = 'https://functions.poehali.dev/43b26aef-407e-4fcb-9a6c-df92bda05452';
 
 export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
   const [open, setOpen] = useState(false);
@@ -222,34 +222,53 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
               </div>
             ) : (
               <div className="space-y-3">
-                {messages.map((msg) => (
+                {messages.map((msg) => {
+                  const isOverdue = msg.message_type === 'task_overdue';
+                  const isTaskCompleted = msg.message_type === 'task_completed';
+                  
+                  return (
                   <div
                     key={msg.id}
                     className={`p-3 rounded-lg ${
-                      msg.is_incoming 
-                        ? 'bg-blue-50 border border-blue-200' 
-                        : 'bg-gray-50 border border-gray-200 ml-12'
+                      isOverdue
+                        ? 'bg-red-50 border-2 border-red-300'
+                        : msg.sender_id === adminId
+                        ? 'bg-gray-50 border border-gray-200 ml-12'
+                        : isTaskCompleted
+                        ? 'bg-green-50 border border-green-200'
+                        : 'bg-blue-50 border border-blue-200'
                     }`}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Icon 
-                          name={msg.is_incoming ? 'ArrowDown' : 'ArrowUp'} 
-                          size={16}
-                          className={msg.is_incoming ? 'text-blue-600' : 'text-gray-600'}
-                        />
-                        <span className="font-semibold text-sm">
-                          {msg.is_incoming ? msg.sender_name : 'Вы'}
+                        {isOverdue ? (
+                          <Icon name="AlertCircle" size={16} className="text-red-600" />
+                        ) : isTaskCompleted ? (
+                          <Icon name="CheckCircle" size={16} className="text-green-600" />
+                        ) : (
+                          <Icon 
+                            name={msg.sender_id === adminId ? 'ArrowUp' : 'ArrowDown'} 
+                            size={16}
+                            className={msg.sender_id === adminId ? 'text-gray-600' : 'text-blue-600'}
+                          />
+                        )}
+                        <span className={`font-semibold text-sm ${isOverdue ? 'text-red-700' : ''}`}>
+                          {msg.sender_id === adminId ? 'Вы' : msg.sender_name}
                         </span>
-                        {!msg.is_read && msg.is_incoming && (
+                        {!msg.is_read && msg.sender_id !== adminId && (
                           <Badge variant="destructive" className="text-xs">Новое</Badge>
+                        )}
+                        {isOverdue && (
+                          <Badge variant="destructive" className="text-xs">ПРОСРОЧЕНО</Badge>
                         )}
                       </div>
                       <span className="text-xs text-muted-foreground">
                         {new Date(msg.created_at).toLocaleString()}
                       </span>
                     </div>
-                    <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                    <p className={`text-sm whitespace-pre-wrap ${isOverdue ? 'text-red-800 font-medium' : ''}`}>
+                      {msg.message}
+                    </p>
                     {msg.attachments && msg.attachments.length > 0 && (
                       <div className="mt-3 space-y-2">
                         {msg.attachments.map((url: string, idx: number) => {
@@ -281,7 +300,8 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </ScrollArea>

@@ -1,4 +1,7 @@
 {
+  "cron-check-overdue-tasks": "https://functions.poehali.dev/60a671c5-8243-4b6b-a4f6-e28421ebfd07",
+  "manager-task-complete": "https://functions.poehali.dev/d306fd9e-8d52-42ef-9d0b-e98812d164ea",
+  "employee-messages": "https://functions.poehali.dev/43b26aef-407e-4fcb-9a6c-df92bda05452",
   "manager-add-owner": "https://functions.poehali.dev/681b8831-6c0b-46b6-8535-b010c496917f",
   "listing-edit": "https://functions.poehali.dev/4d42288a-e311-4754-98a2-944dfc667bd2",
   "om-manage-limits": "https://functions.poehali.dev/1315f1c7-8ce1-4d90-bcac-6229acaa2a27",

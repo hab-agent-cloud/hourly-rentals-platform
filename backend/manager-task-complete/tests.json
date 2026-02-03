@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "Complete task successfully",
+      "method": "POST",
+      "body": {
+        "task_id": 1,
+        "manager_id": 14
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message": "string",
+        "is_overdue": "boolean"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing required fields",
+      "method": "POST",
+      "body": {
+        "task_id": 1
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

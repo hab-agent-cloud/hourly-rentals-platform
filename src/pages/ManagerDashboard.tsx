@@ -10,6 +10,7 @@ import ManagerCashSection from '@/components/manager/ManagerCashSection';
 import ManageLimitsDialog from '@/components/om/ManageLimitsDialog';
 import TeamAnalytics from '@/components/om/TeamAnalytics';
 import MessagesDialog from '@/components/manager/MessagesDialog';
+import ManagerTasksList from '@/components/manager/ManagerTasksList';
 
 const FUNC_URLS = {
   managerData: 'https://functions.poehali.dev/ccbc7231-4004-46e0-9caa-8afc6d0fa9db',
@@ -316,6 +317,14 @@ export default function ManagerDashboard() {
         managerData={managerData}
         onWithdraw={handleWithdraw}
       />
+
+      {managerData.tasks && managerData.tasks.length > 0 && (
+        <ManagerTasksList 
+          tasks={managerData.tasks}
+          managerId={adminId!}
+          onTaskCompleted={fetchManagerData}
+        />
+      )}
       
       <ManagerListingsSection 
         managerData={managerData}

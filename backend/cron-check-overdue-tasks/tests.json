@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Check overdue tasks",
+      "method": "GET",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "overdue_tasks_found": "number",
+        "notifications_sent": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
