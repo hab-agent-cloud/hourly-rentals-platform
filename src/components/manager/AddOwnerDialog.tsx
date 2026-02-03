@@ -281,14 +281,14 @@ export default function AddOwnerDialog({ adminId, managedListings, onSuccess }: 
             <div>
               <Label htmlFor="listing_id">Объект (необязательно)</Label>
               <Select 
-                value={formData.listing_id} 
-                onValueChange={(value) => setFormData({ ...formData, listing_id: value })}
+                value={formData.listing_id || undefined} 
+                onValueChange={(value) => setFormData({ ...formData, listing_id: value === 'none' ? '' : value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Выберите объект или оставьте пустым" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Без объекта</SelectItem>
+                  <SelectItem value="none">Без объекта</SelectItem>
                   {managedListings.map((listing) => (
                     <SelectItem key={listing.id} value={listing.id.toString()}>
                       {listing.name} ({listing.district})
