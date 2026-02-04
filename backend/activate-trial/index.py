@@ -1,7 +1,35 @@
 import json
 import os
 import psycopg2
+import requests
 from datetime import datetime, timedelta
+
+def send_telegram_notification(owner_name: str, listing_title: str, new_expiry: str) -> None:
+    '''Отправляет уведомление администратору в Telegram'''
+    bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
+    chat_id = os.environ.get('TELEGRAM_ADMIN_CHAT_ID')
+    
+    if not bot_token or not chat_id:
+        return
+    
+    message = f"🎉 <b>Активирована пробная подписка!</b>\n\n"
+    message += f"👤 Владелец: {owner_name}\n"
+    message += f"🏨 Объект: {listing_title}\n"
+    message += f"📅 Подписка до: {new_expiry}\n\n"
+    message += f"Владелец получил 14 дней бесплатной подписки."
+    
+    try:
+        requests.post(
+            f'https://api.telegram.org/bot{bot_token}/sendMessage',
+            json={
+                'chat_id': chat_id,
+                'text': message,
+                'parse_mode': 'HTML'
+            },
+            timeout=5
+        )
+    except Exception as e:
+        print(f'Telegram notification error: {e}')
 
 def handler(event: dict, context) -> dict:
     '''API для активации бесплатной пробной подписки на 14 дней (одноразовая акция для владельца)'''
@@ -87,10 +115,17 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
+        # Получаем информацию о владельце
+        cur.execute(f'''
+            SELECT full_name FROM {schema}.owners WHERE id = %s
+        ''', (owner_id,))
+        owner_data = cur.fetchone()
+        owner_name = owner_data[0] if owner_data else 'Неизвестный'
+        
         # Если указан listing_id, продлеваем подписку для конкретного объекта
         if listing_id:
             cur.execute(f'''
-                SELECT subscription_expires_at FROM {schema}.listings 
+                SELECT subscription_expires_at, title FROM {schema}.listings 
                 WHERE id = %s AND owner_id = %s
             ''', (listing_id, owner_id))
             listing = cur.fetchone()
@@ -107,6 +142,7 @@ def handler(event: dict, context) -> dict:
                 }
             
             current_expiry = listing[0]
+            listing_title = listing[1]
             now = datetime.now()
             if current_expiry and current_expiry > now:
                 new_expiry = current_expiry + timedelta(days=14)
@@ -123,7 +159,7 @@ def handler(event: dict, context) -> dict:
         else:
             # Если listing_id не указан, продлеваем подписку для первого активного объекта
             cur.execute(f'''
-                SELECT id, subscription_expires_at FROM {schema}.listings 
+                SELECT id, subscription_expires_at, title FROM {schema}.listings 
                 WHERE owner_id = %s AND is_archived = false
                 ORDER BY id ASC
                 LIMIT 1
@@ -143,6 +179,7 @@ def handler(event: dict, context) -> dict:
             
             listing_id = listing[0]
             current_expiry = listing[1]
+            listing_title = listing[2]
             now = datetime.now()
             
             if current_expiry and current_expiry > now:
@@ -166,6 +203,13 @@ def handler(event: dict, context) -> dict:
         ''', (owner_id,))
         
         conn.commit()
+        
+        # Отправляем уведомление администратору
+        send_telegram_notification(
+            owner_name=owner_name,
+            listing_title=listing_title,
+            new_expiry=new_expiry.strftime('%d.%m.%Y')
+        )
         
         return {
             'statusCode': 200,
