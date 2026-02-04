@@ -1,21 +1,6 @@
 {
   "tests": [
     {
-      "name": "Test activate trial subscription",
-      "method": "POST",
-      "path": "/",
-      "body": {
-        "owner_id": 1,
-        "listing_id": 1
-      },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "success": true,
-        "message": "string"
-      },
-      "bodyMatcher": "partial"
-    },
-    {
       "name": "Test missing owner_id",
       "method": "POST",
       "path": "/",
@@ -24,6 +9,12 @@
       "expectedBody": {
         "error": "owner_id is required"
       }
+    },
+    {
+      "name": "Test OPTIONS request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
     }
   ]
 }

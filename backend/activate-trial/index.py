@@ -1,35 +1,37 @@
 import json
 import os
 import psycopg2
-import requests
 from datetime import datetime, timedelta
 
-def send_telegram_notification(owner_name: str, listing_title: str, new_expiry: str) -> None:
-    '''Отправляет уведомление администратору в Telegram'''
-    bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
-    chat_id = os.environ.get('TELEGRAM_ADMIN_CHAT_ID')
+def send_manager_notification(cur, owner_id: int, listing_id: int, owner_name: str, listing_title: str, new_expiry: str) -> None:
+    '''Отправляет уведомление менеджеру в систему сообщений'''
+    schema = 't_p39732784_hourly_rentals_platf'
     
-    if not bot_token or not chat_id:
+    # Получаем manager_id из объекта
+    cur.execute(f'''
+        SELECT created_by_employee_id FROM {schema}.listings WHERE id = %s
+    ''', (listing_id,))
+    result = cur.fetchone()
+    
+    if not result or not result[0]:
         return
     
-    message = f"🎉 <b>Активирована пробная подписка!</b>\n\n"
+    manager_id = result[0]
+    
+    message = f"🎉 Активирована пробная подписка!\n\n"
     message += f"👤 Владелец: {owner_name}\n"
     message += f"🏨 Объект: {listing_title}\n"
     message += f"📅 Подписка до: {new_expiry}\n\n"
     message += f"Владелец получил 14 дней бесплатной подписки."
     
     try:
-        requests.post(
-            f'https://api.telegram.org/bot{bot_token}/sendMessage',
-            json={
-                'chat_id': chat_id,
-                'text': message,
-                'parse_mode': 'HTML'
-            },
-            timeout=5
-        )
+        cur.execute('''
+            INSERT INTO owner_manager_messages 
+            (owner_id, manager_id, listing_id, sender_type, message)
+            VALUES (%s, %s, %s, 'system', %s)
+        ''', (owner_id, manager_id, listing_id, message))
     except Exception as e:
-        print(f'Telegram notification error: {e}')
+        print(f'Manager notification error: {e}')
 
 def handler(event: dict, context) -> dict:
     '''API для активации бесплатной пробной подписки на 14 дней (одноразовая акция для владельца)'''
@@ -202,14 +204,17 @@ def handler(event: dict, context) -> dict:
             WHERE id = %s
         ''', (owner_id,))
         
-        conn.commit()
-        
-        # Отправляем уведомление администратору
-        send_telegram_notification(
+        # Отправляем уведомление менеджеру в систему сообщений
+        send_manager_notification(
+            cur=cur,
+            owner_id=owner_id,
+            listing_id=listing_id,
             owner_name=owner_name,
             listing_title=listing_title,
             new_expiry=new_expiry.strftime('%d.%m.%Y')
         )
+        
+        conn.commit()
         
         return {
             'statusCode': 200,
