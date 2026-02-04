@@ -68,7 +68,7 @@ export default function OwnerManagerCard({ ownerId }: OwnerManagerCardProps) {
   }
 
   const hasManager = !!manager;
-  const displayManager = manager || { id: 0, name: 'Поддержка', phone: '+7-800-123-45-67' };
+  const displayManager = manager || { id: 0, name: 'Поддержка' };
 
   return (
     <>
