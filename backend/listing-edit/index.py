@@ -41,6 +41,8 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
+            print(f"[DEBUG] Executing query for listing_id: {listing_id}")
+            
             cur.execute('''
                 SELECT 
                     l.id, l.title, l.description, l.address, l.district, l.metro,
@@ -55,6 +57,7 @@ def handler(event: dict, context) -> dict:
             ''', (listing_id,))
             
             row = cur.fetchone()
+            print(f"[DEBUG] Query result: {row}")
             
             if not row:
                 return {
@@ -197,6 +200,10 @@ def handler(event: dict, context) -> dict:
             }
     
     except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"[ERROR] Exception occurred: {str(e)}")
+        print(f"[ERROR] Traceback: {error_details}")
         conn.rollback()
         return {
             'statusCode': 500,
@@ -204,7 +211,7 @@ def handler(event: dict, context) -> dict:
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps({'error': str(e)}),
+            'body': json.dumps({'error': str(e), 'details': error_details}),
             'isBase64Encoded': False
         }
     finally:
