@@ -341,14 +341,14 @@ export default function ListingEditor() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8 max-w-4xl">
-        <div className="flex items-center justify-between mb-6">
-          <div>
+        <div className="flex items-center justify-between mb-6 gap-4">
+          <div className="flex-1 min-w-0">
             <Button variant="ghost" onClick={() => navigate('/manager')} className="mb-2">
               <Icon name="ArrowLeft" size={16} className="mr-2" />
               Назад к списку
             </Button>
-            <h1 className="text-3xl font-bold">{listing.name}</h1>
-            <div className="flex gap-2 mt-2">
+            <h1 className="text-3xl font-bold truncate">{listing.name}</h1>
+            <div className="flex gap-2 mt-2 flex-wrap">
               <Badge variant={listing.status === 'active' ? 'default' : 'secondary'}>
                 {listing.status === 'active' ? '✅ Активен' : '🧊 Заморожен'}
               </Badge>
@@ -359,7 +359,7 @@ export default function ListingEditor() {
               )}
             </div>
           </div>
-          <div className="flex gap-2 flex-col sm:flex-row">
+          <div className="flex gap-2 flex-col sm:flex-row flex-shrink-0">
             {!listing.trial_activated_at && (
               <div className="relative">
                 {!showTrialDaysSelector ? (
@@ -467,12 +467,10 @@ export default function ListingEditor() {
             />
           )}
 
-          {formData.type && (formData.type.toLowerCase().includes('отель') || formData.type.toLowerCase().includes('гостиница')) && (
-            <ListingCategoriesSection
-              rooms={formData.rooms}
-              onRoomsChange={(rooms) => setFormData({ ...formData, rooms })}
-            />
-          )}
+          <ListingCategoriesSection
+            rooms={formData.rooms}
+            onRoomsChange={(rooms) => setFormData({ ...formData, rooms })}
+          />
 
           <ListingRoomsPhotosSection
             rooms={formData.rooms}

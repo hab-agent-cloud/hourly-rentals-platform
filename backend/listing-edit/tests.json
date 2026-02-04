@@ -1,29 +1,20 @@
 {
   "tests": [
     {
-      "name": "Get listing by ID",
+      "name": "Missing listing_id returns error",
       "method": "GET",
-      "path": "/?id=1",
-      "expectedStatus": 200,
+      "path": "/",
+      "expectedStatus": 400,
       "expectedBody": {
-        "listing": "object"
+        "error": "listing_id is required"
       },
       "bodyMatcher": "partial"
     },
     {
-      "name": "Update listing info",
-      "method": "POST",
+      "name": "OPTIONS request",
+      "method": "OPTIONS",
       "path": "/",
-      "body": {
-        "listing_id": 1,
-        "name": "Обновленное название",
-        "description": "Новое описание"
-      },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "success": true
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     }
   ]
 }

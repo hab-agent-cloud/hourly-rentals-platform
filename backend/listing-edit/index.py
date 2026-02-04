@@ -45,7 +45,7 @@ def handler(event: dict, context) -> dict:
                     l.subscription_expires_at, l.created_by_employee_id, 
                     l.owner_id, l.square_meters, l.parking_type, 
                     l.parking_price_per_hour, l.short_title, l.trial_activated_at,
-                    o.full_name as owner_name
+                    o.full_name as owner_name, l.image_url, l.logo_url, l.rooms
                 FROM listings l
                 LEFT JOIN owners o ON l.owner_id = o.id
                 WHERE l.id = %s
@@ -84,7 +84,10 @@ def handler(event: dict, context) -> dict:
                 'parking_price_per_hour': row[16],
                 'short_title': row[17],
                 'trial_activated_at': row[18].isoformat() if row[18] else None,
-                'owner_name': row[19]
+                'owner_name': row[19],
+                'image_url': row[20],
+                'logo_url': row[21],
+                'rooms': row[22] if row[22] else []
             }
             
             return {
@@ -128,8 +131,15 @@ def handler(event: dict, context) -> dict:
                 'square_meters': 'square_meters',
                 'parking_type': 'parking_type',
                 'parking_price_per_hour': 'parking_price_per_hour',
-                'short_title': 'short_title'
+                'short_title': 'short_title',
+                'image_url': 'image_url',
+                'logo_url': 'logo_url'
             }
+            
+            # Обработка rooms отдельно, т.к. это JSONB
+            if 'rooms' in body:
+                updates.append("rooms = %s::jsonb")
+                params.append(json.dumps(body['rooms']))
             
             for frontend_field, db_field in field_mapping.items():
                 if frontend_field in body:

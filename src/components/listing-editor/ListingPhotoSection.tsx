@@ -41,17 +41,28 @@ export default function ListingPhotoSection({
           <div>
             <Label>Главное фото</Label>
             {imageUrl ? (
-              <div className="relative mt-2">
+              <div className="relative mt-2 group">
                 <img src={imageUrl} alt="Главное фото" className="w-full h-48 object-cover rounded-lg border-2 border-primary" />
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="destructive"
-                  className="absolute top-2 right-2"
-                  onClick={onRemovePhoto}
-                >
-                  <Icon name="Trash2" size={16} />
-                </Button>
+                <div className="absolute top-2 right-2 flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Icon name="Upload" size={16} className="mr-1" />
+                    Изменить
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={onRemovePhoto}
+                  >
+                    <Icon name="Trash2" size={16} />
+                  </Button>
+                </div>
               </div>
             ) : (
               <Button
@@ -83,17 +94,28 @@ export default function ListingPhotoSection({
           <div>
             <Label>Логотип</Label>
             {logoUrl ? (
-              <div className="relative mt-2">
+              <div className="relative mt-2 group">
                 <img src={logoUrl} alt="Логотип" className="w-full h-48 object-contain rounded-lg border-2 border-primary bg-gray-50" />
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="destructive"
-                  className="absolute top-2 right-2"
-                  onClick={onRemoveLogo}
-                >
-                  <Icon name="Trash2" size={16} />
-                </Button>
+                <div className="absolute top-2 right-2 flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => logoInputRef.current?.click()}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Icon name="Upload" size={16} className="mr-1" />
+                    Изменить
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={onRemoveLogo}
+                  >
+                    <Icon name="Trash2" size={16} />
+                  </Button>
+                </div>
               </div>
             ) : (
               <Button
