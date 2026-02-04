@@ -327,18 +327,19 @@ export default function ListingEditor() {
               Оформить подписку
             </Button>
             <Button onClick={handleSave} disabled={saving} size="lg">
-            {saving ? (
-              <>
-                <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                Сохранение...
-              </>
-            ) : (
-              <>
-                <Icon name="Save" size={18} className="mr-2" />
-                Сохранить изменения
-              </>
-            )}
-          </Button>
+              {saving ? (
+                <>
+                  <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                  Сохранение...
+                </>
+              ) : (
+                <>
+                  <Icon name="Save" size={18} className="mr-2" />
+                  Сохранить изменения
+                </>
+              )}
+            </Button>
+          </div>
         </div>
         
         <div className="space-y-6">
