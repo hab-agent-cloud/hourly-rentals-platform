@@ -51,7 +51,8 @@ def handler(event: dict, context) -> dict:
                     l.subscription_expires_at, l.created_by_employee_id, 
                     l.owner_id, l.square_meters, l.parking_type, 
                     l.parking_price_per_hour, l.short_title, l.trial_activated_at,
-                    o.full_name as owner_name, l.image_url, l.logo_url, l.rooms
+                    o.full_name as owner_name, l.image_url, l.logo_url, l.rooms,
+                    l.gold_gift_sent_at
                 FROM {schema}.listings l
                 LEFT JOIN {schema}.owners o ON l.owner_id = o.id
                 WHERE l.id = %s
@@ -94,7 +95,8 @@ def handler(event: dict, context) -> dict:
                 'owner_name': row[19],
                 'image_url': row[20],
                 'logo_url': row[21],
-                'rooms': row[22] if row[22] else []
+                'rooms': row[22] if row[22] else [],
+                'gold_gift_sent_at': row[23].isoformat() if row[23] else None
             }
             
             return {

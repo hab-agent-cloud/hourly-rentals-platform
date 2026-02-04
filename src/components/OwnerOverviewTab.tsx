@@ -3,6 +3,7 @@ import Icon from '@/components/ui/icon';
 import HotelSubscriptionCard from '@/components/HotelSubscriptionCard';
 import OwnerGiftsSection from '@/components/OwnerGiftsSection';
 import OwnerManagerCard from '@/components/OwnerManagerCard';
+import OwnerGoldPromoCard from '@/components/OwnerGoldPromoCard';
 
 interface Listing {
   id: number;
@@ -69,6 +70,7 @@ export default function OwnerOverviewTab({
       {ownerId && (
         <div className="flex flex-wrap gap-3">
           <OwnerManagerCard ownerId={ownerId} />
+          <OwnerGoldPromoCard />
           <OwnerGiftsSection 
             ownerId={ownerId} 
             onGiftActivated={onRefreshListings}

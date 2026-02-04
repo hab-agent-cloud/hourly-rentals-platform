@@ -14,6 +14,7 @@ import ListingManagerChat from '@/components/listing-editor/ListingManagerChat';
 
 const FUNC_URL = 'https://functions.poehali.dev/4d42288a-e311-4754-98a2-944dfc667bd2';
 const TRIAL_FUNC_URL = 'https://functions.poehali.dev/cc1242a8-bbc8-46d9-9bf4-03af08578a3b';
+const GOLD_GIFT_URL = 'https://functions.poehali.dev/5b823565-b6cc-4896-90a8-8ae451f797c3';
 
 export default function ListingEditor() {
   const { id } = useParams();
@@ -25,6 +26,7 @@ export default function ListingEditor() {
   const [activatingTrial, setActivatingTrial] = useState(false);
   const [showTrialDaysSelector, setShowTrialDaysSelector] = useState(false);
   const [trialDays, setTrialDays] = useState(14);
+  const [sendingGoldGift, setSendingGoldGift] = useState(false);
   const [listing, setListing] = useState<any>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -311,6 +313,45 @@ export default function ListingEditor() {
       setActivatingTrial(false);
     }
   };
+
+  const handleSendGoldGift = async () => {
+    if (!window.confirm('Отправить подарок "Пакет Золото на 14 дней" владельцу этого объекта?')) {
+      return;
+    }
+
+    setSendingGoldGift(true);
+    try {
+      const response = await fetch(GOLD_GIFT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listing_id: id })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        toast({
+          title: '🎁 Подарок отправлен!',
+          description: 'Владельцу продлена подписка на 14 дней'
+        });
+        await fetchListing();
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось отправить подарок',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Произошла ошибка при отправке подарка',
+        variant: 'destructive'
+      });
+    } finally {
+      setSendingGoldGift(false);
+    }
+  };
   
   if (loading) {
     return (
@@ -360,6 +401,26 @@ export default function ListingEditor() {
             </div>
           </div>
           <div className="flex gap-2 flex-col sm:flex-row flex-shrink-0">
+            {!listing.gold_gift_sent_at && listing.subscription_end && (
+              <Button 
+                className="bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 hover:from-yellow-600 hover:via-amber-600 hover:to-yellow-700 text-white font-bold shadow-lg hover:shadow-xl transition-all"
+                size="lg"
+                onClick={handleSendGoldGift}
+                disabled={sendingGoldGift}
+              >
+                {sendingGoldGift ? (
+                  <>
+                    <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                    Отправка...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Gift" size={18} className="mr-2" />
+                    Подарок: Пакет Золото на 14 дней
+                  </>
+                )}
+              </Button>
+            )}
             {!listing.trial_activated_at && (
               <div className="relative">
                 {!showTrialDaysSelector ? (
