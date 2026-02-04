@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface FormDataType {
   name: string;
@@ -177,12 +178,17 @@ export default function ListingBasicInfoSection({ formData, onFormChange }: List
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="parking_type">Тип парковки</Label>
-              <Input
-                id="parking_type"
-                value={formData.parking_type}
-                onChange={(e) => onFormChange('parking_type', e.target.value)}
-                placeholder="Подземная, Наземная, Нет"
-              />
+              <Select value={formData.parking_type} onValueChange={(value) => onFormChange('parking_type', value)}>
+                <SelectTrigger id="parking_type">
+                  <SelectValue placeholder="Выберите тип парковки" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="free">Бесплатная</SelectItem>
+                  <SelectItem value="paid">Платная</SelectItem>
+                  <SelectItem value="spontaneous">Стихийная</SelectItem>
+                  <SelectItem value="none">Пропустить</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div>
@@ -193,7 +199,9 @@ export default function ListingBasicInfoSection({ formData, onFormChange }: List
                 value={formData.parking_price_per_hour}
                 onChange={(e) => onFormChange('parking_price_per_hour', e.target.value)}
                 placeholder="100"
+                disabled={formData.parking_type !== 'paid'}
               />
+              <p className="text-xs text-muted-foreground mt-1">Поле активно только для платной парковки</p>
             </div>
           </div>
         </CardContent>

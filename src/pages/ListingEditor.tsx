@@ -8,6 +8,7 @@ import { api } from '@/lib/api';
 import ListingPhotoSection from '@/components/listing-editor/ListingPhotoSection';
 import ListingBasicInfoSection from '@/components/listing-editor/ListingBasicInfoSection';
 import ListingRoomsPhotosSection from '@/components/listing-editor/ListingRoomsPhotosSection';
+import ListingCategoriesSection from '@/components/listing-editor/ListingCategoriesSection';
 
 const FUNC_URL = 'https://functions.poehali.dev/4d42288a-e311-4754-98a2-944dfc667bd2';
 
@@ -316,7 +317,16 @@ export default function ListingEditor() {
               )}
             </div>
           </div>
-          <Button onClick={handleSave} disabled={saving} size="lg">
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={() => window.open(`/owner?extend_sub=${id}`, '_blank')}
+            >
+              <Icon name="CreditCard" size={18} className="mr-2" />
+              Оформить подписку
+            </Button>
+            <Button onClick={handleSave} disabled={saving} size="lg">
             {saving ? (
               <>
                 <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
@@ -347,6 +357,13 @@ export default function ListingEditor() {
             formData={formData}
             onFormChange={handleFormChange}
           />
+
+          {formData.type && (formData.type.toLowerCase().includes('отель') || formData.type.toLowerCase().includes('гостиница')) && (
+            <ListingCategoriesSection
+              rooms={formData.rooms}
+              onRoomsChange={(rooms) => setFormData({ ...formData, rooms })}
+            />
+          )}
 
           <ListingRoomsPhotosSection
             rooms={formData.rooms}
