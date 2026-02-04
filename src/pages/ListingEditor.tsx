@@ -10,6 +10,7 @@ import ListingBasicInfoSection from '@/components/listing-editor/ListingBasicInf
 import ListingRoomsPhotosSection from '@/components/listing-editor/ListingRoomsPhotosSection';
 import ListingCategoriesSection from '@/components/listing-editor/ListingCategoriesSection';
 import ListingGiftsSection from '@/components/listing-editor/ListingGiftsSection';
+import ListingManagerChat from '@/components/listing-editor/ListingManagerChat';
 
 const FUNC_URL = 'https://functions.poehali.dev/4d42288a-e311-4754-98a2-944dfc667bd2';
 const TRIAL_FUNC_URL = 'https://functions.poehali.dev/cc1242a8-bbc8-46d9-9bf4-03af08578a3b';
@@ -418,6 +419,14 @@ export default function ListingEditor() {
           />
 
           <ListingGiftsSection listingId={parseInt(id || '0')} />
+
+          {listing?.owner_id && listing?.owner_name && (
+            <ListingManagerChat
+              listingId={listing.id}
+              ownerId={listing.owner_id}
+              ownerName={listing.owner_name}
+            />
+          )}
 
           {formData.type && (formData.type.toLowerCase().includes('отель') || formData.type.toLowerCase().includes('гостиница')) && (
             <ListingCategoriesSection

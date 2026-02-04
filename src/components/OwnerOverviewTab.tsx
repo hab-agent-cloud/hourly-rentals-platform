@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Icon from '@/components/ui/icon';
 import HotelSubscriptionCard from '@/components/HotelSubscriptionCard';
 import OwnerGiftsSection from '@/components/OwnerGiftsSection';
+import OwnerManagerCard from '@/components/OwnerManagerCard';
 
 interface Listing {
   id: number;
@@ -64,6 +65,11 @@ export default function OwnerOverviewTab({
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Owner Manager Card */}
+      {ownerId && (
+        <OwnerManagerCard ownerId={ownerId} />
+      )}
+      
       {/* Owner Gifts Section */}
       {ownerId && (
         <OwnerGiftsSection 

@@ -40,13 +40,15 @@ def handler(event: dict, context) -> dict:
             
             cur.execute('''
                 SELECT 
-                    id, title, description, address, district, metro,
-                    phone, telegram, type, price, status, 
-                    subscription_expires_at, created_by_employee_id, 
-                    owner_id, square_meters, parking_type, 
-                    parking_price_per_hour, short_title, trial_activated_at
-                FROM listings
-                WHERE id = %s
+                    l.id, l.title, l.description, l.address, l.district, l.metro,
+                    l.phone, l.telegram, l.type, l.price, l.status, 
+                    l.subscription_expires_at, l.created_by_employee_id, 
+                    l.owner_id, l.square_meters, l.parking_type, 
+                    l.parking_price_per_hour, l.short_title, l.trial_activated_at,
+                    o.full_name as owner_name
+                FROM listings l
+                LEFT JOIN owners o ON l.owner_id = o.id
+                WHERE l.id = %s
             ''', (listing_id,))
             
             row = cur.fetchone()
@@ -81,7 +83,8 @@ def handler(event: dict, context) -> dict:
                 'parking_type': row[15],
                 'parking_price_per_hour': row[16],
                 'short_title': row[17],
-                'trial_activated_at': row[18].isoformat() if row[18] else None
+                'trial_activated_at': row[18].isoformat() if row[18] else None,
+                'owner_name': row[19]
             }
             
             return {

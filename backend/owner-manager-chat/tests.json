@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "Send message from owner",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "owner_id": 1,
+        "manager_id": 1,
+        "sender_type": "owner",
+        "message": "Здравствуйте, у меня вопрос по объекту"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message_id": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get messages for owner",
+      "method": "GET",
+      "path": "/?owner_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "messages": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
