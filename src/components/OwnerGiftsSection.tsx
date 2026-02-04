@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
 const OWNER_GIFTS_URL = 'https://functions.poehali.dev/ef04f7b6-7c8d-4345-b0ba-11c1121471be';
+const ACTIVATE_TRIAL_URL = 'https://functions.poehali.dev/cc1242a8-bbc8-46d9-9bf4-03af08578a3b';
 
 interface Gift {
   id: number;
@@ -28,6 +29,8 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState<number | null>(null);
+  const [trialActivated, setTrialActivated] = useState(false);
+  const [activatingTrial, setActivatingTrial] = useState(false);
 
   const fetchGifts = async () => {
     setLoading(true);
@@ -36,6 +39,9 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
       const data = await response.json();
       if (data.gifts) {
         setGifts(data.gifts);
+      }
+      if (data.trial_activated !== undefined) {
+        setTrialActivated(data.trial_activated);
       }
     } catch (error) {
       console.error('Ошибка загрузки подарков:', error);
@@ -92,6 +98,48 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
     }
   };
 
+  const handleActivateTrial = async () => {
+    setActivatingTrial(true);
+    try {
+      const response = await fetch(ACTIVATE_TRIAL_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ owner_id: ownerId })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast({
+          title: '🎉 Пробная подписка активирована!',
+          description: data.message
+        });
+        
+        // Отмечаем, что пробная подписка активирована
+        setTrialActivated(true);
+        
+        // Уведомляем родительский компонент
+        if (onGiftActivated) {
+          onGiftActivated();
+        }
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.message || data.error || 'Не удалось активировать пробную подписку',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Произошла ошибка при активации пробной подписки',
+        variant: 'destructive'
+      });
+    } finally {
+      setActivatingTrial(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card className="border-purple-200 bg-gradient-to-br from-white to-purple-50">
@@ -106,6 +154,12 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
   }
 
   const hasGifts = gifts.length > 0;
+  const showTrialOffer = !hasGifts && !trialActivated;
+
+  // Если нет подарков и пробная подписка уже активирована, не показываем карточку
+  if (!hasGifts && trialActivated) {
+    return null;
+  }
 
   return (
     <Card className="border-purple-300 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 shadow-lg">
@@ -125,7 +179,7 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        {!hasGifts && (
+        {showTrialOffer && (
           <div className="relative overflow-hidden bg-white rounded-xl border-2 border-purple-200 shadow-md hover:shadow-lg transition-all">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-bl-full" />
             
@@ -145,12 +199,22 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
                 </div>
                 
                 <Button
-                  onClick={() => window.open('https://t.me/+QgiLIa1gFRY4Y2Iy', '_blank')}
+                  onClick={handleActivateTrial}
+                  disabled={activatingTrial}
                   className="w-full sm:w-auto bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold shadow-lg hover:shadow-xl transition-all animate-pulse"
                   size="lg"
                 >
-                  <Icon name="Sparkles" size={18} className="mr-2" />
-                  Активировать пробную подписку
+                  {activatingTrial ? (
+                    <>
+                      <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                      Активация...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="Sparkles" size={18} className="mr-2" />
+                      Активировать пробную подписку
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

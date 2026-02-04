@@ -5,24 +5,24 @@
       "method": "POST",
       "path": "/",
       "body": {
+        "owner_id": 1,
         "listing_id": 1
       },
       "expectedStatus": 200,
       "expectedBody": {
         "success": true,
-        "message": "string",
-        "expires_at": "string"
+        "message": "string"
       },
       "bodyMatcher": "partial"
     },
     {
-      "name": "Test missing listing_id",
+      "name": "Test missing owner_id",
       "method": "POST",
       "path": "/",
       "body": {},
       "expectedStatus": 400,
       "expectedBody": {
-        "error": "listing_id is required"
+        "error": "owner_id is required"
       }
     }
   ]

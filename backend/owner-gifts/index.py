@@ -40,14 +40,23 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
-            cur.execute('''
+            schema = 't_p39732784_hourly_rentals_platf'
+            
+            # Проверяем, активировал ли владелец пробную подписку
+            cur.execute(f'''
+                SELECT trial_activated FROM {schema}.owners WHERE id = %s
+            ''', (owner_id,))
+            owner_info = cur.fetchone()
+            trial_activated = owner_info[0] if owner_info else False
+            
+            cur.execute(f'''
                 SELECT 
                     g.id, g.gift_type, g.gift_value, g.status, 
                     g.created_at, g.activated_at, g.description,
                     g.listing_id,
                     l.title as listing_name
-                FROM gifts g
-                LEFT JOIN listings l ON g.listing_id = l.id
+                FROM {schema}.gifts g
+                LEFT JOIN {schema}.listings l ON g.listing_id = l.id
                 WHERE g.owner_id = %s AND g.status = 'pending'
                 ORDER BY g.created_at DESC
             ''', (owner_id,))
@@ -73,7 +82,10 @@ def handler(event: dict, context) -> dict:
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'gifts': gifts}),
+                'body': json.dumps({
+                    'gifts': gifts,
+                    'trial_activated': trial_activated
+                }),
                 'isBase64Encoded': False
             }
         
