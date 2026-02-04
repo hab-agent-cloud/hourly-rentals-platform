@@ -23,6 +23,8 @@ export default function ListingEditor() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activatingTrial, setActivatingTrial] = useState(false);
+  const [showTrialDaysSelector, setShowTrialDaysSelector] = useState(false);
+  const [trialDays, setTrialDays] = useState(14);
   const [listing, setListing] = useState<any>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -280,7 +282,7 @@ export default function ListingEditor() {
       const response = await fetch(TRIAL_FUNC_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listing_id: id })
+        body: JSON.stringify({ listing_id: id, days: trialDays })
       });
       
       const data = await response.json();
@@ -288,8 +290,9 @@ export default function ListingEditor() {
       if (response.ok && data.success) {
         toast({
           title: '🎉 Пробная подписка активирована!',
-          description: 'Ваш объект активен на 14 дней бесплатно'
+          description: `Ваш объект активен на ${trialDays} ${trialDays === 1 ? 'день' : trialDays < 5 ? 'дня' : 'дней'} бесплатно`
         });
+        setShowTrialDaysSelector(false);
         await fetchListing();
       } else {
         toast({
@@ -358,24 +361,60 @@ export default function ListingEditor() {
           </div>
           <div className="flex gap-2 flex-col sm:flex-row">
             {!listing.trial_activated_at && (
-              <Button 
-                className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold shadow-lg hover:shadow-xl transition-all"
-                size="lg"
-                onClick={handleActivateTrial}
-                disabled={activatingTrial}
-              >
-                {activatingTrial ? (
-                  <>
-                    <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
-                    Активация...
-                  </>
-                ) : (
-                  <>
+              <div className="relative">
+                {!showTrialDaysSelector ? (
+                  <Button 
+                    className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold shadow-lg hover:shadow-xl transition-all"
+                    size="lg"
+                    onClick={() => setShowTrialDaysSelector(true)}
+                  >
                     <Icon name="Sparkles" size={18} className="mr-2" />
-                    14 дней бесплатно • Активировать
-                  </>
+                    Бесплатный доступ • Активировать
+                  </Button>
+                ) : (
+                  <div className="flex gap-2 items-center bg-gradient-to-r from-purple-100 to-pink-100 p-3 rounded-lg border-2 border-purple-300">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-semibold text-purple-900">Дней:</label>
+                      <input 
+                        type="number"
+                        min="1"
+                        max="14"
+                        value={trialDays}
+                        onChange={(e) => setTrialDays(Math.min(14, Math.max(1, parseInt(e.target.value) || 1)))}
+                        className="w-16 px-2 py-1 text-center border-2 border-purple-300 rounded font-bold text-purple-900"
+                      />
+                    </div>
+                    <Button 
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold"
+                      size="sm"
+                      onClick={handleActivateTrial}
+                      disabled={activatingTrial}
+                    >
+                      {activatingTrial ? (
+                        <>
+                          <Icon name="Loader2" size={16} className="mr-1 animate-spin" />
+                          Активация...
+                        </>
+                      ) : (
+                        <>
+                          <Icon name="Check" size={16} className="mr-1" />
+                          Активировать
+                        </>
+                      )}
+                    </Button>
+                    <Button 
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setShowTrialDaysSelector(false);
+                        setTrialDays(14);
+                      }}
+                    >
+                      <Icon name="X" size={16} />
+                    </Button>
+                  </div>
                 )}
-              </Button>
+              </div>
             )}
             <Button 
               variant="outline" 

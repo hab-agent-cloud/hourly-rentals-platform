@@ -3,7 +3,7 @@ import os
 import psycopg2
 from datetime import datetime, timedelta
 
-def send_manager_notification(cur, owner_id: int, listing_id: int, owner_name: str, listing_title: str, new_expiry: str) -> None:
+def send_manager_notification(cur, owner_id: int, listing_id: int, owner_name: str, listing_title: str, new_expiry: str, days: int) -> None:
     '''Отправляет уведомление менеджеру в систему сообщений'''
     schema = 't_p39732784_hourly_rentals_platf'
     
@@ -18,11 +18,12 @@ def send_manager_notification(cur, owner_id: int, listing_id: int, owner_name: s
     
     manager_id = result[0]
     
+    days_text = 'день' if days == 1 else 'дня' if days < 5 else 'дней'
     message = f"🎉 Активирована пробная подписка!\n\n"
     message += f"👤 Владелец: {owner_name}\n"
     message += f"🏨 Объект: {listing_title}\n"
     message += f"📅 Подписка до: {new_expiry}\n\n"
-    message += f"Владелец получил 14 дней бесплатной подписки."
+    message += f"Владелец получил {days} {days_text} бесплатной подписки."
     
     try:
         cur.execute('''
@@ -34,7 +35,7 @@ def send_manager_notification(cur, owner_id: int, listing_id: int, owner_name: s
         print(f'Manager notification error: {e}')
 
 def handler(event: dict, context) -> dict:
-    '''API для активации бесплатной пробной подписки на 14 дней (одноразовая акция для владельца)'''
+    '''API для активации бесплатной пробной подписки на 1-14 дней (одноразовая акция для владельца)'''
     
     method = event.get('httpMethod', 'GET')
     
@@ -72,6 +73,11 @@ def handler(event: dict, context) -> dict:
         body = json.loads(body_str)
         owner_id = body.get('owner_id')
         listing_id = body.get('listing_id')
+        days = body.get('days', 14)
+        
+        # Валидация количества дней (от 1 до 14)
+        if not isinstance(days, int) or days < 1 or days > 14:
+            days = 14
         
         if not owner_id:
             return {
@@ -147,9 +153,9 @@ def handler(event: dict, context) -> dict:
             listing_title = listing[1]
             now = datetime.now()
             if current_expiry and current_expiry > now:
-                new_expiry = current_expiry + timedelta(days=14)
+                new_expiry = current_expiry + timedelta(days=days)
             else:
-                new_expiry = now + timedelta(days=14)
+                new_expiry = now + timedelta(days=days)
             
             cur.execute(f'''
                 UPDATE {schema}.listings 
@@ -157,7 +163,8 @@ def handler(event: dict, context) -> dict:
                 WHERE id = %s
             ''', (new_expiry, listing_id))
             
-            message = f'Подписка для объекта продлена на 14 дней до {new_expiry.strftime("%d.%m.%Y")}'
+            days_text = 'день' if days == 1 else 'дня' if days < 5 else 'дней'
+            message = f'Подписка для объекта продлена на {days} {days_text} до {new_expiry.strftime("%d.%m.%Y")}'
         else:
             # Если listing_id не указан, продлеваем подписку для первого активного объекта
             cur.execute(f'''
@@ -185,9 +192,9 @@ def handler(event: dict, context) -> dict:
             now = datetime.now()
             
             if current_expiry and current_expiry > now:
-                new_expiry = current_expiry + timedelta(days=14)
+                new_expiry = current_expiry + timedelta(days=days)
             else:
-                new_expiry = now + timedelta(days=14)
+                new_expiry = now + timedelta(days=days)
             
             cur.execute(f'''
                 UPDATE {schema}.listings 
@@ -195,7 +202,8 @@ def handler(event: dict, context) -> dict:
                 WHERE id = %s
             ''', (new_expiry, listing_id))
             
-            message = f'Пробная подписка активирована на 14 дней до {new_expiry.strftime("%d.%m.%Y")}'
+            days_text = 'день' if days == 1 else 'дня' if days < 5 else 'дней'
+            message = f'Пробная подписка активирована на {days} {days_text} до {new_expiry.strftime("%d.%m.%Y")}'
         
         # Отмечаем, что владелец активировал пробную подписку
         cur.execute(f'''
@@ -211,7 +219,8 @@ def handler(event: dict, context) -> dict:
             listing_id=listing_id,
             owner_name=owner_name,
             listing_title=listing_title,
-            new_expiry=new_expiry.strftime('%d.%m.%Y')
+            new_expiry=new_expiry.strftime('%d.%m.%Y'),
+            days=days
         )
         
         conn.commit()
