@@ -390,9 +390,9 @@ def handler(event: dict, context) -> dict:
             bonus_amount = 0
             
             if 'отель' in listing_type or 'гостиница' in listing_type or 'hotel' in listing_type:
-                bonus_amount = 200
-            elif 'апартамент' in listing_type or 'apartment' in listing_type or 'квартира' in listing_type:
                 bonus_amount = 100
+            elif 'апартамент' in listing_type or 'apartment' in listing_type or 'квартира' in listing_type:
+                bonus_amount = 50
             
             if bonus_amount > 0:
                 cur.execute("""

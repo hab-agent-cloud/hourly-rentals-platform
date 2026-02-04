@@ -69,10 +69,10 @@ export default function Career() {
                     </h3>
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                       <div className="text-3xl font-bold text-green-600 mb-2">
-                        20 000 ₽
+                        10 000 - 20 000 ₽
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        100 ₽ за каждый объект × 200 объектов
+                        50 ₽ за апартамент, 100 ₽ за отель × 200 объектов
                       </p>
                     </div>
                   </div>

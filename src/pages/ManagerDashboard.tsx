@@ -10,6 +10,7 @@ import ManagerCashSection from '@/components/manager/ManagerCashSection';
 import ManageLimitsDialog from '@/components/om/ManageLimitsDialog';
 import TeamAnalytics from '@/components/om/TeamAnalytics';
 import MessagesDialog from '@/components/manager/MessagesDialog';
+import OwnersMessagesDialog from '@/components/manager/OwnersMessagesDialog';
 import ManagerTasksList from '@/components/manager/ManagerTasksList';
 
 const FUNC_URLS = {
@@ -296,6 +297,7 @@ export default function ManagerDashboard() {
             <Icon name="FileText" size={16} className="sm:mr-2" />
             <span className="hidden sm:inline">Скрипты</span>
           </Button>
+          <OwnersMessagesDialog adminId={adminId!} />
           <MessagesDialog 
             adminId={adminId!} 
             role={managerData.role === 'operational_manager' ? 'om' : managerData.role === 'unit_manager' ? 'um' : 'manager'} 
