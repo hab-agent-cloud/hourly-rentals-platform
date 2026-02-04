@@ -20,6 +20,7 @@ def handler(event: dict, context) -> dict:
         }
     
     dsn = os.environ.get('DATABASE_URL')
+    schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
     
@@ -43,7 +44,7 @@ def handler(event: dict, context) -> dict:
             
             print(f"[DEBUG] Executing query for listing_id: {listing_id}")
             
-            cur.execute('''
+            cur.execute(f'''
                 SELECT 
                     l.id, l.title, l.description, l.address, l.district, l.metro,
                     l.phone, l.telegram, l.type, l.price, l.status, 
@@ -51,8 +52,8 @@ def handler(event: dict, context) -> dict:
                     l.owner_id, l.square_meters, l.parking_type, 
                     l.parking_price_per_hour, l.short_title, l.trial_activated_at,
                     o.full_name as owner_name, l.image_url, l.logo_url, l.rooms
-                FROM listings l
-                LEFT JOIN owners o ON l.owner_id = o.id
+                FROM {schema}.listings l
+                LEFT JOIN {schema}.owners o ON l.owner_id = o.id
                 WHERE l.id = %s
             ''', (listing_id,))
             
@@ -167,7 +168,7 @@ def handler(event: dict, context) -> dict:
             params.append(listing_id)
             
             query = f'''
-                UPDATE listings
+                UPDATE {schema}.listings
                 SET {', '.join(updates)}
                 WHERE id = %s
             '''

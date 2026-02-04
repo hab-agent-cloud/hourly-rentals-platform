@@ -35,6 +35,7 @@ def handler(event: dict, context) -> dict:
     auth_header = event.get('headers', {}).get('X-Authorization', '')
     token = auth_header.replace('Bearer ', '') if auth_header else ''
     
+    schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
@@ -45,14 +46,14 @@ def handler(event: dict, context) -> dict:
             
             if owner_id:
                 # Получить отели конкретного владельца (доступно всем с токеном)
-                cur.execute("""
+                cur.execute(f"""
                     SELECT id, title, city, district, address, owner_id, is_archived, auction,
                            type, image_url, subscription_expires_at, moderation_status,
                            moderation_comment, price, square_meters, logo_url, features, 
                            metro, metro_walk, has_parking, min_hours, lat, lng,
                            expert_photo_rating, expert_photo_feedback,
                            expert_fullness_rating, expert_fullness_feedback
-                    FROM listings
+                    FROM {schema}.listings
                     WHERE owner_id = %s AND is_archived = FALSE
                     ORDER BY title
                 """, (owner_id,))
@@ -67,7 +68,7 @@ def handler(event: dict, context) -> dict:
                         f"""SELECT id, listing_id, type, price, description, images,
                                    expert_photo_rating, expert_photo_feedback,
                                    expert_fullness_rating, expert_fullness_feedback
-                            FROM rooms 
+                            FROM {schema}.rooms 
                             WHERE listing_id IN ({placeholders})
                             ORDER BY listing_id, type""",
                         listing_ids
@@ -100,12 +101,12 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 
-                cur.execute("""
+                cur.execute(f"""
                     SELECT 
                         l.id, l.title, l.city, l.district, l.owner_id, l.is_archived,
                         o.full_name as owner_name
-                    FROM listings l
-                    LEFT JOIN owners o ON o.id = l.owner_id
+                    FROM {schema}.listings l
+                    LEFT JOIN {schema}.owners o ON o.id = l.owner_id
                     WHERE l.is_archived = FALSE
                     ORDER BY l.title
                 """)
@@ -141,13 +142,13 @@ def handler(event: dict, context) -> dict:
                 }
             
             # Получаем старого владельца перед обновлением
-            cur.execute("SELECT owner_id FROM listings WHERE id = %s", (listing_id,))
+            cur.execute(f"SELECT owner_id FROM {schema}.listings WHERE id = %s", (listing_id,))
             old_owner = cur.fetchone()
             old_owner_id = old_owner['owner_id'] if old_owner else None
             
             # Если owner_id = None, значит отвязываем отель
-            cur.execute("""
-                UPDATE listings 
+            cur.execute(f"""
+                UPDATE {schema}.listings 
                 SET owner_id = %s
                 WHERE id = %s
                 RETURNING id, title, owner_id
@@ -157,16 +158,16 @@ def handler(event: dict, context) -> dict:
             
             # Если привязываем к новому владельцу (не отвязываем), начисляем бонус 5000₽
             if owner_id is not None and old_owner_id != owner_id:
-                cur.execute("""
-                    UPDATE owners 
+                cur.execute(f"""
+                    UPDATE {schema}.owners 
                     SET bonus_balance = bonus_balance + 5000
                     WHERE id = %s
                 """, (owner_id,))
                 
-                cur.execute("""
-                    INSERT INTO transactions (owner_id, amount, type, description, balance_after)
+                cur.execute(f"""
+                    INSERT INTO {schema}.transactions (owner_id, amount, type, description, balance_after)
                     VALUES (%s, %s, 'bonus', %s, 
-                            (SELECT balance + bonus_balance FROM owners WHERE id = %s))
+                            (SELECT balance + bonus_balance FROM {schema}.owners WHERE id = %s))
                 """, (owner_id, 5000, f'Приветственный бонус за добавление объекта "{result["title"]}"', owner_id))
             
             conn.commit()
