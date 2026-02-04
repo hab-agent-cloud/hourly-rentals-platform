@@ -66,6 +66,7 @@ def handler(event: dict, context) -> dict:
                     pp.id,
                     pp.listing_id,
                     l.title as listing_title,
+                    l.auction as current_position,
                     pp.owner_id,
                     pp.package_type,
                     pp.price_paid,
@@ -93,7 +94,7 @@ def handler(event: dict, context) -> dict:
                     'price_paid': row['price_paid'],
                     'start_date': row['start_date'].isoformat() if is_owner else None,
                     'end_date': row['end_date'].isoformat() if is_owner else None,
-                    'current_position': get_daily_position(row['package_type'], row['start_date'])
+                    'current_position': row['current_position'] or 0
                 }
                 
                 active_packages.append(package_data)
