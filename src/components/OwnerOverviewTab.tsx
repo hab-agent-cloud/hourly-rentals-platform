@@ -80,11 +80,14 @@ export default function OwnerOverviewTab({
       {/* Active Listings */}
       {activeListings.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <Icon name="Building" size={20} />
-            Активные объекты ({activeListings.length})
+          <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2 text-gray-900">
+            <div className="bg-gradient-to-br from-purple-600 to-pink-600 p-2 rounded-lg">
+              <Icon name="Building" size={18} className="text-white" />
+            </div>
+            Активные объекты
+            <span className="text-sm font-normal bg-gradient-to-r from-purple-100 to-pink-100 px-2.5 py-0.5 rounded-full text-purple-700">({activeListings.length})</span>
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {activeListings.map((listing) => (
               <HotelSubscriptionCard
                 key={listing.id}
@@ -103,11 +106,14 @@ export default function OwnerOverviewTab({
       {/* Archived Listings */}
       {archivedListings.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-muted-foreground">
-            <Icon name="Archive" size={20} />
-            Архив ({archivedListings.length})
+          <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2 text-gray-500">
+            <div className="bg-gray-300 p-2 rounded-lg">
+              <Icon name="Archive" size={18} className="text-gray-600" />
+            </div>
+            Архив
+            <span className="text-sm font-normal bg-gray-100 px-2.5 py-0.5 rounded-full text-gray-600">({archivedListings.length})</span>
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 opacity-60">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 opacity-60">
             {archivedListings.map((listing) => (
               <HotelSubscriptionCard
                 key={listing.id}

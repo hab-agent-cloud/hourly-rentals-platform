@@ -46,7 +46,7 @@ export default function OwnerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 pb-6">
       <OwnerDashboardHeader
         owner={owner}
         onLogout={handleLogout}
@@ -57,17 +57,7 @@ export default function OwnerDashboard() {
         transactions={transactions}
       />
 
-      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-        <div className="mb-6">
-          <Button
-            onClick={() => navigate('/')}
-            size="lg"
-            className="w-full sm:w-auto text-lg font-semibold h-14 px-8"
-          >
-            <Icon name="ArrowLeft" size={24} className="mr-2" />
-            Все объекты
-          </Button>
-        </div>
+      <main className="container mx-auto px-3 sm:px-4 py-3 sm:py-6 max-w-7xl">
 
         {listings.length === 0 ? (
           <Card className="text-center py-12">
@@ -77,21 +67,30 @@ export default function OwnerDashboard() {
             </CardHeader>
           </Card>
         ) : (
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'promotion' | 'expert')} className="space-y-4 sm:space-y-6">
-            <TabsList className="grid w-full mx-auto grid-cols-3 gap-1 sm:gap-0 h-auto p-1 sm:p-1">
-              <TabsTrigger value="overview" className="flex-col sm:flex-row gap-1 sm:gap-2 h-auto py-2 sm:py-2 text-xs sm:text-sm">
-                <Icon name="Building" size={14} className="sm:mr-2" />
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'promotion' | 'expert')} className="space-y-3 sm:space-y-4">
+            <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-white/60 backdrop-blur-sm border border-purple-200 shadow-sm">
+              <TabsTrigger 
+                value="overview" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2.5 sm:py-3 text-xs sm:text-sm font-medium data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all"
+              >
+                <Icon name="Building" size={18} />
                 <span className="hidden sm:inline">Мои объекты</span>
-                <span className="sm:hidden">Объекты</span>
+                <span className="sm:hidden text-[10px]">Объекты</span>
               </TabsTrigger>
-              <TabsTrigger value="promotion" className="flex-col sm:flex-row gap-1 sm:gap-2 h-auto py-2 sm:py-2 text-xs sm:text-sm">
-                <Icon name="TrendingUp" size={14} className="sm:mr-2" />
+              <TabsTrigger 
+                value="promotion" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2.5 sm:py-3 text-xs sm:text-sm font-medium data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all"
+              >
+                <Icon name="TrendingUp" size={18} />
                 <span className="hidden sm:inline">Продвижение</span>
-                <span className="sm:hidden">ТОП</span>
+                <span className="sm:hidden text-[10px]">ТОП</span>
               </TabsTrigger>
-              <TabsTrigger value="expert" className="flex-col sm:flex-row gap-1 sm:gap-2 h-auto py-2 sm:py-2 text-xs sm:text-sm">
-                <Icon name="Award" size={14} className="sm:mr-2" />
-                <span>Эксперт</span>
+              <TabsTrigger 
+                value="expert" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2.5 sm:py-3 text-xs sm:text-sm font-medium data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all"
+              >
+                <Icon name="Award" size={18} />
+                <span className="text-[10px] sm:text-sm">Эксперт</span>
               </TabsTrigger>
             </TabsList>
 

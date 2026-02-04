@@ -103,66 +103,69 @@ export default function HotelSubscriptionCard({ listing, subscriptionInfo, onExt
   const firstImage = getFirstImage();
 
   return (
-    <Card className={`overflow-hidden ${isExpired ? 'opacity-60' : ''}`}>
-      <div className="relative h-40 sm:h-48 bg-gradient-to-br from-purple-100 to-pink-100">
+    <Card className={`overflow-hidden hover:shadow-xl transition-all duration-300 border-2 ${isExpired ? 'opacity-60 border-gray-300' : 'border-purple-200 hover:border-purple-400'}`}>
+      <div className="relative h-44 sm:h-52 bg-gradient-to-br from-purple-100 to-pink-100 overflow-hidden group">
         {firstImage ? (
           <img 
             src={firstImage} 
             alt={listing.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
           <div className="flex items-center justify-center h-full text-4xl">
             🏨
           </div>
         )}
-        <div className="absolute top-2 right-2 flex gap-2">
+        <div className="absolute top-2 right-2 flex gap-1.5">
           {listing.moderation_status === 'pending' ? (
-            <Badge className="bg-orange-500">
+            <Badge className="bg-orange-500 shadow-lg backdrop-blur-sm bg-opacity-95 text-xs">
               На проверке
             </Badge>
           ) : listing.moderation_status === 'rejected' ? (
-            <Badge variant="destructive" className="bg-red-600">
+            <Badge variant="destructive" className="bg-red-600 shadow-lg backdrop-blur-sm bg-opacity-95 text-xs">
               Отклонено
             </Badge>
           ) : isExpired ? (
-            <Badge variant="destructive" className="bg-red-600">
+            <Badge variant="destructive" className="bg-red-600 shadow-lg backdrop-blur-sm bg-opacity-95 text-xs">
               Неактивно
             </Badge>
           ) : isExpiringSoon ? (
-            <Badge className="bg-orange-500">
+            <Badge className="bg-orange-500 shadow-lg backdrop-blur-sm bg-opacity-95 text-xs animate-pulse">
               Заканчивается
             </Badge>
           ) : (
-            <Badge className="bg-green-600">
+            <Badge className="bg-green-600 shadow-lg backdrop-blur-sm bg-opacity-95 text-xs">
               Активно
             </Badge>
           )}
         </div>
       </div>
 
-      <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+      <CardContent className="p-3 sm:p-4 space-y-2.5 sm:space-y-3">
         <div>
-          <h3 className="font-bold text-base sm:text-lg">{listing.title}</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground">{listing.city}, {listing.district}</p>
-          <div className="flex gap-1.5 sm:gap-2 mt-1">
-            <Badge variant="outline" className="text-[10px] sm:text-xs px-1.5 sm:px-2">
+          <h3 className="font-bold text-base sm:text-lg text-gray-900 line-clamp-1">{listing.title}</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
+            <Icon name="MapPin" size={12} />
+            {listing.city}, {listing.district}
+          </p>
+          <div className="flex gap-1.5 mt-2">
+            <Badge variant="outline" className="text-[10px] sm:text-xs px-2 py-0.5 font-medium border-purple-300">
               {listing.type === 'hotel' ? 'Отель' : 'Апартаменты'}
             </Badge>
-            <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2">
+            <Badge className="text-[10px] sm:text-xs px-2 py-0.5 bg-gradient-to-r from-purple-600 to-pink-600 font-medium">
               Позиция #{listing.auction || '—'}
             </Badge>
           </div>
         </div>
 
         {daysLeft !== null && !isExpired && (
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-2 sm:p-3 rounded-lg">
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-2.5 sm:p-3 rounded-lg border border-purple-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Icon name="Clock" size={16} className="text-purple-600" />
-                <span className="text-xs sm:text-sm font-medium">Осталось:</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-700">Осталось:</span>
               </div>
-              <div className={`text-right ${isExpiringSoon ? 'text-orange-600' : 'text-purple-600'}`}>
+              <div className={`text-right ${isExpiringSoon ? 'text-orange-600 animate-pulse' : 'text-purple-600'}`}>
                 <div className="font-bold text-sm sm:text-base">{timeLeft}</div>
                 <div className="text-[10px] sm:text-xs text-muted-foreground">{daysLeft} дней</div>
               </div>
