@@ -68,6 +68,7 @@ export default function OwnerManagerCard({ ownerId }: OwnerManagerCardProps) {
   }
 
   const hasManager = !!manager;
+  const displayManager = manager || { id: 0, name: 'Поддержка', phone: '+7-800-123-45-67' };
 
   return (
     <>
@@ -75,7 +76,7 @@ export default function OwnerManagerCard({ ownerId }: OwnerManagerCardProps) {
         <Card className="border-2 border-blue-300 bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 max-w-xs">
           <CardContent className="p-4">
             <div className="bg-white rounded-xl p-3 border-2 border-blue-200 shadow-sm">
-            {hasManager ? (
+            {true ? (
               <>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
@@ -85,16 +86,16 @@ export default function OwnerManagerCard({ ownerId }: OwnerManagerCardProps) {
                     <div>
                       <div className="flex items-center gap-1">
                         <Icon name="Headphones" size={14} className="text-blue-600" />
-                        <span className="text-xs font-medium text-blue-600">Ваш менеджер</span>
+                        <span className="text-xs font-medium text-blue-600">{hasManager ? 'Ваш менеджер' : 'Поддержка'}</span>
                       </div>
-                      <h3 className="font-bold text-sm text-blue-900">{manager.name}</h3>
-                      {manager.phone && (
+                      <h3 className="font-bold text-sm text-blue-900">{displayManager.name}</h3>
+                      {displayManager.phone && (
                         <a 
-                          href={`tel:${manager.phone}`}
+                          href={`tel:${displayManager.phone}`}
                           className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 font-medium"
                         >
                           <Icon name="Phone" size={12} />
-                          {manager.phone}
+                          {displayManager.phone}
                         </a>
                       )}
                     </div>
@@ -121,40 +122,18 @@ export default function OwnerManagerCard({ ownerId }: OwnerManagerCardProps) {
                 </Button>
               </>
             ) : (
-              <>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-2 rounded-full shadow-md">
-                    <Icon name="UserPlus" size={18} className="text-white" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <Icon name="Headphones" size={14} className="text-blue-600" />
-                      <span className="text-xs font-medium text-blue-600">Нужна помощь?</span>
-                    </div>
-                    <h3 className="font-bold text-sm text-blue-900">Позвоните нам</h3>
-                  </div>
-                </div>
-                
-                <Button
-                  onClick={() => window.location.href = 'tel:88001234567'}
-                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold shadow-md hover:shadow-lg transition-all"
-                  size="sm"
-                >
-                  <Icon name="Phone" size={16} className="mr-1" />
-                  8-800-123-45-67
-                </Button>
-              </>
+              <></>
             )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {showChat && hasManager && (
+      {showChat && (
         <OwnerManagerChat
           ownerId={ownerId}
-          managerId={manager.id}
-          managerName={manager.name}
+          managerId={displayManager.id}
+          managerName={displayManager.name}
           onClose={() => {
             setShowChat(false);
             fetchManagerInfo();
