@@ -65,9 +65,7 @@ export default function OwnerManagerCard({ ownerId }: OwnerManagerCardProps) {
     );
   }
 
-  if (!manager) {
-    return null;
-  }
+  const hasManager = !!manager;
 
   return (
     <>
@@ -85,58 +83,87 @@ export default function OwnerManagerCard({ ownerId }: OwnerManagerCardProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-white rounded-xl p-4 border-2 border-blue-200">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="bg-blue-100 p-2 rounded-full">
-                  <Icon name="User" size={24} className="text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg text-blue-900">{manager.name}</h3>
-                  {manager.phone && (
-                    <a 
-                      href={`tel:${manager.phone}`}
-                      className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                    >
-                      <Icon name="Phone" size={14} />
-                      {manager.phone}
-                    </a>
+            {hasManager ? (
+              <>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-100 p-2 rounded-full">
+                      <Icon name="User" size={24} className="text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg text-blue-900">{manager.name}</h3>
+                      {manager.phone && (
+                        <a 
+                          href={`tel:${manager.phone}`}
+                          className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Icon name="Phone" size={14} />
+                          {manager.phone}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  {unreadCount > 0 && (
+                    <Badge className="bg-red-500 text-white">
+                      {unreadCount} нов.
+                    </Badge>
                   )}
                 </div>
-              </div>
-              {unreadCount > 0 && (
-                <Badge className="bg-red-500 text-white">
-                  {unreadCount} нов.
-                </Badge>
-              )}
-            </div>
-            
-            <Button
-              onClick={() => setShowChat(true)}
-              className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold shadow-md hover:shadow-lg transition-all"
-              size="lg"
-            >
-              <Icon name="MessageCircle" size={20} className="mr-2" />
-              Написать сообщение
-              {unreadCount > 0 && (
-                <Badge className="ml-2 bg-white text-blue-600">
-                  {unreadCount}
-                </Badge>
-              )}
-            </Button>
+                
+                <Button
+                  onClick={() => setShowChat(true)}
+                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold shadow-md hover:shadow-lg transition-all"
+                  size="lg"
+                >
+                  <Icon name="MessageCircle" size={20} className="mr-2" />
+                  Написать сообщение
+                  {unreadCount > 0 && (
+                    <Badge className="ml-2 bg-white text-blue-600">
+                      {unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="bg-blue-100 p-2 rounded-full">
+                    <Icon name="UserPlus" size={24} className="text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-blue-900">Менеджер ещё не назначен</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Свяжитесь с поддержкой
+                    </p>
+                  </div>
+                </div>
+                
+                <Button
+                  onClick={() => window.open('https://t.me/+QgiLIa1gFRY4Y2Iy', '_blank')}
+                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold shadow-md hover:shadow-lg transition-all"
+                  size="lg"
+                >
+                  <Icon name="MessageCircle" size={20} className="mr-2" />
+                  Написать в поддержку
+                </Button>
+              </>
+            )}
           </div>
           
           <div className="bg-blue-100 border-2 border-blue-200 rounded-xl p-3">
             <div className="flex items-start gap-2">
               <Icon name="Info" size={18} className="text-blue-600 mt-0.5" />
               <p className="text-xs text-blue-900">
-                Ваш менеджер поможет с настройкой объекта, продвижением и ответит на все вопросы
+                {hasManager 
+                  ? 'Ваш менеджер поможет с настройкой объекта, продвижением и ответит на все вопросы'
+                  : 'Личный менеджер будет назначен в ближайшее время. Пока вы можете написать в общую поддержку'}
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {showChat && manager && (
+      {showChat && hasManager && (
         <OwnerManagerChat
           ownerId={ownerId}
           managerId={manager.id}

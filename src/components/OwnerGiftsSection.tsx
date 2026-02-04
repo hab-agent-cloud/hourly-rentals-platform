@@ -105,9 +105,7 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
     );
   }
 
-  if (gifts.length === 0) {
-    return null;
-  }
+  const hasGifts = gifts.length > 0;
 
   return (
     <Card className="border-purple-300 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 shadow-lg">
@@ -117,14 +115,47 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
             <Icon name="Gift" size={28} className="text-white" />
           </div>
           <div>
-            <CardTitle className="text-2xl">🎁 Ваши подарки</CardTitle>
+            <CardTitle className="text-2xl">🎁 {hasGifts ? 'Ваши подарки' : 'Подарок от команды'}</CardTitle>
             <CardDescription className="text-base">
-              У вас {gifts.length} {gifts.length === 1 ? 'подарок' : gifts.length < 5 ? 'подарка' : 'подарков'} от нашей команды
+              {hasGifts 
+                ? `У вас ${gifts.length} ${gifts.length === 1 ? 'подарок' : gifts.length < 5 ? 'подарка' : 'подарков'} от нашей команды`
+                : 'Получите пробную подписку бесплатно'}
             </CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
+        {!hasGifts && (
+          <div className="relative overflow-hidden bg-white rounded-xl border-2 border-purple-200 shadow-md hover:shadow-lg transition-all">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-bl-full" />
+            
+            <div className="relative p-5 flex items-center gap-4">
+              <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-4 rounded-xl">
+                <Icon name="Gift" size={32} className="text-purple-600" />
+              </div>
+              
+              <div className="flex-1">
+                <div className="mb-2">
+                  <h3 className="font-bold text-lg text-purple-900">
+                    🎉 Подписка на 14 дней бесплатно
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Попробуйте все возможности платформы
+                  </p>
+                </div>
+                
+                <Button
+                  onClick={() => window.open('https://t.me/+QgiLIa1gFRY4Y2Iy', '_blank')}
+                  className="w-full sm:w-auto bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold shadow-lg hover:shadow-xl transition-all animate-pulse"
+                  size="lg"
+                >
+                  <Icon name="Sparkles" size={18} className="mr-2" />
+                  Активировать пробную подписку
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
         {gifts.map((gift) => (
           <div
             key={gift.id}
