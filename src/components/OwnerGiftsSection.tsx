@@ -142,14 +142,16 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
 
   if (loading) {
     return (
-      <Card className="border-purple-200 bg-gradient-to-br from-white to-purple-50">
-        <CardContent className="py-4">
-          <div className="text-center">
-            <Icon name="Loader2" size={24} className="animate-spin mx-auto mb-1 text-purple-600" />
-            <p className="text-xs text-muted-foreground">Загрузка...</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="inline-block">
+        <Card className="border-purple-200 bg-gradient-to-br from-white to-purple-50 max-w-xs">
+          <CardContent className="py-3">
+            <div className="text-center">
+              <Icon name="Loader2" size={20} className="animate-spin mx-auto mb-1 text-purple-600" />
+              <p className="text-xs text-muted-foreground">Загрузка...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
@@ -162,28 +164,23 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
   }
 
   return (
-    <Card className="border-purple-200 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 shadow-sm">
-      <CardHeader className="pb-2">
-        <div className="flex items-center gap-2">
-          <div className="bg-gradient-to-br from-purple-600 to-pink-600 p-2 rounded-lg">
-            <Icon name="Gift" size={20} className="text-white" />
-          </div>
-          <div>
-            <CardTitle className="text-base">🎁 {hasGifts ? 'Ваши подарки' : 'Подарок от команды'}</CardTitle>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
+    <div className="inline-block">
+      <Card className="border-2 border-purple-300 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-100 shadow-lg hover:shadow-xl transition-all duration-300 max-w-xs">
+        <CardContent className="p-4">
         {showTrialOffer && (
-          <div className="bg-white rounded-lg border border-purple-200 p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-2 rounded-lg">
-                <Icon name="Gift" size={20} className="text-purple-600" />
+          <div className="bg-white rounded-xl p-3 border-2 border-purple-200 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-2 rounded-full shadow-md animate-pulse">
+                <Icon name="Gift" size={20} className="text-white" />
               </div>
               
               <div className="flex-1">
-                <h3 className="font-semibold text-sm text-purple-900">
-                  🎉 Подписка на 14 дней
+                <div className="flex items-center gap-1">
+                  <Icon name="Sparkles" size={14} className="text-purple-600" />
+                  <span className="text-xs font-medium text-purple-600">Подарок от команды</span>
+                </div>
+                <h3 className="font-bold text-base text-purple-900 flex items-center gap-1">
+                  🎉 14 дней бесплатно
                 </h3>
               </div>
             </div>
@@ -191,7 +188,7 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
             <Button
               onClick={handleActivateTrial}
               disabled={activatingTrial}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-medium animate-pulse"
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold shadow-lg hover:shadow-xl transition-all animate-pulse hover:scale-105"
               size="sm"
             >
               {activatingTrial ? (
@@ -211,22 +208,26 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
         {gifts.map((gift) => (
           <div
             key={gift.id}
-            className="bg-white rounded-lg border border-purple-200 p-3"
+            className="bg-white rounded-xl border-2 border-purple-200 p-3 shadow-sm"
           >
-            <div className="flex items-center gap-2 mb-2">
-              <div className="bg-gradient-to-br from-purple-100 to-pink-100 p-2 rounded-lg">
-                <Icon name="Gift" size={20} className="text-purple-600" />
+            <div className="flex items-center gap-2 mb-3">
+              <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-2 rounded-full shadow-md animate-pulse">
+                <Icon name="Gift" size={20} className="text-white" />
               </div>
               
               <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-sm text-purple-900">
-                    Подписка на {gift.gift_value} {gift.gift_value === 1 ? 'день' : gift.gift_value < 5 ? 'дня' : 'дней'}
-                  </h3>
-                  <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 text-xs">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1">
+                    <Icon name="Sparkles" size={14} className="text-purple-600" />
+                    <span className="text-xs font-medium text-purple-600">Подарок</span>
+                  </div>
+                  <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 text-xs animate-pulse shadow-md">
                     Новый
                   </Badge>
                 </div>
+                <h3 className="font-bold text-sm text-purple-900">
+                  {gift.gift_value} {gift.gift_value === 1 ? 'день' : gift.gift_value < 5 ? 'дня' : 'дней'} подписки
+                </h3>
                 <p className="text-xs text-muted-foreground">
                   {gift.listing_name}
                 </p>
@@ -236,7 +237,7 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
             <Button
               onClick={() => handleActivateGift(gift.id)}
               disabled={activating === gift.id}
-              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-medium"
+              className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold shadow-md hover:shadow-lg transition-all"
               size="sm"
             >
               {activating === gift.id ? (
@@ -254,7 +255,8 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
           </div>
         ))}
 
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

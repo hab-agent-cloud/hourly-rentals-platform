@@ -65,18 +65,17 @@ export default function OwnerOverviewTab({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Owner Manager Card */}
+      {/* Compact cards row */}
       {ownerId && (
-        <OwnerManagerCard ownerId={ownerId} />
+        <div className="flex flex-wrap gap-3">
+          <OwnerManagerCard ownerId={ownerId} />
+          <OwnerGiftsSection 
+            ownerId={ownerId} 
+            onGiftActivated={onRefreshListings}
+          />
+        </div>
       )}
       
-      {/* Owner Gifts Section */}
-      {ownerId && (
-        <OwnerGiftsSection 
-          ownerId={ownerId} 
-          onGiftActivated={onRefreshListings}
-        />
-      )}
       {/* Active Listings */}
       {activeListings.length > 0 && (
         <div>
