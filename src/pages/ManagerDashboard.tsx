@@ -11,6 +11,7 @@ import ManageLimitsDialog from '@/components/om/ManageLimitsDialog';
 import TeamAnalytics from '@/components/om/TeamAnalytics';
 import MessagesDialog from '@/components/manager/MessagesDialog';
 import ManagerTasksList from '@/components/manager/ManagerTasksList';
+import SalesScriptDialog from '@/components/manager/SalesScriptDialog';
 
 const FUNC_URLS = {
   managerData: 'https://functions.poehali.dev/ccbc7231-4004-46e0-9caa-8afc6d0fa9db',
@@ -292,6 +293,7 @@ export default function ManagerDashboard() {
           <p className="text-muted-foreground mt-1 text-sm sm:text-base">{managerData.name}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <SalesScriptDialog />
           <MessagesDialog 
             adminId={adminId!} 
             role={managerData.role === 'operational_manager' ? 'om' : managerData.role === 'unit_manager' ? 'um' : 'manager'} 
