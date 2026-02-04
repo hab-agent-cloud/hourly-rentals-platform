@@ -139,12 +139,12 @@ export default function OwnerManagerCard({ ownerId }: OwnerManagerCardProps) {
                 </div>
                 
                 <Button
-                  onClick={() => window.open('https://t.me/+QgiLIa1gFRY4Y2Iy', '_blank')}
+                  onClick={() => window.location.href = 'tel:88001234567'}
                   className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold shadow-md hover:shadow-lg transition-all"
                   size="lg"
                 >
-                  <Icon name="MessageCircle" size={20} className="mr-2" />
-                  Написать в поддержку
+                  <Icon name="Phone" size={20} className="mr-2" />
+                  Позвонить в поддержку 8-800-123-45-67
                 </Button>
               </>
             )}
