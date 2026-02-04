@@ -11,6 +11,7 @@ import ListingRoomsPhotosSection from '@/components/listing-editor/ListingRoomsP
 import ListingCategoriesSection from '@/components/listing-editor/ListingCategoriesSection';
 
 const FUNC_URL = 'https://functions.poehali.dev/4d42288a-e311-4754-98a2-944dfc667bd2';
+const TRIAL_FUNC_URL = 'https://functions.poehali.dev/cc1242a8-bbc8-46d9-9bf4-03af08578a3b';
 
 export default function ListingEditor() {
   const { id } = useParams();
@@ -19,6 +20,7 @@ export default function ListingEditor() {
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activatingTrial, setActivatingTrial] = useState(false);
   const [listing, setListing] = useState<any>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -269,6 +271,41 @@ export default function ListingEditor() {
   const handleFormChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
+
+  const handleActivateTrial = async () => {
+    setActivatingTrial(true);
+    try {
+      const response = await fetch(TRIAL_FUNC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listing_id: id })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        toast({
+          title: '🎉 Пробная подписка активирована!',
+          description: 'Ваш объект активен на 14 дней бесплатно'
+        });
+        await fetchListing();
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось активировать пробную подписку',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Произошла ошибка при активации',
+        variant: 'destructive'
+      });
+    } finally {
+      setActivatingTrial(false);
+    }
+  };
   
   if (loading) {
     return (
@@ -317,7 +354,27 @@ export default function ListingEditor() {
               )}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-col sm:flex-row">
+            {!listing.trial_activated_at && (
+              <Button 
+                className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-bold shadow-lg hover:shadow-xl transition-all"
+                size="lg"
+                onClick={handleActivateTrial}
+                disabled={activatingTrial}
+              >
+                {activatingTrial ? (
+                  <>
+                    <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                    Активация...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Sparkles" size={18} className="mr-2" />
+                    14 дней бесплатно • Активировать
+                  </>
+                )}
+              </Button>
+            )}
             <Button 
               variant="outline" 
               size="lg"

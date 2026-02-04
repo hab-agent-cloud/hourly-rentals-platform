@@ -1,4 +1,5 @@
 {
+  "activate-trial": "https://functions.poehali.dev/cc1242a8-bbc8-46d9-9bf4-03af08578a3b",
   "cron-check-overdue-tasks": "https://functions.poehali.dev/60a671c5-8243-4b6b-a4f6-e28421ebfd07",
   "manager-task-complete": "https://functions.poehali.dev/d306fd9e-8d52-42ef-9d0b-e98812d164ea",
   "employee-messages": "https://functions.poehali.dev/43b26aef-407e-4fcb-9a6c-df92bda05452",

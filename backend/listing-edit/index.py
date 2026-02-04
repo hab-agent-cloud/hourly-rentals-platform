@@ -44,7 +44,7 @@ def handler(event: dict, context) -> dict:
                     phone, telegram, type, price, status, 
                     subscription_expires_at, created_by_employee_id, 
                     owner_id, square_meters, parking_type, 
-                    parking_price_per_hour, short_title
+                    parking_price_per_hour, short_title, trial_activated_at
                 FROM listings
                 WHERE id = %s
             ''', (listing_id,))
@@ -80,7 +80,8 @@ def handler(event: dict, context) -> dict:
                 'square_meters': row[14],
                 'parking_type': row[15],
                 'parking_price_per_hour': row[16],
-                'short_title': row[17]
+                'short_title': row[17],
+                'trial_activated_at': row[18].isoformat() if row[18] else None
             }
             
             return {
