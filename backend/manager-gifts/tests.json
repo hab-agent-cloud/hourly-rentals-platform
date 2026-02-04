@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Create gift subscription",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "listing_id": 1,
+        "gift_type": "subscription",
+        "gift_value": 7,
+        "manager_id": 1
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "gift_id": "number",
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get gifts for listing",
+      "method": "GET",
+      "path": "/?listing_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "gifts": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

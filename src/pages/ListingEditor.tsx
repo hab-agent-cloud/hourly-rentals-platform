@@ -9,6 +9,7 @@ import ListingPhotoSection from '@/components/listing-editor/ListingPhotoSection
 import ListingBasicInfoSection from '@/components/listing-editor/ListingBasicInfoSection';
 import ListingRoomsPhotosSection from '@/components/listing-editor/ListingRoomsPhotosSection';
 import ListingCategoriesSection from '@/components/listing-editor/ListingCategoriesSection';
+import ListingGiftsSection from '@/components/listing-editor/ListingGiftsSection';
 
 const FUNC_URL = 'https://functions.poehali.dev/4d42288a-e311-4754-98a2-944dfc667bd2';
 const TRIAL_FUNC_URL = 'https://functions.poehali.dev/cc1242a8-bbc8-46d9-9bf4-03af08578a3b';
@@ -415,6 +416,8 @@ export default function ListingEditor() {
             formData={formData}
             onFormChange={handleFormChange}
           />
+
+          <ListingGiftsSection listingId={parseInt(id || '0')} />
 
           {formData.type && (formData.type.toLowerCase().includes('отель') || formData.type.toLowerCase().includes('гостиница')) && (
             <ListingCategoriesSection

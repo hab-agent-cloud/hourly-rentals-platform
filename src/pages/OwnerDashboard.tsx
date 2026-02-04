@@ -103,6 +103,8 @@ export default function OwnerDashboard() {
                 onExtendSubscription={handleExtendSubscription}
                 onEditListing={handleEditListing}
                 onUnarchiveListing={handleUnarchiveListing}
+                ownerId={owner?.id}
+                onRefreshListings={() => window.location.reload()}
               />
             </TabsContent>
 

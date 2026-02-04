@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import HotelSubscriptionCard from '@/components/HotelSubscriptionCard';
+import OwnerGiftsSection from '@/components/OwnerGiftsSection';
 
 interface Listing {
   id: number;
@@ -43,6 +44,8 @@ interface OwnerOverviewTabProps {
   onExtendSubscription: (listingId: number, days: number) => Promise<void>;
   onEditListing?: (listing: any) => void;
   onUnarchiveListing?: (listingId: number) => void;
+  ownerId?: number;
+  onRefreshListings?: () => void;
 }
 
 export default function OwnerOverviewTab({
@@ -53,12 +56,21 @@ export default function OwnerOverviewTab({
   onExtendSubscription,
   onEditListing,
   onUnarchiveListing,
+  ownerId,
+  onRefreshListings,
 }: OwnerOverviewTabProps) {
   const activeListings = listings.filter(l => !l.is_archived);
   const archivedListings = listings.filter(l => l.is_archived);
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Owner Gifts Section */}
+      {ownerId && (
+        <OwnerGiftsSection 
+          ownerId={ownerId} 
+          onGiftActivated={onRefreshListings}
+        />
+      )}
       {/* Active Listings */}
       {activeListings.length > 0 && (
         <div>

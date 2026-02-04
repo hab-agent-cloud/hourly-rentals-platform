@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Get owner gifts",
+      "method": "GET",
+      "path": "/?owner_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "gifts": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Activate gift",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "gift_id": 1
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
