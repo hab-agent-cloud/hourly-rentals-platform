@@ -23,6 +23,7 @@ import CityPage from "./pages/CityPage";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import Career from "./pages/Career";
 import ListingEditor from "./pages/ListingEditor";
+import SalesScripts from "./pages/SalesScripts";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/um" element={<ManagerDashboard />} />
           <Route path="/accounting" element={<Accounting />} />
           <Route path="/career" element={<Career />} />
+          <Route path="/sales-scripts" element={<SalesScripts />} />
           <Route path="/listing/:id/edit" element={<ListingEditor />} />
           
           <Route path="/company-info" element={<CompanyInfo />} />
