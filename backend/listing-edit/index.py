@@ -29,7 +29,7 @@ def handler(event: dict, context) -> dict:
             query_params = event.get('queryStringParameters', {})
             listing_id = query_params.get('id') if query_params else None
             
-            print(f"[DEBUG] Query params: {query_params}, listing_id: {listing_id}")
+            print(f"[DEBUG] Query params: {query_params}, listing_id: {listing_id}, schema: {schema}")
             
             if not listing_id:
                 return {

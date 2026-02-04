@@ -195,9 +195,8 @@ export default function OwnersMessagesDialog({ adminId }: OwnersMessagesDialogPr
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="relative">
-          <Icon name="Users" size={16} className="sm:mr-2" />
-          <span className="hidden sm:inline">Сообщения владельцам</span>
+        <Button variant="outline" size="sm" className="relative px-2" title="Сообщения владельцам">
+          <Icon name="Users" size={16} />
           {totalUnread > 0 && (
             <Badge 
               variant="destructive" 

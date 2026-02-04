@@ -183,9 +183,8 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="relative">
-          <Icon name="MessageCircle" size={16} className="sm:mr-2" />
-          <span className="hidden sm:inline">Сообщения</span>
+        <Button variant="outline" size="sm" className="relative px-2">
+          <Icon name="MessageCircle" size={16} />
           {unreadCount > 0 && (
             <Badge 
               variant="destructive" 
