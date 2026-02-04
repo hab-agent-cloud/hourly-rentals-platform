@@ -54,8 +54,8 @@ export default function OwnerManagerCard({ ownerId }: OwnerManagerCardProps) {
 
   if (loading) {
     return (
-      <div className="inline-block">
-        <Card className="border-blue-200 bg-gradient-to-br from-white to-blue-50 max-w-xs">
+      <div className="w-full sm:w-[320px]">
+        <Card className="border-blue-200 bg-gradient-to-br from-white to-blue-50">
           <CardContent className="py-3">
             <div className="text-center">
               <Icon name="Loader2" size={20} className="animate-spin mx-auto mb-1 text-blue-600" />
@@ -72,8 +72,8 @@ export default function OwnerManagerCard({ ownerId }: OwnerManagerCardProps) {
 
   return (
     <>
-      <div className="inline-block">
-        <Card className="border-2 border-blue-300 bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 max-w-xs">
+      <div className="w-full sm:w-[320px]">
+        <Card className="border-2 border-blue-300 bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 shadow-lg hover:shadow-xl transition-all duration-300">
           <CardContent className="p-4">
             <div className="bg-white rounded-xl p-3 border-2 border-blue-200 shadow-sm">
             {true ? (

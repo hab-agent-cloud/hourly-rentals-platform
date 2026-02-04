@@ -3,8 +3,8 @@ import Icon from '@/components/ui/icon';
 
 export default function OwnerGoldPromoCard() {
   return (
-    <div className="inline-block">
-      <Card className="border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 via-amber-50 to-yellow-100 shadow-lg hover:shadow-xl transition-all duration-300 max-w-xs">
+    <div className="w-full sm:w-[320px]">
+      <Card className="border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 via-amber-50 to-yellow-100 shadow-lg hover:shadow-xl transition-all duration-300">
         <CardContent className="p-4">
           <div className="bg-white rounded-xl p-3 border-2 border-yellow-300 shadow-sm">
             <div className="flex items-center gap-2 mb-2">

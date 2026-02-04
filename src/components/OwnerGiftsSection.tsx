@@ -164,8 +164,8 @@ export default function OwnerGiftsSection({ ownerId, onGiftActivated }: OwnerGif
   }
 
   return (
-    <div className="inline-block">
-      <Card className="border-2 border-purple-300 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-100 shadow-lg hover:shadow-xl transition-all duration-300 max-w-xs">
+    <div className="w-full sm:w-[320px]">
+      <Card className="border-2 border-purple-300 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-100 shadow-lg hover:shadow-xl transition-all duration-300">
         <CardContent className="p-4">
         {showTrialOffer && (
           <div className="bg-white rounded-xl p-3 border-2 border-purple-200 shadow-sm">
