@@ -55,44 +55,6 @@ export default function OwnerExpertTab({ listings }: OwnerExpertTabProps) {
           </div>
         </CardHeader>
       </Card>
-
-      {listings.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-12">
-            <Icon name="Building" size={48} className="mx-auto mb-4 text-muted-foreground opacity-20" />
-            <p className="text-muted-foreground">У вас пока нет объектов</p>
-          </CardContent>
-        </Card>
-      ) : (
-        listings.map((listing) => (
-          <Card key={listing.id} className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <img 
-                    src={listing.image_url} 
-                    alt={listing.title} 
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                  <div>
-                    <CardTitle className="text-lg">{listing.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{listing.city}{listing.district ? `, ${listing.district}` : ''}</p>
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="pt-6">
-              <Alert className="border-purple-200 bg-purple-50/50">
-                <Icon name="Info" size={20} className="text-purple-600" />
-                <AlertDescription className="ml-2">
-                  Следуйте рекомендациям выше для повышения привлекательности ваших объектов.
-                </AlertDescription>
-              </Alert>
-            </CardContent>
-          </Card>
-        ))
-      )}
     </div>
   );
 }
