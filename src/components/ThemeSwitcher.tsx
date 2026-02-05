@@ -84,7 +84,7 @@ export default function ThemeSwitcher() {
               <Icon name="Palette" size={18} className="text-purple-600 group-hover:text-purple-700" />
             </motion.div>
             <span className="hidden sm:inline font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Сменить фон
+              Сменить фон сайта
             </span>
             <motion.div
               animate={{ y: [0, 2, 0] }}

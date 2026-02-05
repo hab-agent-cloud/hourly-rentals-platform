@@ -29,7 +29,6 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <ThemeSwitcher />
               <Sheet>
                 <SheetTrigger asChild className="md:hidden">
                   <Button variant="outline" size="sm">
@@ -134,7 +133,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
             </div>
           </div>
         
-          <div className="flex items-center justify-center pt-2 border-t border-purple-100">
+          <div className="flex items-center justify-center gap-3 pt-2 border-t border-purple-100 flex-wrap">
             <a href="tel:88002347120" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 hover:from-green-100 hover:to-emerald-100 transition-all">
               <Icon name="Phone" size={18} className="text-green-600" />
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
@@ -142,6 +141,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                 <span className="text-[10px] sm:text-xs text-green-600 leading-tight">Бесплатная горячая линия</span>
               </div>
             </a>
+            <ThemeSwitcher />
           </div>
         </div>
       </div>
