@@ -1,4 +1,5 @@
 # Редиректы и правила маршрутизации для SPA
+# Для правильной обработки 404 в Яндексе
 
 # API endpoints - не перенаправляем
 /api/* 200
@@ -18,6 +19,30 @@
 /*.woff 200
 /*.woff2 200
 /*.ttf 200
+/manifest.json 200
+/404.html 200
 
-# Все остальные запросы - возвращаем index.html для SPA роутинга
+# Явные маршруты приложения (возвращают 200)
+/ 200
+/city/:city 200
+/listing/:id 200
+/listing/:id/room/:room 200
+/listing/:id/edit 200
+/admin 200
+/admin/login 200
+/owner/login 200
+/owner/forgot-password 200
+/owner/dashboard 200
+/manager 200
+/om 200
+/um 200
+/accounting 200
+/career 200
+/sales-scripts 200
+/company-info 200
+/offer 200
+/add-listing 200
+
+# Все остальные запросы - возвращаем index.html для клиентского роутинга
+# SPA само решит показать 404 или редирект
 /* /index.html 200
