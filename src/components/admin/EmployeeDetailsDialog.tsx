@@ -115,7 +115,10 @@ export default function EmployeeDetailsDialog({
             <div>
               <div className="text-sm text-muted-foreground mb-1">Роль</div>
               <Badge variant={employee.role === 'superadmin' ? 'default' : 'secondary'}>
-                {employee.role === 'superadmin' ? 'Суперадмин' : 'Копирайтер'}
+                {employee.role === 'superadmin' ? 'Суперадмин' : 
+                 employee.role === 'operational_manager' ? 'Оперативный менеджер (ОМ)' :
+                 employee.role === 'chief_manager' ? 'Управляющий менеджер (УМ)' :
+                 employee.role === 'manager' ? 'Менеджер' : 'Копирайтер'}
               </Badge>
             </div>
             <div>
