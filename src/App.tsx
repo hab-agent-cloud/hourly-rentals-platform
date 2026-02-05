@@ -44,7 +44,7 @@ const App = () => (
           <Route path="/owner/dashboard" element={<OwnerDashboard />} />
           
           <Route path="/manager" element={<ManagerDashboard />} />
-          <Route path="/om" element={<OwnerLogin />} />
+          <Route path="/om" element={<AdminPanel />} />
           <Route path="/um" element={<ManagerDashboard />} />
           <Route path="/accounting" element={<Accounting />} />
           <Route path="/career" element={<Career />} />
