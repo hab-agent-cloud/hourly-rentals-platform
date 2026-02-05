@@ -31,8 +31,9 @@ export default function Index() {
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [detectedCity, setDetectedCity] = useState<string | null>(null);
   const [currentTheme, setCurrentTheme] = useState<ThemeKey>(() => {
-    const saved = localStorage.getItem('guestTheme');
-    return (saved as ThemeKey) || 'default';
+    const saved = localStorage.getItem('guestTheme') as ThemeKey;
+    // Проверяем, что сохранённая тема существует в новом списке
+    return (saved && themes[saved]) ? saved : 'default';
   });
   
   const resultsRef = useRef<HTMLDivElement>(null);

@@ -66,8 +66,9 @@ export type ThemeKey = keyof typeof themes;
 
 export default function ThemeSwitcher() {
   const [currentTheme, setCurrentTheme] = useState<ThemeKey>(() => {
-    const saved = localStorage.getItem('guestTheme');
-    return (saved as ThemeKey) || 'default';
+    const saved = localStorage.getItem('guestTheme') as ThemeKey;
+    // Проверяем, что сохранённая тема существует
+    return (saved && themes[saved]) ? saved : 'default';
   });
 
   const changeTheme = (themeKey: ThemeKey) => {
