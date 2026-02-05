@@ -43,8 +43,10 @@ export function useListingEditor(id: string | undefined) {
   });
   
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    if (!token) {
+    const adminToken = localStorage.getItem('adminToken');
+    const ownerToken = localStorage.getItem('ownerToken');
+    
+    if (!adminToken && !ownerToken) {
       navigate('/admin/login');
       return;
     }
@@ -139,7 +141,7 @@ export function useListingEditor(id: string | undefined) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('ownerToken');
     if (!token) return;
 
     setUploadingPhoto(true);
@@ -162,7 +164,7 @@ export function useListingEditor(id: string | undefined) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('ownerToken');
     if (!token) return;
 
     setUploadingLogo(true);
@@ -185,7 +187,7 @@ export function useListingEditor(id: string | undefined) {
     const files = e.target.files;
     if (!files || files.length === 0 || selectedRoomForPhoto === null) return;
 
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('adminToken') || localStorage.getItem('ownerToken');
     if (!token) return;
 
     setUploadingRoomPhoto(selectedRoomForPhoto);
