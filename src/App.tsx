@@ -24,7 +24,6 @@ import ManagerDashboard from "./pages/ManagerDashboard";
 import Career from "./pages/Career";
 import ListingEditor from "./pages/ListingEditor";
 import SalesScripts from "./pages/SalesScripts";
-import OMPortal from "./pages/OMPortal";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +44,7 @@ const App = () => (
           <Route path="/owner/dashboard" element={<OwnerDashboard />} />
           
           <Route path="/manager" element={<ManagerDashboard />} />
-          <Route path="/om" element={<OMPortal />} />
+          <Route path="/om" element={<OwnerLogin />} />
           <Route path="/um" element={<ManagerDashboard />} />
           <Route path="/accounting" element={<Accounting />} />
           <Route path="/career" element={<Career />} />
