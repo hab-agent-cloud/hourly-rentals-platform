@@ -11,39 +11,54 @@ import { motion } from 'framer-motion';
 
 export const themes = {
   default: {
-    name: 'Рассвет',
-    gradient: 'from-purple-50 via-pink-50 to-orange-50',
+    name: 'Северное сияние',
+    gradient: 'from-indigo-100 via-purple-100 to-pink-100',
+    icon: '✨'
+  },
+  sunset: {
+    name: 'Золотой закат',
+    gradient: 'from-amber-100 via-orange-100 to-red-100',
     icon: '🌅'
   },
   ocean: {
-    name: 'Океан',
-    gradient: 'from-blue-50 via-cyan-50 to-teal-50',
+    name: 'Тропический океан',
+    gradient: 'from-cyan-100 via-blue-100 to-indigo-100',
     icon: '🌊'
   },
-  forest: {
-    name: 'Лес',
-    gradient: 'from-green-50 via-emerald-50 to-lime-50',
+  sakura: {
+    name: 'Цветение сакуры',
+    gradient: 'from-pink-100 via-rose-100 to-purple-100',
+    icon: '🌸'
+  },
+  candy: {
+    name: 'Сладкая вата',
+    gradient: 'from-fuchsia-100 via-pink-100 to-purple-100',
+    icon: '🍭'
+  },
+  emerald: {
+    name: 'Изумрудный лес',
+    gradient: 'from-green-100 via-emerald-100 to-teal-100',
     icon: '🌲'
   },
-  sunset: {
-    name: 'Закат',
-    gradient: 'from-orange-50 via-red-50 to-pink-50',
-    icon: '🌇'
-  },
   lavender: {
-    name: 'Лаванда',
-    gradient: 'from-violet-50 via-purple-50 to-fuchsia-50',
+    name: 'Лавандовые поля',
+    gradient: 'from-violet-100 via-purple-100 to-indigo-100',
     icon: '💜'
   },
   peach: {
-    name: 'Персик',
-    gradient: 'from-amber-50 via-orange-50 to-rose-50',
+    name: 'Персиковый рассвет',
+    gradient: 'from-orange-100 via-amber-100 to-yellow-100',
     icon: '🍑'
   },
   mint: {
-    name: 'Мята',
-    gradient: 'from-teal-50 via-green-50 to-cyan-50',
+    name: 'Мятная свежесть',
+    gradient: 'from-teal-100 via-cyan-100 to-blue-100',
     icon: '🌿'
+  },
+  berry: {
+    name: 'Ягодный микс',
+    gradient: 'from-red-100 via-pink-100 to-fuchsia-100',
+    icon: '🍓'
   }
 };
 
