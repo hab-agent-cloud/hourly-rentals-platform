@@ -13,6 +13,7 @@ import MessagesDialog from '@/components/manager/MessagesDialog';
 import OwnersMessagesDialog from '@/components/manager/OwnersMessagesDialog';
 import ManagerTasksList from '@/components/manager/ManagerTasksList';
 import { motion } from 'framer-motion';
+import confetti from 'canvas-confetti';
 
 const FUNC_URLS = {
   managerData: 'https://functions.poehali.dev/ccbc7231-4004-46e0-9caa-8afc6d0fa9db',
@@ -426,6 +427,17 @@ export default function ManagerDashboard() {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <motion.div 
                         whileHover={{ scale: 1.05, rotate: 1 }}
+                        onClick={() => {
+                          const count = isOM ? (managerData.total_objects || 0) : (managerData.objects_count || 0);
+                          if (count >= 3) {
+                            confetti({
+                              particleCount: 60,
+                              spread: 50,
+                              origin: { y: 0.6 },
+                              colors: ['#3B82F6', '#06B6D4']
+                            });
+                          }
+                        }}
                         className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
                           darkMode 
                             ? 'bg-blue-900/30 border-blue-700 hover:border-blue-500' 
@@ -454,6 +466,16 @@ export default function ManagerDashboard() {
 
                       <motion.div 
                         whileHover={{ scale: 1.05, rotate: -1 }}
+                        onClick={() => {
+                          if ((managerData.week_tasks_completed || 0) >= 3) {
+                            confetti({
+                              particleCount: 80,
+                              spread: 60,
+                              origin: { y: 0.6 },
+                              colors: ['#22C55E', '#10B981']
+                            });
+                          }
+                        }}
                         className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
                           darkMode 
                             ? 'bg-green-900/30 border-green-700 hover:border-green-500' 
@@ -480,6 +502,17 @@ export default function ManagerDashboard() {
 
                       <motion.div 
                         whileHover={{ scale: 1.05, rotate: 1 }}
+                        onClick={() => {
+                          const rank = isOM ? (managerData.om_rank || 999) : (managerData.manager_rank || 999);
+                          if (rank <= 3) {
+                            confetti({
+                              particleCount: 150,
+                              spread: 100,
+                              origin: { y: 0.6 },
+                              colors: ['#F59E0B', '#FBBF24', '#FCD34D']
+                            });
+                          }
+                        }}
                         className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
                           darkMode 
                             ? 'bg-amber-900/30 border-amber-700 hover:border-amber-500' 
@@ -586,7 +619,17 @@ export default function ManagerDashboard() {
                       <div className="space-y-3">
                         <motion.div 
                           whileHover={{ scale: 1.02, x: 5 }}
-                          className={`flex items-center justify-between p-3 rounded-lg border shadow-sm transition-all ${
+                          onClick={() => {
+                            if ((managerData.total_listings || 0) >= 5) {
+                              confetti({
+                                particleCount: 50,
+                                spread: 60,
+                                origin: { y: 0.7 },
+                                colors: ['#FFD700', '#FFA500']
+                              });
+                            }
+                          }}
+                          className={`flex items-center justify-between p-3 rounded-lg border shadow-sm transition-all cursor-pointer ${
                             darkMode 
                               ? 'bg-yellow-900/20 border-yellow-700/50 hover:border-yellow-600'
                               : 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200 hover:border-yellow-400 hover:shadow-md'
@@ -600,7 +643,17 @@ export default function ManagerDashboard() {
                         </motion.div>
                         <motion.div 
                           whileHover={{ scale: 1.02, x: 5 }}
-                          className={`flex items-center justify-between p-3 rounded-lg border shadow-sm transition-all ${
+                          onClick={() => {
+                            if ((managerData.total_earned || 0) >= 1000) {
+                              confetti({
+                                particleCount: 100,
+                                spread: 70,
+                                origin: { y: 0.7 },
+                                colors: ['#22C55E', '#10B981', '#059669']
+                              });
+                            }
+                          }}
+                          className={`flex items-center justify-between p-3 rounded-lg border shadow-sm transition-all cursor-pointer ${
                             darkMode
                               ? 'bg-green-900/20 border-green-700/50 hover:border-green-600'
                               : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:border-green-400 hover:shadow-md'

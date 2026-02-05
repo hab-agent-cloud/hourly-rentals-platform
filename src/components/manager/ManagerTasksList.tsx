@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { format, isPast } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import confetti from 'canvas-confetti';
 
 interface Task {
   id: number;
@@ -43,11 +44,20 @@ export default function ManagerTasksList({ tasks, managerId, onTaskCompleted }: 
       const data = await response.json();
 
       if (response.ok && data.success) {
+        if (!data.is_overdue) {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#FFD700', '#FFA500', '#FF6347', '#87CEEB', '#9370DB']
+          });
+        }
+        
         toast({
-          title: data.is_overdue ? 'Задача выполнена с опозданием' : 'Задача выполнена',
+          title: data.is_overdue ? 'Задача выполнена с опозданием' : '🎉 Задача выполнена!',
           description: data.is_overdue 
             ? 'ОМ получил уведомление о просрочке' 
-            : 'ОМ получил уведомление о выполнении',
+            : 'Отличная работа! ОМ получил уведомление',
           variant: data.is_overdue ? 'destructive' : 'default'
         });
         onTaskCompleted();
