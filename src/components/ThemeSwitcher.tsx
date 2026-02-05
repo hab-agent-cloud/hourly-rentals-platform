@@ -22,12 +22,6 @@ export const themes = {
     pattern: 'bg-[radial-gradient(2px_2px_at_20%_30%,white,transparent),radial-gradient(2px_2px_at_60%_70%,white,transparent),radial-gradient(1px_1px_at_50%_50%,white,transparent),radial-gradient(1px_1px_at_80%_10%,white,transparent),radial-gradient(2px_2px_at_90%_60%,white,transparent),radial-gradient(1px_1px_at_30%_80%,white,transparent)] bg-[length:200px_200px]',
     icon: '🌌'
   },
-  barbie: {
-    name: 'Барби',
-    gradient: 'from-pink-100 via-pink-50 to-rose-100',
-    pattern: '',
-    icon: '💕'
-  },
   tiffany: {
     name: 'Тиффани',
     gradient: 'from-cyan-100 via-teal-50 to-cyan-100',
