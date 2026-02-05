@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
+import { useState, useEffect } from 'react';
 
 interface HeaderProps {
   activeTab: string;
@@ -9,6 +10,49 @@ interface HeaderProps {
 }
 
 export default function Header({ activeTab, onTabChange }: HeaderProps) {
+  const [showInstallButton, setShowInstallButton] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isIOS, setIsIOS] = useState(false);
+  const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+
+  useEffect(() => {
+    const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    setIsIOS(iOS);
+
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches;
+    const wasDismissed = localStorage.getItem('pwa-install-dismissed');
+
+    if (!isInstalled && !wasDismissed) {
+      setShowInstallButton(true);
+    }
+
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallButton(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (isIOS) {
+      setShowIOSInstructions(true);
+      return;
+    }
+
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setShowInstallButton(false);
+        localStorage.setItem('pwa-install-dismissed', 'true');
+      }
+      setDeferredPrompt(null);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4">
@@ -133,16 +177,55 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
             </div>
           </div>
         
-          <div className="flex items-center justify-center gap-3 pt-2 border-t border-purple-100 flex-wrap">
-            <a href="tel:88002347120" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 hover:from-green-100 hover:to-emerald-100 transition-all">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 pt-2 border-t border-purple-100">
+            <a href="tel:88002347120" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 hover:from-green-100 hover:to-emerald-100 transition-all w-full sm:w-auto justify-center">
               <Icon name="Phone" size={18} className="text-green-600" />
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <span className="text-base sm:text-lg font-bold text-green-700 leading-tight">8 800 234-71-20</span>
                 <span className="text-[10px] sm:text-xs text-green-600 leading-tight">Бесплатная горячая линия</span>
               </div>
             </a>
+            
+            {showInstallButton && (
+              <Button
+                onClick={handleInstall}
+                size="sm"
+                variant="outline"
+                className="gap-2 border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 text-blue-700 w-full sm:w-auto"
+              >
+                <Icon name="Download" size={18} className="text-blue-600" />
+                <span className="hidden lg:inline font-medium">Установить приложение</span>
+                <span className="lg:hidden font-medium">Установить</span>
+              </Button>
+            )}
+            
             <ThemeSwitcher />
           </div>
+          
+          {showIOSInstructions && (
+            <div className="mt-2 p-4 bg-white rounded-lg border-2 border-blue-200 shadow-lg">
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="font-bold text-sm">Установка на iPhone/iPad</h3>
+                <Button variant="ghost" size="sm" onClick={() => setShowIOSInstructions(false)}>
+                  <Icon name="X" size={16} />
+                </Button>
+              </div>
+              <div className="space-y-2 text-xs">
+                <div className="flex items-start gap-2">
+                  <span className="font-bold text-blue-600">1.</span>
+                  <p>Нажмите <Icon name="Share" size={14} className="inline" /> в Safari (внизу экрана)</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="font-bold text-blue-600">2.</span>
+                  <p>Выберите «На экран Домой»</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="font-bold text-blue-600">3.</span>
+                  <p>Нажмите «Добавить»</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>
