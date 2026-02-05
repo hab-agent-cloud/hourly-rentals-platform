@@ -68,32 +68,64 @@ export default function ThemeSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          className="gap-2 hover:bg-white/50 transition-all"
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <span className="text-lg">{themes[currentTheme].icon}</span>
-          <span className="hidden sm:inline">Фон</span>
-          <Icon name="ChevronDown" size={16} />
-        </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="gap-2 bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 hover:from-purple-100 hover:to-pink-100 hover:border-purple-300 transition-all shadow-sm hover:shadow-md group"
+          >
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <Icon name="Palette" size={18} className="text-purple-600 group-hover:text-purple-700" />
+            </motion.div>
+            <span className="hidden sm:inline font-medium bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Сменить фон
+            </span>
+            <motion.div
+              animate={{ y: [0, 2, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <Icon name="ChevronDown" size={16} className="text-purple-500" />
+            </motion.div>
+          </Button>
+        </motion.div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 bg-white border-gray-200">
+      <DropdownMenuContent align="end" className="w-56 bg-white border-gray-200 shadow-lg">
+        <div className="px-2 py-1.5 text-xs font-medium text-gray-500 border-b">
+          Выберите тему оформления
+        </div>
         {Object.entries(themes).map(([key, theme]) => (
           <DropdownMenuItem
             key={key}
             onClick={() => changeTheme(key as ThemeKey)}
-            className="cursor-pointer hover:bg-gray-100 focus:bg-gray-100"
+            className="cursor-pointer hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 focus:bg-gradient-to-r focus:from-purple-50 focus:to-pink-50 my-1 rounded-md"
           >
             <motion.div 
               className="flex items-center gap-3 w-full text-gray-900"
               whileHover={{ x: 4 }}
               transition={{ duration: 0.2 }}
             >
-              <span className="text-lg">{theme.icon}</span>
-              <span className="flex-1">{theme.name}</span>
+              <motion.span 
+                className="text-2xl"
+                whileHover={{ scale: 1.2, rotate: 10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {theme.icon}
+              </motion.span>
+              <span className="flex-1 font-medium">{theme.name}</span>
               {currentTheme === key && (
-                <Icon name="Check" size={16} className="text-purple-600" />
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                >
+                  <Icon name="Check" size={18} className="text-purple-600" />
+                </motion.div>
               )}
             </motion.div>
           </DropdownMenuItem>
