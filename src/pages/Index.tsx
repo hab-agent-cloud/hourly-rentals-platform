@@ -205,7 +205,7 @@ export default function Index() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center gap-4">
             <img 
-              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/eb1f7656-79bf-458f-a9d8-00f75775f384.jpg" 
+              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/67e411bb-a84a-41da-b7d3-5702e81761bb.jpg" 
               alt="120 минут" 
               className="h-16 w-16 object-contain"
             />
