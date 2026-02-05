@@ -39,30 +39,6 @@ export const themes = {
     gradient: 'from-purple-50 via-violet-50 to-purple-100',
     pattern: '',
     icon: '🌸'
-  },
-  mint: {
-    name: 'Мята',
-    gradient: 'from-emerald-50 via-teal-50 to-green-50',
-    pattern: '',
-    icon: '🌿'
-  },
-  peach: {
-    name: 'Персик',
-    gradient: 'from-orange-50 via-rose-50 to-pink-50',
-    pattern: '',
-    icon: '🍑'
-  },
-  sky: {
-    name: 'Небесный',
-    gradient: 'from-blue-50 via-sky-50 to-indigo-50',
-    pattern: '',
-    icon: '☁️'
-  },
-  sand: {
-    name: 'Песочный',
-    gradient: 'from-stone-100 via-amber-50 to-yellow-50',
-    pattern: '',
-    icon: '🏖️'
   }
 };
 
