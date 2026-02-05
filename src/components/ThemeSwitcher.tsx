@@ -11,54 +11,54 @@ import { motion } from 'framer-motion';
 
 export const themes = {
   default: {
-    name: 'Северное сияние',
-    gradient: 'from-indigo-100 via-purple-100 to-pink-100',
-    icon: '✨'
-  },
-  sunset: {
-    name: 'Золотой закат',
-    gradient: 'from-amber-100 via-orange-100 to-red-100',
-    icon: '🌅'
-  },
-  ocean: {
-    name: 'Тропический океан',
-    gradient: 'from-cyan-100 via-blue-100 to-indigo-100',
+    name: 'Спокойствие',
+    gradient: 'from-slate-50 via-blue-50 to-indigo-50',
     icon: '🌊'
   },
-  sakura: {
-    name: 'Цветение сакуры',
-    gradient: 'from-pink-100 via-rose-100 to-purple-100',
-    icon: '🌸'
+  business: {
+    name: 'Бизнес',
+    gradient: 'from-gray-50 via-slate-50 to-zinc-50',
+    icon: '💼'
   },
-  candy: {
-    name: 'Сладкая вата',
-    gradient: 'from-fuchsia-100 via-pink-100 to-purple-100',
-    icon: '🍭'
+  energy: {
+    name: 'Энергия',
+    gradient: 'from-orange-100 via-red-100 to-pink-100',
+    icon: '⚡'
   },
-  emerald: {
-    name: 'Изумрудный лес',
-    gradient: 'from-green-100 via-emerald-100 to-teal-100',
-    icon: '🌲'
-  },
-  lavender: {
-    name: 'Лавандовые поля',
-    gradient: 'from-violet-100 via-purple-100 to-indigo-100',
-    icon: '💜'
-  },
-  peach: {
-    name: 'Персиковый рассвет',
-    gradient: 'from-orange-100 via-amber-100 to-yellow-100',
-    icon: '🍑'
-  },
-  mint: {
-    name: 'Мятная свежесть',
-    gradient: 'from-teal-100 via-cyan-100 to-blue-100',
+  fresh: {
+    name: 'Свежесть',
+    gradient: 'from-emerald-50 via-teal-50 to-cyan-50',
     icon: '🌿'
   },
-  berry: {
-    name: 'Ягодный микс',
-    gradient: 'from-red-100 via-pink-100 to-fuchsia-100',
-    icon: '🍓'
+  speed: {
+    name: 'Скорость',
+    gradient: 'from-blue-100 via-indigo-100 to-purple-100',
+    icon: '🚀'
+  },
+  premium: {
+    name: 'Премиум',
+    gradient: 'from-violet-100 via-purple-100 to-fuchsia-100',
+    icon: '💎'
+  },
+  comfort: {
+    name: 'Комфорт',
+    gradient: 'from-amber-50 via-orange-50 to-rose-50',
+    icon: '☕'
+  },
+  modern: {
+    name: 'Современность',
+    gradient: 'from-cyan-50 via-sky-50 to-blue-50',
+    icon: '🎯'
+  },
+  drive: {
+    name: 'Драйв',
+    gradient: 'from-yellow-100 via-orange-100 to-red-100',
+    icon: '🔥'
+  },
+  trust: {
+    name: 'Надёжность',
+    gradient: 'from-blue-50 via-indigo-50 to-slate-50',
+    icon: '🛡️'
   }
 };
 
