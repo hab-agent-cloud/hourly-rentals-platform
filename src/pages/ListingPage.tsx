@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { themes, type ThemeKey } from '@/components/ThemeSwitcher';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,19 @@ export default function ListingPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
   const [galleryRoomIndex, setGalleryRoomIndex] = useState(0);
+  const [currentTheme, setCurrentTheme] = useState<ThemeKey>(() => {
+    const saved = localStorage.getItem('guestTheme');
+    return (saved as ThemeKey) || 'default';
+  });
+
+  useEffect(() => {
+    const handleThemeChange = (e: CustomEvent) => {
+      setCurrentTheme(e.detail as ThemeKey);
+    };
+    
+    window.addEventListener('themeChange', handleThemeChange as EventListener);
+    return () => window.removeEventListener('themeChange', handleThemeChange as EventListener);
+  }, []);
 
   useEffect(() => {
     const loadListing = async () => {
@@ -77,7 +91,7 @@ export default function ListingPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center">
+      <div className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].gradient} transition-all duration-500 flex items-center justify-center`}>
         <Icon name="Loader2" size={48} className="animate-spin text-purple-600" />
       </div>
     );
@@ -85,7 +99,7 @@ export default function ListingPage() {
 
   if (!listing) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center">
+      <div className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].gradient} transition-all duration-500 flex items-center justify-center`}>
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">Отель не найден</h2>
           <Button onClick={() => navigate('/')}>
@@ -129,7 +143,7 @@ export default function ListingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].gradient} transition-all duration-500`}>
       <Helmet>
         <title>{listing.title} — Почасовая аренда в {listing.city} от {minPrice ? `${minPrice}₽` : '500₽'} | 120 МИНУТ</title>
         <meta name="description" content={`${listing.title} в ${listing.city}${listing.district ? `, ${listing.district}` : ''}. Почасовая аренда номеров от 2 часов. ${listing.description ? listing.description.slice(0, 120) : 'Бронирование напрямую у владельца.'}`} />

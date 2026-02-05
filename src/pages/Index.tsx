@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { themes, type ThemeKey } from '@/components/ThemeSwitcher';
 import SearchHero from '@/components/SearchHero';
 import ListingsView from '@/components/ListingsView';
 import HotelModal from '@/components/HotelModal';
@@ -29,12 +30,23 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [detectedCity, setDetectedCity] = useState<string | null>(null);
+  const [currentTheme, setCurrentTheme] = useState<ThemeKey>(() => {
+    const saved = localStorage.getItem('guestTheme');
+    return (saved as ThemeKey) || 'default';
+  });
   
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadListings();
     detectUserCity();
+    
+    const handleThemeChange = (e: CustomEvent) => {
+      setCurrentTheme(e.detail as ThemeKey);
+    };
+    
+    window.addEventListener('themeChange', handleThemeChange as EventListener);
+    return () => window.removeEventListener('themeChange', handleThemeChange as EventListener);
   }, []);
 
   const detectUserCity = async () => {
@@ -140,7 +152,7 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].gradient} transition-all duration-500`}>
       <SEOStructuredData listings={filteredListings} cities={uniqueCities.filter(c => c !== 'Все города')} />
       <Header activeTab={activeTab} onTabChange={setActiveTab} />
 

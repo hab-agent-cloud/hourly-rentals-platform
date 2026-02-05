@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { themes, type ThemeKey } from '@/components/ThemeSwitcher';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +24,10 @@ export default function RoomDetails() {
   const [imageGalleryOpen, setImageGalleryOpen] = useState(false);
   const [virtualPhone, setVirtualPhone] = useState<string | null>(null);
   const [phoneLoading, setPhoneLoading] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<ThemeKey>(() => {
+    const saved = localStorage.getItem('guestTheme');
+    return (saved as ThemeKey) || 'default';
+  });
 
   // Генерация анонимного ID клиента
   const getClientId = () => {
@@ -33,6 +38,15 @@ export default function RoomDetails() {
     }
     return clientId;
   };
+
+  useEffect(() => {
+    const handleThemeChange = (e: CustomEvent) => {
+      setCurrentTheme(e.detail as ThemeKey);
+    };
+    
+    window.addEventListener('themeChange', handleThemeChange as EventListener);
+    return () => window.removeEventListener('themeChange', handleThemeChange as EventListener);
+  }, []);
 
   useEffect(() => {
     const loadListing = async () => {
@@ -87,7 +101,7 @@ export default function RoomDetails() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center">
+      <div className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].gradient} transition-all duration-500 flex items-center justify-center`}>
         <Icon name="Loader2" size={48} className="animate-spin text-purple-600" />
       </div>
     );
@@ -95,7 +109,7 @@ export default function RoomDetails() {
 
   if (!room || !listing) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center">
+      <div className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].gradient} transition-all duration-500 flex items-center justify-center`}>
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">Номер не найден</h2>
           <Button onClick={() => navigate('/')}>
@@ -115,7 +129,7 @@ export default function RoomDetails() {
   console.log('roomImages length:', roomImages.length);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].gradient} transition-all duration-500`}>
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">

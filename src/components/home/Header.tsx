@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import ThemeSwitcher from '@/components/ThemeSwitcher';
 
 interface HeaderProps {
   activeTab: string;
@@ -28,6 +29,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <ThemeSwitcher />
               <Sheet>
                 <SheetTrigger asChild className="md:hidden">
                   <Button variant="outline" size="sm">
@@ -79,6 +81,10 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                           Экстранет для владельцев
                         </Button>
                       </a>
+                    </div>
+                    <div className="border-t pt-4 mt-4">
+                      <div className="text-sm font-medium mb-2">Сменить фон:</div>
+                      <ThemeSwitcher />
                     </div>
                   </div>
                 </SheetContent>

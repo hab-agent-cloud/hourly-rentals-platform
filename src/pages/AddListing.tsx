@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { themes, type ThemeKey } from '@/components/ThemeSwitcher';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +23,19 @@ const STEPS = [
 
 export default function AddListing() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [currentTheme, setCurrentTheme] = useState<ThemeKey>(() => {
+    const saved = localStorage.getItem('guestTheme');
+    return (saved as ThemeKey) || 'default';
+  });
+
+  useEffect(() => {
+    const handleThemeChange = (e: CustomEvent) => {
+      setCurrentTheme(e.detail as ThemeKey);
+    };
+    
+    window.addEventListener('themeChange', handleThemeChange as EventListener);
+    return () => window.removeEventListener('themeChange', handleThemeChange as EventListener);
+  }, []);
   const [formData, setFormData] = useState({
     // Владелец
     owner_full_name: '',
@@ -135,7 +149,7 @@ export default function AddListing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+    <div className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].gradient} transition-all duration-500`}>
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
