@@ -6,6 +6,7 @@ import Header from '@/components/home/Header';
 import AboutSection from '@/components/home/AboutSection';
 import PartnersSection from '@/components/home/PartnersSection';
 import SupportSection from '@/components/home/SupportSection';
+import SEOTextSection from '@/components/home/SEOTextSection';
 import InstallAppBanner from '@/components/InstallAppBanner';
 import VoiceSearchBanner from '@/components/VoiceSearchBanner';
 import SEOStructuredData from '@/components/SEOStructuredData';
@@ -188,6 +189,8 @@ export default function Index() {
       {activeTab === 'about' && <AboutSection />}
       {activeTab === 'partners' && <PartnersSection />}
       {activeTab === 'support' && <SupportSection />}
+
+      {activeTab === 'catalog' && <SEOTextSection />}
 
       <HotelModal
         open={dialogOpen}
