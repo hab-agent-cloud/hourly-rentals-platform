@@ -208,9 +208,20 @@ export default function SearchHero({
         <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
           ПОЧАСОВАЯ АРЕНДА
         </h2>
-        <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
+        <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
           ОТЕЛЕЙ И АПАРТАМЕНТОВ
         </h3>
+        
+        <div className="mb-4 sm:mb-6 px-4">
+          <p className="text-base sm:text-lg md:text-xl text-purple-900 font-medium leading-relaxed">
+            Начните пользоваться сервисом прямо сейчас!
+          </p>
+          <p className="text-sm sm:text-base md:text-lg text-purple-700 mt-2">
+            Более <span className="font-bold text-purple-900">3000 объектов</span> в городах России. 
+            Бронирование отеля на час ещё никогда не было таким простым. 
+            Присоединяйтесь к <span className="font-bold text-purple-900">тысячам довольных клиентов</span> 120 МИНУТ!
+          </p>
+        </div>
         <div className="flex justify-center items-center mb-4 sm:mb-6 min-h-[32px] sm:min-h-[40px]">
           <div key={`anim-${currentMessageIndex}`} className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
             <Icon name={messages[currentMessageIndex].icon as any} size={20} className="text-green-500 flex-shrink-0" />
