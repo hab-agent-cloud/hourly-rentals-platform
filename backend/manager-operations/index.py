@@ -72,7 +72,7 @@ def handler(event: dict, context) -> dict:
     try:
         # Получаем данные запроса
         body = json.loads(event.get('body', '{}'))
-        action = body.get('action')  # 'take', 'release', 'freeze', 'unfreeze', 'archive'
+        action = body.get('action')  # 'take', 'release', 'freeze', 'unfreeze', 'archive', 'reset_subscription'
         listing_id = body.get('listing_id')
         manager_id = body.get('manager_id')
         reason = body.get('reason', '')
@@ -239,6 +239,55 @@ def handler(event: dict, context) -> dict:
                     
                     log_action(conn, manager_id_int, 'archive_listing', listing_id_int, {'reason': reason})
                     message = 'Объект перенесен в архив'
+                
+                # Действие: ОБНУЛИТЬ ПОДПИСКУ
+                elif action == 'reset_subscription':
+                    # Проверяем, что подписка не была куплена владельцем и не является подарком
+                    cur.execute(f"""
+                        SELECT 
+                            (SELECT end_date FROM subscriptions 
+                             WHERE listing_id = {listing_id_int} AND end_date > NOW() 
+                             ORDER BY end_date DESC LIMIT 1) as subscription_end,
+                            (SELECT COUNT(*) FROM subscription_payments 
+                             WHERE listing_id = {listing_id_int}) > 0 as purchased,
+                            (SELECT COUNT(*) FROM listing_gifts 
+                             WHERE listing_id = {listing_id_int} AND used_at IS NOT NULL) > 0 as is_gift
+                    """)
+                    sub_info = cur.fetchone()
+                    
+                    if not sub_info or not sub_info['subscription_end']:
+                        return {
+                            'statusCode': 400,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'У объекта нет активной подписки'}),
+                            'isBase64Encoded': False
+                        }
+                    
+                    if sub_info['purchased']:
+                        return {
+                            'statusCode': 400,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Нельзя обнулить подписку, купленную владельцем'}),
+                            'isBase64Encoded': False
+                        }
+                    
+                    if sub_info['is_gift']:
+                        return {
+                            'statusCode': 400,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Нельзя обнулить подписку-подарок'}),
+                            'isBase64Encoded': False
+                        }
+                    
+                    # Удаляем подписку
+                    cur.execute(f"""
+                        UPDATE subscriptions 
+                        SET end_date = NOW() - INTERVAL '1 day'
+                        WHERE listing_id = {listing_id_int} AND end_date > NOW()
+                    """)
+                    
+                    log_action(conn, manager_id_int, 'reset_subscription', listing_id_int, {'reason': 'Обнуление подписки менеджером'})
+                    message = 'Подписка обнулена'
                 
                 else:
                     return {

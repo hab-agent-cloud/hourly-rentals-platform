@@ -41,6 +41,7 @@ export default function ManagerDashboard() {
   const [adminId, setAdminId] = useState<number | null>(null);
   const [paymentHistory, setPaymentHistory] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('managerDarkMode') === 'true');
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -65,6 +66,15 @@ export default function ManagerDashboard() {
       fetchPaymentHistory();
     }
   }, [adminId]);
+
+  useEffect(() => {
+    localStorage.setItem('managerDarkMode', darkMode.toString());
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
   
   const fetchManagerData = async () => {
     try {
@@ -304,8 +314,16 @@ export default function ManagerDashboard() {
   ];
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
-      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-purple-200 shadow-sm">
+    <div className={`min-h-screen transition-colors duration-300 ${
+      darkMode 
+        ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900' 
+        : 'bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50'
+    }`}>
+      <div className={`sticky top-0 z-50 backdrop-blur-md border-b shadow-sm ${
+        darkMode 
+          ? 'bg-gray-800/80 border-purple-700' 
+          : 'bg-white/80 border-purple-200'
+      }`}>
         <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <div className="flex items-center gap-2 sm:gap-3">
@@ -317,7 +335,7 @@ export default function ManagerDashboard() {
                   {managerData.name}
                 </h1>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs sm:text-sm text-gray-600">
+                  <span className={`text-xs sm:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     {isOM ? 'Опытный менеджер' : isUM ? 'Ведущий менеджер' : 'Менеджер'}
                   </span>
                   {managerData.subscription_active && (
@@ -330,6 +348,14 @@ export default function ManagerDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDarkMode(!darkMode)}
+                className={darkMode ? 'text-yellow-400 hover:text-yellow-300 hover:bg-gray-700' : 'text-gray-600 hover:text-gray-700 hover:bg-gray-100'}
+              >
+                <Icon name={darkMode ? 'Sun' : 'Moon'} size={18} />
+              </Button>
               <MessagesDialog managerId={adminId!} />
               <OwnersMessagesDialog managerId={adminId!} />
               <Button
@@ -358,7 +384,9 @@ export default function ManagerDashboard() {
                   flex items-center gap-2 whitespace-nowrap transition-all duration-200
                   ${activeTab === tab.id 
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg scale-105' 
-                    : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                    : darkMode 
+                      ? 'text-gray-300 hover:bg-purple-900 hover:text-purple-300' 
+                      : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                   }
                 `}
               >

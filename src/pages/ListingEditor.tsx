@@ -62,8 +62,8 @@ export default function ListingEditor() {
   }
   
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8 max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      <div className="container mx-auto py-4 sm:py-8 px-2 sm:px-4 max-w-5xl">
         <ListingEditorHeader
           listing={listing}
           saving={saving}
