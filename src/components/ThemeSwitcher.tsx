@@ -12,53 +12,63 @@ import { motion } from 'framer-motion';
 export const themes = {
   default: {
     name: 'Спокойствие',
-    gradient: 'from-slate-50 via-blue-50 to-indigo-50',
+    gradient: 'from-blue-100 via-indigo-100 to-purple-100',
     icon: '🌊'
   },
   business: {
     name: 'Бизнес',
-    gradient: 'from-gray-50 via-slate-50 to-zinc-50',
+    gradient: 'from-slate-100 via-gray-100 to-zinc-100',
     icon: '💼'
   },
   energy: {
     name: 'Энергия',
-    gradient: 'from-orange-100 via-red-100 to-pink-100',
+    gradient: 'from-orange-200 via-red-200 to-pink-200',
     icon: '⚡'
   },
   fresh: {
     name: 'Свежесть',
-    gradient: 'from-emerald-50 via-teal-50 to-cyan-50',
+    gradient: 'from-emerald-100 via-teal-100 to-cyan-100',
     icon: '🌿'
   },
   speed: {
     name: 'Скорость',
-    gradient: 'from-blue-100 via-indigo-100 to-purple-100',
+    gradient: 'from-cyan-200 via-blue-200 to-indigo-200',
     icon: '🚀'
   },
   premium: {
     name: 'Премиум',
-    gradient: 'from-violet-100 via-purple-100 to-fuchsia-100',
+    gradient: 'from-violet-200 via-purple-200 to-fuchsia-200',
     icon: '💎'
   },
   comfort: {
     name: 'Комфорт',
-    gradient: 'from-amber-50 via-orange-50 to-rose-50',
+    gradient: 'from-amber-100 via-orange-100 to-rose-100',
     icon: '☕'
   },
   modern: {
     name: 'Современность',
-    gradient: 'from-cyan-50 via-sky-50 to-blue-50',
+    gradient: 'from-sky-100 via-cyan-100 to-teal-100',
     icon: '🎯'
   },
   drive: {
     name: 'Драйв',
-    gradient: 'from-yellow-100 via-orange-100 to-red-100',
+    gradient: 'from-yellow-200 via-orange-200 to-red-200',
     icon: '🔥'
   },
   trust: {
     name: 'Надёжность',
-    gradient: 'from-blue-50 via-indigo-50 to-slate-50',
+    gradient: 'from-indigo-100 via-blue-100 to-slate-100',
     icon: '🛡️'
+  },
+  sunset: {
+    name: 'Закат',
+    gradient: 'from-purple-200 via-pink-200 to-orange-200',
+    icon: '🌅'
+  },
+  ocean: {
+    name: 'Океан',
+    gradient: 'from-teal-200 via-cyan-200 to-blue-200',
+    icon: '🏖️'
   }
 };
 
