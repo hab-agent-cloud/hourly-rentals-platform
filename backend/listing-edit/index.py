@@ -51,7 +51,7 @@ def handler(event: dict, context) -> dict:
                     l.subscription_expires_at, l.created_by_employee_id, 
                     l.owner_id, l.square_meters, l.parking_type, 
                     l.parking_price_per_hour, l.short_title, l.trial_activated_at,
-                    o.full_name as owner_name, l.image_url, l.logo_url, l.rooms,
+                    o.full_name as owner_name, l.image_url, l.logo_url,
                     l.gold_gift_sent_at
                 FROM {schema}.listings l
                 LEFT JOIN {schema}.owners o ON l.owner_id = o.id
@@ -71,6 +71,28 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({'error': 'Listing not found'}),
                     'isBase64Encoded': False
                 }
+            
+            # Получаем комнаты для объекта
+            cur.execute(f'''
+                SELECT id, type, price, description, image_url, square_meters, features, min_hours
+                FROM {schema}.rooms
+                WHERE listing_id = %s
+                ORDER BY id
+            ''', (listing_id,))
+            
+            rooms_rows = cur.fetchall()
+            rooms = []
+            for room_row in rooms_rows:
+                rooms.append({
+                    'id': room_row[0],
+                    'type': room_row[1],
+                    'price': room_row[2],
+                    'description': room_row[3],
+                    'image_url': room_row[4],
+                    'square_meters': room_row[5],
+                    'features': room_row[6] if room_row[6] else [],
+                    'min_hours': room_row[7]
+                })
             
             listing = {
                 'id': row[0],
@@ -95,8 +117,8 @@ def handler(event: dict, context) -> dict:
                 'owner_name': row[19],
                 'image_url': row[20],
                 'logo_url': row[21],
-                'rooms': row[22] if row[22] else [],
-                'gold_gift_sent_at': row[23].isoformat() if row[23] else None
+                'rooms': rooms,
+                'gold_gift_sent_at': row[22].isoformat() if row[22] else None
             }
             
             return {
@@ -144,11 +166,6 @@ def handler(event: dict, context) -> dict:
                 'image_url': 'image_url',
                 'logo_url': 'logo_url'
             }
-            
-            # Обработка rooms отдельно, т.к. это JSONB
-            if 'rooms' in body:
-                updates.append("rooms = %s::jsonb")
-                params.append(json.dumps(body['rooms']))
             
             for frontend_field, db_field in field_mapping.items():
                 if frontend_field in body:
