@@ -56,11 +56,13 @@ export default function ThemeSwitcher() {
   });
 
   const changeTheme = (themeKey: ThemeKey) => {
+    console.log('🎨 Changing theme to:', themeKey);
     setCurrentTheme(themeKey);
     localStorage.setItem('guestTheme', themeKey);
     
     // Dispatch custom event for other components to listen
     window.dispatchEvent(new CustomEvent('themeChange', { detail: themeKey }));
+    console.log('🎨 Theme change event dispatched');
   };
 
   return (

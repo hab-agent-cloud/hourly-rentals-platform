@@ -42,6 +42,7 @@ export default function Index() {
     detectUserCity();
     
     const handleThemeChange = (e: CustomEvent) => {
+      console.log('🎨 Index.tsx received theme change:', e.detail);
       setCurrentTheme(e.detail as ThemeKey);
     };
     
