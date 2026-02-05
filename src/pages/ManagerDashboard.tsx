@@ -12,6 +12,7 @@ import TeamAnalytics from '@/components/om/TeamAnalytics';
 import MessagesDialog from '@/components/manager/MessagesDialog';
 import OwnersMessagesDialog from '@/components/manager/OwnersMessagesDialog';
 import ManagerTasksList from '@/components/manager/ManagerTasksList';
+import { motion } from 'framer-motion';
 
 const FUNC_URLS = {
   managerData: 'https://functions.poehali.dev/ccbc7231-4004-46e0-9caa-8afc6d0fa9db',
@@ -39,6 +40,7 @@ export default function ManagerDashboard() {
   const [loading, setLoading] = useState(true);
   const [adminId, setAdminId] = useState<number | null>(null);
   const [paymentHistory, setPaymentHistory] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState('overview');
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -255,136 +257,229 @@ export default function ManagerDashboard() {
   };
   
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">
-      <div className="text-center">
-        <Icon name="Loader2" size={48} className="animate-spin mx-auto mb-4" />
-        <p>Загрузка данных менеджера...</p>
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <Icon name="Loader2" size={48} className="animate-spin mx-auto mb-4 text-purple-600" />
+          <p className="text-lg font-medium text-purple-900">Загрузка данных менеджера...</p>
+        </motion.div>
       </div>
-    </div>;
+    );
   }
   
   if (!managerData) {
-    return <div className="flex items-center justify-center h-screen">
-      <div className="text-center">
-        <Icon name="AlertCircle" size={48} className="mx-auto mb-4 text-destructive" />
-        <p className="text-lg font-semibold">Ошибка загрузки данных</p>
-        <p className="text-sm text-muted-foreground mt-2">Проверьте консоль для деталей</p>
-        <Button onClick={() => window.location.reload()} className="mt-4">
-          Перезагрузить
-        </Button>
-      </div>
-    </div>;
-  }
-  
-  console.log('[MANAGER] Отображаем данные:', {
-    role: managerData.role,
-    listings: managerData.listings?.length,
-    tasks: managerData.tasks?.length,
-    om_name: managerData.om_name,
-    um_name: managerData.um_name
-  });
-  
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-purple-50/20 to-background">
-      <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 bg-white rounded-xl shadow-sm border">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Личный кабинет менеджера</h1>
-          <p className="text-muted-foreground mt-1 text-sm sm:text-base">{managerData.name}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => navigate('/sales-scripts')}>
-            <Icon name="FileText" size={16} className="sm:mr-2" />
-            <span className="hidden sm:inline">Скрипты</span>
-          </Button>
-          <OwnersMessagesDialog adminId={adminId!} />
-          <MessagesDialog 
-            adminId={adminId!} 
-            role={managerData.role === 'operational_manager' ? 'om' : managerData.role === 'unit_manager' ? 'um' : 'manager'} 
-          />
-          {managerData.role === 'operational_manager' && (
-            <ManageLimitsDialog omId={adminId!} onSuccess={fetchManagerData} />
-          )}
-          <Button size="sm" onClick={() => navigate('/career')}>
-            <Icon name="TrendingUp" size={16} className="sm:mr-2" />
-            <span className="hidden sm:inline">Карьера</span>
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => {
-            localStorage.removeItem('adminToken');
-            navigate('/admin/login');
-          }}>
-            <Icon name="LogOut" size={16} className="sm:mr-2" />
-            <span className="hidden sm:inline">Выйти</span>
-          </Button>
-        </div>
-      </div>
-      
-      <ManagerStatsCards 
-        managerData={managerData}
-        onWithdraw={handleWithdraw}
-      />
-
-      {managerData.tasks && managerData.tasks.length > 0 && (
-        <ManagerTasksList 
-          tasks={managerData.tasks}
-          managerId={adminId!}
-          onTaskCompleted={fetchManagerData}
-        />
-      )}
-      
-      <ManagerListingsSection 
-        managerData={managerData}
-        adminId={adminId!}
-        onFreezeListing={handleFreezeListing}
-        onUnfreezeListing={handleUnfreezeListing}
-        onRefresh={fetchManagerData}
-      />
-      
-      <ManagerCashSection 
-        paymentHistory={paymentHistory}
-      />
-      
-      {managerData.role === 'operational_manager' && managerData.managers && (
-        <TeamAnalytics 
-          managers={managerData.managers}
-          monthCommission={managerData.month_commission || 0}
-        />
-      )}
-      
-      {(managerData.om_name || managerData.um_name) && (
-        <Card className="shadow-md">
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-red-200 bg-white/90 backdrop-blur">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="Users" size={20} />
-              Моя команда
+            <CardTitle className="text-red-600 flex items-center gap-2">
+              <Icon name="AlertCircle" size={24} />
+              Ошибка загрузки
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {managerData.om_name && (
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
-                  <Icon name="User" size={20} className="text-white" />
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground">Оперативный менеджер</div>
-                  <div className="font-semibold">{managerData.om_name}</div>
-                </div>
-              </div>
-            )}
-            {managerData.um_name && (
-              <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg">
-                <div className="w-10 h-10 rounded-full bg-amber-600 flex items-center justify-center flex-shrink-0">
-                  <Icon name="Crown" size={20} className="text-white" />
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground">Управляющий менеджер</div>
-                  <div className="font-semibold">{managerData.um_name}</div>
-                </div>
-              </div>
-            )}
+          <CardContent>
+            <p className="text-gray-700 mb-4">Не удалось загрузить данные менеджера</p>
+            <Button onClick={() => navigate('/admin/login')} className="w-full">
+              Вернуться к входу
+            </Button>
           </CardContent>
         </Card>
-      )}
+      </div>
+    );
+  }
+  
+  const isOM = managerData.role === 'om';
+  const isUM = managerData.role === 'um';
+
+  const tabs = [
+    { id: 'overview', icon: 'LayoutDashboard', label: 'Обзор' },
+    { id: 'listings', icon: 'Building2', label: 'Объекты' },
+    { id: 'finance', icon: 'Wallet', label: 'Финансы' },
+    { id: 'tasks', icon: 'CheckSquare', label: 'Задачи' },
+    ...(isOM || isUM ? [{ id: 'team', icon: 'Users', label: 'Команда' }] : [])
+  ];
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-purple-200 shadow-sm">
+        <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                <Icon name="User" size={20} className="text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  {managerData.name}
+                </h1>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm text-gray-600">
+                    {isOM ? 'Опытный менеджер' : isUM ? 'Ведущий менеджер' : 'Менеджер'}
+                  </span>
+                  {managerData.subscription_active && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-green-400 to-emerald-400 text-white text-xs rounded-full">
+                      <Icon name="Zap" size={12} />
+                      Premium
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <MessagesDialog managerId={adminId!} />
+              <OwnersMessagesDialog managerId={adminId!} />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  localStorage.removeItem('adminToken');
+                  navigate('/admin/login');
+                }}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Icon name="LogOut" size={18} />
+                <span className="hidden sm:inline ml-2">Выход</span>
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {tabs.map((tab) => (
+              <Button
+                key={tab.id}
+                variant={activeTab === tab.id ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveTab(tab.id)}
+                className={`
+                  flex items-center gap-2 whitespace-nowrap transition-all duration-200
+                  ${activeTab === tab.id 
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg scale-105' 
+                    : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
+                  }
+                `}
+              >
+                <Icon name={tab.icon as any} size={16} />
+                <span className="hidden sm:inline">{tab.label}</span>
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {activeTab === 'overview' && (
+            <div className="space-y-4 sm:space-y-6">
+              <ManagerStatsCards managerData={managerData} />
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <Card className="bg-white/90 backdrop-blur border-purple-200 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-purple-900">
+                      <Icon name="TrendingUp" size={20} />
+                      Быстрые действия
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-2 gap-3">
+                    <Button 
+                      onClick={() => setActiveTab('listings')}
+                      className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                    >
+                      <Icon name="Building2" size={18} className="mr-2" />
+                      Объекты
+                    </Button>
+                    <Button 
+                      onClick={() => setActiveTab('finance')}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                    >
+                      <Icon name="Wallet" size={18} className="mr-2" />
+                      Финансы
+                    </Button>
+                    <Button 
+                      onClick={() => setActiveTab('tasks')}
+                      className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
+                    >
+                      <Icon name="CheckSquare" size={18} className="mr-2" />
+                      Задачи
+                    </Button>
+                    <Button 
+                      onClick={() => navigate('/sales-scripts')}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                    >
+                      <Icon name="MessageSquare" size={18} className="mr-2" />
+                      Скрипты
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/90 backdrop-blur border-purple-200 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-purple-900">
+                      <Icon name="Award" size={20} />
+                      Достижения
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-lg border border-yellow-200">
+                        <div className="flex items-center gap-2">
+                          <Icon name="Trophy" size={24} className="text-yellow-600" />
+                          <span className="font-medium text-gray-900">Объектов подключено</span>
+                        </div>
+                        <span className="text-2xl font-bold text-yellow-600">{managerData.total_listings || 0}</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                        <div className="flex items-center gap-2">
+                          <Icon name="DollarSign" size={24} className="text-green-600" />
+                          <span className="font-medium text-gray-900">Общий доход</span>
+                        </div>
+                        <span className="text-2xl font-bold text-green-600">{managerData.total_earned?.toFixed(0) || 0} ₽</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'listings' && (
+            <ManagerListingsSection
+              listings={managerData.listings || []}
+              onFreeze={handleFreezeListing}
+              onUnfreeze={handleUnfreezeListing}
+            />
+          )}
+
+          {activeTab === 'finance' && (
+            <ManagerCashSection
+              balance={managerData.balance}
+              pendingWithdrawals={managerData.pending_withdrawals}
+              totalEarned={managerData.total_earned}
+              onWithdraw={handleWithdraw}
+              paymentHistory={paymentHistory}
+            />
+          )}
+
+          {activeTab === 'tasks' && (
+            <ManagerTasksList managerId={adminId!} />
+          )}
+
+          {activeTab === 'team' && (isOM || isUM) && (
+            <div className="space-y-4">
+              <ManageLimitsDialog />
+              <TeamAnalytics />
+            </div>
+          )}
+        </motion.div>
       </div>
     </div>
   );
