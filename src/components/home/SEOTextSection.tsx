@@ -15,29 +15,6 @@ export default function SEOTextSection() {
           </p>
 
           <h3 className="text-2xl font-semibold mt-8 mb-4 text-purple-800">
-            Почасовая аренда в Москве, СПб и других городах России
-          </h3>
-          <p>
-            <strong>Почасовая аренда в Москве</strong>, <strong>почасовая аренда в СПб</strong> (Санкт-Петербурге), 
-            Казани, Екатеринбурге, Новосибирске и других крупных городах России становится всё популярнее. 
-            <strong>Почасовая аренда Москва</strong> представлена более чем 150 объектами, <strong>почасовая аренда СПб</strong> — 
-            более 80 вариантов. Вы можете <strong>снять номер на 2 часа</strong>, 3 часа, 4 часа или больше 
-            без необходимости оплачивать полные сутки. <strong>Гостиница почасовая</strong> и 
-            <strong>почасовая гостиница Москва</strong> — это экономия времени и денег.
-          </p>
-
-          <p>
-            На нашей платформе представлены проверенные объекты с прозрачными ценами. 
-            <strong>Отель почасовая аренда</strong> доступен в 21 городе: <strong>Москва</strong> (МСК), 
-            <strong>Санкт-Петербург</strong> (СПб, Питер), <strong>Казань</strong>, <strong>Екатеринбург</strong> (ЕКБ), 
-            <strong>Новосибирск</strong>, <strong>Нижний Новгород</strong> (НН), <strong>Челябинск</strong>, 
-            <strong>Самара</strong>, <strong>Омск</strong>, <strong>Ростов-на-Дону</strong>, <strong>Уфа</strong>, 
-            <strong>Красноярск</strong>, <strong>Пермь</strong>, <strong>Воронеж</strong>, <strong>Волгоград</strong>, 
-            <strong>Краснодар</strong>, <strong>Сочи</strong>, <strong>Тюмень</strong>, <strong>Барнаул</strong>, 
-            <strong>Владивосток</strong>, <strong>Иркутск</strong>.
-          </p>
-
-          <h3 className="text-2xl font-semibold mt-8 mb-4 text-purple-800">
             Как снять отель на час или на несколько часов?
           </h3>
           <p>
