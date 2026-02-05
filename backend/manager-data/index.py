@@ -97,6 +97,34 @@ def handler(event: dict, context) -> dict:
                     """, (admin_id_int,))
                     result['objects_count'] = cur.fetchone()['count']
                     
+                    # Статистика активности за неделю
+                    cur.execute("""
+                        SELECT COUNT(*) as completed_tasks
+                        FROM t_p39732784_hourly_rentals_platf.manager_tasks
+                        WHERE manager_id = %s 
+                        AND completed = true
+                        AND completed_at > NOW() - INTERVAL '7 days'
+                    """, (admin_id_int,))
+                    result['week_tasks_completed'] = cur.fetchone()['completed_tasks']
+                    
+                    # Рейтинг среди менеджеров (по количеству объектов)
+                    cur.execute("""
+                        WITH manager_stats AS (
+                            SELECT 
+                                manager_id,
+                                COUNT(*) as obj_count,
+                                RANK() OVER (ORDER BY COUNT(*) DESC) as rank
+                            FROM t_p39732784_hourly_rentals_platf.manager_listings
+                            GROUP BY manager_id
+                        )
+                        SELECT rank, obj_count
+                        FROM manager_stats
+                        WHERE manager_id = %s
+                    """, (admin_id_int,))
+                    rating_row = cur.fetchone()
+                    result['manager_rank'] = int(rating_row['rank']) if rating_row else None
+                    result['rank_objects'] = int(rating_row['obj_count']) if rating_row else 0
+                    
                     # Список объектов с критичностью
                     cur.execute("""
                         SELECT 

@@ -409,10 +409,95 @@ export default function ManagerDashboard() {
             <div className="space-y-4 sm:space-y-6">
               <ManagerStatsCards managerData={managerData} />
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Card className="bg-white/90 backdrop-blur border-purple-200 shadow-lg">
+              {!isOM && !isUM && (
+                <Card className={`shadow-lg border-2 ${
+                  darkMode 
+                    ? 'bg-gradient-to-br from-purple-900/50 to-pink-900/50 border-purple-700' 
+                    : 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-300'
+                }`}>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-purple-900">
+                    <CardTitle className={`flex items-center gap-2 ${darkMode ? 'text-purple-300' : 'text-purple-900'}`}>
+                      <Icon name="BarChart3" size={20} />
+                      Статистика активности
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className={`p-4 rounded-xl border-2 ${
+                        darkMode 
+                          ? 'bg-blue-900/30 border-blue-700' 
+                          : 'bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-300'
+                      }`}>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                            darkMode ? 'bg-blue-800' : 'bg-blue-500'
+                          }`}>
+                            <Icon name="Building2" size={24} className="text-white" />
+                          </div>
+                          <div>
+                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>В работе</p>
+                            <p className={`text-3xl font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                              {managerData.objects_count || 0}
+                            </p>
+                          </div>
+                        </div>
+                        <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>объектов под вашим управлением</p>
+                      </div>
+
+                      <div className={`p-4 rounded-xl border-2 ${
+                        darkMode 
+                          ? 'bg-green-900/30 border-green-700' 
+                          : 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300'
+                      }`}>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                            darkMode ? 'bg-green-800' : 'bg-green-500'
+                          }`}>
+                            <Icon name="CheckCircle2" size={24} className="text-white" />
+                          </div>
+                          <div>
+                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>За неделю</p>
+                            <p className={`text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
+                              {managerData.week_tasks_completed || 0}
+                            </p>
+                          </div>
+                        </div>
+                        <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>выполнено задач</p>
+                      </div>
+
+                      <div className={`p-4 rounded-xl border-2 ${
+                        darkMode 
+                          ? 'bg-amber-900/30 border-amber-700' 
+                          : 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-300'
+                      }`}>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                            darkMode ? 'bg-amber-800' : 'bg-amber-500'
+                          }`}>
+                            <Icon name="Medal" size={24} className="text-white" />
+                          </div>
+                          <div>
+                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Рейтинг</p>
+                            <p className={`text-3xl font-bold ${darkMode ? 'text-amber-400' : 'text-amber-600'}`}>
+                              #{managerData.manager_rank || '—'}
+                            </p>
+                          </div>
+                        </div>
+                        <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>место среди менеджеров</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <Card className={`shadow-lg ${
+                  darkMode 
+                    ? 'bg-gray-800/50 border-purple-700' 
+                    : 'bg-white/90 backdrop-blur border-purple-200'
+                }`}>
+                  <CardHeader>
+                    <CardTitle className={`flex items-center gap-2 ${darkMode ? 'text-purple-300' : 'text-purple-900'}`}>
                       <Icon name="TrendingUp" size={20} />
                       Быстрые действия
                     </CardTitle>
@@ -449,9 +534,13 @@ export default function ManagerDashboard() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white/90 backdrop-blur border-purple-200 shadow-lg">
+                <Card className={`shadow-lg ${
+                  darkMode 
+                    ? 'bg-gray-800/50 border-purple-700' 
+                    : 'bg-white/90 backdrop-blur border-purple-200'
+                }`}>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-purple-900">
+                    <CardTitle className={`flex items-center gap-2 ${darkMode ? 'text-purple-300' : 'text-purple-900'}`}>
                       <Icon name="Award" size={20} />
                       Достижения
                     </CardTitle>
