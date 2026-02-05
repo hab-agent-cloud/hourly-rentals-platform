@@ -204,6 +204,41 @@ def handler(event: dict, context) -> dict:
                         AND created_at > NOW() - INTERVAL '30 days'
                     """, (admin_id_int,))
                     result['month_commission'] = float(cur.fetchone()['month_commission'])
+                    
+                    # Статистика активности команды за неделю
+                    cur.execute("""
+                        SELECT COALESCE(SUM(completed_count), 0) as week_tasks_completed
+                        FROM (
+                            SELECT COUNT(*) as completed_count
+                            FROM t_p39732784_hourly_rentals_platf.manager_tasks mt
+                            JOIN t_p39732784_hourly_rentals_platf.manager_hierarchy mh 
+                                ON mt.manager_id = mh.manager_id
+                            WHERE mh.operational_manager_id = %s
+                            AND mt.completed = true
+                            AND mt.completed_at > NOW() - INTERVAL '7 days'
+                        ) t
+                    """, (admin_id_int,))
+                    result['week_tasks_completed'] = cur.fetchone()['week_tasks_completed']
+                    
+                    # Рейтинг ОМ по количеству объектов команды
+                    cur.execute("""
+                        WITH om_stats AS (
+                            SELECT 
+                                mh.operational_manager_id as om_id,
+                                COUNT(ml.id) as obj_count,
+                                RANK() OVER (ORDER BY COUNT(ml.id) DESC) as rank
+                            FROM t_p39732784_hourly_rentals_platf.manager_hierarchy mh
+                            JOIN t_p39732784_hourly_rentals_platf.manager_listings ml ON mh.manager_id = ml.manager_id
+                            WHERE mh.operational_manager_id IS NOT NULL
+                            GROUP BY mh.operational_manager_id
+                        )
+                        SELECT rank, obj_count
+                        FROM om_stats
+                        WHERE om_id = %s
+                    """, (admin_id_int,))
+                    rating_row = cur.fetchone()
+                    result['om_rank'] = int(rating_row['rank']) if rating_row else None
+                    result['rank_objects'] = int(rating_row['obj_count']) if rating_row else 0
                 
                 # Для УМ (Управляющего Менеджера)
                 elif admin['role'] == 'chief_manager':

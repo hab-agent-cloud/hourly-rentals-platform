@@ -409,50 +409,61 @@ export default function ManagerDashboard() {
             <div className="space-y-4 sm:space-y-6">
               <ManagerStatsCards managerData={managerData} />
               
-              {!isOM && !isUM && (
-                <Card className={`shadow-lg border-2 ${
+              {!isUM && (
+                <Card className={`shadow-lg border-2 overflow-hidden ${
                   darkMode 
                     ? 'bg-gradient-to-br from-purple-900/50 to-pink-900/50 border-purple-700' 
                     : 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-300'
                 }`}>
-                  <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 ${darkMode ? 'text-purple-300' : 'text-purple-900'}`}>
+                  <CardHeader className="relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-full blur-3xl"></div>
+                    <CardTitle className={`flex items-center gap-2 relative z-10 ${darkMode ? 'text-purple-300' : 'text-purple-900'}`}>
                       <Icon name="BarChart3" size={20} />
-                      Статистика активности
+                      {isOM ? 'Статистика команды' : 'Статистика активности'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className={`p-4 rounded-xl border-2 ${
-                        darkMode 
-                          ? 'bg-blue-900/30 border-blue-700' 
-                          : 'bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-300'
-                      }`}>
+                      <motion.div 
+                        whileHover={{ scale: 1.05, rotate: 1 }}
+                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          darkMode 
+                            ? 'bg-blue-900/30 border-blue-700 hover:border-blue-500' 
+                            : 'bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-300 hover:border-blue-500 hover:shadow-lg'
+                        }`}
+                      >
                         <div className="flex items-center gap-3 mb-2">
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                             darkMode ? 'bg-blue-800' : 'bg-blue-500'
-                          }`}>
+                          } shadow-lg`}>
                             <Icon name="Building2" size={24} className="text-white" />
                           </div>
                           <div>
-                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>В работе</p>
+                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {isOM ? 'Команда' : 'В работе'}
+                            </p>
                             <p className={`text-3xl font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                              {managerData.objects_count || 0}
+                              {isOM ? (managerData.total_objects || 0) : (managerData.objects_count || 0)}
                             </p>
                           </div>
                         </div>
-                        <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>объектов под вашим управлением</p>
-                      </div>
+                        <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                          {isOM ? 'объектов у команды' : 'объектов под вашим управлением'}
+                        </p>
+                      </motion.div>
 
-                      <div className={`p-4 rounded-xl border-2 ${
-                        darkMode 
-                          ? 'bg-green-900/30 border-green-700' 
-                          : 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300'
-                      }`}>
+                      <motion.div 
+                        whileHover={{ scale: 1.05, rotate: -1 }}
+                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          darkMode 
+                            ? 'bg-green-900/30 border-green-700 hover:border-green-500' 
+                            : 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300 hover:border-green-500 hover:shadow-lg'
+                        }`}
+                      >
                         <div className="flex items-center gap-3 mb-2">
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                             darkMode ? 'bg-green-800' : 'bg-green-500'
-                          }`}>
+                          } shadow-lg`}>
                             <Icon name="CheckCircle2" size={24} className="text-white" />
                           </div>
                           <div>
@@ -462,108 +473,149 @@ export default function ManagerDashboard() {
                             </p>
                           </div>
                         </div>
-                        <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>выполнено задач</p>
-                      </div>
+                        <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                          {isOM ? 'задач выполнила команда' : 'выполнено задач'}
+                        </p>
+                      </motion.div>
 
-                      <div className={`p-4 rounded-xl border-2 ${
-                        darkMode 
-                          ? 'bg-amber-900/30 border-amber-700' 
-                          : 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-300'
-                      }`}>
+                      <motion.div 
+                        whileHover={{ scale: 1.05, rotate: 1 }}
+                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          darkMode 
+                            ? 'bg-amber-900/30 border-amber-700 hover:border-amber-500' 
+                            : 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-300 hover:border-amber-500 hover:shadow-lg'
+                        }`}
+                      >
                         <div className="flex items-center gap-3 mb-2">
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                             darkMode ? 'bg-amber-800' : 'bg-amber-500'
-                          }`}>
+                          } shadow-lg`}>
                             <Icon name="Medal" size={24} className="text-white" />
                           </div>
                           <div>
                             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Рейтинг</p>
                             <p className={`text-3xl font-bold ${darkMode ? 'text-amber-400' : 'text-amber-600'}`}>
-                              #{managerData.manager_rank || '—'}
+                              #{isOM ? (managerData.om_rank || '—') : (managerData.manager_rank || '—')}
                             </p>
                           </div>
                         </div>
-                        <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>место среди менеджеров</p>
-                      </div>
+                        <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                          {isOM ? 'место среди ОМ' : 'место среди менеджеров'}
+                        </p>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
               )}
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Card className={`shadow-lg ${
-                  darkMode 
-                    ? 'bg-gray-800/50 border-purple-700' 
-                    : 'bg-white/90 backdrop-blur border-purple-200'
-                }`}>
-                  <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 ${darkMode ? 'text-purple-300' : 'text-purple-900'}`}>
-                      <Icon name="TrendingUp" size={20} />
-                      Быстрые действия
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-2 gap-3">
-                    <Button 
-                      onClick={() => setActiveTab('listings')}
-                      className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
-                    >
-                      <Icon name="Building2" size={18} className="mr-2" />
-                      Объекты
-                    </Button>
-                    <Button 
-                      onClick={() => setActiveTab('finance')}
-                      className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                    >
-                      <Icon name="Wallet" size={18} className="mr-2" />
-                      Финансы
-                    </Button>
-                    <Button 
-                      onClick={() => setActiveTab('tasks')}
-                      className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
-                    >
-                      <Icon name="CheckSquare" size={18} className="mr-2" />
-                      Задачи
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/sales-scripts')}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                    >
-                      <Icon name="MessageSquare" size={18} className="mr-2" />
-                      Скрипты
-                    </Button>
-                  </CardContent>
-                </Card>
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Card className={`shadow-lg h-full relative overflow-hidden ${
+                    darkMode 
+                      ? 'bg-gray-800/50 border-purple-700' 
+                      : 'bg-white/90 backdrop-blur border-purple-200'
+                  }`}>
+                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl"></div>
+                    <CardHeader className="relative z-10">
+                      <CardTitle className={`flex items-center gap-2 ${darkMode ? 'text-purple-300' : 'text-purple-900'}`}>
+                        <Icon name="Sparkles" size={20} />
+                        Быстрые действия
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 gap-3 relative z-10">
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button 
+                          onClick={() => setActiveTab('listings')}
+                          className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 w-full shadow-lg hover:shadow-xl transition-all"
+                        >
+                          <Icon name="Building2" size={18} className="mr-2" />
+                          Объекты
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button 
+                          onClick={() => setActiveTab('finance')}
+                          className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 w-full shadow-lg hover:shadow-xl transition-all"
+                        >
+                          <Icon name="Wallet" size={18} className="mr-2" />
+                          Финансы
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button 
+                          onClick={() => setActiveTab('tasks')}
+                          className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 w-full shadow-lg hover:shadow-xl transition-all"
+                        >
+                          <Icon name="CheckSquare" size={18} className="mr-2" />
+                          Задачи
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button 
+                          onClick={() => navigate('/sales-scripts')}
+                          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 w-full shadow-lg hover:shadow-xl transition-all"
+                        >
+                          <Icon name="MessageSquare" size={18} className="mr-2" />
+                          Скрипты
+                        </Button>
+                      </motion.div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
 
-                <Card className={`shadow-lg ${
-                  darkMode 
-                    ? 'bg-gray-800/50 border-purple-700' 
-                    : 'bg-white/90 backdrop-blur border-purple-200'
-                }`}>
-                  <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 ${darkMode ? 'text-purple-300' : 'text-purple-900'}`}>
-                      <Icon name="Award" size={20} />
-                      Достижения
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-lg border border-yellow-200">
-                        <div className="flex items-center gap-2">
-                          <Icon name="Trophy" size={24} className="text-yellow-600" />
-                          <span className="font-medium text-gray-900">Объектов подключено</span>
-                        </div>
-                        <span className="text-2xl font-bold text-yellow-600">{managerData.total_listings || 0}</span>
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Card className={`shadow-lg h-full relative overflow-hidden ${
+                    darkMode 
+                      ? 'bg-gray-800/50 border-purple-700' 
+                      : 'bg-white/90 backdrop-blur border-purple-200'
+                  }`}>
+                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-full blur-3xl"></div>
+                    <CardHeader className="relative z-10">
+                      <CardTitle className={`flex items-center gap-2 ${darkMode ? 'text-purple-300' : 'text-purple-900'}`}>
+                        <Icon name="Award" size={20} />
+                        Достижения
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="relative z-10">
+                      <div className="space-y-3">
+                        <motion.div 
+                          whileHover={{ scale: 1.02, x: 5 }}
+                          className={`flex items-center justify-between p-3 rounded-lg border shadow-sm transition-all ${
+                            darkMode 
+                              ? 'bg-yellow-900/20 border-yellow-700/50 hover:border-yellow-600'
+                              : 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200 hover:border-yellow-400 hover:shadow-md'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Icon name="Trophy" size={24} className="text-yellow-600" />
+                            <span className={`font-medium ${darkMode ? 'text-yellow-200' : 'text-gray-900'}`}>Объектов подключено</span>
+                          </div>
+                          <span className="text-2xl font-bold text-yellow-600">{managerData.total_listings || 0}</span>
+                        </motion.div>
+                        <motion.div 
+                          whileHover={{ scale: 1.02, x: 5 }}
+                          className={`flex items-center justify-between p-3 rounded-lg border shadow-sm transition-all ${
+                            darkMode
+                              ? 'bg-green-900/20 border-green-700/50 hover:border-green-600'
+                              : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:border-green-400 hover:shadow-md'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Icon name="DollarSign" size={24} className="text-green-600" />
+                            <span className={`font-medium ${darkMode ? 'text-green-200' : 'text-gray-900'}`}>Общий доход</span>
+                          </div>
+                          <span className="text-2xl font-bold text-green-600">{managerData.total_earned?.toFixed(0) || 0} ₽</span>
+                        </motion.div>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-                        <div className="flex items-center gap-2">
-                          <Icon name="DollarSign" size={24} className="text-green-600" />
-                          <span className="font-medium text-gray-900">Общий доход</span>
-                        </div>
-                        <span className="text-2xl font-bold text-green-600">{managerData.total_earned?.toFixed(0) || 0} ₽</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               </div>
             </div>
           )}
