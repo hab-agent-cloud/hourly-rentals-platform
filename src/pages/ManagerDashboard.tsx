@@ -675,9 +675,11 @@ export default function ManagerDashboard() {
 
           {activeTab === 'listings' && (
             <ManagerListingsSection
-              listings={managerData.listings || []}
-              onFreeze={handleFreezeListing}
-              onUnfreeze={handleUnfreezeListing}
+              managerData={managerData}
+              adminId={adminId!}
+              onFreezeListing={handleFreezeListing}
+              onUnfreezeListing={handleUnfreezeListing}
+              onRefresh={fetchManagerData}
             />
           )}
 

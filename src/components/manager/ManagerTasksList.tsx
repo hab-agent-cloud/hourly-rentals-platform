@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,16 +18,33 @@ interface Task {
 }
 
 interface ManagerTasksListProps {
-  tasks: Task[];
   managerId: number;
-  onTaskCompleted: () => void;
 }
 
 const COMPLETE_TASK_URL = 'https://functions.poehali.dev/d306fd9e-8d52-42ef-9d0b-e98812d164ea';
+const MANAGER_DATA_URL = 'https://functions.poehali.dev/ccbc7231-4004-46e0-9caa-8afc6d0fa9db';
 
-export default function ManagerTasksList({ tasks, managerId, onTaskCompleted }: ManagerTasksListProps) {
+export default function ManagerTasksList({ managerId }: ManagerTasksListProps) {
   const [loading, setLoading] = useState<number | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
   const { toast } = useToast();
+
+  const loadTasks = async () => {
+    try {
+      const response = await fetch(`${MANAGER_DATA_URL}?admin_id=${managerId}`);
+      const data = await response.json();
+      setTasks(data.tasks || []);
+    } catch (error) {
+      console.error('Ошибка загрузки задач:', error);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTasks();
+  }, [managerId]);
 
   const handleCompleteTask = async (taskId: number) => {
     setLoading(taskId);
@@ -60,7 +77,7 @@ export default function ManagerTasksList({ tasks, managerId, onTaskCompleted }: 
             : 'Отличная работа! ОМ получил уведомление',
           variant: data.is_overdue ? 'destructive' : 'default'
         });
-        onTaskCompleted();
+        loadTasks();
       } else {
         toast({
           title: 'Ошибка',
@@ -79,6 +96,24 @@ export default function ManagerTasksList({ tasks, managerId, onTaskCompleted }: 
       setLoading(null);
     }
   };
+
+  if (dataLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="ListTodo" size={20} />
+            Задачи от ОМ
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <Icon name="Loader2" size={32} className="animate-spin text-purple-600" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (tasks.length === 0) {
     return (
