@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,6 +43,9 @@ export default function ManagerDashboard() {
   const [paymentHistory, setPaymentHistory] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('managerDarkMode') === 'true');
+  const [refreshing, setRefreshing] = useState(false);
+  const touchStartY = useRef(0);
+  const touchEndY = useRef(0);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -90,6 +93,36 @@ export default function ManagerDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    await Promise.all([fetchManagerData(), fetchPaymentHistory()]);
+    setTimeout(() => setRefreshing(false), 500);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      touchStartY.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      touchEndY.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (window.scrollY === 0) {
+      const pullDistance = touchEndY.current - touchStartY.current;
+      if (pullDistance > 100) {
+        handleRefresh();
+      }
+    }
+    touchStartY.current = 0;
+    touchEndY.current = 0;
   };
   
   const fetchPaymentHistory = async () => {
@@ -315,11 +348,31 @@ export default function ManagerDashboard() {
   ];
   
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
-      darkMode 
-        ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900' 
-        : 'bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50'
-    }`}>
+    <div 
+      className={`min-h-screen transition-colors duration-300 ${
+        darkMode 
+          ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900' 
+          : 'bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50'
+      }`}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {refreshing && (
+        <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`px-4 py-2 rounded-full shadow-lg flex items-center gap-2 ${
+              darkMode ? 'bg-purple-800 text-purple-200' : 'bg-white text-purple-600'
+            }`}
+          >
+            <Icon name="RefreshCw" size={16} className="animate-spin" />
+            Обновление...
+          </motion.div>
+        </div>
+      )}
+
       <div className={`sticky top-0 z-50 backdrop-blur-md border-b shadow-sm ${
         darkMode 
           ? 'bg-gray-800/80 border-purple-700' 
