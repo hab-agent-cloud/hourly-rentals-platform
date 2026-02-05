@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import ListingPhotoSection from '@/components/listing-editor/ListingPhotoSection';
 import ListingBasicInfoSection from '@/components/listing-editor/ListingBasicInfoSection';
@@ -69,12 +70,24 @@ export default function ListingEditorContent({
 
       <ListingGiftsSection listingId={parseInt(id || '0')} />
 
-      {listing?.owner_id && listing?.owner_name && (
+      {listing?.owner_id ? (
         <ListingManagerChat
           listingId={listing.id}
           ownerId={listing.owner_id}
-          ownerName={listing.owner_name}
+          ownerName={listing.owner_name || 'Владелец'}
         />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-muted-foreground">
+              <Icon name="UserX" size={24} />
+              Владелец не назначен
+            </CardTitle>
+            <CardDescription>
+              Этот объект пока не имеет владельца. Чат с владельцем будет доступен после назначения владельца.
+            </CardDescription>
+          </CardHeader>
+        </Card>
       )}
 
       <ListingCategoriesSection
