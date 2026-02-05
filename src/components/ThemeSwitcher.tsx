@@ -76,15 +76,15 @@ export default function ThemeSwitcher() {
           <Icon name="ChevronDown" size={16} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-48 bg-white border-gray-200">
         {Object.entries(themes).map(([key, theme]) => (
           <DropdownMenuItem
             key={key}
             onClick={() => changeTheme(key as ThemeKey)}
-            className="cursor-pointer"
+            className="cursor-pointer hover:bg-gray-100 focus:bg-gray-100"
           >
             <motion.div 
-              className="flex items-center gap-3 w-full"
+              className="flex items-center gap-3 w-full text-gray-900"
               whileHover={{ x: 4 }}
               transition={{ duration: 0.2 }}
             >
