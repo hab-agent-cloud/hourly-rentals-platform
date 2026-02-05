@@ -154,7 +154,7 @@ export default function Index() {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].gradient} transition-all duration-500`}>
+    <div className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].gradient} ${themes[currentTheme].pattern} transition-all duration-500`}>
       <SEOStructuredData listings={filteredListings} cities={uniqueCities.filter(c => c !== 'Все города')} />
       <Header activeTab={activeTab} onTabChange={setActiveTab} />
 

@@ -13,62 +13,74 @@ export const themes = {
   default: {
     name: 'Спокойствие',
     gradient: 'from-blue-100 via-indigo-100 to-purple-100',
+    pattern: '',
     icon: '🌊'
+  },
+  dots: {
+    name: 'Горошек',
+    gradient: 'from-purple-100 via-pink-100 to-rose-100',
+    pattern: 'bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.3)_1px,transparent_1px)] bg-[size:24px_24px]',
+    icon: '⚪'
+  },
+  grid: {
+    name: 'Сетка',
+    gradient: 'from-blue-100 via-cyan-100 to-teal-100',
+    pattern: 'bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:32px_32px]',
+    icon: '▦'
+  },
+  waves: {
+    name: 'Волны',
+    gradient: 'from-cyan-100 via-blue-100 to-indigo-100',
+    pattern: 'bg-[url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 30c15 0 15-20 30-20s15 20 30 20 15-20 30-20 15 20 30 20\' stroke=\'rgba(255,255,255,0.2)\' fill=\'none\'/%3E%3C/svg%3E")]',
+    icon: '〰️'
+  },
+  diagonal: {
+    name: 'Диагонали',
+    gradient: 'from-violet-100 via-purple-100 to-fuchsia-100',
+    pattern: 'bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.1)_10px,rgba(255,255,255,0.1)_20px)]',
+    icon: '⟋'
+  },
+  hexagon: {
+    name: 'Соты',
+    gradient: 'from-amber-100 via-orange-100 to-rose-100',
+    pattern: 'bg-[url("data:image/svg+xml,%3Csvg width=\'50\' height=\'43.4\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M25 0l12.5 7.2v14.5L25 28.9 12.5 21.7V7.2z\' stroke=\'rgba(255,255,255,0.2)\' fill=\'none\'/%3E%3C/svg%3E")]',
+    icon: '⬡'
   },
   business: {
     name: 'Бизнес',
     gradient: 'from-slate-100 via-gray-100 to-zinc-100',
+    pattern: '',
     icon: '💼'
   },
   energy: {
     name: 'Энергия',
     gradient: 'from-orange-200 via-red-200 to-pink-200',
+    pattern: '',
     icon: '⚡'
   },
-  fresh: {
-    name: 'Свежесть',
+  circles: {
+    name: 'Круги',
     gradient: 'from-emerald-100 via-teal-100 to-cyan-100',
-    icon: '🌿'
-  },
-  speed: {
-    name: 'Скорость',
-    gradient: 'from-cyan-200 via-blue-200 to-indigo-200',
-    icon: '🚀'
-  },
-  premium: {
-    name: 'Премиум',
-    gradient: 'from-violet-200 via-purple-200 to-fuchsia-200',
-    icon: '💎'
-  },
-  comfort: {
-    name: 'Комфорт',
-    gradient: 'from-amber-100 via-orange-100 to-rose-100',
-    icon: '☕'
+    pattern: 'bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.15)_0%,transparent_50%),radial-gradient(circle_at_80%_80%,rgba(255,255,255,0.15)_0%,transparent_50%)]',
+    icon: '◯'
   },
   modern: {
     name: 'Современность',
     gradient: 'from-sky-100 via-cyan-100 to-teal-100',
+    pattern: '',
     icon: '🎯'
   },
-  drive: {
-    name: 'Драйв',
-    gradient: 'from-yellow-200 via-orange-200 to-red-200',
-    icon: '🔥'
-  },
-  trust: {
-    name: 'Надёжность',
-    gradient: 'from-indigo-100 via-blue-100 to-slate-100',
-    icon: '🛡️'
+  stars: {
+    name: 'Звёзды',
+    gradient: 'from-indigo-100 via-purple-100 to-pink-100',
+    pattern: 'bg-[radial-gradient(2px_2px_at_20%_30%,white,transparent),radial-gradient(2px_2px_at_60%_70%,white,transparent),radial-gradient(1px_1px_at_50%_50%,white,transparent),radial-gradient(1px_1px_at_80%_10%,white,transparent),radial-gradient(2px_2px_at_90%_60%,white,transparent),radial-gradient(1px_1px_at_30%_80%,white,transparent)] bg-[length:200px_200px]',
+    icon: '✨'
   },
   sunset: {
     name: 'Закат',
     gradient: 'from-purple-200 via-pink-200 to-orange-200',
+    pattern: '',
     icon: '🌅'
-  },
-  ocean: {
-    name: 'Океан',
-    gradient: 'from-teal-200 via-cyan-200 to-blue-200',
-    icon: '🏖️'
   }
 };
 
