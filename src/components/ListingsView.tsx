@@ -167,6 +167,7 @@ export default function ListingsView({
   );
 
   if (showMap) {
+    console.log('Showing map with', filteredListings.length, 'listings');
     return (
       <MapView
         listings={filteredListings}
