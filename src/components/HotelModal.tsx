@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
+import PromotionBadge from '@/components/PromotionBadge';
 
 type Hotel = {
   id: number;
@@ -179,6 +180,8 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
               </li>
             </ul>
           </div>
+
+          <PromotionBadge listingId={hotel.id} />
 
           <div className="flex gap-3">
             {hotel.phone && (

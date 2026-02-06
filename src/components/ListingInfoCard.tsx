@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import PromotionBadge from '@/components/PromotionBadge';
 
 interface ListingInfoCardProps {
   listing: any;
@@ -111,6 +112,8 @@ export default function ListingInfoCard({ listing }: ListingInfoCardProps) {
                   )}
                 </div>
               </div>
+
+              <PromotionBadge listingId={listing.id} />
 
               <div className="flex flex-col gap-3 pt-4">
                 {listing.phone && (

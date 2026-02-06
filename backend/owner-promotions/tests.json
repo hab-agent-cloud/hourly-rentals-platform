@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "Get promotions without auth",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create promotion without auth returns 401",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "listing_id": 1
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

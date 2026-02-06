@@ -88,7 +88,7 @@ export function useOwnerDashboard() {
   const [subscriptionInfo, setSubscriptionInfo] = useState<Map<number, SubscriptionInfo>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
   const [isTopupLoading, setIsTopupLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'promotion' | 'expert'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'promotion' | 'expert' | 'promotions'>('overview');
   const [editingListing, setEditingListing] = useState<any | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();

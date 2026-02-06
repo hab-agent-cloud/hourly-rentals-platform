@@ -5,6 +5,7 @@ import Icon from '@/components/ui/icon';
 import OwnerDashboardHeader from '@/components/OwnerDashboardHeader';
 import OwnerOverviewTab from '@/components/OwnerOverviewTab';
 import OwnerPromotionTab from '@/components/OwnerPromotionTab';
+import OwnerPromotionsTab from '@/components/OwnerPromotionsTab';
 import OwnerExpertTab from '@/components/OwnerExpertTab';
 
 import OwnerEditListingDialogNew from '@/components/OwnerEditListingDialogNew';
@@ -39,6 +40,8 @@ export default function OwnerDashboard() {
     handleLogout,
   } = useOwnerDashboard();
 
+  type ActiveTab = 'overview' | 'promotion' | 'expert' | 'promotions';
+
   if (!owner) {
     return <div className="min-h-screen flex items-center justify-center">
       <Icon name="Loader2" size={48} className="animate-spin text-purple-600" />
@@ -67,8 +70,8 @@ export default function OwnerDashboard() {
             </CardHeader>
           </Card>
         ) : (
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'overview' | 'promotion' | 'expert')} className="space-y-3 sm:space-y-4">
-            <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-white/60 backdrop-blur-sm border border-purple-200 shadow-sm">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ActiveTab)} className="space-y-3 sm:space-y-4">
+            <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-white/60 backdrop-blur-sm border border-purple-200 shadow-sm">
               <TabsTrigger 
                 value="overview" 
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2.5 sm:py-3 text-xs sm:text-sm font-medium data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all"
@@ -84,6 +87,13 @@ export default function OwnerDashboard() {
                 <Icon name="TrendingUp" size={18} />
                 <span className="hidden sm:inline">Продвижение</span>
                 <span className="sm:hidden text-[10px]">ТОП</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="promotions" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 py-2.5 sm:py-3 text-xs sm:text-sm font-medium data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all"
+              >
+                <Icon name="Megaphone" size={18} />
+                <span className="text-[10px] sm:text-sm">Акции</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="expert" 
@@ -116,6 +126,13 @@ export default function OwnerDashboard() {
                 isLoading={isLoading}
                 onSelectListing={handleListingSelect}
                 onPurchasePackage={handlePurchasePackage}
+              />
+            </TabsContent>
+
+            <TabsContent value="promotions">
+              <OwnerPromotionsTab 
+                listings={listings}
+                token={token!}
               />
             </TabsContent>
 

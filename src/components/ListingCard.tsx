@@ -2,6 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import PromotionBadge from '@/components/PromotionBadge';
 
 type Listing = {
   id: number;
@@ -173,6 +174,8 @@ export default function ListingCard({
             </div>
           )}
         </div>
+
+        <PromotionBadge listingId={listing.id} />
 
         <div className="flex gap-2">
           {listing.phone && onPhoneClick && (
