@@ -26,7 +26,6 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
   const mapInstanceRef = useRef<any>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
-  const [isLocating, setIsLocating] = useState(false);
 
   useEffect(() => {
     if ((window as any).ymaps) {
