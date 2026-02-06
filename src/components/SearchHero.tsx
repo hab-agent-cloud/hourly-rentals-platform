@@ -203,45 +203,45 @@ export default function SearchHero({
     }
   };
   return (
-    <section className="mb-6 sm:mb-12 pt-12 sm:pt-16 md:pt-20 text-center animate-fade-in px-2">
+    <section className="mb-6 sm:mb-12 pt-12 sm:pt-16 md:pt-20 text-center animate-fade-in px-3 sm:px-4">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
           ПОЧАСОВАЯ АРЕНДА
         </h2>
-        <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
+        <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-5 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
           ОТЕЛЕЙ И АПАРТАМЕНТОВ
         </h3>
         
-        <div className="mb-4 sm:mb-6 px-4 space-y-2">
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3 sm:p-4 shadow-lg border border-purple-200">
-            <p className="text-lg sm:text-xl md:text-2xl text-purple-900 font-bold mb-2">
-              🎉 Более 3000 объектов по России
+        <div className="mb-5 sm:mb-6 px-2 sm:px-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 sm:p-5 shadow-xl border-2 border-purple-200">
+            <p className="text-xl sm:text-2xl md:text-3xl text-purple-900 font-bold mb-2">
+              🎉 Более 3000 объектов
             </p>
-            <p className="text-sm sm:text-base text-purple-700">
-              Присоединяйтесь к тысячам довольных клиентов!
+            <p className="text-base sm:text-lg text-purple-700 font-medium">
+              по России
             </p>
           </div>
         </div>
-        <div className="flex justify-center items-center mb-4 sm:mb-6 min-h-[32px] sm:min-h-[40px]">
-          <div key={`anim-${currentMessageIndex}`} className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
-            <Icon name={messages[currentMessageIndex].icon as any} size={20} className="text-green-500 flex-shrink-0" />
-            <span className="inline-block">{messages[currentMessageIndex].text}</span>
+        <div className="flex justify-center items-center mb-5 sm:mb-6 min-h-[40px] sm:min-h-[44px] px-2">
+          <div key={`anim-${currentMessageIndex}`} className="flex items-center justify-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
+            <Icon name={messages[currentMessageIndex].icon as any} size={22} className="text-green-500 flex-shrink-0" />
+            <span className="inline-block leading-snug">{messages[currentMessageIndex].text}</span>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 md:gap-6 mb-6 sm:mb-8 text-[11px] sm:text-base md:text-lg font-medium">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">1</div>
-            <span className="whitespace-nowrap">ВЫБИРАЕТЕ</span>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 text-sm sm:text-base md:text-lg font-medium px-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">1</div>
+            <span className="whitespace-nowrap text-base sm:text-lg">ВЫБИРАЕТЕ</span>
           </div>
-          <Icon name="ArrowRight" size={14} className="text-purple-600 rotate-90 sm:rotate-0 flex-shrink-0" />
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">2</div>
-            <span className="whitespace-nowrap">СВЯЗЫВАЕТЕСЬ</span>
+          <Icon name="ArrowRight" size={18} className="text-purple-600 rotate-90 sm:rotate-0 flex-shrink-0" />
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">2</div>
+            <span className="whitespace-nowrap text-base sm:text-lg">СВЯЗЫВАЕТЕСЬ</span>
           </div>
-          <Icon name="ArrowRight" size={14} className="text-purple-600 rotate-90 sm:rotate-0 flex-shrink-0" />
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-xs sm:text-sm flex-shrink-0">3</div>
-            <span className="whitespace-nowrap">БРОНИРУЕТЕ</span>
+          <Icon name="ArrowRight" size={18} className="text-purple-600 rotate-90 sm:rotate-0 flex-shrink-0" />
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">3</div>
+            <span className="whitespace-nowrap text-base sm:text-lg">БРОНИРУЕТЕ</span>
           </div>
         </div>
 

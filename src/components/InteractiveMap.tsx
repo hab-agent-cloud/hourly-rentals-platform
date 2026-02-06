@@ -63,7 +63,18 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
 
       mapInstanceRef.current = map;
 
-      listings.forEach((listing) => {
+      const clusterer = new ymaps.Clusterer({
+        preset: 'islands#violetClusterIcons',
+        clusterDisableClickZoom: false,
+        clusterOpenBalloonOnClick: true,
+        clusterBalloonContentLayout: 'cluster#balloonCarousel',
+        clusterBalloonPanelMaxMapArea: 0,
+        clusterBalloonContentLayoutWidth: 300,
+        clusterBalloonContentLayoutHeight: 200,
+        clusterBalloonPagerSize: 5
+      });
+
+      const placemarks = listings.map((listing) => {
         const placemark = new ymaps.Placemark(
           [listing.lat, listing.lng],
           {
@@ -77,7 +88,8 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
                 </button>
               </div>
             `,
-            hintContent: listing.title
+            hintContent: listing.title,
+            clusterCaption: listing.title
           },
           {
             preset: listing.auction <= 3 ? 'islands#redIcon' : 'islands#violetIcon',
@@ -89,11 +101,14 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
           window.location.href = `/listing/${listing.id}`;
         });
 
-        map.geoObjects.add(placemark);
+        return placemark;
       });
 
+      clusterer.add(placemarks);
+      map.geoObjects.add(clusterer);
+
       if (bounds.length > 1) {
-        map.setBounds(map.geoObjects.getBounds(), { checkZoomRange: true, zoomMargin: 50 });
+        map.setBounds(clusterer.getBounds(), { checkZoomRange: true, zoomMargin: 50 });
       }
     });
 
