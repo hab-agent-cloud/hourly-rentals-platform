@@ -317,8 +317,8 @@ export default function SearchHero({
                 </Badge>
               )}
             </div>
-            <div className="flex flex-wrap gap-2">
-              {['Уфа', 'Москва', 'Санкт-Петербург', 'Казань', 'Самара', 'Ростов-на-Дону', 'Краснодар', 'Нижний Новгород', 'Екатеринбург', 'Новосибирск'].map(city => (
+            <div className="flex flex-wrap gap-2 items-center">
+              {['Москва', 'Санкт-Петербург'].map(city => (
                 <Badge
                   key={city}
                   variant={selectedCity === city ? "default" : "secondary"}
@@ -332,6 +332,15 @@ export default function SearchHero({
                   {city}
                 </Badge>
               ))}
+              <Badge 
+                variant="secondary" 
+                className="cursor-pointer hover:bg-purple-100" 
+                onClick={() => setShowMap(!showMap)}
+              >
+                <Icon name="Map" size={14} className="mr-1" />
+                <span className="hidden sm:inline">{showMap ? 'Показать списком' : 'Показать на карте'}</span>
+                <span className="sm:hidden">{showMap ? 'Списком' : 'На карте'}</span>
+              </Badge>
             </div>
 
             <div className="flex items-center gap-2">
@@ -361,11 +370,7 @@ export default function SearchHero({
                 <Icon name="Clock" size={14} className="mr-1" />
                 От 1 часа
               </Badge>
-              <Badge variant="secondary" className="cursor-pointer hover:bg-purple-100" onClick={() => setShowMap(!showMap)}>
-                <Icon name="Map" size={14} className="mr-1" />
-                <span className="hidden sm:inline">{showMap ? 'Показать списком' : 'Показать на карте'}</span>
-                <span className="sm:hidden">{showMap ? 'Списком' : 'На карте'}</span>
-              </Badge>
+
             </div>
 
             <div className="flex items-center gap-2 mt-2">

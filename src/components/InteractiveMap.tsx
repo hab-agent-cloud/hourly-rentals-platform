@@ -16,9 +16,10 @@ interface InteractiveMapProps {
   listings: Listing[];
   selectedId: number | null;
   onSelectListing: (id: number) => void;
+  selectedCity?: string;
 }
 
-export default function InteractiveMap({ listings, selectedId, onSelectListing }: InteractiveMapProps) {
+export default function InteractiveMap({ listings, selectedId, onSelectListing, selectedCity }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,7 +39,7 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing }
         const bounds = listings.map(l => [l.lat, l.lng]);
         const map = new ymaps.Map(mapRef.current, {
           center: bounds.length ? bounds[0] : [55.75, 37.62],
-          zoom: 5,
+          zoom: bounds.length === 1 ? 13 : 10,
           controls: ['zoomControl', 'fullscreenControl']
         });
 
@@ -52,6 +53,9 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing }
                   <p style="margin: 4px 0;">📍 ${listing.city}</p>
                   <p style="margin: 4px 0;">💰 <strong>${listing.price} ₽</strong> / час</p>
                   ${listing.auction <= 3 ? `<p style="margin: 4px 0; color: #f97316;"><strong>🏆 ТОП-${listing.auction}</strong></p>` : ''}
+                  <button onclick="window.location.href='/listing/${listing.id}'" style="margin-top: 8px; padding: 6px 12px; background: linear-gradient(to right, #9333ea, #ec4899); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                    Открыть объект →
+                  </button>
                 </div>
               `,
               hintContent: listing.title
@@ -63,7 +67,7 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing }
           );
 
           placemark.events.add('click', () => {
-            onSelectListing(listing.id);
+            window.location.href = `/listing/${listing.id}`;
           });
 
           map.geoObjects.add(placemark);
@@ -78,7 +82,7 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing }
     return () => {
       script.remove();
     };
-  }, [listings, selectedId, onSelectListing]);
+  }, [listings, selectedId, onSelectListing, selectedCity]);
 
   return (
     <Card className="h-full overflow-hidden border-2 border-purple-200">

@@ -29,26 +29,23 @@ interface MapViewProps {
   selectedListing: number | null;
   onListingSelect: (id: number | null) => void;
   onToggleMap: () => void;
+  selectedCity?: string;
 }
 
 export default function MapView({ 
   listings, 
   selectedListing, 
   onListingSelect, 
-  onToggleMap 
+  onToggleMap,
+  selectedCity
 }: MapViewProps) {
   return (
     <div className="relative h-[600px] rounded-xl overflow-hidden border-2 border-purple-200 shadow-xl">
       <InteractiveMap
-        locations={listings.map(l => ({
-          id: l.id,
-          lat: l.lat,
-          lng: l.lng,
-          title: l.title,
-          price: l.price,
-        }))}
+        listings={listings}
         selectedId={selectedListing}
-        onMarkerClick={onListingSelect}
+        onSelectListing={onListingSelect}
+        selectedCity={selectedCity}
       />
       <Button
         variant="secondary"

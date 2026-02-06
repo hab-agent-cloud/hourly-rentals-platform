@@ -13,6 +13,7 @@ export default function InstallAppBanner() {
   const [showBanner, setShowBanner] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     // Определяем iOS
@@ -27,6 +28,7 @@ export default function InstallAppBanner() {
 
     if (!isInstalled && !wasDismissed) {
       setShowBanner(true);
+      setTimeout(() => setIsVisible(true), 100);
     }
 
     // Для Android/Chrome
@@ -75,6 +77,7 @@ export default function InstallAppBanner() {
 
   if (showIOSInstructions) {
     return (
+      <div className={`transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
       <Card className="p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 shadow-lg">
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-center gap-3">
@@ -141,10 +144,12 @@ export default function InstallAppBanner() {
           </div>
         </div>
       </Card>
+      </div>
     );
   }
 
   return (
+    <div className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
     <Card className="p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 shadow-lg">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
         <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
@@ -192,5 +197,6 @@ export default function InstallAppBanner() {
         </div>
       </div>
     </Card>
+    </div>
   );
 }

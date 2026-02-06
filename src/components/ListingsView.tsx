@@ -171,6 +171,7 @@ export default function ListingsView({
         selectedListing={selectedListing}
         onListingSelect={onListingSelect}
         onToggleMap={onToggleMap}
+        selectedCity={selectedCity}
       />
     );
   }
@@ -210,14 +211,7 @@ export default function ListingsView({
             </SelectContent>
           </Select>
 
-          <Button 
-            variant="outline" 
-            onClick={onToggleMap}
-            className="bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100"
-          >
-            <Icon name="Map" size={18} className="mr-2" />
-            Показать на карте
-          </Button>
+
         </div>
       </div>
 
