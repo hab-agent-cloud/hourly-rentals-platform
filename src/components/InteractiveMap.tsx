@@ -44,11 +44,14 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
         const response = await fetch('https://functions.poehali.dev/aac578aa-3e58-43b2-825d-b31024c23163');
         const data = await response.json();
         const apiKey = data.apiKey || '';
+        
+        console.log('Yandex Maps API Key loaded:', apiKey ? 'Yes (length: ' + apiKey.length + ')' : 'No');
 
         const script = document.createElement('script');
         script.src = `https://api-maps.yandex.ru/2.1/?apikey=${apiKey}&lang=ru_RU`;
         script.async = true;
         script.onload = () => setIsScriptLoaded(true);
+        script.onerror = () => console.error('Failed to load Yandex Maps script');
         document.head.appendChild(script);
       } catch (error) {
         console.error('Failed to load map API key:', error);
