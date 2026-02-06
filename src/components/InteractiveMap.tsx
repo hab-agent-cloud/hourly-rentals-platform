@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 
 interface Listing {
   id: number;
@@ -23,6 +25,8 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
 
   useEffect(() => {
     if ((window as any).ymaps) {
@@ -120,6 +124,38 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
     };
   }, [listings, selectedId, isScriptLoaded]);
 
+  const handleMyLocation = () => {
+    if (!navigator.geolocation) {
+      alert('Ваш браузер не поддерживает геолокацию');
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.setCenter([latitude, longitude], 13, { duration: 500 });
+          
+          const ymaps = (window as any).ymaps;
+          if (ymaps) {
+            const myLocationPlacemark = new ymaps.Placemark(
+              [latitude, longitude],
+              { hintContent: 'Вы здесь' },
+              { preset: 'islands#blueCircleIcon' }
+            );
+            mapInstanceRef.current.geoObjects.add(myLocationPlacemark);
+          }
+        }
+        setIsLocating(false);
+      },
+      () => {
+        alert('Не удалось определить ваше местоположение');
+        setIsLocating(false);
+      }
+    );
+  };
+
   return (
     <Card className="h-full overflow-hidden border-2 border-purple-200">
       <div className="relative w-full h-full">
@@ -141,6 +177,18 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
             </div>
           </div>
         </div>
+        <Button
+          onClick={handleMyLocation}
+          disabled={isLocating}
+          className="absolute bottom-4 right-4 bg-white hover:bg-gray-100 text-gray-900 shadow-lg border border-gray-200"
+          size="icon"
+        >
+          {isLocating ? (
+            <Icon name="Loader2" size={20} className="animate-spin" />
+          ) : (
+            <Icon name="Locate" size={20} />
+          )}
+        </Button>
         {listings.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm">
             <div className="text-center p-8">
