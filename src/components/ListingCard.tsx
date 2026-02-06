@@ -89,12 +89,7 @@ export default function ListingCard({
             🏨
           </div>
         )}
-        {hasActiveSubscription && (
-          <div className="absolute top-3 right-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-3 py-1 rounded-full font-bold shadow-lg flex items-center gap-1 animate-pulse">
-            <Icon name="Star" size={16} className="fill-white" />
-            <span className="text-sm">VIP</span>
-          </div>
-        )}
+
         {listing.logo_url && (
           <div className="absolute top-3 left-3 w-12 h-12 bg-white rounded-full shadow-lg overflow-hidden border-2 border-white">
             <img src={listing.logo_url} alt="logo" className="w-full h-full object-cover" />
