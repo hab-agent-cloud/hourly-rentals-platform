@@ -98,12 +98,7 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
                 🏨
               </div>
             )}
-            {hotel.auction <= 3 && (
-              <Badge className="absolute top-4 right-4 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold text-lg px-4 py-2">
-                <Icon name="Trophy" size={20} className="mr-2" />
-                ТОП-{hotel.auction}
-              </Badge>
-            )}
+
           </div>
 
           <div>

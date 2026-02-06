@@ -52,7 +52,6 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
                 <div style="padding: 8px;">
                   <p style="margin: 4px 0;">📍 ${listing.city}</p>
                   <p style="margin: 4px 0;">💰 <strong>${listing.price} ₽</strong> / час</p>
-                  ${listing.auction <= 3 ? `<p style="margin: 4px 0; color: #f97316;"><strong>🏆 ТОП-${listing.auction}</strong></p>` : ''}
                   <button onclick="window.location.href='/listing/${listing.id}'" style="margin-top: 8px; padding: 6px 12px; background: linear-gradient(to right, #9333ea, #ec4899); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
                     Открыть объект →
                   </button>

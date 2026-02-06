@@ -25,6 +25,7 @@ type Listing = {
   rooms: { type: string; price: number }[];
   phone?: string;
   telegram?: string;
+  subscription_expires_at?: string;
 };
 
 interface ListingCardProps {
@@ -63,11 +64,15 @@ export default function ListingCard({
   onCardClick,
   onPhoneClick 
 }: ListingCardProps) {
-  const isTopThree = position <= 3;
+  const hasActiveSubscription = listing.subscription_expires_at && new Date(listing.subscription_expires_at) > new Date();
 
   return (
     <Card 
-      className="overflow-hidden cursor-pointer border-2 border-purple-100 hover:border-purple-300 transition-all hover:shadow-xl group"
+      className={`overflow-hidden cursor-pointer transition-all hover:shadow-xl group ${
+        hasActiveSubscription 
+          ? 'border-4 border-transparent bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 shadow-2xl relative before:absolute before:inset-0 before:p-[3px] before:rounded-lg before:bg-gradient-to-r before:from-purple-600 before:via-pink-600 before:to-orange-500 before:-z-10 before:animate-pulse' 
+          : 'border-2 border-purple-100 hover:border-purple-300'
+      }`}
       onClick={() => onCardClick(listing)}
     >
       <div className="relative">
@@ -82,10 +87,11 @@ export default function ListingCard({
             🏨
           </div>
         )}
-        {showPosition && isTopThree && position > 0 && (
-          <Badge className="absolute top-3 right-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold shadow-lg">
-            ТОП-{position}
-          </Badge>
+        {hasActiveSubscription && (
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-3 py-1 rounded-full font-bold shadow-lg flex items-center gap-1 animate-pulse">
+            <Icon name="Star" size={16} className="fill-white" />
+            <span className="text-sm">VIP</span>
+          </div>
         )}
         {listing.logo_url && (
           <div className="absolute top-3 left-3 w-12 h-12 bg-white rounded-full shadow-lg overflow-hidden border-2 border-white">
