@@ -91,7 +91,7 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
         const bounds = listings.map(l => [l.lat, l.lng]);
         const map = new ymaps.Map(mapRef.current, {
           center: bounds.length ? bounds[0] : [55.75, 37.62],
-          zoom: bounds.length === 1 ? 13 : 10,
+          zoom: 11,
           controls: ['zoomControl', 'fullscreenControl']
         });
         console.log('Map created successfully');
@@ -107,12 +107,16 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
       const clusterer = new ymaps.Clusterer({
         preset: 'islands#violetClusterIcons',
         clusterDisableClickZoom: false,
-        clusterOpenBalloonOnClick: true,
+        clusterOpenBalloonOnClick: false,
         clusterBalloonContentLayout: 'cluster#balloonCarousel',
         clusterBalloonPanelMaxMapArea: 0,
         clusterBalloonContentLayoutWidth: 300,
         clusterBalloonContentLayoutHeight: 200,
-        clusterBalloonPagerSize: 5
+        clusterBalloonPagerSize: 5,
+        gridSize: 128,
+        clusterIconContentLayout: ymaps.templateLayoutFactory.createClass(
+          '<div style="color: #fff; font-weight: bold;">$[properties.geoObjects.length]</div>'
+        )
       });
 
       const placemarks = listings.map((listing) => {
@@ -150,9 +154,13 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
 
       setTimeout(() => {
         if (bounds.length > 1 && map && clusterer.getBounds()) {
-          map.setBounds(clusterer.getBounds(), { checkZoomRange: true, zoomMargin: 50 });
+          map.setBounds(clusterer.getBounds(), { 
+            checkZoomRange: true, 
+            zoomMargin: [50, 50, 50, 50],
+            duration: 300
+          });
         }
-      }, 500);
+      }, 800);
       });
     }, 300);
 
