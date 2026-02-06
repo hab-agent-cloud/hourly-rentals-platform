@@ -79,11 +79,13 @@ export default function SEOTextSection() {
 
           <div className="mt-10 p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
             <p className="text-lg font-semibold text-purple-900 mb-2">
-              Начните пользоваться сервисом прямо сейчас!
+              Более 3000 объектов в городах России на сайте!
             </p>
             <p className="text-gray-700">
-              Более 500 объектов в 21 городе России. <strong>Бронирование отеля на час</strong> ещё никогда 
-              не было таким простым. Присоединяйтесь к тысячам довольных клиентов 120 МИНУТ!
+              <strong>Аренда на час</strong> ещё не было таким простым.
+            </p>
+            <p className="text-gray-700 mt-2">
+              Присоединяйтесь к тысячам довольных клиентов 120 минут!
             </p>
           </div>
         </div>

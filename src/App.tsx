@@ -24,6 +24,7 @@ import ManagerDashboard from "./pages/ManagerDashboard";
 import Career from "./pages/Career";
 import ListingEditor from "./pages/ListingEditor";
 import SalesScripts from "./pages/SalesScripts";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -37,19 +38,19 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
 
           <Route path="/owner/login" element={<OwnerLogin />} />
           <Route path="/owner/forgot-password" element={<OwnerForgotPassword />} />
-          <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+          <Route path="/owner/dashboard" element={<ProtectedRoute redirectTo="/owner/login"><OwnerDashboard /></ProtectedRoute>} />
           
-          <Route path="/manager" element={<ManagerDashboard />} />
-          <Route path="/om" element={<AdminPanel />} />
-          <Route path="/um" element={<ManagerDashboard />} />
-          <Route path="/accounting" element={<Accounting />} />
+          <Route path="/manager" element={<ProtectedRoute><ManagerDashboard /></ProtectedRoute>} />
+          <Route path="/om" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+          <Route path="/um" element={<ProtectedRoute><ManagerDashboard /></ProtectedRoute>} />
+          <Route path="/accounting" element={<ProtectedRoute><Accounting /></ProtectedRoute>} />
           <Route path="/career" element={<Career />} />
-          <Route path="/sales-scripts" element={<SalesScripts />} />
-          <Route path="/listing/:id/edit" element={<ListingEditor />} />
+          <Route path="/sales-scripts" element={<ProtectedRoute><SalesScripts /></ProtectedRoute>} />
+          <Route path="/listing/:id/edit" element={<ProtectedRoute><ListingEditor /></ProtectedRoute>} />
           
           <Route path="/company-info" element={<CompanyInfo />} />
           <Route path="/offer" element={<Offer />} />
