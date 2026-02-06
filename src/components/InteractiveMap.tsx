@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -21,67 +21,89 @@ interface InteractiveMapProps {
 
 export default function InteractiveMap({ listings, selectedId, onSelectListing, selectedCity }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    if ((window as any).ymaps) {
+      setIsScriptLoaded(true);
+      return;
+    }
+
+    const existingScript = document.querySelector('script[src*="api-maps.yandex.ru"]');
+    if (existingScript) {
+      existingScript.addEventListener('load', () => setIsScriptLoaded(true));
+      return;
+    }
 
     const script = document.createElement('script');
     script.src = `https://api-maps.yandex.ru/2.1/?apikey=&lang=ru_RU`;
     script.async = true;
-    script.onload = initMap;
+    script.onload = () => setIsScriptLoaded(true);
     document.head.appendChild(script);
+  }, []);
 
-    function initMap() {
-      const ymaps = (window as any).ymaps;
-      if (!ymaps) return;
+  useEffect(() => {
+    if (!mapRef.current || !isScriptLoaded || listings.length === 0) return;
 
-      ymaps.ready(() => {
-        const bounds = listings.map(l => [l.lat, l.lng]);
-        const map = new ymaps.Map(mapRef.current, {
-          center: bounds.length ? bounds[0] : [55.75, 37.62],
-          zoom: bounds.length === 1 ? 13 : 10,
-          controls: ['zoomControl', 'fullscreenControl']
-        });
+    const ymaps = (window as any).ymaps;
+    if (!ymaps) return;
 
-        listings.forEach((listing) => {
-          const placemark = new ymaps.Placemark(
-            [listing.lat, listing.lng],
-            {
-              balloonContentHeader: `<strong>${listing.title}</strong>`,
-              balloonContentBody: `
-                <div style="padding: 8px;">
-                  <p style="margin: 4px 0;">📍 ${listing.city}</p>
-                  <p style="margin: 4px 0;">💰 <strong>${listing.price} ₽</strong> / час</p>
-                  <button onclick="window.location.href='/listing/${listing.id}'" style="margin-top: 8px; padding: 6px 12px; background: linear-gradient(to right, #9333ea, #ec4899); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
-                    Открыть объект →
-                  </button>
-                </div>
-              `,
-              hintContent: listing.title
-            },
-            {
-              preset: listing.auction <= 3 ? 'islands#redIcon' : 'islands#violetIcon',
-              iconColor: listing.id === selectedId ? '#F97316' : (listing.auction <= 3 ? '#D946EF' : '#8B5CF6')
-            }
-          );
+    ymaps.ready(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.destroy();
+      }
 
-          placemark.events.add('click', () => {
-            window.location.href = `/listing/${listing.id}`;
-          });
-
-          map.geoObjects.add(placemark);
-        });
-
-        if (bounds.length > 1) {
-          map.setBounds(map.geoObjects.getBounds(), { checkZoomRange: true, zoomMargin: 50 });
-        }
+      const bounds = listings.map(l => [l.lat, l.lng]);
+      const map = new ymaps.Map(mapRef.current, {
+        center: bounds.length ? bounds[0] : [55.75, 37.62],
+        zoom: bounds.length === 1 ? 13 : 10,
+        controls: ['zoomControl', 'fullscreenControl']
       });
-    }
+
+      mapInstanceRef.current = map;
+
+      listings.forEach((listing) => {
+        const placemark = new ymaps.Placemark(
+          [listing.lat, listing.lng],
+          {
+            balloonContentHeader: `<strong>${listing.title}</strong>`,
+            balloonContentBody: `
+              <div style="padding: 8px;">
+                <p style="margin: 4px 0;">📍 ${listing.city}</p>
+                <p style="margin: 4px 0;">💰 <strong>${listing.price} ₽</strong> / час</p>
+                <button onclick="window.location.href='/listing/${listing.id}'" style="margin-top: 8px; padding: 6px 12px; background: linear-gradient(to right, #9333ea, #ec4899); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                  Открыть объект →
+                </button>
+              </div>
+            `,
+            hintContent: listing.title
+          },
+          {
+            preset: listing.auction <= 3 ? 'islands#redIcon' : 'islands#violetIcon',
+            iconColor: listing.id === selectedId ? '#F97316' : (listing.auction <= 3 ? '#D946EF' : '#8B5CF6')
+          }
+        );
+
+        placemark.events.add('click', () => {
+          window.location.href = `/listing/${listing.id}`;
+        });
+
+        map.geoObjects.add(placemark);
+      });
+
+      if (bounds.length > 1) {
+        map.setBounds(map.geoObjects.getBounds(), { checkZoomRange: true, zoomMargin: 50 });
+      }
+    });
 
     return () => {
-      script.remove();
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.destroy();
+        mapInstanceRef.current = null;
+      }
     };
-  }, [listings, selectedId, onSelectListing, selectedCity]);
+  }, [listings, selectedId, isScriptLoaded]);
 
   return (
     <Card className="h-full overflow-hidden border-2 border-purple-200">

@@ -1,14 +1,10 @@
 {
   "tests": [
     {
-      "name": "Get promotions without auth",
+      "name": "Get promotions public endpoint",
       "method": "GET",
       "path": "/",
-      "expectedStatus": 401,
-      "expectedBody": {
-        "error": "string"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
       "name": "Create promotion without auth returns 401",

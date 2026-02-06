@@ -19,34 +19,11 @@ def handler(event: dict, context) -> dict:
             'body': ''
         }
     
-    token = event.get('headers', {}).get('X-Authorization', '').replace('Bearer ', '')
-    if not token:
-        return {
-            'statusCode': 401,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Требуется авторизация'})
-        }
-    
     dsn = os.environ.get('DATABASE_URL')
     conn = psycopg2.connect(dsn)
     cur = conn.cursor()
     
     try:
-        cur.execute("""
-            SELECT id FROM t_p39732784_hourly_rentals_platf.owners 
-            WHERE token = %s
-        """, (token,))
-        owner_row = cur.fetchone()
-        
-        if not owner_row:
-            return {
-                'statusCode': 401,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Неверный токен'})
-            }
-        
-        owner_id = owner_row[0]
-        
         if method == 'GET':
             listing_id = event.get('queryStringParameters', {}).get('listing_id')
             
@@ -54,16 +31,16 @@ def handler(event: dict, context) -> dict:
                 cur.execute("""
                     SELECT id, promotion_type, discount_percent, expires_at, is_active, created_at
                     FROM t_p39732784_hourly_rentals_platf.promotions
-                    WHERE listing_id = %s AND owner_id = %s AND is_active = true
+                    WHERE listing_id = %s AND is_active = true AND expires_at > NOW()
                     ORDER BY created_at DESC
-                """, (listing_id, owner_id))
+                """, (listing_id,))
             else:
                 cur.execute("""
                     SELECT id, listing_id, promotion_type, discount_percent, expires_at, is_active, created_at
                     FROM t_p39732784_hourly_rentals_platf.promotions
-                    WHERE owner_id = %s AND is_active = true
+                    WHERE is_active = true AND expires_at > NOW()
                     ORDER BY created_at DESC
-                """, (owner_id,))
+                """)
             
             promotions = []
             for row in cur.fetchall():
@@ -90,6 +67,29 @@ def handler(event: dict, context) -> dict:
             }
         
         elif method == 'POST':
+            token = event.get('headers', {}).get('X-Authorization', '').replace('Bearer ', '')
+            if not token:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'})
+                }
+            
+            cur.execute("""
+                SELECT id FROM t_p39732784_hourly_rentals_platf.owners 
+                WHERE token = %s
+            """, (token,))
+            owner_row = cur.fetchone()
+            
+            if not owner_row:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Неверный токен'})
+                }
+            
+            owner_id = owner_row[0]
+            
             body = json.loads(event.get('body', '{}'))
             listing_id = body.get('listing_id')
             promotion_type = body.get('promotion_type')
@@ -171,6 +171,29 @@ def handler(event: dict, context) -> dict:
             }
         
         elif method == 'DELETE':
+            token = event.get('headers', {}).get('X-Authorization', '').replace('Bearer ', '')
+            if not token:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется авторизация'})
+                }
+            
+            cur.execute("""
+                SELECT id FROM t_p39732784_hourly_rentals_platf.owners 
+                WHERE token = %s
+            """, (token,))
+            owner_row = cur.fetchone()
+            
+            if not owner_row:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Неверный токен'})
+                }
+            
+            owner_id = owner_row[0]
+            
             promo_id = event.get('queryStringParameters', {}).get('id')
             
             if not promo_id:
