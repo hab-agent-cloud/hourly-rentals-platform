@@ -212,15 +212,15 @@ export default function SearchHero({
           ОТЕЛЕЙ И АПАРТАМЕНТОВ
         </h3>
         
-        <div className="mb-4 sm:mb-6 px-4">
-          <p className="text-base sm:text-lg md:text-xl text-purple-900 font-medium leading-relaxed">
-            Начните пользоваться сервисом прямо сейчас!
-          </p>
-          <p className="text-sm sm:text-base md:text-lg text-purple-700 mt-2">
-            Более <span className="font-bold text-purple-900">3000 объектов</span> в городах России. 
-            Бронирование отеля на час ещё никогда не было таким простым. 
-            Присоединяйтесь к <span className="font-bold text-purple-900">тысячам довольных клиентов</span> 120 МИНУТ!
-          </p>
+        <div className="mb-4 sm:mb-6 px-4 space-y-2">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3 sm:p-4 shadow-lg border border-purple-200">
+            <p className="text-lg sm:text-xl md:text-2xl text-purple-900 font-bold mb-2">
+              🎉 Более 3000 объектов по России
+            </p>
+            <p className="text-sm sm:text-base text-purple-700">
+              Присоединяйтесь к тысячам довольных клиентов!
+            </p>
+          </div>
         </div>
         <div className="flex justify-center items-center mb-4 sm:mb-6 min-h-[32px] sm:min-h-[40px]">
           <div key={`anim-${currentMessageIndex}`} className="flex items-center justify-center gap-2 text-sm sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
