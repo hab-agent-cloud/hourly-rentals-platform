@@ -13,8 +13,11 @@ export default function PartnersSection() {
             className="h-20 w-20 object-contain mb-4"
           />
           <h2 className="text-4xl font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Для владельцев отелей
+            Для владельцев и управляющих отелей и квартир
           </h2>
+          <p className="text-center text-muted-foreground mt-4 text-sm">
+            Скоро: Добавление разделов: музыкальные студии, комнаты для стрима, конференц залы, сауны, коворкинг, хостелы, переговорные, кинотеатры
+          </p>
         </div>
         
         <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 border border-purple-200 mb-8">
