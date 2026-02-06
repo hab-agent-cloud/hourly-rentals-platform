@@ -62,12 +62,20 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !isScriptLoaded || listings.length === 0) return;
+    if (!mapRef.current || !isScriptLoaded || listings.length === 0) {
+      console.log('Map init blocked:', { hasRef: !!mapRef.current, isScriptLoaded, listingsCount: listings.length });
+      return;
+    }
 
     const ymaps = (window as any).ymaps;
-    if (!ymaps) return;
+    if (!ymaps) {
+      console.error('ymaps not available on window');
+      return;
+    }
 
+    console.log('Initializing map with ymaps.ready...');
     ymaps.ready(() => {
+      console.log('ymaps ready, creating map...');
       if (mapInstanceRef.current) {
         mapInstanceRef.current.destroy();
       }
@@ -78,6 +86,7 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
         zoom: bounds.length === 1 ? 13 : 10,
         controls: ['zoomControl', 'fullscreenControl']
       });
+      console.log('Map created successfully');
 
       mapInstanceRef.current = map;
 
