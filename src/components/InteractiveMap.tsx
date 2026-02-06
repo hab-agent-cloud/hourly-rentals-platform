@@ -74,21 +74,23 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
     }
 
     console.log('Initializing map with ymaps.ready...');
-    ymaps.ready(() => {
-      console.log('ymaps ready, creating map...');
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.destroy();
-      }
+    
+    const timeoutId = setTimeout(() => {
+      ymaps.ready(() => {
+        console.log('ymaps ready, creating map...');
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.destroy();
+        }
 
-      const bounds = listings.map(l => [l.lat, l.lng]);
-      const map = new ymaps.Map(mapRef.current, {
-        center: bounds.length ? bounds[0] : [55.75, 37.62],
-        zoom: bounds.length === 1 ? 13 : 10,
-        controls: ['zoomControl', 'fullscreenControl']
-      });
-      console.log('Map created successfully');
+        const bounds = listings.map(l => [l.lat, l.lng]);
+        const map = new ymaps.Map(mapRef.current, {
+          center: bounds.length ? bounds[0] : [55.75, 37.62],
+          zoom: bounds.length === 1 ? 13 : 10,
+          controls: ['zoomControl', 'fullscreenControl']
+        });
+        console.log('Map created successfully');
 
-      mapInstanceRef.current = map;
+        mapInstanceRef.current = map;
 
       const clusterer = new ymaps.Clusterer({
         preset: 'islands#violetClusterIcons',
@@ -137,9 +139,11 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
       if (bounds.length > 1) {
         map.setBounds(clusterer.getBounds(), { checkZoomRange: true, zoomMargin: 50 });
       }
-    });
+      });
+    }, 100);
 
     return () => {
+      clearTimeout(timeoutId);
       if (mapInstanceRef.current) {
         mapInstanceRef.current.destroy();
         mapInstanceRef.current = null;
