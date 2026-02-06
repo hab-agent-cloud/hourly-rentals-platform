@@ -102,6 +102,11 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
 
         mapInstanceRef.current = map;
 
+        // Принудительно обновляем размер контейнера карты
+        setTimeout(() => {
+          map.container.fitToViewport();
+        }, 100);
+
         const clusterer = new ymaps.Clusterer({
           preset: 'islands#violetClusterIcons',
           clusterDisableClickZoom: false,
@@ -196,7 +201,7 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
   return (
     <Card className="h-full overflow-hidden border-2 border-purple-200">
       <div className="relative w-full h-full">
-        <div ref={mapRef} className="w-full h-full" />
+        <div ref={mapRef} style={{ width: '100%', height: '100%', minHeight: '600px' }} />
         <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 max-w-[200px]">
           <div className="text-xs font-semibold mb-2">Легенда карты:</div>
           <div className="space-y-1 text-xs">
