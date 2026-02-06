@@ -75,7 +75,7 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
 
     console.log('Initializing map with ymaps.ready...');
     
-    ymaps.ready(() => {
+    ymaps.ready(['Map', 'Placemark', 'Clusterer']).then(() => {
       console.log('ymaps ready, creating map...');
       
       if (!mapRef.current) {
@@ -89,60 +89,67 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
 
       const bounds = listings.map(l => [l.lat, l.lng]);
       
-      const map = new ymaps.Map(mapRef.current, {
-        center: bounds.length ? bounds[0] : [55.75, 37.62],
-        zoom: 10,
-        controls: ['zoomControl', 'fullscreenControl']
-      });
-      console.log('Map created successfully');
+      try {
+        const map = new ymaps.Map(mapRef.current, {
+          center: bounds.length ? bounds[0] : [55.75, 37.62],
+          zoom: 10,
+          controls: ['zoomControl', 'fullscreenControl']
+        }, {
+          searchControlProvider: 'yandex#search'
+        });
+        
+        console.log('Map created successfully');
 
-      mapInstanceRef.current = map;
+        mapInstanceRef.current = map;
 
-      const clusterer = new ymaps.Clusterer({
-        preset: 'islands#violetClusterIcons',
-        clusterDisableClickZoom: false,
-        clusterOpenBalloonOnClick: false,
-        gridSize: 64
-      });
-
-      const placemarks = listings.map((listing) => {
-        const placemark = new ymaps.Placemark(
-          [listing.lat, listing.lng],
-          {
-            balloonContentHeader: `<strong>${listing.title}</strong>`,
-            balloonContentBody: `
-              <div style="padding: 8px;">
-                <p style="margin: 4px 0;">📍 ${listing.city}</p>
-                <p style="margin: 4px 0;">💰 <strong>${listing.price} ₽</strong> / час</p>
-                <button onclick="window.location.href='/listing/${listing.id}'" style="margin-top: 8px; padding: 6px 12px; background: linear-gradient(to right, #9333ea, #ec4899); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
-                  Открыть объект →
-                </button>
-              </div>
-            `,
-            hintContent: listing.title,
-            clusterCaption: listing.title
-          },
-          {
-            preset: listing.auction <= 3 ? 'islands#redIcon' : 'islands#violetIcon',
-            iconColor: listing.id === selectedId ? '#F97316' : (listing.auction <= 3 ? '#D946EF' : '#8B5CF6')
-          }
-        );
-
-        placemark.events.add('click', () => {
-          window.location.href = `/listing/${listing.id}`;
+        const clusterer = new ymaps.Clusterer({
+          preset: 'islands#violetClusterIcons',
+          clusterDisableClickZoom: false,
+          clusterOpenBalloonOnClick: false,
+          gridSize: 64
         });
 
-        return placemark;
-      });
+        const placemarks = listings.map((listing) => {
+          const placemark = new ymaps.Placemark(
+            [listing.lat, listing.lng],
+            {
+              balloonContentHeader: `<strong>${listing.title}</strong>`,
+              balloonContentBody: `
+                <div style="padding: 8px;">
+                  <p style="margin: 4px 0;">📍 ${listing.city}</p>
+                  <p style="margin: 4px 0;">💰 <strong>${listing.price} ₽</strong> / час</p>
+                  <button onclick="window.location.href='/listing/${listing.id}'" style="margin-top: 8px; padding: 6px 12px; background: linear-gradient(to right, #9333ea, #ec4899); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+                    Открыть объект →
+                  </button>
+                </div>
+              `,
+              hintContent: listing.title,
+              clusterCaption: listing.title
+            },
+            {
+              preset: listing.auction <= 3 ? 'islands#redIcon' : 'islands#violetIcon',
+              iconColor: listing.id === selectedId ? '#F97316' : (listing.auction <= 3 ? '#D946EF' : '#8B5CF6')
+            }
+          );
 
-      clusterer.add(placemarks);
-      map.geoObjects.add(clusterer);
+          placemark.events.add('click', () => {
+            window.location.href = `/listing/${listing.id}`;
+          });
 
-      if (bounds.length > 1) {
-        map.setBounds(clusterer.getBounds(), { 
-          checkZoomRange: true, 
-          zoomMargin: 50
+          return placemark;
         });
+
+        clusterer.add(placemarks);
+        map.geoObjects.add(clusterer);
+
+        if (bounds.length > 1) {
+          map.setBounds(clusterer.getBounds(), { 
+            checkZoomRange: true, 
+            zoomMargin: 50
+          });
+        }
+      } catch (error) {
+        console.error('Error creating map:', error);
       }
     });
 
