@@ -27,6 +27,7 @@ type Listing = {
   phone?: string;
   telegram?: string;
   subscription_expires_at?: string;
+  distance?: number;
 };
 
 interface ListingCardProps {
@@ -107,6 +108,12 @@ export default function ListingCard({
         </div>
 
         <div className="space-y-1 mb-3">
+          {listing.distance !== undefined && (
+            <div className="flex items-center gap-2 text-sm font-semibold text-green-600 bg-green-50 rounded-md px-2 py-1">
+              <Icon name="Navigation" size={14} />
+              <span>{listing.distance < 1 ? `${(listing.distance * 1000).toFixed(0)} м` : `${listing.distance.toFixed(1)} км`} от вас</span>
+            </div>
+          )}
           {listing.address && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Icon name="MapPin" size={14} />

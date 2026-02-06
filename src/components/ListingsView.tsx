@@ -39,6 +39,8 @@ type Listing = {
   rooms: { type: string; price: number }[];
   phone?: string;
   telegram?: string;
+  distance?: number;
+  subscription_expires_at?: string;
 };
 
 interface ListingsViewProps {
