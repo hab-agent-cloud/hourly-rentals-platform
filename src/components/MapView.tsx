@@ -40,7 +40,7 @@ export default function MapView({
   selectedCity
 }: MapViewProps) {
   return (
-    <div className="relative h-[600px] rounded-xl overflow-hidden border-2 border-purple-200 shadow-xl">
+    <div className="relative h-[70vh] min-h-[400px] max-h-[800px] rounded-xl overflow-hidden border-2 border-purple-200 shadow-xl">
       <InteractiveMap
         listings={listings}
         selectedId={selectedListing}

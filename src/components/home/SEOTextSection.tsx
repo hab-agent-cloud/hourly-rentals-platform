@@ -79,10 +79,10 @@ export default function SEOTextSection() {
 
           <div className="mt-10 p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
             <p className="text-lg font-semibold text-purple-900 mb-2">
-              Более 3000 объектов в городах России на сайте!
+              3000 объектов по всей России
             </p>
             <p className="text-gray-700 mt-2">
-              Присоединяйтесь к тысячам довольных клиентов 120 минут!
+              Начните пользоваться сервисом прямо сейчас!
             </p>
           </div>
         </div>
