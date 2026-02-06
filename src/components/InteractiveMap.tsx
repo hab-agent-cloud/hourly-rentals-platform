@@ -75,49 +75,34 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
 
     console.log('Initializing map with ymaps.ready...');
     
-    const timeoutId = setTimeout(() => {
-      ymaps.ready(() => {
-        console.log('ymaps ready, creating map...');
-        
-        if (!mapRef.current) {
-          console.error('mapRef lost during init');
-          return;
-        }
+    ymaps.ready(() => {
+      console.log('ymaps ready, creating map...');
+      
+      if (!mapRef.current) {
+        console.error('mapRef lost during init');
+        return;
+      }
 
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.destroy();
-        }
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.destroy();
+      }
 
-        const bounds = listings.map(l => [l.lat, l.lng]);
-        
-        // Вычисляем центр и зум для всех объектов
-        let center = [55.75, 37.62]; // Москва по умолчанию
-        const zoom = 10;
-        
-        if (bounds.length > 0) {
-          const lats = bounds.map(b => b[0]);
-          const lngs = bounds.map(b => b[1]);
-          center = [
-            (Math.min(...lats) + Math.max(...lats)) / 2,
-            (Math.min(...lngs) + Math.max(...lngs)) / 2
-          ];
-        }
-        
-        const map = new ymaps.Map(mapRef.current, {
-          center: center,
-          zoom: zoom,
-          controls: ['zoomControl', 'fullscreenControl']
-        });
-        console.log('Map created successfully with center:', center);
+      const bounds = listings.map(l => [l.lat, l.lng]);
+      
+      const map = new ymaps.Map(mapRef.current, {
+        center: bounds.length ? bounds[0] : [55.75, 37.62],
+        zoom: 10,
+        controls: ['zoomControl', 'fullscreenControl']
+      });
+      console.log('Map created successfully');
 
-        mapInstanceRef.current = map;
+      mapInstanceRef.current = map;
 
       const clusterer = new ymaps.Clusterer({
         preset: 'islands#violetClusterIcons',
         clusterDisableClickZoom: false,
         clusterOpenBalloonOnClick: false,
-        gridSize: 80,
-        maxZoom: 15
+        gridSize: 64
       });
 
       const placemarks = listings.map((listing) => {
@@ -153,21 +138,15 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
       clusterer.add(placemarks);
       map.geoObjects.add(clusterer);
 
-      // Сразу подстраиваем карту под все метки
-      map.events.add('ready', () => {
-        if (bounds.length > 1 && clusterer.getBounds()) {
-          map.setBounds(clusterer.getBounds(), { 
-            checkZoomRange: true, 
-            zoomMargin: 50,
-            duration: 500
-          });
-        }
-      });
-      });
-    }, 300);
+      if (bounds.length > 1) {
+        map.setBounds(clusterer.getBounds(), { 
+          checkZoomRange: true, 
+          zoomMargin: 50
+        });
+      }
+    });
 
     return () => {
-      clearTimeout(timeoutId);
       if (mapInstanceRef.current) {
         mapInstanceRef.current.destroy();
         mapInstanceRef.current = null;
