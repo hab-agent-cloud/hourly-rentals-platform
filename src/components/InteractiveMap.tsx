@@ -78,6 +78,12 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
     const timeoutId = setTimeout(() => {
       ymaps.ready(() => {
         console.log('ymaps ready, creating map...');
+        
+        if (!mapRef.current) {
+          console.error('mapRef lost during init');
+          return;
+        }
+
         if (mapInstanceRef.current) {
           mapInstanceRef.current.destroy();
         }
@@ -91,6 +97,12 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
         console.log('Map created successfully');
 
         mapInstanceRef.current = map;
+
+        setTimeout(() => {
+          if (map && map.container) {
+            map.container.fitToViewport();
+          }
+        }, 300);
 
       const clusterer = new ymaps.Clusterer({
         preset: 'islands#violetClusterIcons',
@@ -136,11 +148,13 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
       clusterer.add(placemarks);
       map.geoObjects.add(clusterer);
 
-      if (bounds.length > 1) {
-        map.setBounds(clusterer.getBounds(), { checkZoomRange: true, zoomMargin: 50 });
-      }
+      setTimeout(() => {
+        if (bounds.length > 1 && map && clusterer.getBounds()) {
+          map.setBounds(clusterer.getBounds(), { checkZoomRange: true, zoomMargin: 50 });
+        }
+      }, 500);
       });
-    }, 100);
+    }, 300);
 
     return () => {
       clearTimeout(timeoutId);
