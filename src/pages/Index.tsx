@@ -30,6 +30,8 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [detectedCity, setDetectedCity] = useState<string | null>(null);
+  const [nearMe, setNearMe] = useState(false);
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [currentTheme, setCurrentTheme] = useState<ThemeKey>(() => {
     const saved = localStorage.getItem('guestTheme') as ThemeKey;
     // Проверяем, что сохранённая тема существует в новом списке
@@ -100,11 +102,22 @@ export default function Index() {
     [allListings]
   );
 
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
   const filteredListings = useMemo(() => {
     const listings = Array.isArray(allListings) ? allListings : [];
     const search = searchCity.toLowerCase();
     
-    return listings
+    let filtered = listings
       .filter(l => !l.is_archived)
       .filter(l => selectedCity === 'Все города' || l.city === selectedCity)
       .filter(l => selectedType === 'all' || l.type === selectedType)
@@ -122,7 +135,19 @@ export default function Index() {
           selectedFeatures.every((feature) => room.features && room.features.includes(feature))
         );
       });
-  }, [allListings, selectedCity, selectedType, hasParking, minHours, searchCity, selectedFeatures]);
+
+    if (nearMe && userLocation) {
+      filtered = filtered
+        .map(l => ({
+          ...l,
+          distance: calculateDistance(userLocation.lat, userLocation.lng, l.lat, l.lng)
+        }))
+        .filter(l => l.distance <= 10)
+        .sort((a, b) => a.distance - b.distance);
+    }
+
+    return filtered;
+  }, [allListings, selectedCity, selectedType, hasParking, minHours, searchCity, selectedFeatures, nearMe, userLocation]);
 
   const handleCardClick = (listing: any) => {
     window.location.href = `/listing/${listing.id}`;
@@ -177,6 +202,9 @@ export default function Index() {
             selectedFeatures={selectedFeatures}
             setSelectedFeatures={setSelectedFeatures}
             detectedCity={detectedCity}
+            nearMe={nearMe}
+            setNearMe={setNearMe}
+            setUserLocation={setUserLocation}
             onFilterChange={() => setTimeout(scrollToResults, 200)}
           />
 

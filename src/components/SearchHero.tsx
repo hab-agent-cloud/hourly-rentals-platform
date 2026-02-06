@@ -21,6 +21,9 @@ interface SearchHeroProps {
   selectedFeatures: string[];
   setSelectedFeatures: (value: string[]) => void;
   detectedCity?: string | null;
+  nearMe: boolean;
+  setNearMe: (value: boolean) => void;
+  setUserLocation: (value: {lat: number, lng: number} | null) => void;
   onFilterChange?: () => void;
 }
 
@@ -41,6 +44,9 @@ export default function SearchHero({
   selectedFeatures,
   setSelectedFeatures,
   detectedCity,
+  nearMe,
+  setNearMe,
+  setUserLocation,
   onFilterChange,
 }: SearchHeroProps) {
   const popularFeatures = [
@@ -369,6 +375,38 @@ export default function SearchHero({
               >
                 <Icon name="Clock" size={14} className="mr-1" />
                 От 1 часа
+              </Badge>
+              <Badge 
+                variant={nearMe ? "default" : "secondary"} 
+                className={`cursor-pointer ${nearMe ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
+                onClick={() => {
+                  if (!nearMe) {
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                          setUserLocation({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                          });
+                          setNearMe(true);
+                          onFilterChange?.();
+                        },
+                        () => {
+                          alert('Не удалось определить ваше местоположение');
+                        }
+                      );
+                    } else {
+                      alert('Ваш браузер не поддерживает геолокацию');
+                    }
+                  } else {
+                    setNearMe(false);
+                    setUserLocation(null);
+                    onFilterChange?.();
+                  }
+                }}
+              >
+                <Icon name="Navigation" size={14} className="mr-1" />
+                Рядом со мной
               </Badge>
 
             </div>
