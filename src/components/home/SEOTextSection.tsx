@@ -81,9 +81,6 @@ export default function SEOTextSection() {
             <p className="text-lg font-semibold text-purple-900 mb-2">
               Более 3000 объектов в городах России на сайте!
             </p>
-            <p className="text-gray-700">
-              <strong>Аренда на час</strong> ещё не было таким простым.
-            </p>
             <p className="text-gray-700 mt-2">
               Присоединяйтесь к тысячам довольных клиентов 120 минут!
             </p>
