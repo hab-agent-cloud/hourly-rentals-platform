@@ -39,11 +39,23 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
       return;
     }
 
-    const script = document.createElement('script');
-    script.src = `https://api-maps.yandex.ru/2.1/?apikey=&lang=ru_RU`;
-    script.async = true;
-    script.onload = () => setIsScriptLoaded(true);
-    document.head.appendChild(script);
+    const loadMapScript = async () => {
+      try {
+        const response = await fetch('https://functions.poehali.dev/aac578aa-3e58-43b2-825d-b31024c23163');
+        const data = await response.json();
+        const apiKey = data.apiKey || '';
+
+        const script = document.createElement('script');
+        script.src = `https://api-maps.yandex.ru/2.1/?apikey=${apiKey}&lang=ru_RU`;
+        script.async = true;
+        script.onload = () => setIsScriptLoaded(true);
+        document.head.appendChild(script);
+      } catch (error) {
+        console.error('Failed to load map API key:', error);
+      }
+    };
+
+    loadMapScript();
   }, []);
 
   useEffect(() => {

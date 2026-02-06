@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Get map config",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "apiKey": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
