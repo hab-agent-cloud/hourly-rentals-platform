@@ -79,16 +79,18 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
       const map = new ymaps.Map(mapRef.current, {
         center: [55.751244, 37.618423],
         zoom: 10,
-        controls: ['zoomControl', 'fullscreenControl']
+        controls: ['zoomControl', 'fullscreenControl'],
+        type: 'yandex#map'
+      }, {
+        suppressMapOpenBlock: true
       });
 
       console.log('🗺️ Map created successfully');
       mapInstanceRef.current = map;
 
-      setTimeout(() => {
-        map.container.fitToViewport();
-        console.log('🗺️ Map container fitted to viewport');
-      }, 100);
+      map.events.add('actionend', () => {
+        console.log('🗺️ Map action ended');
+      });
 
       const clusterer = new ymaps.Clusterer({
         preset: 'islands#violetClusterIcons',
@@ -148,9 +150,11 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
       <div className="relative w-full h-full">
         <div 
           ref={mapRef} 
+          className="w-full"
           style={{ 
-            width: '100%', 
-            height: '600px'
+            height: '600px',
+            minHeight: '600px',
+            position: 'relative'
           }} 
         />
         <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 max-w-[200px] z-10">
