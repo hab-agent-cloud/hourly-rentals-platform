@@ -58,6 +58,15 @@ def handler(event: dict, context) -> dict:
             # Если передан id - возвращаем ОДИН объект с ПОЛНЫМИ данными (включая images)
             listing_id = params.get('id')
             if listing_id:
+                try:
+                    listing_id = int(listing_id)
+                except (ValueError, TypeError):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Некорректный ID объекта'}),
+                        'isBase64Encoded': False
+                    }
                 print(f"[DEBUG] Fetching single listing with id={listing_id}")
                 cur.execute("""
                     SELECT id, owner_id, title, city, district, address, lat, lng,
@@ -568,6 +577,16 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 
+                try:
+                    listing_id = int(listing_id)
+                except (ValueError, TypeError):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Некорректный listing_id'}),
+                        'isBase64Encoded': False
+                    }
+                
                 cur.execute("""
                     UPDATE t_p39732784_hourly_rentals_platf.listings
                     SET submitted_for_moderation = TRUE, 
@@ -599,6 +618,16 @@ def handler(event: dict, context) -> dict:
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({'error': 'Требуется ID объекта'}),
+                        'isBase64Encoded': False
+                    }
+                
+                try:
+                    listing_id = int(listing_id)
+                except (ValueError, TypeError):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Некорректный ID объекта'}),
                         'isBase64Encoded': False
                     }
                 
@@ -637,6 +666,16 @@ def handler(event: dict, context) -> dict:
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({'error': 'Требуется listing_id и status'}),
+                        'isBase64Encoded': False
+                    }
+                
+                try:
+                    listing_id = int(listing_id)
+                except (ValueError, TypeError):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Некорректный listing_id'}),
                         'isBase64Encoded': False
                     }
                 

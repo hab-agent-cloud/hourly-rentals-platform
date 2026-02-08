@@ -44,6 +44,16 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
+            try:
+                listing_id = int(listing_id)
+            except (ValueError, TypeError):
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Invalid listing_id format'}),
+                    'isBase64Encoded': False
+                }
+            
             cur.execute("""
                 SELECT 
                     id, title, type, subscription_expires_at, is_archived,
@@ -98,6 +108,17 @@ def handler(event: dict, context) -> dict:
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                         'body': json.dumps({'error': 'Missing required fields'}),
+                        'isBase64Encoded': False
+                    }
+                
+                try:
+                    listing_id = int(listing_id)
+                    days = int(days)
+                except (ValueError, TypeError):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Invalid listing_id or days format'}),
                         'isBase64Encoded': False
                     }
                 

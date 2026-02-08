@@ -45,6 +45,15 @@ def handler(event: dict, context) -> dict:
             print(f'GET request for owner_id: {owner_id}')
             
             if owner_id:
+                try:
+                    owner_id = int(owner_id)
+                except (ValueError, TypeError):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Некорректный owner_id'}),
+                        'isBase64Encoded': False
+                    }
                 # Получить отели конкретного владельца (доступно всем с токеном)
                 cur.execute(f"""
                     SELECT id, title, city, district, address, owner_id, is_archived, auction,
@@ -138,6 +147,18 @@ def handler(event: dict, context) -> dict:
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'error': 'ID отеля не указан'}),
+                    'isBase64Encoded': False
+                }
+            
+            try:
+                listing_id = int(listing_id)
+                if owner_id is not None:
+                    owner_id = int(owner_id)
+            except (ValueError, TypeError):
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Некорректный формат ID'}),
                     'isBase64Encoded': False
                 }
             

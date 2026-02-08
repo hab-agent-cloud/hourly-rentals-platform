@@ -42,6 +42,19 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
+            try:
+                listing_id = int(listing_id)
+            except (ValueError, TypeError):
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'error': 'Invalid listing_id format'}),
+                    'isBase64Encoded': False
+                }
+            
             print(f"[DEBUG] Executing query for listing_id: {listing_id}")
             
             cur.execute(f'''
