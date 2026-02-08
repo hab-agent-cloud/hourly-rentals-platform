@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 
 interface Achievement {
   id: string;
@@ -21,6 +22,38 @@ interface AchievementsPanelProps {
 
 export default function AchievementsPanel({ objectsCount, balance, monthCommission }: AchievementsPanelProps) {
   const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
+  const [celebratedAchievements, setCelebratedAchievements] = useState<Set<string>>(new Set());
+
+  const fireConfetti = () => {
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+      });
+    }, 250);
+  };
 
   const achievements: Achievement[] = [
     {
@@ -159,6 +192,15 @@ export default function AchievementsPanel({ objectsCount, balance, monthCommissi
   const unlockedCount = achievements.filter(a => a.unlocked).length;
   const totalCount = achievements.length;
 
+  useEffect(() => {
+    achievements.forEach(achievement => {
+      if (achievement.unlocked && !celebratedAchievements.has(achievement.id)) {
+        setCelebratedAchievements(prev => new Set(prev).add(achievement.id));
+        setTimeout(() => fireConfetti(), 300);
+      }
+    });
+  }, [objectsCount, balance, monthCommission]);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -184,7 +226,12 @@ export default function AchievementsPanel({ objectsCount, balance, monthCommissi
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ scale: 1.1 }}
-              onClick={() => setSelectedAchievement(achievement)}
+              onClick={() => {
+                setSelectedAchievement(achievement);
+                if (achievement.unlocked) {
+                  fireConfetti();
+                }
+              }}
               className="cursor-pointer"
             >
               <Card 
