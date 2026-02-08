@@ -86,7 +86,15 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                   <div className="flex flex-col gap-2 mt-6">
                     <Button 
                       variant={activeTab === 'catalog' ? 'default' : 'ghost'} 
-                      onClick={() => onTabChange('catalog')}
+                      onClick={() => {
+                        onTabChange('catalog');
+                        setTimeout(() => {
+                          const element = document.querySelector('[data-results-section]');
+                          if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }
+                        }, 100);
+                      }}
                       className="w-full justify-start"
                     >
                       Каталог
@@ -137,7 +145,15 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
               <nav className="hidden md:flex items-center gap-3">
                 <Button 
                   variant={activeTab === 'catalog' ? 'default' : 'ghost'} 
-                  onClick={() => onTabChange('catalog')}
+                  onClick={() => {
+                    onTabChange('catalog');
+                    setTimeout(() => {
+                      const element = document.querySelector('[data-results-section]');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }, 100);
+                  }}
                   className={activeTab === 'catalog' ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white' : 'text-purple-700 hover:bg-purple-50 hover:text-purple-800'}
                 >
                   Каталог

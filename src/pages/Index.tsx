@@ -208,7 +208,7 @@ export default function Index() {
             onFilterChange={() => setTimeout(scrollToResults, 200)}
           />
 
-          <main className="container mx-auto px-4 py-8" ref={resultsRef}>
+          <main className="container mx-auto px-4 py-8" ref={resultsRef} data-results-section>
             <div className="mb-8">
               <VoiceSearchBanner />
               <InstallAppBanner />
