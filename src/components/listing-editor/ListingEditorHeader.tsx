@@ -172,7 +172,7 @@ export default function ListingEditorHeader({
                   onClick={() => onShowTrialDaysSelector(true)}
                 >
                   <Icon name="Sparkles" size={18} className="mr-2" />
-                  Бесплатный доступ
+                  Подарить подписку
                 </Button>
               ) : (
                 <div className="flex items-center gap-2 bg-gradient-to-r from-purple-100 to-pink-100 p-2 rounded-lg border-2 border-purple-300">
