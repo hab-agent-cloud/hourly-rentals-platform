@@ -213,18 +213,9 @@ export default function SearchHero({
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-3 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
           ПОЧАСОВАЯ АРЕНДА
         </h2>
-        <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-5 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
+        <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 sm:mb-8 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent leading-tight">
           ОТЕЛЕЙ И АПАРТАМЕНТОВ
         </h3>
-        
-        <div className="mb-5 sm:mb-6 px-2 sm:px-4">
-          <div className="relative overflow-hidden bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 rounded-2xl p-4 sm:p-5 shadow-2xl border-2 border-yellow-300 animate-pulse-slow">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
-            <p className="relative z-10 text-xl sm:text-2xl md:text-3xl text-white font-black drop-shadow-lg">
-              ✨ Более 3000 объектов по России ✨
-            </p>
-          </div>
-        </div>
         <div className="flex justify-center items-center mb-5 sm:mb-6 min-h-[40px] sm:min-h-[44px] px-2">
           <div key={`anim-${currentMessageIndex}`} className="flex items-center justify-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
             <Icon name={messages[currentMessageIndex].icon as any} size={22} className="text-green-500 flex-shrink-0" />
