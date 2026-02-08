@@ -218,9 +218,10 @@ export default function SearchHero({
         </h3>
         
         <div className="mb-5 sm:mb-6 px-2 sm:px-4">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 sm:p-5 shadow-xl border-2 border-purple-200">
-            <p className="text-xl sm:text-2xl md:text-3xl text-purple-900 font-bold">
-              🎉 Более 3000 объектов по России
+          <div className="relative overflow-hidden bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 rounded-2xl p-4 sm:p-5 shadow-2xl border-2 border-yellow-300 animate-pulse-slow">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+            <p className="relative z-10 text-xl sm:text-2xl md:text-3xl text-white font-black drop-shadow-lg">
+              ✨ Более 3000 объектов по России ✨
             </p>
           </div>
         </div>
@@ -274,7 +275,7 @@ export default function SearchHero({
                   onClick={handleVoiceSearch}
                   disabled={isListening}
                   type="button"
-                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 transition-all shadow-lg ${isListening ? 'animate-pulse scale-110' : ''}`}
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 hover:scale-110 hover:shadow-2xl disabled:opacity-50 transition-all duration-300 shadow-xl hover:shadow-purple-500/50 ${isListening ? 'animate-pulse scale-110' : ''}`}
                   style={{ zIndex: 9999 }}
                   title="Голосовой поиск"
                   aria-label="Голосовой поиск"
