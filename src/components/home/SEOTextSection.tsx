@@ -77,13 +77,21 @@ export default function SEOTextSection() {
             и наслаждайтесь комфортом без переплат!
           </p>
 
-          <div className="mt-10 p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-            <p className="text-lg font-semibold text-purple-900 mb-2">
-              3000 объектов по всей России
-            </p>
-            <p className="text-gray-700 mt-2">
-              Начните пользоваться сервисом прямо сейчас!
-            </p>
+          <div className="mt-10 p-8 bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 rounded-2xl border-2 border-yellow-300 shadow-2xl relative overflow-hidden animate-pulse-slow">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+            <div className="relative z-10">
+              <p className="text-3xl font-bold text-white mb-3 drop-shadow-lg flex items-center gap-3">
+                <span className="text-5xl">✨</span>
+                <span>Больше 3000 объектов</span>
+                <span className="text-5xl">✨</span>
+              </p>
+              <p className="text-xl font-semibold text-yellow-50 mt-2">
+                по всей России
+              </p>
+              <p className="text-white/90 mt-3 text-lg">
+                Начните пользоваться сервисом прямо сейчас!
+              </p>
+            </div>
           </div>
         </div>
       </div>
