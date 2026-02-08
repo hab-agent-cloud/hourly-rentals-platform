@@ -80,14 +80,15 @@ export default function PartnersSection() {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <a href="/add-listing" className="flex-1">
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                  <Icon name="Plus" size={18} className="mr-2" />
+                <Button className="w-full group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 hover:shadow-lg transition-all duration-300">
+                  <Icon name="Plus" size={18} className="mr-2 group-hover:scale-110 group-hover:rotate-90 transition-transform" />
                   Добавить объект
                 </Button>
               </a>
               <a href="/owner/login" className="flex-1">
-                <Button variant="outline" className="w-full border-purple-300">
-                  Войти в экстранет
+                <Button variant="outline" className="w-full group border-blue-300 text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-800 hover:border-blue-400 transition-all duration-300">
+                  <Icon name="LogIn" size={18} className="mr-2 group-hover:scale-110 transition-transform" />
+                  Войти в аккаунт
                 </Button>
               </a>
             </div>
