@@ -66,10 +66,9 @@ export default function SearchHero({
 
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const messages = [
-    { icon: 'UserX', text: 'БЕЗ ПОСРЕДНИКОВ' },
-    { icon: 'UserCheck', text: 'БЕЗ РЕГИСТРАЦИИ НА САЙТЕ' },
-    { icon: 'WifiOff', text: 'РАБОТАЕТ БЕЗ ИНТЕРНЕТА' },
-    { icon: 'Mic', text: 'УМНЫЙ ГОЛОСОВОЙ ПОИСК' }
+    { icon: 'UserX', text: 'БЕЗ ПОСРЕДНИКОВ И БЕЗ РЕГИСТРАЦИИ' },
+    { icon: 'Mic', text: 'УМНЫЙ ГОЛОСОВОЙ ПОИСК, БЕЗ ПОСРЕДНИКОВ' },
+    { icon: 'WifiOff', text: 'РАБОТАЕТ БЕЗ ИНТЕРНЕТА' }
   ];
 
   useEffect(() => {
@@ -220,11 +219,8 @@ export default function SearchHero({
         
         <div className="mb-5 sm:mb-6 px-2 sm:px-4">
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 sm:p-5 shadow-xl border-2 border-purple-200">
-            <p className="text-xl sm:text-2xl md:text-3xl text-purple-900 font-bold mb-2">
-              🎉 Более 3000 объектов
-            </p>
-            <p className="text-base sm:text-lg text-purple-700 font-medium">
-              по России
+            <p className="text-xl sm:text-2xl md:text-3xl text-purple-900 font-bold">
+              🎉 Более 3000 объектов по России
             </p>
           </div>
         </div>
