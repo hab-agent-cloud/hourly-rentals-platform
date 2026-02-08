@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "name": "Test geocode endpoint",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "updated": "number",
+        "failed": "number",
+        "total": "number"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

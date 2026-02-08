@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import InteractiveMap from '@/components/InteractiveMap';
+import { useToast } from '@/hooks/use-toast';
 
 type Listing = {
   id: number;
@@ -39,6 +41,33 @@ export default function MapView({
   onToggleMap,
   selectedCity
 }: MapViewProps) {
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const { toast } = useToast();
+
+  const handleGeocode = async () => {
+    setIsGeocoding(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/f7e412a1-066f-4874-9e38-1e5beec62eae', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await response.json();
+      toast({
+        title: 'Геокодирование завершено',
+        description: `Обновлено: ${data.updated}, Не удалось: ${data.failed}`,
+      });
+      window.location.reload();
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось запустить геокодирование',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
+
   return (
     <div className="relative h-[70vh] min-h-[400px] max-h-[800px] rounded-xl overflow-hidden border-2 border-purple-200 shadow-xl">
       <InteractiveMap
@@ -47,14 +76,25 @@ export default function MapView({
         onSelectListing={onListingSelect}
         selectedCity={selectedCity}
       />
-      <Button
-        variant="secondary"
-        className="absolute top-4 right-4 z-[1000] bg-white hover:bg-gray-100 shadow-lg"
-        onClick={onToggleMap}
-      >
-        <Icon name="List" size={18} className="mr-2" />
-        Показать список
-      </Button>
+      <div className="absolute top-4 right-4 z-[1000] flex gap-2">
+        <Button
+          variant="secondary"
+          className="bg-white hover:bg-gray-100 shadow-lg"
+          onClick={handleGeocode}
+          disabled={isGeocoding}
+        >
+          <Icon name="MapPin" size={18} className="mr-2" />
+          {isGeocoding ? 'Обновление...' : 'Обновить координаты'}
+        </Button>
+        <Button
+          variant="secondary"
+          className="bg-white hover:bg-gray-100 shadow-lg"
+          onClick={onToggleMap}
+        >
+          <Icon name="List" size={18} className="mr-2" />
+          Показать список
+        </Button>
+      </div>
     </div>
   );
 }
