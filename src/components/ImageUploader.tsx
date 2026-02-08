@@ -146,7 +146,7 @@ export default function ImageUploader({ onUpload, multiple = false }: ImageUploa
           ) : (
             <>
               <Icon name="Upload" size={16} className="mr-2" />
-              Загрузить {multiple ? 'фото' : 'фото'}
+              {multiple ? 'Загрузить несколько фото' : 'Загрузить фото'}
             </>
           )}
         </Button>

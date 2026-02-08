@@ -310,6 +310,9 @@ export default function OwnerEditListingDialogNew({
 
               <div>
                 <Label>Фотографии объекта</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Вы можете выбрать несколько фотографий одновременно
+                </p>
                 <ImageUploader
                   multiple
                   onUpload={(url) => setImageUrls([...imageUrls, url])}
