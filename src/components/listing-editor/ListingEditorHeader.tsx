@@ -47,6 +47,16 @@ export default function ListingEditorHeader({
       return;
     }
 
+    const adminId = localStorage.getItem('adminId');
+    if (!adminId) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось определить ID менеджера',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setResettingSubscription(true);
     try {
       const response = await fetch('https://functions.poehali.dev/6c4f7ec8-42fb-47e5-9187-fcc55e47eceb', {
@@ -54,7 +64,8 @@ export default function ListingEditorHeader({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'reset_subscription',
-          listing_id: parseInt(id || '0')
+          listing_id: parseInt(id || '0'),
+          manager_id: parseInt(adminId)
         })
       });
 
