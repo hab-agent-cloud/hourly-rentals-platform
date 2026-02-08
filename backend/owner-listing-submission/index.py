@@ -126,15 +126,12 @@ def handler(event: dict, context) -> dict:
         
         print(f"[DEBUG] Creating listing: title={body['title']}, type={body['type']} -> {db_type}, city={body['city']}, parking_price={parking_price}")
         
-        from datetime import datetime, timedelta
-        trial_expires_at = datetime.now() + timedelta(days=14)
-        
         try:
             cur.execute("""
             INSERT INTO t_p39732784_hourly_rentals_platf.listings 
             (title, type, city, district, price, rating, reviews, auction, image_url, metro, metro_walk, 
-             has_parking, features, lat, lng, min_hours, is_archived, owner_id, phone, created_by_owner, subscription_expires_at)
-            VALUES (%s, %s, %s, %s, %s, 0.0, 0, 999, %s, %s, %s, %s, %s, %s, %s, 1, false, %s, %s, true, %s)
+             has_parking, features, lat, lng, min_hours, is_archived, owner_id, phone, created_by_owner)
+            VALUES (%s, %s, %s, %s, %s, 0.0, 0, 999, %s, %s, %s, %s, %s, %s, %s, 1, false, %s, %s, true)
             RETURNING id
         """, (
             body['title'],
@@ -150,8 +147,7 @@ def handler(event: dict, context) -> dict:
             body.get('lat'),
             body.get('lng'),
             owner_id,
-            body['owner_phone'],
-            trial_expires_at
+            body['owner_phone']
         ))
         except Exception as e:
             print(f"[ERROR] Failed to create listing: {str(e)}")
