@@ -26,36 +26,55 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
 
   useEffect(() => {
     const loadYandexMaps = async () => {
+      console.log('🗺️ InteractiveMap: Starting to load Yandex Maps');
+      console.log('🗺️ Listings count:', listings.length);
+      
       if ((window as any).ymaps) {
+        console.log('🗺️ Yandex Maps API already loaded');
         initMap();
         return;
       }
 
       try {
+        console.log('🗺️ Fetching API key...');
         const response = await fetch('https://functions.poehali.dev/aac578aa-3e58-43b2-825d-b31024c23163');
         const data = await response.json();
         const apiKey = data.apiKey || '';
+        console.log('🗺️ API key received:', apiKey ? 'YES' : 'NO');
 
         const script = document.createElement('script');
         script.src = `https://api-maps.yandex.ru/2.1/?apikey=${apiKey}&lang=ru_RU`;
         script.async = true;
         script.onload = () => {
+          console.log('🗺️ Yandex Maps script loaded');
           (window as any).ymaps.ready(initMap);
+        };
+        script.onerror = (err) => {
+          console.error('🗺️ Failed to load Yandex Maps script:', err);
         };
         document.head.appendChild(script);
       } catch (error) {
-        console.error('Failed to load Yandex Maps:', error);
+        console.error('🗺️ Failed to load Yandex Maps:', error);
       }
     };
 
     const initMap = () => {
-      if (!mapRef.current || listings.length === 0) return;
+      console.log('🗺️ initMap called');
+      console.log('🗺️ mapRef.current:', mapRef.current);
+      console.log('🗺️ listings.length:', listings.length);
+      
+      if (!mapRef.current || listings.length === 0) {
+        console.log('🗺️ initMap aborted: no container or no listings');
+        return;
+      }
 
       if (mapInstanceRef.current) {
+        console.log('🗺️ Destroying existing map instance');
         mapInstanceRef.current.destroy();
       }
 
       const ymaps = (window as any).ymaps;
+      console.log('🗺️ Creating map instance...');
       
       const map = new ymaps.Map(mapRef.current, {
         center: [55.751244, 37.618423],
@@ -63,6 +82,7 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
         controls: ['zoomControl', 'fullscreenControl']
       });
 
+      console.log('🗺️ Map created successfully');
       mapInstanceRef.current = map;
 
       const clusterer = new ymaps.Clusterer({
