@@ -32,6 +32,8 @@ interface ModerationTabProps {
 
 export default function AdminModerationTab({ token, adminInfo, moderationFilter = 'pending' }: ModerationTabProps) {
   const isSuperAdmin = adminInfo?.role === 'superadmin';
+  const isOM = adminInfo?.role === 'operational_manager';
+  const canModerate = isSuperAdmin || isOM;
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
@@ -272,7 +274,7 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
                       <Icon name="ExternalLink" size={16} className="mr-2" />
                       Посмотреть
                     </Button>
-                    {isSuperAdmin && (
+                    {canModerate && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -285,7 +287,7 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
                         Подписка
                       </Button>
                     )}
-                    {isSuperAdmin && (
+                    {canModerate && (
                       <>
                         <Button
                           variant="default"
@@ -341,6 +343,11 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
                           Отклонить с комментарием
                         </Button>
                       </>
+                    )}
+                    {!canModerate && (
+                      <Badge variant="outline" className="text-sm">
+                        Только суперадмин/ОМ может модерировать
+                      </Badge>
                     )}
                   </div>
                 </div>
