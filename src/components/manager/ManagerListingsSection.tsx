@@ -5,6 +5,8 @@ import Icon from '@/components/ui/icon';
 import AddListingsDialog from './AddListingsDialog';
 import AddOwnerDialog from './AddOwnerDialog';
 import ListingsBaseDialog from './ListingsBaseDialog';
+import { motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface ManagerListingsSectionProps {
   managerData: any;
@@ -29,13 +31,26 @@ export default function ManagerListingsSection({
 
   return (
     <>
-      <Card className="shadow-md">
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-            <CardTitle className="flex items-center gap-2">
-              <Icon name="Building2" size={20} />
-              Мои объекты ({managerData.listings?.length || 0})
-            </CardTitle>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="shadow-lg border-2 border-purple-200 bg-gradient-to-br from-white via-purple-50/30 to-pink-50/30 overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-3xl" />
+          <CardHeader className="relative">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+              <CardTitle className="flex items-center gap-3">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                >
+                  <Icon name="Building2" size={24} className="text-purple-600" />
+                </motion.div>
+                <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  Мои объекты ({managerData.listings?.length || 0})
+                </span>
+              </CardTitle>
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <AddOwnerDialog
                 adminId={adminId}
@@ -51,60 +66,101 @@ export default function ManagerListingsSection({
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button
-              variant="outline"
-              className="h-24 flex flex-col items-center justify-center gap-2 hover:bg-purple-50 hover:border-purple-300"
-              onClick={() => setShowBaseDialog(true)}
+            <motion.div
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <Icon name="Database" size={32} className="text-purple-600" />
-              <div className="text-center">
-                <div className="font-semibold text-lg">База объектов</div>
-                <div className="text-sm text-muted-foreground">
-                  {managerData.listings?.length || 0} объектов
+              <Button
+                variant="outline"
+                className="h-28 w-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300 hover:from-purple-100 hover:to-purple-200 hover:border-purple-400 shadow-lg transition-all"
+                onClick={() => setShowBaseDialog(true)}
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Icon name="Database" size={36} className="text-purple-600" />
+                </motion.div>
+                <div className="text-center">
+                  <div className="font-bold text-lg text-purple-900">База объектов</div>
+                  <div className="text-sm font-semibold text-purple-700">
+                    {managerData.listings?.length || 0} объектов
+                  </div>
                 </div>
-              </div>
-            </Button>
+              </Button>
+            </motion.div>
 
             {criticalCount > 0 && (
-              <div className="h-24 flex flex-col items-center justify-center gap-2 border border-red-300 bg-red-50 rounded-lg p-4">
-                <Icon name="AlertCircle" size={32} className="text-red-600" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="h-28 flex flex-col items-center justify-center gap-2 border-2 border-red-400 bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4 shadow-lg"
+              >
+                <motion.div
+                  animate={{ rotate: [0, -10, 10, 0] }}
+                  transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+                >
+                  <Icon name="AlertCircle" size={36} className="text-red-600" />
+                </motion.div>
                 <div className="text-center">
-                  <div className="font-semibold text-lg text-red-700">Критично</div>
-                  <div className="text-sm text-red-600">
+                  <div className="font-bold text-lg text-red-700">⚠️ Критично</div>
+                  <div className="text-sm font-semibold text-red-600">
                     {criticalCount} {criticalCount === 1 ? 'объект' : 'объектов'}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {warningCount > 0 && (
-              <div className="h-24 flex flex-col items-center justify-center gap-2 border border-yellow-300 bg-yellow-50 rounded-lg p-4">
-                <Icon name="AlertTriangle" size={32} className="text-yellow-600" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="h-28 flex flex-col items-center justify-center gap-2 border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 shadow-lg"
+              >
+                <motion.div
+                  animate={{ y: [0, -5, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  <Icon name="AlertTriangle" size={36} className="text-yellow-600" />
+                </motion.div>
                 <div className="text-center">
-                  <div className="font-semibold text-lg text-yellow-700">Скоро истечёт</div>
-                  <div className="text-sm text-yellow-600">
+                  <div className="font-bold text-lg text-yellow-700">⏰ Скоро истечёт</div>
+                  <div className="text-sm font-semibold text-yellow-600">
                     {warningCount} {warningCount === 1 ? 'объект' : 'объектов'}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {noPaymentsCount > 0 && (
-              <div className="h-24 flex flex-col items-center justify-center gap-2 border border-blue-300 bg-blue-50 rounded-lg p-4">
-                <Icon name="Info" size={32} className="text-blue-600" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="h-28 flex flex-col items-center justify-center gap-2 border-2 border-blue-400 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 shadow-lg"
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  <Icon name="Info" size={36} className="text-blue-600" />
+                </motion.div>
                 <div className="text-center">
-                  <div className="font-semibold text-lg text-blue-700">Нет пополнений</div>
-                  <div className="text-sm text-blue-600">
+                  <div className="font-bold text-lg text-blue-700">💳 Нет пополнений</div>
+                  <div className="text-sm font-semibold text-blue-600">
                     {noPaymentsCount} {noPaymentsCount === 1 ? 'объект' : 'объектов'}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </motion.div>
 
       <ListingsBaseDialog
         show={showBaseDialog}
