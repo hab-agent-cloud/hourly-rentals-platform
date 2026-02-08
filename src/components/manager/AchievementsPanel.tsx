@@ -18,10 +18,11 @@ interface AchievementsPanelProps {
   objectsCount: number;
   balance: number;
   monthCommission: number;
+  totalOwnerPayments: number;
   onBalanceUpdate?: () => void;
 }
 
-export default function AchievementsPanel({ objectsCount, balance, monthCommission, onBalanceUpdate }: AchievementsPanelProps) {
+export default function AchievementsPanel({ objectsCount, balance, monthCommission, totalOwnerPayments, onBalanceUpdate }: AchievementsPanelProps) {
   const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
   const [celebratedAchievements, setCelebratedAchievements] = useState<Set<string>>(new Set());
 
@@ -58,49 +59,6 @@ export default function AchievementsPanel({ objectsCount, balance, monthCommissi
 
   const achievements: Achievement[] = [
     {
-      id: 'first_object',
-      title: 'Первый шаг',
-      description: 'Добавьте первый объект (+1000₽)',
-      emoji: '🏠',
-      unlocked: objectsCount >= 1
-    },
-    {
-      id: 'five_objects',
-      title: 'Пятёрочка',
-      description: 'Управляйте 5 объектами (+1000₽)',
-      emoji: '🎯',
-      unlocked: objectsCount >= 5,
-      progress: Math.min(objectsCount, 5),
-      maxProgress: 5
-    },
-    {
-      id: 'ten_objects',
-      title: 'Десятка',
-      description: 'Управляйте 10 объектами (+1000₽)',
-      emoji: '🔟',
-      unlocked: objectsCount >= 10,
-      progress: Math.min(objectsCount, 10),
-      maxProgress: 10
-    },
-    {
-      id: 'twenty_objects',
-      title: 'Двадцатка',
-      description: 'Достигните 20 объектов (+1000₽)',
-      emoji: '🚀',
-      unlocked: objectsCount >= 20,
-      progress: Math.min(objectsCount, 20),
-      maxProgress: 20
-    },
-    {
-      id: 'thirty_objects',
-      title: 'Тридцатка',
-      description: 'Достигните 30 объектов (+1000₽)',
-      emoji: '⚡',
-      unlocked: objectsCount >= 30,
-      progress: Math.min(objectsCount, 30),
-      maxProgress: 30
-    },
-    {
       id: 'fifty_objects',
       title: 'Золотая пятёрка',
       description: 'Достигните 50 объектов (+1000₽)',
@@ -119,61 +77,97 @@ export default function AchievementsPanel({ objectsCount, balance, monthCommissi
       maxProgress: 100
     },
     {
+      id: 'two_hundred_objects',
+      title: 'Двухсотник',
+      description: 'Управляйте 200 объектами (+1000₽)',
+      emoji: '🚀',
+      unlocked: objectsCount >= 200,
+      progress: Math.min(objectsCount, 200),
+      maxProgress: 200
+    },
+    {
+      id: 'owner_payment_20k',
+      title: 'Первые 20К',
+      description: 'Владельцы пополнили на 20 000₽ (+1000₽)',
+      emoji: '💰',
+      unlocked: totalOwnerPayments >= 20000,
+      progress: Math.min(totalOwnerPayments, 20000),
+      maxProgress: 20000
+    },
+    {
+      id: 'owner_payment_50k',
+      title: 'Пятьдесят тысяч',
+      description: 'Владельцы пополнили на 50 000₽ (+1000₽)',
+      emoji: '💵',
+      unlocked: totalOwnerPayments >= 50000,
+      progress: Math.min(totalOwnerPayments, 50000),
+      maxProgress: 50000
+    },
+    {
+      id: 'owner_payment_100k',
+      title: 'Сотка!',
+      description: 'Владельцы пополнили на 100 000₽ (+1000₽)',
+      emoji: '💸',
+      unlocked: totalOwnerPayments >= 100000,
+      progress: Math.min(totalOwnerPayments, 100000),
+      maxProgress: 100000
+    },
+    {
+      id: 'owner_payment_200k',
+      title: 'Двести тысяч',
+      description: 'Владельцы пополнили на 200 000₽ (+1000₽)',
+      emoji: '💎',
+      unlocked: totalOwnerPayments >= 200000,
+      progress: Math.min(totalOwnerPayments, 200000),
+      maxProgress: 200000
+    },
+    {
+      id: 'owner_payment_500k',
+      title: 'Полумиллион',
+      description: 'Владельцы пополнили на 500 000₽ (+1000₽)',
+      emoji: '👑',
+      unlocked: totalOwnerPayments >= 500000,
+      progress: Math.min(totalOwnerPayments, 500000),
+      maxProgress: 500000
+    },
+    {
+      id: 'owner_payment_1m',
+      title: 'Миллионер',
+      description: 'Владельцы пополнили на 1 000 000₽ (+1000₽)',
+      emoji: '🏆',
+      unlocked: totalOwnerPayments >= 1000000,
+      progress: Math.min(totalOwnerPayments, 1000000),
+      maxProgress: 1000000
+    },
+    {
       id: 'first_money',
       title: 'Первая прибыль',
       description: 'Заработайте первые деньги (+1000₽)',
-      emoji: '💰',
+      emoji: '🎯',
       unlocked: balance > 0
     },
     {
-      id: 'ten_thousand',
-      title: 'Десятка тысяч',
-      description: 'Накопите 10 000 ₽ (+1000₽)',
-      emoji: '💵',
-      unlocked: balance >= 10000,
-      progress: Math.min(balance, 10000),
-      maxProgress: 10000
-    },
-    {
-      id: 'fifty_thousand',
-      title: 'Полсотни',
-      description: 'Накопите 50 000 ₽ (+1000₽)',
-      emoji: '💸',
+      id: 'balance_50k',
+      title: 'Баланс 50К',
+      description: 'Накопите 50 000₽ на балансе (+1000₽)',
+      emoji: '🔥',
       unlocked: balance >= 50000,
       progress: Math.min(balance, 50000),
       maxProgress: 50000
     },
     {
-      id: 'big_earner',
-      title: 'Крупный заработок',
-      description: 'Накопите 100 000 ₽ (+1000₽)',
-      emoji: '💎',
+      id: 'balance_100k',
+      title: 'Баланс 100К',
+      description: 'Накопите 100 000₽ на балансе (+1000₽)',
+      emoji: '⚡',
       unlocked: balance >= 100000,
       progress: Math.min(balance, 100000),
       maxProgress: 100000
     },
     {
-      id: 'half_million',
-      title: 'Полумиллион',
-      description: 'Накопите 500 000 ₽ (+1000₽)',
-      emoji: '👑',
-      unlocked: balance >= 500000,
-      progress: Math.min(balance, 500000),
-      maxProgress: 500000
-    },
-    {
-      id: 'month_profit',
-      title: 'Месячный старт',
-      description: 'Заработайте 10 000 ₽ за месяц (+1000₽)',
-      emoji: '🔥',
-      unlocked: monthCommission >= 10000,
-      progress: Math.min(monthCommission, 10000),
-      maxProgress: 10000
-    },
-    {
       id: 'month_50k',
       title: 'Месячный рекорд',
-      description: 'Заработайте 50 000 ₽ за месяц (+1000₽)',
+      description: 'Заработайте 50 000₽ за месяц (+1000₽)',
       emoji: '🌟',
       unlocked: monthCommission >= 50000,
       progress: Math.min(monthCommission, 50000),
@@ -182,11 +176,20 @@ export default function AchievementsPanel({ objectsCount, balance, monthCommissi
     {
       id: 'month_100k',
       title: 'Месячный лидер',
-      description: 'Заработайте 100 000 ₽ за месяц (+1000₽)',
-      emoji: '🏆',
+      description: 'Заработайте 100 000₽ за месяц (+1000₽)',
+      emoji: '🥇',
       unlocked: monthCommission >= 100000,
       progress: Math.min(monthCommission, 100000),
       maxProgress: 100000
+    },
+    {
+      id: 'month_200k',
+      title: 'Легенда месяца',
+      description: 'Заработайте 200 000₽ за месяц (+1000₽)',
+      emoji: '🎖️',
+      unlocked: monthCommission >= 200000,
+      progress: Math.min(monthCommission, 200000),
+      maxProgress: 200000
     }
   ];
 
@@ -228,7 +231,7 @@ export default function AchievementsPanel({ objectsCount, balance, monthCommissi
     };
 
     checkAndAwardAchievements();
-  }, [objectsCount, balance, monthCommission]);
+  }, [objectsCount, balance, monthCommission, totalOwnerPayments]);
 
   return (
     <motion.div

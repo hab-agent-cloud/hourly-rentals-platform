@@ -160,6 +160,18 @@ def handler(event: dict, context) -> dict:
                     """, (admin_id_int,))
                     result['month_commission'] = float(cur.fetchone()['month_commission'])
                     
+                    # Общая сумма пополнений владельцев по объектам менеджера
+                    cur.execute("""
+                        SELECT COALESCE(SUM(t.amount), 0) as total_owner_payments
+                        FROM t_p39732784_hourly_rentals_platf.manager_listings ml
+                        JOIN t_p39732784_hourly_rentals_platf.listings l ON ml.listing_id = l.id
+                        JOIN t_p39732784_hourly_rentals_platf.transactions t ON l.owner_id = t.owner_id
+                        WHERE ml.manager_id = %s 
+                        AND t.type = 'payment'
+                        AND t.amount > 0
+                    """, (admin_id_int,))
+                    result['total_owner_payments'] = float(cur.fetchone()['total_owner_payments'])
+                    
                     # Задачи от ОМ
                     cur.execute("""
                         SELECT id, title, description, deadline, completed
