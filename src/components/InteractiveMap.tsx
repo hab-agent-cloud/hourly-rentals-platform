@@ -76,9 +76,22 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
       const ymaps = (window as any).ymaps;
       console.log('🗺️ Creating map instance...');
       
+      let mapCenter = [55.751244, 37.618423];
+      let mapZoom = 10;
+
+      if (selectedCity && selectedCity !== 'Все города') {
+        const cityListings = listings.filter(l => l.city === selectedCity && l.lat && l.lng && l.lat !== 0 && l.lng !== 0);
+        if (cityListings.length > 0) {
+          const avgLat = cityListings.reduce((sum, l) => sum + l.lat, 0) / cityListings.length;
+          const avgLng = cityListings.reduce((sum, l) => sum + l.lng, 0) / cityListings.length;
+          mapCenter = [avgLat, avgLng];
+          mapZoom = 11;
+        }
+      }
+
       const map = new ymaps.Map(mapRef.current, {
-        center: [55.751244, 37.618423],
-        zoom: 10,
+        center: mapCenter,
+        zoom: mapZoom,
         controls: ['zoomControl', 'fullscreenControl'],
         type: 'yandex#map'
       }, {
@@ -98,7 +111,9 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
         gridSize: 64
       });
 
-      const placemarks = listings.map((listing) => {
+      const validListings = listings.filter(l => l.lat && l.lng && l.lat !== 0 && l.lng !== 0);
+      
+      const placemarks = validListings.map((listing) => {
         const placemark = new ymaps.Placemark(
           [listing.lat, listing.lng],
           {
@@ -130,7 +145,7 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
       clusterer.add(placemarks);
       map.geoObjects.add(clusterer);
 
-      if (listings.length > 1) {
+      if (validListings.length > 1 && (!selectedCity || selectedCity === 'Все города')) {
         map.setBounds(clusterer.getBounds(), { checkZoomRange: true, zoomMargin: 50 });
       }
     };
@@ -143,7 +158,7 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
         mapInstanceRef.current = null;
       }
     };
-  }, [listings, selectedId]);
+  }, [listings, selectedId, selectedCity]);
 
   return (
     <Card className="h-full overflow-hidden border-2 border-purple-200">

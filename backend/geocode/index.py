@@ -26,7 +26,7 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(db_url)
         cur = conn.cursor()
         
-        cur.execute(f"SELECT id, city, district, metro, address FROM {schema}.listings WHERE (lat IS NULL OR lat = 0) AND is_archived = false LIMIT 20")
+        cur.execute(f"SELECT id, city, district, metro, address FROM {schema}.listings WHERE (lat IS NULL OR lat = 0) AND is_archived = false LIMIT 30")
         listings = cur.fetchall()
         
         updated_count = 0
@@ -62,7 +62,7 @@ def handler(event: dict, context) -> dict:
                         print(f"Found coordinates for {listing_id}: lat={lat_found}, lng={lng_found}")
                         break
                     
-                    time.sleep(0.3)
+                    time.sleep(0.2)
                         
                 except Exception as e:
                     print(f"Failed query for {listing_id}: {str(e)}")
@@ -74,7 +74,7 @@ def handler(event: dict, context) -> dict:
                 print(f"No coordinates found for listing {listing_id}")
                 failed_count += 1
             
-            time.sleep(0.5)
+            time.sleep(0.3)
         
         conn.commit()
         cur.close()
