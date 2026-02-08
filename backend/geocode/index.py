@@ -26,7 +26,7 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(db_url)
         cur = conn.cursor()
         
-        cur.execute(f"SELECT id, city, district, metro, address FROM {schema}.listings WHERE (lat IS NULL OR lat = 0) AND is_archived = false LIMIT 50")
+        cur.execute(f"SELECT id, city, district, metro, address FROM {schema}.listings WHERE (lat IS NULL OR lat = 0) AND is_archived = false LIMIT 20")
         listings = cur.fetchall()
         
         updated_count = 0
@@ -37,35 +37,44 @@ def handler(event: dict, context) -> dict:
         for listing in listings:
             listing_id, city, district, metro, address = listing
             
-            search_query = address if address else f"{city}, {district}, Россия"
-            if metro:
-                search_query += f", метро {metro}"
+            search_queries = []
+            if address:
+                clean_address = address.split(',')[0].strip()
+                search_queries.append(f"{clean_address}, {city}, Россия")
             
-            encoded_query = urllib.parse.quote(search_query)
-            url = f"https://nominatim.openstreetmap.org/search?q={encoded_query}&format=json&limit=1"
+            search_queries.append(f"{city}, Россия")
             
-            try:
-                print(f"Geocoding listing {listing_id}: {search_query}")
-                req = urllib.request.Request(url, headers={'User-Agent': '120minut-platform/1.0'})
-                with urllib.request.urlopen(req, timeout=10) as response:
-                    data = json.loads(response.read())
-                
-                if data and len(data) > 0:
-                    lat = float(data[0]['lat'])
-                    lng = float(data[0]['lon'])
+            lat_found, lng_found = None, None
+            
+            for search_query in search_queries:
+                try:
+                    print(f"Geocoding listing {listing_id}: {search_query}")
+                    encoded_query = urllib.parse.quote(search_query)
+                    url = f"https://nominatim.openstreetmap.org/search?q={encoded_query}&format=json&limit=1"
                     
-                    print(f"Found coordinates for {listing_id}: lat={lat}, lng={lng}")
-                    cur.execute(f"UPDATE {schema}.listings SET lat = %s, lng = %s WHERE id = %s", (lat, lng, listing_id))
-                    updated_count += 1
-                else:
-                    print(f"No coordinates found for {listing_id}: {search_query}")
-                    failed_count += 1
-                
-                time.sleep(1)
+                    req = urllib.request.Request(url, headers={'User-Agent': '120minut-platform/1.0'})
+                    with urllib.request.urlopen(req, timeout=5) as response:
+                        data = json.loads(response.read())
                     
-            except Exception as e:
+                    if data and len(data) > 0:
+                        lat_found = float(data[0]['lat'])
+                        lng_found = float(data[0]['lon'])
+                        print(f"Found coordinates for {listing_id}: lat={lat_found}, lng={lng_found}")
+                        break
+                    
+                    time.sleep(0.3)
+                        
+                except Exception as e:
+                    print(f"Failed query for {listing_id}: {str(e)}")
+            
+            if lat_found and lng_found:
+                cur.execute(f"UPDATE {schema}.listings SET lat = %s, lng = %s WHERE id = %s", (lat_found, lng_found, listing_id))
+                updated_count += 1
+            else:
+                print(f"No coordinates found for listing {listing_id}")
                 failed_count += 1
-                print(f"Failed to geocode listing {listing_id}: {str(e)}")
+            
+            time.sleep(0.5)
         
         conn.commit()
         cur.close()
