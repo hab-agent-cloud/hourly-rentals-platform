@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Award achievement bonus",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "admin_id": 1,
+        "achievement_id": "first_object"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "bonus_amount": 1000
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

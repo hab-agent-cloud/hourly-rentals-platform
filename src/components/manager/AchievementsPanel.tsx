@@ -18,9 +18,10 @@ interface AchievementsPanelProps {
   objectsCount: number;
   balance: number;
   monthCommission: number;
+  onBalanceUpdate?: () => void;
 }
 
-export default function AchievementsPanel({ objectsCount, balance, monthCommission }: AchievementsPanelProps) {
+export default function AchievementsPanel({ objectsCount, balance, monthCommission, onBalanceUpdate }: AchievementsPanelProps) {
   const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
   const [celebratedAchievements, setCelebratedAchievements] = useState<Set<string>>(new Set());
 
@@ -193,12 +194,40 @@ export default function AchievementsPanel({ objectsCount, balance, monthCommissi
   const totalCount = achievements.length;
 
   useEffect(() => {
-    achievements.forEach(achievement => {
-      if (achievement.unlocked && !celebratedAchievements.has(achievement.id)) {
-        setCelebratedAchievements(prev => new Set(prev).add(achievement.id));
-        setTimeout(() => fireConfetti(), 300);
+    const checkAndAwardAchievements = async () => {
+      const adminId = localStorage.getItem('adminId');
+      if (!adminId) return;
+
+      for (const achievement of achievements) {
+        if (achievement.unlocked && !celebratedAchievements.has(achievement.id)) {
+          setCelebratedAchievements(prev => new Set(prev).add(achievement.id));
+          
+          try {
+            const response = await fetch('https://functions.poehali.dev/34169f5c-89f3-4cd9-bfbf-700367b2545b', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                admin_id: parseInt(adminId),
+                achievement_id: achievement.id
+              })
+            });
+
+            const data = await response.json();
+            
+            if (data.success && !data.already_awarded) {
+              setTimeout(() => {
+                fireConfetti();
+                onBalanceUpdate?.();
+              }, 300);
+            }
+          } catch (error) {
+            console.error('Failed to award achievement:', error);
+          }
+        }
       }
-    });
+    };
+
+    checkAndAwardAchievements();
   }, [objectsCount, balance, monthCommission]);
 
   return (
@@ -304,13 +333,19 @@ export default function AchievementsPanel({ objectsCount, balance, monthCommissi
                   <p className="text-gray-600 mb-4">{selectedAchievement.description}</p>
                   
                   {selectedAchievement.unlocked ? (
-                    <div className="space-y-2">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-full font-bold">
+                    <div className="space-y-3">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-full font-bold shadow-lg">
                         <Icon name="Check" size={18} />
                         Разблокировано!
                       </div>
-                      <div className="text-2xl font-black bg-gradient-to-r from-yellow-500 to-amber-500 bg-clip-text text-transparent">
-                        +1000 ₽ на баланс! 🎉
+                      <div className="relative overflow-hidden bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 rounded-2xl p-4 shadow-2xl border-2 border-yellow-300 animate-pulse-slow">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                        <div className="relative z-10 text-3xl font-black text-white drop-shadow-lg">
+                          🎁 +1000 ₽
+                        </div>
+                        <div className="relative z-10 text-sm text-white/90 mt-1">
+                          Начислено на баланс!
+                        </div>
                       </div>
                     </div>
                   ) : selectedAchievement.progress !== undefined ? (

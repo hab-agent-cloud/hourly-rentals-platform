@@ -476,6 +476,7 @@ export default function ManagerDashboard() {
                 objectsCount={managerData.objects_count || 0}
                 balance={managerData.balance || 0}
                 monthCommission={managerData.month_commission || 0}
+                onBalanceUpdate={fetchManagerData}
               />
               
               <ManagerStatsCards managerData={managerData} onWithdraw={handleWithdraw} />
