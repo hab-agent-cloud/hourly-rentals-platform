@@ -85,6 +85,11 @@ export default function InteractiveMap({ listings, selectedId, onSelectListing, 
       console.log('🗺️ Map created successfully');
       mapInstanceRef.current = map;
 
+      setTimeout(() => {
+        map.container.fitToViewport();
+        console.log('🗺️ Map container fitted to viewport');
+      }, 100);
+
       const clusterer = new ymaps.Clusterer({
         preset: 'islands#violetClusterIcons',
         clusterDisableClickZoom: false,
