@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import PromotionBadge from '@/components/PromotionBadge';
 import ReviewForm from '@/components/ReviewForm';
-import ReviewsList from '@/components/ReviewsList';
 
 type Listing = {
   id: number;
@@ -212,7 +211,6 @@ export default function ListingCard({
           
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             <ReviewForm listingId={listing.id} />
-            <ReviewsList listingId={listing.id} />
           </div>
         </div>
       </CardContent>
