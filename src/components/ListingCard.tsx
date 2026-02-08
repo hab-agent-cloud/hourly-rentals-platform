@@ -3,6 +3,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import PromotionBadge from '@/components/PromotionBadge';
+import ReviewForm from '@/components/ReviewForm';
+import ReviewsList from '@/components/ReviewsList';
 
 type Listing = {
   id: number;
@@ -179,32 +181,39 @@ export default function ListingCard({
 
         <PromotionBadge listingId={listing.id} />
 
-        <div className="flex gap-2">
-          {listing.phone && onPhoneClick && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={(e) => onPhoneClick(listing.phone!, e, listing.id)}
-            >
-              <Icon name="Phone" size={14} className="mr-1" />
-              Позвонить
-            </Button>
-          )}
-          {listing.telegram && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.open(`https://t.me/${listing.telegram.replace('@', '')}`, '_blank');
-              }}
-            >
-              <Icon name="Send" size={14} className="mr-1" />
-              Telegram
-            </Button>
-          )}
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            {listing.phone && onPhoneClick && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={(e) => onPhoneClick(listing.phone!, e, listing.id)}
+              >
+                <Icon name="Phone" size={14} className="mr-1" />
+                Позвонить
+              </Button>
+            )}
+            {listing.telegram && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(`https://t.me/${listing.telegram.replace('@', '')}`, '_blank');
+                }}
+              >
+                <Icon name="Send" size={14} className="mr-1" />
+                Telegram
+              </Button>
+            )}
+          </div>
+          
+          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+            <ReviewForm listingId={listing.id} />
+            <ReviewsList listingId={listing.id} />
+          </div>
         </div>
       </CardContent>
     </Card>

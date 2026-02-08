@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Test get reviews for listing",
+      "method": "GET",
+      "path": "/?listing_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "reviews": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

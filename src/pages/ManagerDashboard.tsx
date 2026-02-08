@@ -14,6 +14,7 @@ import OwnersMessagesDialog from '@/components/manager/OwnersMessagesDialog';
 import ManagerTasksList from '@/components/manager/ManagerTasksList';
 import ManagerLevelCard from '@/components/manager/ManagerLevelCard';
 import AchievementsPanel from '@/components/manager/AchievementsPanel';
+import ManagerReviewsSection from '@/components/manager/ManagerReviewsSection';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
@@ -346,6 +347,7 @@ export default function ManagerDashboard() {
     { id: 'listings', icon: 'Building2', label: 'Объекты' },
     { id: 'finance', icon: 'Wallet', label: 'Финансы' },
     { id: 'tasks', icon: 'CheckSquare', label: 'Задачи' },
+    { id: 'reviews', icon: 'MessageSquare', label: 'Отзывы' },
     ...(isOM || isUM ? [{ id: 'team', icon: 'Users', label: 'Команда' }] : [])
   ];
   
@@ -763,6 +765,13 @@ export default function ManagerDashboard() {
 
           {activeTab === 'tasks' && (
             <ManagerTasksList managerId={adminId!} />
+          )}
+
+          {activeTab === 'reviews' && (
+            <ManagerReviewsSection 
+              adminId={adminId!} 
+              role={managerData.role || 'employee'}
+            />
           )}
 
           {activeTab === 'team' && (isOM || isUM) && (
