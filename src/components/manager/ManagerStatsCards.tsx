@@ -247,6 +247,7 @@ export default function ManagerStatsCards({ managerData, onWithdraw }: ManagerSt
           </Dialog>
         </CardContent>
       </Card>
+      </motion.div>
       
       <Card className="shadow-md hover:shadow-lg transition-shadow">
         <CardHeader className="pb-2">
