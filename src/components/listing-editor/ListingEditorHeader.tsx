@@ -42,6 +42,17 @@ export default function ListingEditorHeader({
     !listing.subscription_purchased_by_owner && 
     !listing.subscription_is_gift;
 
+  const calculateRemainingDays = () => {
+    if (!listing.subscription_end) return 0;
+    const endDate = new Date(listing.subscription_end);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+  };
+
+  const remainingDays = calculateRemainingDays();
+
   const handleResetSubscription = async () => {
     if (!window.confirm('Вы уверены, что хотите обнулить подписку? Это действие необратимо.')) {
       return;
@@ -222,7 +233,7 @@ export default function ListingEditorHeader({
               ) : (
                 <>
                   <Icon name="RotateCcw" size={18} className="mr-2" />
-                  Обнулить подписку
+                  Обнулить подписку ({remainingDays} {remainingDays === 1 ? 'день' : remainingDays < 5 ? 'дня' : 'дней'})
                 </>
               )}
             </Button>
