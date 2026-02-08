@@ -66,7 +66,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                 loading="eager"
               />
               <div>
-                <h1 className="text-lg sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <h1 className="text-base sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                   Почасовая аренда по всей России
                 </h1>
                 <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground whitespace-nowrap">Более 3000 объектов по России</p>
