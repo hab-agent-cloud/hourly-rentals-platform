@@ -7,8 +7,8 @@ import DocumentsLibraryDialog from './DocumentsLibraryDialog';
 interface AdminPanelHeaderProps {
   adminInfo: any;
   hasPermission: (permission: string) => boolean;
-  activeTab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics';
-  onTabChange: (tab: 'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics') => void;
+  activeTab: 'listings' | 'moderation' | 'moderation2' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics';
+  onTabChange: (tab: 'listings' | 'moderation' | 'moderation2' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics') => void;
   onLogout: () => void;
   token: string;
 }
@@ -82,6 +82,14 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
               >
                 <Icon name="Shield" size={18} className="mr-2" />
                 Модерация
+              </Button>
+              <Button
+                variant={activeTab === 'moderation2' ? 'default' : 'ghost'}
+                onClick={() => onTabChange('moderation2')}
+                className="rounded-b-none"
+              >
+                <Icon name="UserPlus" size={18} className="mr-2" />
+                Модерация 2
               </Button>
               <Button
                 variant={activeTab === 'recheck' ? 'default' : 'ghost'}

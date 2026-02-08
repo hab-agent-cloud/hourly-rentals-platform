@@ -25,7 +25,7 @@ import CopywriterInstructionDialog from '@/components/CopywriterInstructionDialo
 
 
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState<'listings' | 'moderation' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics'>('listings');
+  const [activeTab, setActiveTab] = useState<'listings' | 'moderation' | 'moderation2' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics'>('listings');
   const [selectedListing, setSelectedListing] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
   const [subscriptionDialog, setSubscriptionDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
@@ -240,6 +240,8 @@ export default function AdminPanel() {
           />
         ) : activeTab === 'moderation' && hasPermission('listings') ? (
           <AdminModerationTab token={token!} adminInfo={adminInfo} />
+        ) : activeTab === 'moderation2' && hasPermission('listings') ? (
+          <AdminModerationTab token={token!} adminInfo={adminInfo} moderationFilter="owner_pending" />
         ) : activeTab === 'recheck' && hasPermission('listings') ? (
           <AdminModerationTab token={token!} adminInfo={adminInfo} moderationFilter="awaiting_recheck" />
         ) : activeTab === 'rejected' && hasPermission('listings') ? (

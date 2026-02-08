@@ -138,9 +138,16 @@ def handler(event: dict, context) -> dict:
             
             print(f"[DEBUG] Params: archived={show_archived}, moderation={moderation_filter}, limit={limit} (requested={limit_param}), offset={offset}")
             
-            if moderation_filter in ('pending', 'awaiting_recheck', 'rejected'):
+            if moderation_filter in ('pending', 'awaiting_recheck', 'rejected', 'owner_pending'):
                 # Фильтр по статусу модерации
                 print(f"[DEBUG] Fetching moderation listings with status: {moderation_filter}")
+                
+                # owner_pending = объекты от владельцев в статусе pending
+                if moderation_filter == 'owner_pending':
+                    where_clause = "l.moderation_status = 'pending' AND l.created_by_owner = TRUE"
+                else:
+                    where_clause = f"l.moderation_status = '{moderation_filter}'"
+                
                 # ⚠️ Явно указываем поля БЕЗ images для экономии памяти
                 query = f"""
                     SELECT l.id, l.owner_id, l.title, l.city, l.district, l.address, l.lat, l.lng,
@@ -152,12 +159,13 @@ def handler(event: dict, context) -> dict:
                            l.has_parking, l.features, l.min_hours,
                            l.square_meters, l.parking_type, l.parking_price_per_hour,
                            l.expert_photo_rating, l.expert_description_rating, l.short_title,
+                           l.created_by_owner,
                            a.name as created_by_employee_name,
                            o.full_name as owner_name
                     FROM t_p39732784_hourly_rentals_platf.listings l
                     LEFT JOIN t_p39732784_hourly_rentals_platf.admins a ON l.created_by_employee_id = a.id
                     LEFT JOIN t_p39732784_hourly_rentals_platf.owners o ON l.owner_id = o.id
-                    WHERE l.moderation_status = '{moderation_filter}'
+                    WHERE {where_clause}
                     ORDER BY l.updated_at DESC
                     LIMIT {limit} OFFSET {offset}
                 """
