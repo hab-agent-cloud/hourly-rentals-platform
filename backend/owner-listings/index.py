@@ -177,13 +177,15 @@ def handler(event: dict, context) -> dict:
             
             result = cur.fetchone()
             
-            # Если привязываем к новому владельцу (не отвязываем), начисляем бонус 5000₽
+            # Если привязываем к новому владельцу (не отвязываем), устанавливаем 14 дней триала на объект
             if owner_id is not None and old_owner_id != owner_id:
+                from datetime import datetime, timedelta
+                trial_expires_at = datetime.now() + timedelta(days=14)
                 cur.execute(f"""
-                    UPDATE {schema}.owners 
-                    SET bonus_balance = bonus_balance + 5000
-                    WHERE id = %s
-                """, (owner_id,))
+                    UPDATE {schema}.listings 
+                    SET subscription_expires_at = %s
+                    WHERE id = %s AND (subscription_expires_at IS NULL OR subscription_expires_at < NOW())
+                """, (trial_expires_at, listing_id))
                 
                 cur.execute(f"""
                     INSERT INTO {schema}.transactions (owner_id, amount, type, description, balance_after)

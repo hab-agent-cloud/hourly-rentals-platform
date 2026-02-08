@@ -80,7 +80,7 @@ def handler(event: dict, context) -> dict:
                 cur.execute("""
                     INSERT INTO t_p39732784_hourly_rentals_platf.owners 
                     (email, password_hash, full_name, phone, balance, bonus_awarded, is_verified)
-                    VALUES (%s, %s, %s, %s, 5000.00, true, false)
+                    VALUES (%s, %s, %s, %s, 0.00, false, false)
                     RETURNING id
                 """, (
                     body['owner_email'],
@@ -95,7 +95,7 @@ def handler(event: dict, context) -> dict:
             owner_result = cur.fetchone()
             owner_id = owner_result['id']
             
-            print(f"[INFO] Created new owner with ID {owner_id}, password: {generated_password}, bonus: 5000.00 RUB")
+            print(f"[INFO] Created new owner with ID {owner_id}, password: {generated_password}")
             
             # Сохраняем пароль для отправки на email
             try:
@@ -126,12 +126,15 @@ def handler(event: dict, context) -> dict:
         
         print(f"[DEBUG] Creating listing: title={body['title']}, type={body['type']} -> {db_type}, city={body['city']}, parking_price={parking_price}")
         
+        from datetime import datetime, timedelta
+        trial_expires_at = datetime.now() + timedelta(days=14)
+        
         try:
             cur.execute("""
             INSERT INTO t_p39732784_hourly_rentals_platf.listings 
             (title, type, city, district, price, rating, reviews, auction, image_url, metro, metro_walk, 
-             has_parking, features, lat, lng, min_hours, is_archived, owner_id, phone, created_by_owner)
-            VALUES (%s, %s, %s, %s, %s, 0.0, 0, 999, %s, %s, %s, %s, %s, %s, %s, 1, false, %s, %s, true)
+             has_parking, features, lat, lng, min_hours, is_archived, owner_id, phone, created_by_owner, subscription_expires_at)
+            VALUES (%s, %s, %s, %s, %s, 0.0, 0, 999, %s, %s, %s, %s, %s, %s, %s, 1, false, %s, %s, true, %s)
             RETURNING id
         """, (
             body['title'],
@@ -147,7 +150,8 @@ def handler(event: dict, context) -> dict:
             body.get('lat'),
             body.get('lng'),
             owner_id,
-            body['owner_phone']
+            body['owner_phone'],
+            trial_expires_at
         ))
         except Exception as e:
             print(f"[ERROR] Failed to create listing: {str(e)}")

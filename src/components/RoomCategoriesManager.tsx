@@ -279,7 +279,7 @@ export default function RoomCategoriesManager({ categories, onChange }: RoomCate
               <div>
                 <Label>Фотографии номера</Label>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Перетащите фотографии, чтобы изменить порядок
+                  Вы можете выбрать несколько фотографий одновременно. Перетащите их, чтобы изменить порядок.
                 </p>
                 <ImageUploader multiple onUpload={(url) => addImage(index, url)} />
                 <div className="grid grid-cols-3 gap-2 mt-2">
