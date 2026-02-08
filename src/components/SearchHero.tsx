@@ -67,7 +67,7 @@ export default function SearchHero({
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const messages = [
     { icon: 'UserX', text: 'БЕЗ ПОСРЕДНИКОВ И БЕЗ РЕГИСТРАЦИИ' },
-    { icon: 'Mic', text: 'УМНЫЙ ГОЛОСОВОЙ ПОИСК, БЕЗ ПОСРЕДНИКОВ' },
+    { icon: 'Mic', text: 'УМНЫЙ ГОЛОСОВОЙ ПОИСК' },
     { icon: 'WifiOff', text: 'РАБОТАЕТ БЕЗ ИНТЕРНЕТА' }
   ];
 

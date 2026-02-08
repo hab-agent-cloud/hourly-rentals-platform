@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Icon from '@/components/ui/icon';
+import { motion } from 'framer-motion';
 
 interface ManagerStatsCardsProps {
   managerData: any;
@@ -54,22 +55,49 @@ export default function ManagerStatsCards({ managerData, onWithdraw }: ManagerSt
     setWithdrawDialogOpen(false);
   };
 
+  const getLevelGradient = (level: string) => {
+    switch(level) {
+      case 'bronze': return 'from-amber-700 via-orange-600 to-amber-700';
+      case 'silver': return 'from-gray-400 via-gray-300 to-gray-400';
+      case 'gold': return 'from-yellow-400 via-amber-300 to-yellow-400';
+      case 'platinum': return 'from-cyan-400 via-blue-400 to-purple-400';
+      default: return 'from-amber-700 via-orange-600 to-amber-700';
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      <Card className="shadow-md hover:shadow-lg transition-shadow">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-              <Icon name="Wallet" size={16} className="text-green-600" />
-            </div>
-            Баланс
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl sm:text-3xl font-bold text-green-600">{managerData.balance || 0} ₽</div>
-          <p className="text-xs text-muted-foreground mt-1">
-            За месяц: +{managerData.month_commission || 0} ₽
-          </p>
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Card className="shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-green-700 flex items-center gap-2">
+              <motion.div 
+                className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg"
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Icon name="Wallet" size={20} className="text-white" />
+              </motion.div>
+              💰 Баланс
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <motion.div 
+              className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent"
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              {managerData.balance || 0} ₽
+            </motion.div>
+            <p className="text-xs font-semibold text-green-600 mt-2 flex items-center gap-1">
+              <Icon name="TrendingUp" size={12} />
+              За месяц: +{managerData.month_commission || 0} ₽
+            </p>
           <Dialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="w-full mt-3" variant="outline">

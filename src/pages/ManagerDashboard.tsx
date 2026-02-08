@@ -12,6 +12,8 @@ import TeamAnalytics from '@/components/om/TeamAnalytics';
 import MessagesDialog from '@/components/manager/MessagesDialog';
 import OwnersMessagesDialog from '@/components/manager/OwnersMessagesDialog';
 import ManagerTasksList from '@/components/manager/ManagerTasksList';
+import ManagerLevelCard from '@/components/manager/ManagerLevelCard';
+import AchievementsPanel from '@/components/manager/AchievementsPanel';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
@@ -461,7 +463,20 @@ export default function ManagerDashboard() {
         >
           {activeTab === 'overview' && (
             <div className="space-y-4 sm:space-y-6">
-              <ManagerStatsCards managerData={managerData} />
+              <ManagerLevelCard 
+                level={managerData.level || 'bronze'}
+                objectsCount={managerData.objects_count || 0}
+                objectLimit={managerData.object_limit || 200}
+                balance={managerData.balance || 0}
+              />
+              
+              <AchievementsPanel 
+                objectsCount={managerData.objects_count || 0}
+                balance={managerData.balance || 0}
+                monthCommission={managerData.month_commission || 0}
+              />
+              
+              <ManagerStatsCards managerData={managerData} onWithdraw={handleWithdraw} />
               
               {!isUM && (
                 <Card className={`shadow-lg border-2 overflow-hidden ${
