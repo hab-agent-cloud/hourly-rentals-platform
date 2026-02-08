@@ -74,6 +74,16 @@ def handler(event: dict, context) -> dict:
                     'isBase64Encoded': False
                 }
             
+            try:
+                listing_id = int(listing_id)
+            except (ValueError, TypeError):
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Некорректный ID объекта'}),
+                    'isBase64Encoded': False
+                }
+            
             cur.execute("SELECT * FROM listings WHERE id = %s AND owner_id = %s", (listing_id, owner['id']))
             listing = cur.fetchone()
             
