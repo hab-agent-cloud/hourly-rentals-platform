@@ -6,7 +6,6 @@ import AddListingsDialog from './AddListingsDialog';
 import AddOwnerDialog from './AddOwnerDialog';
 import ListingsBaseDialog from './ListingsBaseDialog';
 import { motion } from 'framer-motion';
-import { motion } from 'framer-motion';
 
 interface ManagerListingsSectionProps {
   managerData: any;
