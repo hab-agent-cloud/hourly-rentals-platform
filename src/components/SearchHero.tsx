@@ -210,12 +210,6 @@ export default function SearchHero({
   return (
     <section className="mb-6 sm:mb-12 pt-12 sm:pt-16 md:pt-20 text-center animate-fade-in px-3 sm:px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="flex justify-center items-center mb-5 sm:mb-6 min-h-[40px] sm:min-h-[44px] px-2">
-          <div key={`anim-${currentMessageIndex}`} className="flex items-center justify-center gap-2 text-base sm:text-lg md:text-xl font-semibold text-purple-700 animate-fade-in">
-            <Icon name={messages[currentMessageIndex].icon as any} size={22} className="text-green-500 flex-shrink-0" />
-            <span className="inline-block leading-snug">{messages[currentMessageIndex].text}</span>
-          </div>
-        </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 text-sm sm:text-base md:text-lg font-medium px-2">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">1</div>

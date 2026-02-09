@@ -244,19 +244,6 @@ export default function PopularCitiesSection({ allCities = [] }: PopularCitiesSe
         </div>
       </div>
 
-      <div className="mt-12 text-center">
-        <motion.button
-          onClick={() => setShowAllCities(true)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
-        >
-          <Icon name="Map" size={20} />
-          Посмотреть все города ({allCities.length})
-          <Icon name="ChevronRight" size={20} />
-        </motion.button>
-      </div>
-
       {/* Modal with all cities */}
       <AnimatePresence>
         {showAllCities && (

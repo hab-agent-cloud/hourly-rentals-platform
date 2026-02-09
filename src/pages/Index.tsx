@@ -194,6 +194,7 @@ export default function Index() {
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
+    loadListings(city);
     setTimeout(() => {
       scrollToResults();
     }, 200);
@@ -219,7 +220,7 @@ export default function Index() {
             selectedType={selectedType}
             setSelectedType={setSelectedType}
             selectedCity={selectedCity}
-            setSelectedCity={setSelectedCity}
+            setSelectedCity={handleCityChange}
             cities={uniqueCities}
             showMap={showMap}
             setShowMap={setShowMap}

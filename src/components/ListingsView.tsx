@@ -189,6 +189,15 @@ export default function ListingsView({
   }
 
   if (sortedListings.length === 0) {
+    if (selectedCity === 'Все города') {
+      return (
+        <div className="text-center py-12 bg-purple-50 rounded-xl border-2 border-purple-200">
+          <Icon name="MapPin" size={48} className="mx-auto mb-4 text-purple-400" />
+          <p className="text-xl text-gray-600 mb-2">Выберите город для просмотра объектов</p>
+          <p className="text-sm text-gray-500">Используйте фильтр выше для выбора города</p>
+        </div>
+      );
+    }
     return null;
   }
 
