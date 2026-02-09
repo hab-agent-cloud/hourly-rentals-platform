@@ -2,16 +2,16 @@ export default function SEOTextSection() {
   return (
     <div className="container mx-auto px-4 py-12 bg-white">
       <div className="max-w-4xl mx-auto prose prose-purple">
-        <h2 className="text-3xl font-bold mb-6 text-purple-900">
-          Почасовая аренда отелей и номеров по России
-        </h2>
+        <h1 className="text-3xl font-bold mb-6 text-purple-900">
+          Аренда на час — отели и номера от 2 часов по всей России
+        </h1>
         
         <div className="space-y-6 text-gray-700 leading-relaxed">
           <p>
-            <strong>120 МИНУТ</strong> — современный сервис для <strong>почасовой аренды отелей</strong>, квартир, 
-            а также уже скоро (стример номера, сауны, конференц залы, коворкинг и др.) во всех городах России. 
-            Мы предлагаем удобное бронирование гостиниц на любое количество часов — от 1 часа и более, что идеально 
-            подходит для краткосрочного отдыха, деловых встреч или остановки в пути.
+            <strong>120 МИНУТ</strong> — современный сервис для <strong>аренды на час</strong> отелей и квартир 
+            по всей России. Мы предлагаем удобное <strong>бронирование гостиниц на час</strong> или любое количество часов — 
+            от 2 часов и более, что идеально подходит для краткосрочного отдыха, деловых встреч или остановки в пути. 
+            <strong>Снять номер на час</strong> теперь можно без переплат за полные сутки.
           </p>
 
           <h3 className="text-2xl font-semibold mt-8 mb-4 text-purple-800">

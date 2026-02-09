@@ -6,11 +6,22 @@ import ManageLimitsDialog from '@/components/om/ManageLimitsDialog';
 import TeamAnalytics from '@/components/om/TeamAnalytics';
 import { motion } from 'framer-motion';
 
+interface ManagerData {
+  role: string;
+  balance?: number;
+  pending_withdrawals?: number;
+  total_earned?: number;
+}
+
+interface PaymentHistory {
+  payments?: Array<Record<string, unknown>>;
+}
+
 interface ManagerDashboardContentProps {
   activeTab: string;
-  managerData: any;
+  managerData: ManagerData;
   adminId: number;
-  paymentHistory: any;
+  paymentHistory: PaymentHistory | null;
   onFreezeListing: (listingId: number) => void;
   onUnfreezeListing: (listingId: number) => void;
   onRefresh: () => void;

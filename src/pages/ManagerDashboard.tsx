@@ -30,11 +30,34 @@ function decodeJWT(token: string) {
   }
 }
 
+interface ManagerData {
+  name: string;
+  role: string;
+  level?: string;
+  objects_count?: number;
+  object_limit?: number;
+  balance: number;
+  month_commission?: number;
+  total_owner_payments?: number;
+  subscription_active?: boolean;
+  total_objects?: number;
+  week_tasks_completed?: number;
+  om_rank?: number | string;
+  manager_rank?: number | string;
+  total_listings?: number;
+  total_earned?: number;
+  pending_withdrawals?: number;
+}
+
+interface PaymentHistory {
+  payments?: Array<Record<string, unknown>>;
+}
+
 export default function ManagerDashboard() {
-  const [managerData, setManagerData] = useState<any>(null);
+  const [managerData, setManagerData] = useState<ManagerData | null>(null);
   const [loading, setLoading] = useState(true);
   const [adminId, setAdminId] = useState<number | null>(null);
-  const [paymentHistory, setPaymentHistory] = useState<any>(null);
+  const [paymentHistory, setPaymentHistory] = useState<PaymentHistory | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('managerDarkMode') === 'true');
   const [refreshing, setRefreshing] = useState(false);
@@ -56,23 +79,7 @@ export default function ManagerDashboard() {
     } else {
       navigate('/admin/login');
     }
-  }, []);
-  
-  useEffect(() => {
-    if (adminId) {
-      fetchManagerData();
-      fetchPaymentHistory();
-    }
-  }, [adminId]);
-
-  useEffect(() => {
-    localStorage.setItem('managerDarkMode', darkMode.toString());
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
+  }, [navigate]);
   
   const fetchManagerData = async () => {
     try {
@@ -88,6 +95,33 @@ export default function ManagerDashboard() {
       setLoading(false);
     }
   };
+
+  const fetchPaymentHistory = async () => {
+    try {
+      const response = await fetch(`${FUNC_URLS.paymentHistory}?manager_id=${adminId}`);
+      const data = await response.json();
+      setPaymentHistory(data);
+    } catch (error) {
+      console.error('[PAYMENT HISTORY] Ошибка:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (adminId) {
+      fetchManagerData();
+      fetchPaymentHistory();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminId]);
+
+  useEffect(() => {
+    localStorage.setItem('managerDarkMode', darkMode.toString());
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   const handleRefresh = async () => {
     if (refreshing) return;

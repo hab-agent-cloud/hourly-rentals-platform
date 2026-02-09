@@ -7,8 +7,25 @@ import AchievementsPanel from '@/components/manager/AchievementsPanel';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
+interface ManagerData {
+  role: string;
+  level?: string;
+  objects_count?: number;
+  object_limit?: number;
+  balance?: number;
+  month_commission?: number;
+  total_owner_payments?: number;
+  subscription_active?: boolean;
+  total_objects?: number;
+  week_tasks_completed?: number;
+  om_rank?: number | string;
+  manager_rank?: number | string;
+  total_listings?: number;
+  total_earned?: number;
+}
+
 interface ManagerDashboardOverviewProps {
-  managerData: any;
+  managerData: ManagerData;
   darkMode: boolean;
   onWithdraw: (
     amount: string,

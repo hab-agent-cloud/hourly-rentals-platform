@@ -4,8 +4,14 @@ import MessagesDialog from '@/components/manager/MessagesDialog';
 import OwnersMessagesDialog from '@/components/manager/OwnersMessagesDialog';
 import { motion } from 'framer-motion';
 
+interface ManagerData {
+  name: string;
+  role: string;
+  subscription_active?: boolean;
+}
+
 interface ManagerDashboardHeaderProps {
-  managerData: any;
+  managerData: ManagerData;
   adminId: number;
   darkMode: boolean;
   activeTab: string;
@@ -115,7 +121,7 @@ export default function ManagerDashboardHeader({
                   }
                 `}
               >
-                <Icon name={tab.icon as any} size={16} />
+                <Icon name={tab.icon} size={16} />
                 <span className="hidden sm:inline">{tab.label}</span>
               </Button>
             ))}
