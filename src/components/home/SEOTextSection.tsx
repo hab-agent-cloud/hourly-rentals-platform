@@ -41,24 +41,10 @@ export default function SEOTextSection() {
             <li>Дневной отдых</li>
           </ul>
 
-          <p className="mt-6">
+          <p className="mt-6 text-center">
             <strong>Отель на час Москва</strong>, <strong>отель на час СПб</strong>, 
-            <strong>гостиница на час</strong> — всё доступно на 120 МИНУТ.
+            <strong>гостиница на час</strong> — более 3000 объектов по всей России на 120 МИНУТ.
           </p>
-
-          <div className="mt-10 p-8 bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 rounded-2xl border-2 border-yellow-300 shadow-2xl relative overflow-hidden animate-pulse-slow">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
-            <div className="relative z-10">
-              <p className="text-3xl font-bold text-white mb-3 drop-shadow-lg flex items-center gap-3">
-                <span className="text-5xl">✨</span>
-                <span>Больше 3000 объектов</span>
-                <span className="text-5xl">✨</span>
-              </p>
-              <p className="text-xl font-semibold text-yellow-50 mt-2">
-                по всей России
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
