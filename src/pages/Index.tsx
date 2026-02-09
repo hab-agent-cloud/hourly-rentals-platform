@@ -25,6 +25,7 @@ export default function Index() {
   const [selectedType, setSelectedType] = useState('all');
   const [hasParking, setHasParking] = useState(false);
   const [minHours, setMinHours] = useState<number | null>(null);
+  const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState('catalog');
   const [showMap, setShowMap] = useState(false);
   const [selectedListing, setSelectedListing] = useState<number | null>(null);
@@ -149,6 +150,7 @@ export default function Index() {
       .filter(l => selectedType === 'all' || l.type === selectedType)
       .filter(l => !hasParking || l.hasParking)
       .filter(l => minHours === null || l.minHours <= minHours)
+      .filter(l => maxPrice === null || l.price <= maxPrice)
       .filter(l => {
         return l.title.toLowerCase().includes(search) || 
                l.city.toLowerCase().includes(search) ||
@@ -173,7 +175,7 @@ export default function Index() {
     }
 
     return filtered;
-  }, [allListings, selectedCity, selectedType, hasParking, minHours, searchCity, selectedFeatures, nearMe, userLocation]);
+  }, [allListings, selectedCity, selectedType, hasParking, minHours, maxPrice, searchCity, selectedFeatures, nearMe, userLocation]);
 
   const handleCardClick = (listing: any) => {
     window.location.href = `/listing/${listing.id}`;
@@ -228,6 +230,8 @@ export default function Index() {
             setHasParking={setHasParking}
             minHours={minHours}
             setMinHours={setMinHours}
+            maxPrice={maxPrice}
+            setMaxPrice={setMaxPrice}
             selectedFeatures={selectedFeatures}
             setSelectedFeatures={setSelectedFeatures}
             detectedCity={detectedCity}

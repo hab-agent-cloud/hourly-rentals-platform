@@ -18,6 +18,8 @@ interface SearchHeroProps {
   setHasParking: (value: boolean) => void;
   minHours: number | null;
   setMinHours: (value: number | null) => void;
+  maxPrice: number | null;
+  setMaxPrice: (value: number | null) => void;
   selectedFeatures: string[];
   setSelectedFeatures: (value: string[]) => void;
   detectedCity?: string | null;
@@ -41,6 +43,8 @@ export default function SearchHero({
   setHasParking,
   minHours,
   setMinHours,
+  maxPrice,
+  setMaxPrice,
   selectedFeatures,
   setSelectedFeatures,
   detectedCity,
@@ -325,6 +329,28 @@ export default function SearchHero({
               >
                 <Icon name="Clock" size={14} className="mr-1" />
                 От 1 часа
+              </Badge>
+              <Badge 
+                variant={maxPrice === 1000 ? "default" : "secondary"} 
+                className={`cursor-pointer ${maxPrice === 1000 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
+                onClick={() => {
+                  setMaxPrice(maxPrice === 1000 ? null : 1000);
+                  onFilterChange?.();
+                }}
+              >
+                <Icon name="DollarSign" size={14} className="mr-1" />
+                До 1000₽
+              </Badge>
+              <Badge 
+                variant={maxPrice === 1500 ? "default" : "secondary"} 
+                className={`cursor-pointer ${maxPrice === 1500 ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 'hover:bg-purple-100'}`}
+                onClick={() => {
+                  setMaxPrice(maxPrice === 1500 ? null : 1500);
+                  onFilterChange?.();
+                }}
+              >
+                <Icon name="DollarSign" size={14} className="mr-1" />
+                До 1500₽
               </Badge>
               <Badge 
                 variant={nearMe ? "default" : "secondary"} 
