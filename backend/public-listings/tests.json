@@ -1,9 +1,9 @@
 {
   "tests": [
     {
-      "name": "Test get public listings",
+      "name": "Test get public listings by city",
       "method": "GET",
-      "path": "/",
+      "path": "/?city=Москва",
       "expectedStatus": 200,
       "bodyMatcher": "partial"
     }

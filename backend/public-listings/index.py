@@ -87,11 +87,11 @@ def handler(event: dict, context) -> dict:
         
         # Формируем WHERE условие с учетом фильтра по городу
         where_conditions = ["l.is_archived = false", "(l.moderation_status IS NULL OR l.moderation_status = 'approved')"]
-        query_params = []
         
         if city_filter:
-            where_conditions.append("LOWER(l.city) = LOWER(%s)")
-            query_params.append(city_filter)
+            # Экранируем для SQL (простая защита от SQL injection)
+            safe_city = city_filter.replace("'", "''")
+            where_conditions.append(f"LOWER(l.city) = LOWER('{safe_city}')")
         
         where_clause = " AND ".join(where_conditions)
         
@@ -115,10 +115,7 @@ def handler(event: dict, context) -> dict:
             ORDER BY l.city ASC, l.auction ASC, l.id ASC
         """
         
-        if query_params:
-            cur.execute(query, tuple(query_params))
-        else:
-            cur.execute(query)
+        cur.execute(query)
         listings = cur.fetchall()
         
         if not listings:
