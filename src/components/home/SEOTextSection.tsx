@@ -1,6 +1,6 @@
 export default function SEOTextSection() {
   return (
-    <div className="container mx-auto px-4 py-12 bg-white">
+    <div className="container mx-auto px-4 py-8 bg-white rounded-3xl shadow-lg">
       <div className="max-w-4xl mx-auto prose prose-purple">
         <h1 className="text-3xl font-bold mb-6 text-purple-900">
           Аренда на час — отели и номера от 2 часов по всей России

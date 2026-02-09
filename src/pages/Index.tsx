@@ -216,7 +216,8 @@ export default function Index() {
         <>
           <PopularCitiesSection allCities={uniqueCities.filter(c => c !== 'Все города')} />
           
-          <SearchHero
+          <div className="-mt-6">
+            <SearchHero
             searchCity={searchCity}
             setSearchCity={setSearchCity}
             selectedType={selectedType}
@@ -239,9 +240,10 @@ export default function Index() {
             setNearMe={setNearMe}
             setUserLocation={setUserLocation}
             onFilterChange={() => setTimeout(scrollToResults, 200)}
-          />
+            />
+          </div>
 
-          <main className="container mx-auto px-4 py-8" ref={resultsRef} data-results-section>
+          <main className="container mx-auto px-4 py-4 -mt-6" ref={resultsRef} data-results-section>
             <div className="mb-8">
               <VoiceSearchBanner />
               <InstallAppBanner />
@@ -259,14 +261,30 @@ export default function Index() {
             />
           </main>
 
-          <FAQSection />
-          <SEOTextSection />
+          <div className="-mt-6">
+            <FAQSection />
+          </div>
+          <div className="-mt-6">
+            <SEOTextSection />
+          </div>
         </>
       )}
 
-      {activeTab === 'about' && <AboutSection />}
-      {activeTab === 'partners' && <PartnersSection />}
-      {activeTab === 'support' && <SupportSection />}
+      {activeTab === 'about' && (
+        <div className="py-6">
+          <AboutSection />
+        </div>
+      )}
+      {activeTab === 'partners' && (
+        <div className="py-6">
+          <PartnersSection />
+        </div>
+      )}
+      {activeTab === 'support' && (
+        <div className="py-6">
+          <SupportSection />
+        </div>
+      )}
 
       <HotelModal
         open={dialogOpen}

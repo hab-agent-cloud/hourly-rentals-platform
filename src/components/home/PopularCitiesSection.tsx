@@ -144,7 +144,7 @@ export default function PopularCitiesSection({ allCities = [] }: PopularCitiesSe
   }, [currentCityIndex]);
 
   return (
-    <div className="container mx-auto px-4 py-16 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="container mx-auto px-4 py-8 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <div className="text-center mb-12">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -358,25 +358,6 @@ export default function PopularCitiesSection({ allCities = [] }: PopularCitiesSe
           </motion.div>
         )}
       </AnimatePresence>
-
-      <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-        <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
-          <p className="text-3xl font-bold text-blue-600 mb-1">3000+</p>
-          <p className="text-sm text-gray-600">Объектов</p>
-        </div>
-        <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
-          <p className="text-3xl font-bold text-green-600 mb-1">53</p>
-          <p className="text-sm text-gray-600">Города</p>
-        </div>
-        <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200">
-          <p className="text-3xl font-bold text-purple-600 mb-1">24/7</p>
-          <p className="text-sm text-gray-600">Поддержка</p>
-        </div>
-        <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-200">
-          <p className="text-3xl font-bold text-amber-600 mb-1">0%</p>
-          <p className="text-sm text-gray-600">Комиссия</p>
-        </div>
-      </div>
     </div>
   );
 }

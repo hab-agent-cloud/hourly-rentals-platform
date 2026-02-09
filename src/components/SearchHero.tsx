@@ -304,6 +304,27 @@ export default function SearchHero({
             </div>
 
             <div className="flex items-center gap-2">
+              <Icon name="MapPin" size={16} className="text-purple-600" />
+              <span className="text-sm font-semibold text-purple-700">Все города:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {cities.filter(c => c !== 'Все города' && c !== 'Москва' && c !== 'Санкт-Петербург').slice(0, 8).map(city => (
+                <Badge
+                  key={city}
+                  variant="secondary"
+                  className="cursor-pointer hover:bg-purple-100"
+                  onClick={() => {
+                    setSelectedCity(city);
+                    setSearchCity(city);
+                    onFilterChange?.();
+                  }}
+                >
+                  {city}
+                </Badge>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2">
               <Icon name="Filter" size={16} className="text-purple-600" />
               <span className="text-sm font-semibold text-purple-700">Фильтры:</span>
             </div>

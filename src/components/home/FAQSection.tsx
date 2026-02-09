@@ -55,7 +55,7 @@ export default function FAQSection() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="container mx-auto px-4 py-8 bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchemaMarkup) }}
