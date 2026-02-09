@@ -211,6 +211,8 @@ export default function Index() {
 
       {activeTab === 'catalog' && (
         <>
+          <PopularCitiesSection allCities={uniqueCities.filter(c => c !== 'Все города')} />
+          
           <SearchHero
             searchCity={searchCity}
             setSearchCity={setSearchCity}
@@ -251,20 +253,15 @@ export default function Index() {
               isLoading={isLoading}
             />
           </main>
+
+          <FAQSection />
+          <SEOTextSection />
         </>
       )}
 
       {activeTab === 'about' && <AboutSection />}
       {activeTab === 'partners' && <PartnersSection />}
       {activeTab === 'support' && <SupportSection />}
-
-      {activeTab === 'catalog' && (
-        <>
-          <PopularCitiesSection allCities={uniqueCities.filter(c => c !== 'Все города')} />
-          <FAQSection />
-          <SEOTextSection />
-        </>
-      )}
 
       <HotelModal
         open={dialogOpen}
