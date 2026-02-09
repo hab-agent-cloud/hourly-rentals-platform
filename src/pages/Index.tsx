@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { themes, type ThemeKey } from '@/components/ThemeSwitcher';
 import SearchHero from '@/components/SearchHero';
 import ListingsView from '@/components/ListingsView';
@@ -270,12 +270,12 @@ export default function Index() {
               alt="120 минут" 
               className="h-16 w-16 object-contain"
             />
-            <a href="/admin/login">
+            <Link to="/admin/login">
               <Button variant="ghost" size="sm" className="text-gray-500 hover:text-purple-600">
                 <Icon name="Shield" size={16} className="mr-2" />
                 Админ панель
               </Button>
-            </a>
+            </Link>
           </div>
         </div>
       </footer>

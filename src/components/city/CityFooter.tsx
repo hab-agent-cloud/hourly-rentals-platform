@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
+import { Button } from '@/components/ui/button';
 
 export default function CityFooter() {
   return (
@@ -53,8 +54,16 @@ export default function CityFooter() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-purple-700 mt-8 pt-8 text-center text-sm text-purple-200">
-          <p>&copy; 2025 120 МИНУТ. Все права защищены.</p>
+        <div className="border-t border-purple-700 mt-8 pt-8">
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-sm text-purple-200">&copy; 2025 120 МИНУТ. Все права защищены.</p>
+            <Link to="/admin/login">
+              <Button variant="ghost" size="sm" className="text-purple-200 hover:text-white hover:bg-white/10">
+                <Icon name="Shield" size={16} className="mr-2" />
+                Админ панель
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
