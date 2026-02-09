@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Document, getTraineeInstructionContent, getManagerSalesScriptContent } from '@/components/admin/documents/DocumentsLibraryConstants';
+import { Document, getTraineeInstructionContent, getManagerSalesScriptContent, getBusinessPlan2026Content } from '@/components/admin/documents/DocumentsLibraryConstants';
 
 export function useDocumentsLibrary(show: boolean) {
   const { toast } = useToast();
@@ -36,12 +36,18 @@ export function useDocumentsLibrary(show: boolean) {
         const hasManagerSalesScript = docs.some((doc: Document) =>
           doc.title === 'Скрипты продаж для менеджеров'
         );
+        const hasBusinessPlan = docs.some((doc: Document) =>
+          doc.title === 'Бизнес-план проекта 120 МИНУТ на 2026 год'
+        );
         
         if (!hasTraineeInstruction) {
           addTraineeInstruction(docs);
         }
         if (!hasManagerSalesScript) {
           addManagerSalesScript(docs);
+        }
+        if (!hasBusinessPlan) {
+          addBusinessPlan(docs);
         }
       } catch (e) {
         console.error('Failed to parse documents:', e);
@@ -53,6 +59,7 @@ export function useDocumentsLibrary(show: boolean) {
       const emptyDocs: Document[] = [];
       addTraineeInstruction(emptyDocs);
       addManagerSalesScript(emptyDocs);
+      addBusinessPlan(emptyDocs);
     }
   };
 
@@ -99,6 +106,35 @@ export function useDocumentsLibrary(show: boolean) {
     }
 
     const updatedDocs = [...currentDocs, newScript];
+    localStorage.setItem('documents_library', JSON.stringify(updatedDocs));
+    setDocuments(updatedDocs);
+  };
+
+  const addBusinessPlan = (existingDocs: Document[]) => {
+    const planContent = getBusinessPlan2026Content();
+
+    const newPlan: Document = {
+      id: 'business-plan-2026-' + Date.now(),
+      title: 'Бизнес-план проекта 120 МИНУТ на 2026 год',
+      description: 'Финансовые прогнозы, модель монетизации, структура расходов, команда менеджеров, драйверы роста, метрики KPI',
+      content: planContent,
+      category: 'business',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const stored = localStorage.getItem('documents_library');
+    let currentDocs = existingDocs;
+    
+    if (stored) {
+      try {
+        currentDocs = JSON.parse(stored);
+      } catch (e) {
+        currentDocs = existingDocs;
+      }
+    }
+
+    const updatedDocs = [...currentDocs, newPlan];
     localStorage.setItem('documents_library', JSON.stringify(updatedDocs));
     setDocuments(updatedDocs);
   };
