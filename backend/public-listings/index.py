@@ -79,24 +79,24 @@ def handler(event: dict, context) -> dict:
     if listing_id and room_index is not None:
         return get_room_details(listing_id, room_index)
     
+    conn = None
     try:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        # Получаем все активные объекты одним запросом (БЕЗ тяжелых полей features, image_url оптимизируем)
+        # Получаем только ключевые поля для списков (убираем address, telegram, warnings для экономии размера)
         cur.execute("""
             SELECT 
-                l.id, l.title, l.type, l.city, l.district, l.address, l.price, l.rating, l.reviews, 
+                l.id, l.title, l.type, l.city, l.district, l.price, 
                 l.auction, 
                 CASE 
                     WHEN l.image_url LIKE '[%' THEN (l.image_url::json->>0)
                     ELSE l.image_url
                 END as image_url,
                 l.logo_url, l.metro, l.metro_walk as "metroWalk", 
-                l.has_parking as "hasParking", l.parking_type, l.parking_price_per_hour,
+                l.has_parking as "hasParking",
                 l.lat, l.lng, 
-                l.min_hours as "minHours", l.phone, l.telegram,
-                l.price_warning_holidays, l.price_warning_daytime,
+                l.min_hours as "minHours", l.phone,
                 l.subscription_expires_at
             FROM t_p39732784_hourly_rentals_platf.listings l
             WHERE l.is_archived = false 
@@ -115,27 +115,18 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
-        # Получаем все комнаты одним запросом (БЕЗ images и description для оптимизации)
+        # Получаем комнаты только базовые поля (БЕЗ images, description, features - они тяжелые!)
         listing_ids = [l['id'] for l in listings]
         placeholders = ','.join(['%s'] * len(listing_ids))
         cur.execute(
-            f"""SELECT listing_id, type, price, square_meters, min_hours, features
+            f"""SELECT listing_id, type, price, min_hours
                 FROM t_p39732784_hourly_rentals_platf.rooms 
                 WHERE listing_id IN ({placeholders})""",
             listing_ids
         )
         all_rooms = cur.fetchall()
         
-        # Получаем все станции метро одним запросом
-        cur.execute(
-            f"""SELECT listing_id, station_name, walk_minutes 
-                FROM t_p39732784_hourly_rentals_platf.metro_stations 
-                WHERE listing_id IN ({placeholders})""",
-            listing_ids
-        )
-        all_metro = cur.fetchall()
-        
-        # Группируем по listing_id
+        # Группируем комнаты по listing_id
         rooms_by_listing = {}
         for room in all_rooms:
             room_dict = dict(room)
@@ -144,20 +135,11 @@ def handler(event: dict, context) -> dict:
                 rooms_by_listing[lid] = []
             rooms_by_listing[lid].append(room_dict)
         
-        metro_by_listing = {}
-        for metro in all_metro:
-            metro_dict = dict(metro)
-            lid = metro_dict.pop('listing_id')
-            if lid not in metro_by_listing:
-                metro_by_listing[lid] = []
-            metro_by_listing[lid].append(metro_dict)
-        
-        # Присваиваем данные каждому объекту
+        # Присваиваем данные каждому объекту (БЕЗ metro_stations - экономия места)
         result = []
         for listing in listings:
             listing_dict = dict(listing)
             listing_dict['rooms'] = rooms_by_listing.get(listing_dict['id'], [])
-            listing_dict['metro_stations'] = metro_by_listing.get(listing_dict['id'], [])
             result.append(listing_dict)
         
         cur.close()
@@ -171,6 +153,10 @@ def handler(event: dict, context) -> dict:
         }
         
     except Exception as e:
+        print(f'ERROR in public-listings: {type(e).__name__}: {str(e)}')
+        import traceback
+        traceback.print_exc()
+        
         if conn:
             conn.close()
         return {
