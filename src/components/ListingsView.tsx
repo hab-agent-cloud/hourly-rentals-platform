@@ -189,13 +189,7 @@ export default function ListingsView({
   }
 
   if (sortedListings.length === 0) {
-    return (
-      <div className="text-center py-20">
-        <div className="text-6xl mb-4">🔍</div>
-        <h3 className="text-2xl font-bold mb-2">Ничего не найдено</h3>
-        <p className="text-muted-foreground">Попробуйте изменить параметры поиска</p>
-      </div>
-    );
+    return null;
   }
 
   return (
