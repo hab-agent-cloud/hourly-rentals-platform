@@ -266,6 +266,14 @@ export default function PopularCitiesSection({ allCities = [] }: PopularCitiesSe
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {sortedCities.map((city, index) => {
                       const isDetectedCity = city === detectedCity;
+                      // Convert city name to slug
+                      const citySlug = city
+                        .toLowerCase()
+                        .replace(/ё/g, 'e')
+                        .replace(/[^а-яa-z0-9]/g, '-')
+                        .replace(/-+/g, '-')
+                        .replace(/^-|-$/g, '');
+                      
                       return (
                         <motion.div
                           key={city}
@@ -274,7 +282,7 @@ export default function PopularCitiesSection({ allCities = [] }: PopularCitiesSe
                           transition={{ delay: index * 0.02 }}
                         >
                           <Link
-                            to={`/?city=${encodeURIComponent(city)}`}
+                            to={`/city/${citySlug}`}
                             onClick={() => setShowAllCities(false)}
                             className={`block p-4 rounded-xl border-2 transition-all hover:shadow-lg group ${
                               isDetectedCity
