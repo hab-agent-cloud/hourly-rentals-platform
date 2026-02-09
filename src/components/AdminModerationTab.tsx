@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
+import ModerationListingCard from '@/components/moderation/ModerationListingCard';
+import ModerationDialog from '@/components/moderation/ModerationDialog';
+import SubscriptionDialog from '@/components/moderation/SubscriptionDialog';
 
 interface Listing {
   id: number;
@@ -22,11 +21,16 @@ interface Listing {
   submitted_at?: string;
   created_by_employee_id?: number;
   created_by_employee_name?: string;
+  created_by_owner?: boolean;
+  owner_name?: string;
+  subscription_expires_at?: string;
 }
 
 interface ModerationTabProps {
   token: string;
-  adminInfo?: any;
+  adminInfo?: {
+    role: string;
+  };
   moderationFilter?: 'pending' | 'awaiting_recheck' | 'rejected' | 'owner_pending';
 }
 
@@ -55,11 +59,12 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
       const data = await api.getPendingModerationListings(token, moderationFilter);
       console.log('[AdminModerationTab] Received listings:', data.length);
       setListings(data);
-    } catch (error: any) {
+    } catch (error) {
       console.error('[AdminModerationTab] Error loading listings:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Не удалось загрузить объекты';
       toast({
         title: 'Ошибка',
-        description: error.message || 'Не удалось загрузить объекты',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -69,7 +74,7 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
 
   const handleModerate = (listing: Listing) => {
     setSelectedListing(listing);
-    setModerationStatus(listing.moderation_status as any || 'pending');
+    setModerationStatus(listing.moderation_status as 'approved' | 'rejected' | 'pending' || 'pending');
     setModerationComment(listing.moderation_comment || '');
   };
 
@@ -105,23 +110,38 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
       setSelectedListing(null);
       setModerationComment('');
       loadPendingListings();
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Не удалось обновить модерацию';
       toast({
         title: 'Ошибка',
-        description: error.message || 'Не удалось обновить модерацию',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'approved':
-        return <Badge className="bg-green-500">Одобрено</Badge>;
-      case 'rejected':
-        return <Badge variant="destructive">Отклонено</Badge>;
-      default:
-        return <Badge variant="outline">На модерации</Badge>;
+  const handleSubscriptionClick = (listing: Listing) => {
+    setSubscriptionListing(listing);
+    setShowSubscriptionDialog(true);
+  };
+
+  const handleSubscriptionSubmit = async () => {
+    if (!subscriptionListing) return;
+    try {
+      await api.adminSetSubscription(token, subscriptionListing.id, subscriptionDays);
+      toast({
+        title: 'Успешно',
+        description: `Подписка установлена на ${subscriptionDays} дней`,
+      });
+      setShowSubscriptionDialog(false);
+      loadPendingListings();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Не удалось установить подписку';
+      toast({
+        title: 'Ошибка',
+        description: errorMessage,
+        variant: 'destructive',
+      });
     }
   };
 
@@ -191,313 +211,37 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
       ) : (
         <div className="grid gap-4">
           {listings.map((listing) => (
-            <Card key={listing.id} className="p-6">
-              <div className="flex gap-6">
-                <img
-                  src={listing.image_url}
-                  alt={listing.title}
-                  className="w-48 h-36 object-cover rounded-lg"
-                />
-                
-                <div className="flex-1 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-xl font-semibold">{listing.title}</h3>
-                        {listing.created_by_owner && (
-                          <Badge className="bg-blue-500">
-                            <Icon name="UserPlus" size={12} className="mr-1" />
-                            Заявка владельца
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-muted-foreground">
-                        {listing.city}, {listing.district}
-                      </p>
-                    </div>
-                    {getStatusBadge(listing.moderation_status)}
-                  </div>
-
-                  <div className="flex items-center gap-6 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Icon name="Tag" size={16} />
-                      <span>{listing.type}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Icon name="Ruble" size={16} />
-                      <span className="font-semibold">{listing.price.toLocaleString()} ₽/час</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Icon name="Calendar" size={16} />
-                      <Badge variant={listing.subscription_expires_at ? 'default' : 'destructive'}>
-                        {listing.subscription_expires_at ? 'Подписка активна' : 'Нет подписки'}
-                      </Badge>
-                    </div>
-                    {listing.created_by_employee_name && (
-                      <div className="flex items-center gap-2">
-                        <Icon name="User" size={16} />
-                        <span>Добавил: {listing.created_by_employee_name}</span>
-                      </div>
-                    )}
-                    {listing.owner_name && !listing.created_by_employee_name && (
-                      <div className="flex items-center gap-2">
-                        <Icon name="UserCog" size={16} />
-                        <span>Изменил: {listing.owner_name}</span>
-                      </div>
-                    )}
-                    {listing.submitted_at && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Icon name="Clock" size={16} />
-                        <span>
-                          {new Date(listing.submitted_at).toLocaleString('ru-RU', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {listing.moderation_comment && (
-                    <div className="bg-muted p-3 rounded-lg">
-                      <p className="text-sm">
-                        <span className="font-semibold">Комментарий: </span>
-                        {listing.moderation_comment}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(`/listing/${listing.id}`, '_blank')}
-                    >
-                      <Icon name="ExternalLink" size={16} className="mr-2" />
-                      Посмотреть
-                    </Button>
-                    {canModerate && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSubscriptionListing(listing);
-                          setShowSubscriptionDialog(true);
-                        }}
-                      >
-                        <Icon name="Calendar" size={16} className="mr-2" />
-                        Подписка
-                      </Button>
-                    )}
-                    {canModerate && (
-                      <>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={async () => {
-                            try {
-                              await api.moderateListing(token, listing.id, 'approved', '');
-                              
-                              // Если это заявка владельца, отправляем email
-                              if (listing.created_by_owner) {
-                                try {
-                                  const emailResponse = await fetch('https://functions.poehali.dev/be8d7c03-13d9-42fe-a041-a17c5e5ff5b2', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ listing_id: listing.id }),
-                                  });
-                                  const emailResult = await emailResponse.json();
-                                  if (emailResult.error) {
-                                    console.error('Email error:', emailResult.error);
-                                  }
-                                } catch (emailError) {
-                                  console.error('Failed to send email:', emailError);
-                                }
-                              }
-                              
-                              toast({
-                                title: 'Успешно',
-                                description: listing.created_by_owner 
-                                  ? 'Объект одобрен, владелец получит email с данными для входа'
-                                  : 'Объект одобрен и опубликован',
-                              });
-                              loadPendingListings();
-                            } catch (error: any) {
-                              toast({
-                                title: 'Ошибка',
-                                description: error.message,
-                                variant: 'destructive',
-                              });
-                            }
-                          }}
-                          disabled={listing.moderation_status === 'approved'}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <Icon name="CheckCircle" size={16} className="mr-2" />
-                          {listing.created_by_owner ? 'Одобрить и отправить email' : 'Одобрить'}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleModerate(listing)}
-                        >
-                          <Icon name="XCircle" size={16} className="mr-2" />
-                          Отклонить с комментарием
-                        </Button>
-                      </>
-                    )}
-                    {!canModerate && (
-                      <Badge variant="outline" className="text-sm">
-                        Только суперадмин/ОМ может модерировать
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </Card>
+            <ModerationListingCard
+              key={listing.id}
+              listing={listing}
+              canModerate={canModerate}
+              token={token}
+              onModerate={handleModerate}
+              onSubscriptionClick={handleSubscriptionClick}
+              onReload={loadPendingListings}
+            />
           ))}
         </div>
       )}
 
-      <Dialog open={!!selectedListing} onOpenChange={() => setSelectedListing(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Модерация объекта</DialogTitle>
-          </DialogHeader>
-          
-          {selectedListing && (
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-semibold mb-2">{selectedListing.title}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {selectedListing.city}, {selectedListing.district}
-                </p>
-              </div>
+      <ModerationDialog
+        listing={selectedListing}
+        moderationStatus={moderationStatus}
+        moderationComment={moderationComment}
+        onClose={() => setSelectedListing(null)}
+        onStatusChange={setModerationStatus}
+        onCommentChange={setModerationComment}
+        onSubmit={handleModerationSubmit}
+      />
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Статус модерации</label>
-                <div className="flex gap-2">
-                  <Button
-                    variant={moderationStatus === 'approved' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setModerationStatus('approved')}
-                    className="flex-1"
-                  >
-                    <Icon name="CheckCircle" size={16} className="mr-2" />
-                    Одобрить
-                  </Button>
-                  <Button
-                    variant={moderationStatus === 'rejected' ? 'destructive' : 'outline'}
-                    size="sm"
-                    onClick={() => setModerationStatus('rejected')}
-                    className="flex-1"
-                  >
-                    <Icon name="XCircle" size={16} className="mr-2" />
-                    Отклонить
-                  </Button>
-                  <Button
-                    variant={moderationStatus === 'pending' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setModerationStatus('pending')}
-                    className="flex-1"
-                  >
-                    <Icon name="Clock" size={16} className="mr-2" />
-                    На проверке
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Комментарий {moderationStatus === 'rejected' && <span className="text-red-500">(обязательно)</span>}
-                </label>
-                <Textarea
-                  value={moderationComment}
-                  onChange={(e) => setModerationComment(e.target.value)}
-                  placeholder={
-                    moderationStatus === 'rejected'
-                      ? 'Укажите причину отклонения...'
-                      : 'Добавьте комментарий (необязательно)...'
-                  }
-                  rows={4}
-                />
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedListing(null)}>
-              Отмена
-            </Button>
-            <Button
-              onClick={handleModerationSubmit}
-              disabled={moderationStatus === 'rejected' && !moderationComment.trim()}
-            >
-              Сохранить
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showSubscriptionDialog} onOpenChange={setShowSubscriptionDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Установить подписку</DialogTitle>
-          </DialogHeader>
-          
-          {subscriptionListing && (
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-semibold mb-2">{subscriptionListing.title}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {subscriptionListing.city}, {subscriptionListing.district}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Количество дней</label>
-                <Input
-                  type="number"
-                  min="1"
-                  value={subscriptionDays}
-                  onChange={(e) => setSubscriptionDays(parseInt(e.target.value) || 30)}
-                />
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSubscriptionDialog(false)}>
-              Отмена
-            </Button>
-            <Button
-              onClick={async () => {
-                if (!subscriptionListing) return;
-                try {
-                  await api.adminSetSubscription(token, subscriptionListing.id, subscriptionDays);
-                  toast({
-                    title: 'Успешно',
-                    description: `Подписка установлена на ${subscriptionDays} дней`,
-                  });
-                  setShowSubscriptionDialog(false);
-                  loadPendingListings();
-                } catch (error: any) {
-                  toast({
-                    title: 'Ошибка',
-                    description: error.message,
-                    variant: 'destructive',
-                  });
-                }
-              }}
-            >
-              Установить
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <SubscriptionDialog
+        listing={subscriptionListing}
+        subscriptionDays={subscriptionDays}
+        open={showSubscriptionDialog}
+        onClose={() => setShowSubscriptionDialog(false)}
+        onDaysChange={setSubscriptionDays}
+        onSubmit={handleSubscriptionSubmit}
+      />
     </div>
   );
 }
