@@ -153,16 +153,6 @@ export default function ManagerDashboard() {
     touchEndY.current = 0;
   };
   
-  const fetchPaymentHistory = async () => {
-    try {
-      const response = await fetch(`${FUNC_URLS.paymentHistory}?manager_id=${adminId}`);
-      const data = await response.json();
-      setPaymentHistory(data);
-    } catch (error) {
-      console.error('[PAYMENT HISTORY] Ошибка:', error);
-    }
-  };
-  
   const handleFreezeListing = async (listingId: number) => {
     try {
       const response = await fetch(FUNC_URLS.managerOperations, {
