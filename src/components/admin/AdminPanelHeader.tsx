@@ -40,6 +40,10 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
             <div className="flex items-center gap-2">
               {adminInfo?.role === 'superadmin' && (
                 <>
+                  <Button variant="outline" onClick={() => window.open('https://functions.poehali.dev/b4fc8b5a-e47e-44ad-a4e5-bdd159e2acf5', '_blank')}>
+                    <Icon name="FileText" size={18} className="mr-2" />
+                    Бизнес-план PDF
+                  </Button>
                   <Button variant="outline" onClick={() => setShowLibrary(true)}>
                     <Icon name="Library" size={18} className="mr-2" />
                     Библиотека
