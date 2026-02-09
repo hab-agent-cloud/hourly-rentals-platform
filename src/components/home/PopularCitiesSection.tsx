@@ -155,8 +155,7 @@ export default function PopularCitiesSection({ allCities = [] }: PopularCitiesSe
             Аренда на час в популярных городах
           </h2>
           <p className="text-gray-700 text-xl max-w-3xl mx-auto font-medium">
-            Выберите ваш город и найдите идеальный отель с почасовой арендой. 
-            Работаем по всей России без комиссий и скрытых платежей.
+            Выберите ваш город и найдите идеальный объект с почасовой арендой.
           </p>
         </motion.div>
       </div>

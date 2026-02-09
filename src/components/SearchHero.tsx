@@ -210,23 +210,6 @@ export default function SearchHero({
   return (
     <section className="mb-6 sm:mb-12 pt-12 sm:pt-16 md:pt-20 text-center animate-fade-in px-3 sm:px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 text-sm sm:text-base md:text-lg font-medium px-2">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">1</div>
-            <span className="whitespace-nowrap text-base sm:text-lg">ВЫБИРАЕТЕ</span>
-          </div>
-          <Icon name="ArrowRight" size={18} className="text-purple-600 rotate-90 sm:rotate-0 flex-shrink-0" />
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">2</div>
-            <span className="whitespace-nowrap text-base sm:text-lg">СВЯЗЫВАЕТЕСЬ</span>
-          </div>
-          <Icon name="ArrowRight" size={18} className="text-purple-600 rotate-90 sm:rotate-0 flex-shrink-0" />
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">3</div>
-            <span className="whitespace-nowrap text-base sm:text-lg">БРОНИРУЕТЕ</span>
-          </div>
-        </div>
-
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-3 sm:p-6 border border-purple-100">
           <div className="flex flex-col md:flex-row gap-2 sm:gap-4">
             <div className="flex-1">
