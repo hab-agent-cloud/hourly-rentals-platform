@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { themes, type ThemeKey } from '@/components/ThemeSwitcher';
 import SearchHero from '@/components/SearchHero';
 import ListingsView from '@/components/ListingsView';
@@ -42,9 +43,19 @@ export default function Index() {
   
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   useEffect(() => {
     loadListings();
     detectUserCity();
+    
+    const cityParam = searchParams.get('city');
+    if (cityParam) {
+      setSelectedCity(cityParam);
+      setTimeout(() => {
+        scrollToResults();
+      }, 500);
+    }
     
     const handleThemeChange = (e: CustomEvent) => {
       console.log('🎨 Index.tsx received theme change:', e.detail);
@@ -53,7 +64,7 @@ export default function Index() {
     
     window.addEventListener('themeChange', handleThemeChange as EventListener);
     return () => window.removeEventListener('themeChange', handleThemeChange as EventListener);
-  }, []);
+  }, [searchParams]);
 
   const detectUserCity = async () => {
     try {
@@ -236,7 +247,7 @@ export default function Index() {
 
       {activeTab === 'catalog' && (
         <>
-          <PopularCitiesSection />
+          <PopularCitiesSection allCities={uniqueCities.filter(c => c !== 'Все города')} />
           <FAQSection />
           <SEOTextSection />
         </>

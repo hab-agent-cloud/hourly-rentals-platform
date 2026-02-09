@@ -1,6 +1,9 @@
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Input } from '@/components/ui/input';
+import { api } from '@/lib/api';
 
 interface PopularCity {
   name: string;
@@ -87,7 +90,46 @@ const popularCities: PopularCity[] = [
   }
 ];
 
-export default function PopularCitiesSection() {
+interface PopularCitiesSectionProps {
+  allCities?: string[];
+}
+
+export default function PopularCitiesSection({ allCities = [] }: PopularCitiesSectionProps) {
+  const [showAllCities, setShowAllCities] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [detectedCity, setDetectedCity] = useState<string | null>(null);
+
+  useEffect(() => {
+    detectUserCity();
+  }, []);
+
+  const detectUserCity = async () => {
+    try {
+      const cityData = await api.detectCity();
+      if (cityData && cityData.detected && cityData.city) {
+        console.log('City detected in PopularCitiesSection:', cityData.city);
+        setDetectedCity(cityData.city);
+      }
+    } catch (error) {
+      console.error('Failed to detect city:', error);
+    }
+  };
+
+  const filteredCities = useMemo(() => {
+    if (!searchQuery) return allCities;
+    return allCities.filter(city => 
+      city.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [allCities, searchQuery]);
+
+  const sortedCities = useMemo(() => {
+    const cities = [...filteredCities];
+    if (detectedCity && cities.includes(detectedCity)) {
+      return [detectedCity, ...cities.filter(c => c !== detectedCity)];
+    }
+    return cities;
+  }, [filteredCities, detectedCity]);
+
   return (
     <div className="container mx-auto px-4 py-16 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <div className="text-center mb-12">
@@ -163,18 +205,125 @@ export default function PopularCitiesSection() {
       </div>
 
       <div className="mt-12 text-center">
-        <Link to="/">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
-          >
-            <Icon name="Map" size={20} />
-            Посмотреть все города
-            <Icon name="ChevronRight" size={20} />
-          </motion.button>
-        </Link>
+        <motion.button
+          onClick={() => setShowAllCities(true)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
+        >
+          <Icon name="Map" size={20} />
+          Посмотреть все города ({allCities.length})
+          <Icon name="ChevronRight" size={20} />
+        </motion.button>
       </div>
+
+      {/* Modal with all cities */}
+      <AnimatePresence>
+        {showAllCities && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowAllCities(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-2xl font-bold">Все города</h3>
+                  <button
+                    onClick={() => setShowAllCities(false)}
+                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                  >
+                    <Icon name="X" size={24} />
+                  </button>
+                </div>
+                <div className="relative">
+                  <Icon name="Search" size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-300" />
+                  <Input
+                    type="text"
+                    placeholder="Поиск города..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-purple-200 focus:bg-white/30"
+                  />
+                </div>
+              </div>
+
+              <div className="p-6 overflow-y-auto max-h-[calc(80vh-180px)]">
+                {sortedCities.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <Icon name="MapPin" size={48} className="mx-auto mb-4 opacity-50" />
+                    <p>Город не найден</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {sortedCities.map((city, index) => {
+                      const isDetectedCity = city === detectedCity;
+                      return (
+                        <motion.div
+                          key={city}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.02 }}
+                        >
+                          <Link
+                            to={`/?city=${encodeURIComponent(city)}`}
+                            onClick={() => setShowAllCities(false)}
+                            className={`block p-4 rounded-xl border-2 transition-all hover:shadow-lg group ${
+                              isDetectedCity
+                                ? 'bg-gradient-to-br from-purple-50 to-pink-50 border-purple-400 shadow-md'
+                                : 'bg-white border-gray-200 hover:border-purple-300'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-lg ${
+                                  isDetectedCity 
+                                    ? 'bg-purple-500 text-white'
+                                    : 'bg-purple-100 text-purple-600 group-hover:bg-purple-500 group-hover:text-white'
+                                } transition-colors`}>
+                                  <Icon name="MapPin" size={20} />
+                                </div>
+                                <div>
+                                  <p className={`font-semibold ${
+                                    isDetectedCity ? 'text-purple-700' : 'text-gray-900'
+                                  }`}>
+                                    {city}
+                                  </p>
+                                  {isDetectedCity && (
+                                    <p className="text-xs text-purple-600 font-medium flex items-center gap-1 mt-0.5">
+                                      <Icon name="MapPin" size={12} />
+                                      Ваш город
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              <Icon 
+                                name="ChevronRight" 
+                                size={20} 
+                                className={`transition-transform group-hover:translate-x-1 ${
+                                  isDetectedCity ? 'text-purple-500' : 'text-gray-400'
+                                }`}
+                              />
+                            </div>
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
         <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
