@@ -297,22 +297,6 @@ export default function SearchHero({
                   {city}
                 </Badge>
               ))}
-              <Badge 
-                variant="secondary" 
-                className="cursor-pointer hover:bg-purple-100" 
-                onClick={() => {
-                  setShowMap(!showMap);
-                  if (!showMap) {
-                    setTimeout(() => {
-                      onFilterChange?.();
-                    }, 100);
-                  }
-                }}
-              >
-                <Icon name="Map" size={14} className="mr-1" />
-                <span className="hidden sm:inline">{showMap ? 'Показать списком' : 'Показать на карте'}</span>
-                <span className="sm:hidden">{showMap ? 'Списком' : 'На карте'}</span>
-              </Badge>
             </div>
 
             <div className="flex items-center gap-2">
