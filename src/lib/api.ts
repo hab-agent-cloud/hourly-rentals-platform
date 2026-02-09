@@ -294,9 +294,12 @@ export const api = {
     return response.json();
   },
 
-  // Публичное получение объектов
-  getPublicListings: async () => {
-    const response = await fetch(API_URLS.publicListings);
+  // Публичное получение объектов (опционально по городу)
+  getPublicListings: async (city?: string) => {
+    const url = city 
+      ? `${API_URLS.publicListings}?city=${encodeURIComponent(city)}`
+      : API_URLS.publicListings;
+    const response = await fetch(url);
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: 'Network error' }));
       throw new Error(errorData.error || `HTTP ${response.status}`);

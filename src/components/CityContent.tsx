@@ -24,7 +24,8 @@ export default function CityContent({ city, citySlug }: CityContentProps) {
 
   const loadListings = async () => {
     try {
-      const data = await api.getPublicListings();
+      // Загружаем только объекты этого города
+      const data = await api.getPublicListings(city.name);
       if (Array.isArray(data)) {
         setAllListings(data);
       }
@@ -35,11 +36,10 @@ export default function CityContent({ city, citySlug }: CityContentProps) {
     }
   };
 
+  // Теперь фильтрация не нужна - бэкенд уже вернул объекты города
   const cityListings = useMemo(() => {
-    return allListings.filter(listing => 
-      listing.city.toLowerCase() === city.name.toLowerCase() && !listing.is_archived
-    );
-  }, [allListings, city.name]);
+    return allListings.filter(listing => !listing.is_archived);
+  }, [allListings]);
 
   const handlePhoneClick = (phone: string, e: React.MouseEvent) => {
     e.stopPropagation();

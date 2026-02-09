@@ -17,6 +17,7 @@ import PopularCitiesSection from '@/components/home/PopularCitiesSection';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { cities } from '@/data/citiesData';
 
 export default function Index() {
   const [searchCity, setSearchCity] = useState('');
@@ -46,12 +47,12 @@ export default function Index() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    loadListings();
     detectUserCity();
     
     const cityParam = searchParams.get('city');
     if (cityParam) {
       setSelectedCity(cityParam);
+      loadListings(cityParam);
       setTimeout(() => {
         scrollToResults();
       }, 500);
@@ -73,19 +74,30 @@ export default function Index() {
         console.log('City detected:', cityData.city);
         setDetectedCity(cityData.city);
         setSelectedCity(cityData.city);
+        // Загружаем объекты определённого города
+        loadListings(cityData.city);
       }
     } catch (error) {
       console.error('Failed to detect city:', error);
     }
   };
 
-  const loadListings = async () => {
+  const loadListings = async (city?: string) => {
     try {
+      setIsLoading(true);
       const startTime = performance.now();
-      const data = await api.getPublicListings();
+      // Если город не указан - не загружаем (слишком много данных)
+      if (!city || city === 'Все города') {
+        setAllListings([]);
+        setIsLoading(false);
+        return;
+      }
+      
+      const data = await api.getPublicListings(city);
       const loadTime = performance.now() - startTime;
       
       console.log('=== PUBLIC LISTINGS LOADED ===');
+      console.log('City:', city);
       console.log('Data type:', typeof data);
       console.log('Is array:', Array.isArray(data));
       console.log('Data length:', Array.isArray(data) ? data.length : 'N/A');
@@ -110,10 +122,11 @@ export default function Index() {
     }
   };
 
-  const uniqueCities = useMemo(() => 
-    ['Все города', ...new Set(Array.isArray(allListings) ? allListings.map(l => l.city) : [])],
-    [allListings]
-  );
+  // Список городов из статического справочника (не зависит от загруженных объектов)
+  const uniqueCities = useMemo(() => {
+    const cityNames = Object.values(cities).map(c => c.name);
+    return ['Все города', ...cityNames.sort()];
+  }, []);
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371;

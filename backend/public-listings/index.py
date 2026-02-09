@@ -75,6 +75,7 @@ def handler(event: dict, context) -> dict:
     params = event.get('queryStringParameters', {}) or {}
     listing_id = params.get('listing_id')
     room_index = params.get('room_index')
+    city_filter = params.get('city')  # Новый параметр для фильтрации по городу
     
     if listing_id and room_index is not None:
         return get_room_details(listing_id, room_index)
@@ -84,25 +85,40 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        # Получаем только ключевые поля для списков (убираем address, telegram, warnings для экономии размера)
-        cur.execute("""
+        # Формируем WHERE условие с учетом фильтра по городу
+        where_conditions = ["l.is_archived = false", "(l.moderation_status IS NULL OR l.moderation_status = 'approved')"]
+        query_params = []
+        
+        if city_filter:
+            where_conditions.append("LOWER(l.city) = LOWER(%s)")
+            query_params.append(city_filter)
+        
+        where_clause = " AND ".join(where_conditions)
+        
+        # Получаем объекты с учётом фильтра
+        query = f"""
             SELECT 
-                l.id, l.title, l.type, l.city, l.district, l.price, 
+                l.id, l.title, l.type, l.city, l.district, l.address, l.price, l.rating, l.reviews,
                 l.auction, 
                 CASE 
                     WHEN l.image_url LIKE '[%' THEN (l.image_url::json->>0)
                     ELSE l.image_url
                 END as image_url,
                 l.logo_url, l.metro, l.metro_walk as "metroWalk", 
-                l.has_parking as "hasParking",
+                l.has_parking as "hasParking", l.parking_type, l.parking_price_per_hour,
                 l.lat, l.lng, 
-                l.min_hours as "minHours", l.phone,
+                l.min_hours as "minHours", l.phone, l.telegram,
+                l.price_warning_holidays, l.price_warning_daytime,
                 l.subscription_expires_at
             FROM t_p39732784_hourly_rentals_platf.listings l
-            WHERE l.is_archived = false 
-            AND (l.moderation_status IS NULL OR l.moderation_status = 'approved')
+            WHERE {where_clause}
             ORDER BY l.city ASC, l.auction ASC, l.id ASC
-        """)
+        """
+        
+        if query_params:
+            cur.execute(query, tuple(query_params))
+        else:
+            cur.execute(query)
         listings = cur.fetchall()
         
         if not listings:
@@ -115,18 +131,27 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
-        # Получаем комнаты только базовые поля (БЕЗ images, description, features - они тяжелые!)
-        listing_ids = [l['id'] for l in listings]
+        # Получаем комнаты (возвращаем все поля как раньше)
+        listing_ids = tuple(l['id'] for l in listings)
         placeholders = ','.join(['%s'] * len(listing_ids))
         cur.execute(
-            f"""SELECT listing_id, type, price, min_hours
+            f"""SELECT listing_id, type, price, square_meters, min_hours, features
                 FROM t_p39732784_hourly_rentals_platf.rooms 
                 WHERE listing_id IN ({placeholders})""",
             listing_ids
         )
         all_rooms = cur.fetchall()
         
-        # Группируем комнаты по listing_id
+        # Получаем станции метро
+        cur.execute(
+            f"""SELECT listing_id, station_name, walk_minutes 
+                FROM t_p39732784_hourly_rentals_platf.metro_stations 
+                WHERE listing_id IN ({placeholders})""",
+            listing_ids
+        )
+        all_metro = cur.fetchall()
+        
+        # Группируем по listing_id
         rooms_by_listing = {}
         for room in all_rooms:
             room_dict = dict(room)
@@ -135,11 +160,20 @@ def handler(event: dict, context) -> dict:
                 rooms_by_listing[lid] = []
             rooms_by_listing[lid].append(room_dict)
         
-        # Присваиваем данные каждому объекту (БЕЗ metro_stations - экономия места)
+        metro_by_listing = {}
+        for metro in all_metro:
+            metro_dict = dict(metro)
+            lid = metro_dict.pop('listing_id')
+            if lid not in metro_by_listing:
+                metro_by_listing[lid] = []
+            metro_by_listing[lid].append(metro_dict)
+        
+        # Присваиваем данные каждому объекту
         result = []
         for listing in listings:
             listing_dict = dict(listing)
             listing_dict['rooms'] = rooms_by_listing.get(listing_dict['id'], [])
+            listing_dict['metro_stations'] = metro_by_listing.get(listing_dict['id'], [])
             result.append(listing_dict)
         
         cur.close()
