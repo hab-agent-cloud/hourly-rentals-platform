@@ -11,6 +11,8 @@ import SEOTextSection from '@/components/home/SEOTextSection';
 import InstallAppBanner from '@/components/InstallAppBanner';
 import VoiceSearchBanner from '@/components/VoiceSearchBanner';
 import SEOStructuredData from '@/components/SEOStructuredData';
+import FAQSection from '@/components/home/FAQSection';
+import PopularCitiesSection from '@/components/home/PopularCitiesSection';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -232,7 +234,13 @@ export default function Index() {
       {activeTab === 'partners' && <PartnersSection />}
       {activeTab === 'support' && <SupportSection />}
 
-      {activeTab === 'catalog' && <SEOTextSection />}
+      {activeTab === 'catalog' && (
+        <>
+          <PopularCitiesSection />
+          <FAQSection />
+          <SEOTextSection />
+        </>
+      )}
 
       <HotelModal
         open={dialogOpen}
