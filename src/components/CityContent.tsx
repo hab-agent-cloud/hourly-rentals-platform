@@ -66,13 +66,11 @@ export default function CityContent({ city, citySlug }: CityContentProps) {
       
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-7xl mx-auto">
-          <CityHeader city={city} />
-          
-          {/* Listings Section */}
-          <div className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Отели и гостиницы в {city.name.endsWith('е') || city.name.endsWith('и') ? city.name.slice(0, -1) + 'е' : city.name}
-            </h2>
+          {/* Listings Section - moved to top */}
+          <div className="mb-16">
+            <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Аренда на час в {city.name.endsWith('е') || city.name.endsWith('и') ? city.name.slice(0, -1) + 'е' : city.name}
+            </h1>
             
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-20">
@@ -99,7 +97,9 @@ export default function CityContent({ city, citySlug }: CityContentProps) {
             )}
           </div>
 
-          <div className="max-w-4xl mx-auto">
+          {/* SEO content moved to bottom */}
+          <div className="max-w-4xl mx-auto space-y-12 mt-20">
+            <CityHeader city={city} />
             <CityFeatures city={city} />
             <CityGuides city={city} />
             <CitySEOContent city={city} citySlug={citySlug} />
