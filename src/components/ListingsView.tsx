@@ -211,7 +211,7 @@ export default function ListingsView({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="auction">По рейтингу</SelectItem>
+              <SelectItem value="auction">По умолчанию</SelectItem>
               <SelectItem value="price-asc">Цена: по возрастанию</SelectItem>
               <SelectItem value="price-desc">Цена: по убыванию</SelectItem>
             </SelectContent>
