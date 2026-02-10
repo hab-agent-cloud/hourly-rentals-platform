@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import ThemeSwitcher from '@/components/ThemeSwitcher';
+
 import { useState, useEffect } from 'react';
 
 interface HeaderProps {
@@ -134,10 +134,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                         </Button>
                       </a>
                     </div>
-                    <div className="border-t pt-4 mt-4">
-                      <div className="text-sm font-medium mb-2">Сменить фон:</div>
-                      <ThemeSwitcher />
-                    </div>
+
                   </div>
                 </SheetContent>
               </Sheet>

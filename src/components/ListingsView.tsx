@@ -206,18 +206,6 @@ export default function ListingsView({
       <div className="flex items-center justify-between gap-4 flex-wrap">
 
         <div className="flex items-center gap-3 flex-wrap">
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="auction">По умолчанию</SelectItem>
-              <SelectItem value="price-asc">Цена: по возрастанию</SelectItem>
-              <SelectItem value="price-desc">Цена: по убыванию</SelectItem>
-            </SelectContent>
-          </Select>
-
-
         </div>
       </div>
 

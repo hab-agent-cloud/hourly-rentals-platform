@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import ThemeSwitcher from '@/components/ThemeSwitcher';
+
 
 interface ListingHeaderProps {
   title: string;
@@ -22,7 +22,7 @@ export default function ListingHeader({ title, city, district, logoUrl, onBack }
             <h1 className="text-2xl font-bold">{title}</h1>
             <p className="text-sm text-muted-foreground">{city}, {district}</p>
           </div>
-          <ThemeSwitcher />
+
           {logoUrl && (
             <div className="w-16 h-16 border rounded-lg bg-white p-1 flex items-center justify-center">
               <img src={logoUrl} alt={`${title} logo`} className="max-w-full max-h-full object-contain" />

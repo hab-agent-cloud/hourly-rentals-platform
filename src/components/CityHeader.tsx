@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { City } from '@/data/citiesData';
-import ThemeSwitcher from '@/components/ThemeSwitcher';
+
 
 interface CityHeaderProps {
   city: City;
@@ -21,7 +21,6 @@ export function CityHeader({ city }: CityHeaderProps) {
             />
           </Link>
           <div className="flex items-center gap-2">
-            <ThemeSwitcher />
             <Link to="/">
               <Button variant="outline" className="gap-2">
                 <Icon name="ArrowLeft" size={18} />

@@ -71,10 +71,10 @@ export default function ListingCard({
 
   return (
     <Card 
-      className={`overflow-hidden cursor-pointer transition-all hover:shadow-xl group ${
+      className={`overflow-hidden cursor-pointer transition-all hover:shadow-xl group bg-white ${
         hasActiveSubscription 
-          ? 'border-4 border-transparent bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 shadow-2xl relative before:absolute before:inset-0 before:p-[3px] before:rounded-lg before:bg-gradient-to-r before:from-purple-600 before:via-pink-600 before:to-orange-500 before:-z-10 before:animate-pulse' 
-          : 'border-2 border-purple-100 hover:border-purple-300'
+          ? 'border-4 border-transparent shadow-2xl relative before:absolute before:inset-0 before:p-[3px] before:rounded-lg before:bg-gradient-to-r before:from-purple-600 before:via-pink-600 before:to-orange-500 before:-z-10 before:animate-pulse' 
+          : 'border-2 border-gray-200 hover:border-purple-300'
       }`}
       onClick={() => onCardClick(listing)}
     >
