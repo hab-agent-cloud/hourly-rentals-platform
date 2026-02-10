@@ -138,13 +138,16 @@ def handler(event: dict, context) -> dict:
             
             print(f"[DEBUG] Params: archived={show_archived}, moderation={moderation_filter}, limit={limit} (requested={limit_param}), offset={offset}")
             
-            if moderation_filter in ('pending', 'awaiting_recheck', 'rejected', 'owner_pending'):
+            if moderation_filter in ('pending', 'awaiting_recheck', 'rejected', 'owner_pending', 'admin_pending'):
                 # Фильтр по статусу модерации
                 print(f"[DEBUG] Fetching moderation listings with status: {moderation_filter}")
                 
                 # owner_pending = объекты от владельцев в статусе pending
                 if moderation_filter == 'owner_pending':
                     where_clause = "l.moderation_status = 'pending' AND l.created_by_owner = TRUE"
+                # admin_pending = объекты от админов/сотрудников в статусе pending
+                elif moderation_filter == 'admin_pending':
+                    where_clause = "l.moderation_status = 'pending' AND (l.created_by_owner IS NULL OR l.created_by_owner = FALSE)"
                 else:
                     where_clause = f"l.moderation_status = '{moderation_filter}'"
                 

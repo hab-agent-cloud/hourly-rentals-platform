@@ -31,7 +31,7 @@ interface ModerationTabProps {
   adminInfo?: {
     role: string;
   };
-  moderationFilter?: 'pending' | 'awaiting_recheck' | 'rejected' | 'owner_pending';
+  moderationFilter?: 'pending' | 'awaiting_recheck' | 'rejected' | 'owner_pending' | 'admin_pending';
 }
 
 export default function AdminModerationTab({ token, adminInfo, moderationFilter = 'pending' }: ModerationTabProps) {
@@ -161,6 +161,7 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
             {moderationFilter === 'rejected' ? 'Отклонённые объекты' : 
              moderationFilter === 'awaiting_recheck' ? 'Повторная проверка' : 
              moderationFilter === 'owner_pending' ? 'Модерация заявок владельцев' : 
+             moderationFilter === 'admin_pending' ? 'Модерация объектов от сотрудников' :
              'Модерация объектов'}
           </h2>
           <p className="text-muted-foreground">
@@ -168,6 +169,8 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
               ? 'Объекты, которые были отклонены при модерации' 
               : moderationFilter === 'owner_pending'
               ? 'Заявки на добавление объектов, поступившие от владельцев через публичную форму'
+              : moderationFilter === 'admin_pending'
+              ? 'Проверяйте объекты, добавленные сотрудниками через админ-панель'
               : 'Проверяйте объекты, добавленные сотрудниками, или изменённые владельцами'}
           </p>
         </div>

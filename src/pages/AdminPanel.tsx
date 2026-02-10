@@ -239,7 +239,7 @@ export default function AdminPanel() {
             onClose={handleFormClose}
           />
         ) : activeTab === 'moderation' && hasPermission('listings') ? (
-          <AdminModerationTab token={token!} adminInfo={adminInfo} />
+          <AdminModerationTab token={token!} adminInfo={adminInfo} moderationFilter="admin_pending" />
         ) : activeTab === 'moderation2' && hasPermission('listings') ? (
           <AdminModerationTab token={token!} adminInfo={adminInfo} moderationFilter="owner_pending" />
         ) : activeTab === 'recheck' && hasPermission('listings') ? (
