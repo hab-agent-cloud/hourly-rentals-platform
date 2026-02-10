@@ -1,8 +1,7 @@
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-
-import { useState, useEffect } from 'react';
 
 interface HeaderProps {
   activeTab: string;
