@@ -3,7 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { trackPageView } from "@/lib/metrika";
 import Index from "./pages/Index";
 import AdminLogin from "./pages/AdminLogin";
 import AdminPanel from "./pages/AdminPanel";
@@ -25,8 +27,19 @@ import Career from "./pages/Career";
 import ListingEditor from "./pages/ListingEditor";
 import SalesScripts from "./pages/SalesScripts";
 import ProtectedRoute from "./components/ProtectedRoute";
+import MetrikaScrollTracker from "./components/MetrikaScrollTracker";
 
 const queryClient = new QueryClient();
+
+function MetrikaTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    trackPageView(location.pathname + location.search, document.title);
+  }, [location]);
+
+  return null;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -35,6 +48,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <MetrikaTracker />
+        <MetrikaScrollTracker />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/admin/login" element={<AdminLogin />} />

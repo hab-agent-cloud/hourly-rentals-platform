@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import PromotionBadge from '@/components/PromotionBadge';
 import ReviewForm from '@/components/ReviewForm';
+import { metrika } from '@/lib/metrika';
 
 type Listing = {
   id: number;
@@ -39,6 +40,7 @@ interface ListingCardProps {
   onPhoneClick?: (phone: string, e: React.MouseEvent, listingId?: number) => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getFirstImage = (imageUrl: any) => {
   if (!imageUrl) return null;
   
@@ -76,7 +78,10 @@ export default function ListingCard({
           ? 'border-4 border-transparent shadow-2xl relative before:absolute before:inset-0 before:p-[3px] before:rounded-lg before:bg-gradient-to-r before:from-purple-600 before:via-pink-600 before:to-orange-500 before:-z-10 before:animate-pulse' 
           : 'border-2 border-gray-200 hover:border-purple-300'
       }`}
-      onClick={() => onCardClick(listing)}
+      onClick={() => {
+        metrika.trackListingView(listing.id, listing.title, listing.city, listing.price);
+        onCardClick(listing);
+      }}
     >
       <div className="relative">
         {getFirstImage(listing.image_url) ? (

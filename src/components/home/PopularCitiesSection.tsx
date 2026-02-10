@@ -4,6 +4,7 @@ import Icon from '@/components/ui/icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { api } from '@/lib/api';
+import { metrika } from '@/lib/metrika';
 
 interface PopularCity {
   name: string;
@@ -178,7 +179,10 @@ export default function PopularCitiesSection({ allCities = [] }: PopularCitiesSe
                 transition={{ delay: index * 0.1, duration: 0.5 }}
                 whileHover={{ y: -8, scale: 1.02 }}
               >
-                <Link to={`/city/${city.slug}`}>
+                <Link 
+                  to={`/city/${city.slug}`}
+                  onClick={() => metrika.trackCityClick(city.name)}
+                >
                   <div className="group relative bg-gradient-to-br from-white to-purple-50 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-purple-100 hover:border-purple-300 h-full">
                     <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${city.gradient} opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity`}></div>
                     

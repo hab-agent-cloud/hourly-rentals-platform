@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import PromotionBadge from '@/components/PromotionBadge';
+import { metrika } from '@/lib/metrika';
 
 type Hotel = {
   id: number;
@@ -43,6 +44,9 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
   const handlePhoneClick = async () => {
     setPhoneModalOpen(true);
     setIsLoadingPhone(true);
+    
+    // Отслеживание клика на "Позвонить"
+    metrika.trackPhoneClick(hotel.phone || '', hotel.id, hotel.title);
     
     try {
       console.log('[HotelModal] Requesting virtual number for listing:', hotel.id);
