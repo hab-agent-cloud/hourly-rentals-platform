@@ -10,27 +10,21 @@ interface CityHeaderProps {
 
 export function CityHeader({ city }: CityHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-purple-200 shadow-sm">
-      <div className="container mx-auto px-4 py-4">
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-white/90 border-b shadow-sm">
+      <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <img 
-              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/files/eb1f7656-79bf-458f-a9d8-00f75775f384.jpg" 
+              src="https://cdn.poehali.dev/projects/1a35ca30-983f-4a91-b0b4-3c6fa1c9a65b/bucket/logo-new.png" 
               alt="120 минут" 
-              className="h-16 w-16 object-contain"
+              className="h-12 w-auto object-contain"
             />
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                120 минут
-              </h1>
-              <p className="text-xs text-muted-foreground">Почасовая аренда по всей России</p>
-            </div>
           </Link>
           <div className="flex items-center gap-2">
             <ThemeSwitcher />
             <Link to="/">
-              <Button variant="outline">
-                <Icon name="ArrowLeft" size={18} className="mr-2" />
+              <Button variant="outline" className="gap-2">
+                <Icon name="ArrowLeft" size={18} />
                 На главную
               </Button>
             </Link>
