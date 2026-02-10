@@ -195,7 +195,8 @@ export default function PopularCitiesSection({ allCities = [] }: PopularCitiesSe
                       </div>
 
                       <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-700 transition-colors">
-                        Аренда на час в {city.name}
+                        <div>Аренда на час</div>
+                        <div>в {city.name}</div>
                       </h3>
                       
                       <p className="text-gray-600 text-sm mb-4 line-clamp-2">
