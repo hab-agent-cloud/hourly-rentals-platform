@@ -186,7 +186,7 @@ export default function ListingCard({
         <PromotionBadge listingId={listing.id} />
 
         <div className="space-y-2">
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2">
             {listing.phone && onPhoneClick && (
               <Button
                 variant="outline"
@@ -212,9 +212,9 @@ export default function ListingCard({
                 Telegram
               </Button>
             )}
-            <div onClick={(e) => e.stopPropagation()}>
-              <ReviewForm listingId={listing.id} />
-            </div>
+          </div>
+          <div onClick={(e) => e.stopPropagation()} className="flex justify-center">
+            <ReviewForm listingId={listing.id} />
           </div>
         </div>
       </CardContent>
