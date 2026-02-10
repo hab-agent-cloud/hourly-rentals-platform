@@ -10,6 +10,7 @@ interface HeaderProps {
 
 export default function Header({ activeTab, onTabChange }: HeaderProps) {
   const [showInstallButton, setShowInstallButton] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
@@ -68,7 +69,6 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                 <h1 className="text-xs sm:text-base md:text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent whitespace-nowrap">
                   Почасовая аренда по всей России
                 </h1>
-                <p className="text-[10px] sm:text-xs md:text-sm font-bold bg-gradient-to-r from-yellow-600 via-amber-500 to-yellow-600 bg-clip-text text-transparent animate-shimmer-btn whitespace-nowrap">✨ Более 3000 объектов по России ✨</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
