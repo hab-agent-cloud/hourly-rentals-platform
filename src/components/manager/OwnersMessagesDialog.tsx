@@ -48,7 +48,7 @@ export default function OwnersMessagesDialog({ adminId }: OwnersMessagesDialogPr
   useEffect(() => {
     if (selectedOwner) {
       fetchMessages();
-      const interval = setInterval(fetchMessages, 5000);
+      const interval = setInterval(fetchMessages, 20000);
       return () => clearInterval(interval);
     }
   }, [selectedOwner]);

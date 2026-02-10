@@ -61,7 +61,7 @@ export default function OwnerManagerChat({ ownerId, managerId, managerName, onCl
 
   useEffect(() => {
     fetchMessages();
-    const interval = setInterval(fetchMessages, 5000); // Обновляем каждые 5 секунд
+    const interval = setInterval(fetchMessages, 20000); // Обновляем каждые 20 секунд
     return () => clearInterval(interval);
   }, [ownerId]);
 

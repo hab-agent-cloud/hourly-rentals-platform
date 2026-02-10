@@ -72,7 +72,7 @@ export default function ListingManagerChat({ listingId, ownerId, ownerName }: Li
 
   useEffect(() => {
     fetchMessages();
-    const interval = setInterval(fetchMessages, 5000);
+    const interval = setInterval(fetchMessages, 20000);
     return () => clearInterval(interval);
   }, [ownerId, showChat]);
 

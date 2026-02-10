@@ -66,7 +66,7 @@ export default function HotelSubscriptionCard({ listing, subscriptionInfo, onExt
     };
 
     updateTimer();
-    const timer = setInterval(updateTimer, 1000); // Обновление каждую секунду
+    const timer = setInterval(updateTimer, 10000); // Обновление каждые 10 секунд
 
     return () => clearInterval(timer);
   }, [listing.subscription_expires_at]);
