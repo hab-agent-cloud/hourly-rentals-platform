@@ -212,8 +212,6 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                 <span className="lg:hidden font-medium">Установить</span>
               </Button>
             )}
-            
-            <ThemeSwitcher />
           </div>
           
           {showIOSInstructions && (
