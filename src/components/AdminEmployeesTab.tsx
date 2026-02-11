@@ -13,7 +13,7 @@ interface Employee {
   email: string;
   name: string;
   login: string;
-  role: 'superadmin' | 'employee' | 'manager' | 'operational_manager' | 'chief_manager';
+  role: 'superadmin' | 'employee' | 'manager' | 'operational_manager' | 'chief_manager' | 'operator';
   permissions: {
     owners: boolean;
     listings: boolean;
@@ -23,6 +23,7 @@ interface Employee {
   created_at: string;
   last_login?: string;
   action_count?: number;
+  copywriter_earnings?: number;
   earnings?: {
     total: number;
     paid: number;
@@ -38,7 +39,9 @@ interface EmployeeAction {
   entity_name: string;
   description: string;
   created_at: string;
-  metadata: any;
+  metadata: Record<string, unknown>;
+  earning?: number;
+  earning_paid?: boolean;
 }
 
 interface AdminEmployeesTabProps {
@@ -60,13 +63,14 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
     login: '',
     password: '',
     loginType: 'phone' as 'phone' | 'email',
-    role: 'employee' as 'employee' | 'superadmin' | 'manager' | 'operational_manager' | 'chief_manager',
+    role: 'employee' as 'employee' | 'superadmin' | 'manager' | 'operational_manager' | 'chief_manager' | 'operator',
     permissions: {
       owners: false,
       listings: true,
       settings: false,
     },
     is_active: true,
+    copywriter_earnings: 0,
   });
 
   useEffect(() => {
@@ -88,11 +92,12 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
       }));
       
       setEmployees(employeesWithEarnings);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch employees:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Не удалось загрузить сотрудников';
       toast({
         title: 'Ошибка',
-        description: error.message || 'Не удалось загрузить сотрудников',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -122,10 +127,11 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
       setSelectedEmployee(employeeWithEarnings);
       setEmployeeActions(actionsWithEarnings);
       setShowDetailsDialog(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Не удалось загрузить данные';
       toast({
         title: 'Ошибка',
-        description: error.message || 'Не удалось загрузить данные',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -146,11 +152,12 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
         settings: false,
       },
       is_active: true,
+      copywriter_earnings: 0,
     });
     setShowDialog(true);
   };
 
-  const handleEdit = (employee: Employee) => {
+  const handleEdit = (employee: Employee & { copywriter_earnings?: number }) => {
     setEditingEmployee(employee);
     const loginType = employee.login.includes('@') ? 'email' : 'phone';
     setFormData({
@@ -162,6 +169,7 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
       role: employee.role,
       permissions: employee.permissions,
       is_active: employee.is_active,
+      copywriter_earnings: employee.copywriter_earnings || 0,
     });
     setShowDialog(true);
   };
@@ -181,10 +189,11 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
       
       setShowDialog(false);
       fetchEmployees();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Не удалось сохранить';
       toast({
         title: 'Ошибка',
-        description: error.message || 'Не удалось сохранить',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -200,10 +209,11 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
         description: 'Сотрудник удален',
       });
       fetchEmployees();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Не удалось удалить';
       toast({
         title: 'Ошибка',
-        description: error.message || 'Не удалось удалить',
+        description: errorMessage,
         variant: 'destructive',
       });
     }

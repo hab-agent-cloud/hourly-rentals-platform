@@ -47,6 +47,7 @@ interface ManagerData {
   total_listings?: number;
   total_earned?: number;
   pending_withdrawals?: number;
+  copywriter_earnings?: string | number;
 }
 
 interface PaymentHistory {
@@ -69,28 +70,71 @@ export default function ManagerDashboard() {
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     if (!token) {
+      toast({
+        variant: 'destructive',
+        title: 'Ошибка авторизации',
+        description: 'Токен не найден. Войдите в систему заново.'
+      });
       navigate('/admin/login');
       return;
     }
     
     const decoded = decodeJWT(token);
+    console.log('[AUTH] Decoded token:', decoded);
+    
     if (decoded?.admin_id) {
       setAdminId(decoded.admin_id);
     } else {
+      toast({
+        variant: 'destructive',
+        title: 'Ошибка авторизации',
+        description: 'Недействительный токен. Войдите в систему заново.'
+      });
+      localStorage.removeItem('adminToken');
       navigate('/admin/login');
     }
-  }, [navigate]);
+  }, [navigate, toast]);
   
   const fetchManagerData = async () => {
     try {
       console.log('[MANAGER] Загрузка данных для admin_id:', adminId);
       const response = await fetch(`${FUNC_URLS.managerData}?admin_id=${adminId}`);
       console.log('[MANAGER] Ответ получен, status:', response.status);
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          toast({
+            variant: 'destructive',
+            title: 'Ошибка авторизации',
+            description: 'Сессия истекла. Войдите в систему заново.'
+          });
+          localStorage.removeItem('adminToken');
+          navigate('/admin/login');
+          return;
+        }
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
       const data = await response.json();
       console.log('[MANAGER] Данные получены:', data);
+      
+      if (data.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Ошибка',
+          description: data.error
+        });
+        return;
+      }
+      
       setManagerData(data);
     } catch (error) {
       console.error('[MANAGER] Ошибка загрузки данных:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Ошибка загрузки данных',
+        description: 'Не удалось загрузить данные. Попробуйте позже.'
+      });
     } finally {
       setLoading(false);
     }

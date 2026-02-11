@@ -289,6 +289,9 @@ def handler(event: dict, context) -> dict:
                 if 'login' in data:
                     updates.append('login = %s')
                     values.append(data['login'])
+                if 'copywriter_earnings' in data:
+                    updates.append('copywriter_earnings = %s')
+                    values.append(data['copywriter_earnings'])
                 
                 if not updates:
                     return {

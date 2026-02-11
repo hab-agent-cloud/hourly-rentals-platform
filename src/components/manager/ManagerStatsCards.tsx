@@ -8,8 +8,16 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Icon from '@/components/ui/icon';
 import { motion } from 'framer-motion';
 
+interface ManagerData {
+  balance?: number;
+  month_commission?: number;
+  copywriter_earnings?: string | number;
+  total_owner_payments?: number;
+  manager_level?: string;
+}
+
 interface ManagerStatsCardsProps {
-  managerData: any;
+  managerData: ManagerData;
   onWithdraw: (
     amount: string,
     method: 'sbp' | 'card' | 'salary',
@@ -94,10 +102,18 @@ export default function ManagerStatsCards({ managerData, onWithdraw }: ManagerSt
             >
               {managerData.balance || 0} ₽
             </motion.div>
-            <p className="text-xs font-semibold text-green-600 mt-2 flex items-center gap-1">
-              <Icon name="TrendingUp" size={12} />
-              За месяц: +{managerData.month_commission || 0} ₽
-            </p>
+            <div className="space-y-1 mt-2">
+              <p className="text-xs font-semibold text-green-600 flex items-center gap-1">
+                <Icon name="TrendingUp" size={12} />
+                За месяц: +{managerData.month_commission || 0} ₽
+              </p>
+              {managerData.copywriter_earnings && parseFloat(managerData.copywriter_earnings) > 0 && (
+                <p className="text-xs font-semibold text-blue-600 flex items-center gap-1">
+                  <Icon name="FileText" size={12} />
+                  Копирайтер: +{parseFloat(managerData.copywriter_earnings).toFixed(0)} ₽
+                </p>
+              )}
+            </div>
           <Dialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="w-full mt-3" variant="outline">
@@ -124,7 +140,7 @@ export default function ManagerStatsCards({ managerData, onWithdraw }: ManagerSt
                 
                 <div>
                   <Label className="text-sm font-medium mb-3 block">Способ вывода</Label>
-                  <RadioGroup value={withdrawMethod} onValueChange={(v) => setWithdrawMethod(v as any)}>
+                  <RadioGroup value={withdrawMethod} onValueChange={(v) => setWithdrawMethod(v as 'sbp' | 'card' | 'salary')}>
                     <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-accent cursor-pointer">
                       <RadioGroupItem value="sbp" id="sbp" />
                       <Label htmlFor="sbp" className="flex-1 cursor-pointer">

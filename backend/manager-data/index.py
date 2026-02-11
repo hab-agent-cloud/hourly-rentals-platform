@@ -46,7 +46,7 @@ def handler(event: dict, context) -> dict:
                 cur.execute("""
                     SELECT id, name, email, role, balance, manager_level, om_grade,
                            object_limit, subscription_days_limit, commission_percent,
-                           bonus_budget, warnings_count
+                           bonus_budget, warnings_count, copywriter_earnings
                     FROM t_p39732784_hourly_rentals_platf.admins 
                     WHERE id = %s AND is_active = true
                 """, (admin_id_int,))

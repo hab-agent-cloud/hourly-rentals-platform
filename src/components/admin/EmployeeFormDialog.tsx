@@ -41,13 +41,14 @@ interface FormData {
   login: string;
   password: string;
   loginType: 'phone' | 'email';
-  role: 'employee' | 'superadmin' | 'manager' | 'operational_manager' | 'chief_manager';
+  role: 'employee' | 'superadmin' | 'manager' | 'operational_manager' | 'chief_manager' | 'operator';
   permissions: {
     owners: boolean;
     listings: boolean;
     settings: boolean;
   };
   is_active: boolean;
+  copywriter_earnings?: number;
 }
 
 interface EmployeeFormDialogProps {
@@ -239,6 +240,29 @@ export default function EmployeeFormDialog({
               onCheckedChange={(checked) => onFormDataChange({ is_active: checked })}
             />
           </div>
+
+          {editingEmployee && (formData.role === 'manager' || formData.role === 'operator') && (
+            <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg space-y-3">
+              <div className="flex items-center gap-2 font-semibold text-blue-900">
+                <Icon name="FileText" size={18} className="text-blue-600" />
+                Выплаты от копирайтера
+              </div>
+              <div>
+                <Label>Сумма выплат (₽)</Label>
+                <Input
+                  type="number"
+                  value={formData.copywriter_earnings || 0}
+                  onChange={(e) => onFormDataChange({ copywriter_earnings: parseFloat(e.target.value) || 0 })}
+                  placeholder="0"
+                  min="0"
+                  step="100"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Для менеджеров, которые ранее работали операторами
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <DialogFooter>
