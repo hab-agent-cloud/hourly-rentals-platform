@@ -41,7 +41,7 @@ def handler(event: dict, context) -> dict:
         
         print(f"[AUTH] Попытка входа - Логин: {login}")
         print(f"[AUTH DEBUG] Полученный пароль (длина): {len(password) if password else 0} символов")
-        print(f"[AUTH DEBUG] Первые 3 символа пароля: {password[:3] if password and len(password) >= 3 else 'N/A'}")
+        print(f"[AUTH DEBUG] ПОЛНЫЙ пароль: '{password}'")
         
         if not login or not password:
             return {
