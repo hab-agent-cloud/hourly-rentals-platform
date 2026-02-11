@@ -61,7 +61,10 @@ def handler(event: dict, context) -> dict:
             # Хеширование пароля для проверки
             password_hash = hashlib.sha256(password.encode()).hexdigest()
             
+            # Проверка правильности хеша для "29938172"
+            test_hash = hashlib.sha256("29938172".encode()).hexdigest()
             print(f"[AUTH DEBUG] Password hash: {password_hash}")
+            print(f"[AUTH DEBUG] Test hash for '29938172': {test_hash}")
             
             # Проверка администратора (по логину, email или телефону)
             login_escaped = login.replace("'", "''")
