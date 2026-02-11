@@ -36,7 +36,10 @@ def handler(event: dict, context) -> dict:
         admin_id = body.get('admin_id')
         achievement_id = body.get('achievement_id')
         
+        print(f"[ACHIEVEMENT] Запрос на начисление бонуса: admin_id={admin_id}, achievement_id={achievement_id}")
+        
         if not admin_id or not achievement_id:
+            print(f"[ACHIEVEMENT ERROR] Отсутствуют параметры")
             return {
                 'statusCode': 400,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -46,6 +49,7 @@ def handler(event: dict, context) -> dict:
         
         admin_id_int = int(admin_id)
         bonus_amount = 1000
+        print(f"[ACHIEVEMENT] Начисляем {bonus_amount}₽ для admin_id={admin_id_int}")
         
         conn = get_db_connection()
         
@@ -57,7 +61,9 @@ def handler(event: dict, context) -> dict:
                     WHERE admin_id = %s AND achievement_id = %s
                 """, (admin_id_int, achievement_id))
                 
-                if cur.fetchone():
+                existing = cur.fetchone()
+                if existing:
+                    print(f"[ACHIEVEMENT] Бонус уже был начислен ранее")
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -70,6 +76,7 @@ def handler(event: dict, context) -> dict:
                     }
                 
                 # Начисляем бонус на баланс
+                print(f"[ACHIEVEMENT] Начисляем {bonus_amount}₽ на баланс...")
                 cur.execute("""
                     UPDATE t_p39732784_hourly_rentals_platf.admins
                     SET balance = balance + %s
@@ -79,6 +86,7 @@ def handler(event: dict, context) -> dict:
                 
                 result = cur.fetchone()
                 new_balance = float(result['balance']) if result else 0
+                print(f"[ACHIEVEMENT] Баланс обновлен: новый баланс = {new_balance}₽")
                 
                 # Записываем историю начисления
                 cur.execute("""
