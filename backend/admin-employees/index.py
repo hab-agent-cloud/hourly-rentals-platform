@@ -265,6 +265,22 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 
+                # Получаем текущие данные сотрудника
+                cur.execute("""
+                    SELECT role, balance, copywriter_earnings 
+                    FROM t_p39732784_hourly_rentals_platf.admins 
+                    WHERE id = %s
+                """, (employee_id,))
+                current_employee = cur.fetchone()
+                
+                if not current_employee:
+                    return {
+                        'statusCode': 404,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Employee not found'}),
+                        'isBase64Encoded': False
+                    }
+                
                 updates = []
                 values = []
                 
@@ -275,8 +291,23 @@ def handler(event: dict, context) -> dict:
                     updates.append('email = %s')
                     values.append(data['email'])
                 if 'role' in data:
+                    new_role = data['role']
+                    old_role = current_employee['role']
+                    
+                    # Если меняем должность НА менеджера/ОМ и у сотрудника есть баланс
+                    if new_role in ['manager', 'operational_manager'] and old_role not in ['manager', 'operational_manager']:
+                        if current_employee['balance'] and float(current_employee['balance']) > 0:
+                            # Переносим текущий баланс в copywriter_earnings
+                            current_copywriter = float(current_employee['copywriter_earnings'] or 0)
+                            current_balance = float(current_employee['balance'])
+                            updates.append('copywriter_earnings = %s')
+                            values.append(current_copywriter + current_balance)
+                            # Обнуляем основной баланс
+                            updates.append('balance = %s')
+                            values.append(0)
+                    
                     updates.append('role = %s')
-                    values.append(data['role'])
+                    values.append(new_role)
                 if 'permissions' in data:
                     updates.append('permissions = %s')
                     values.append(json.dumps(data['permissions']))
