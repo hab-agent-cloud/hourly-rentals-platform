@@ -59,15 +59,26 @@ def handler(event: dict, context) -> dict:
             # Хеширование пароля для проверки
             password_hash = hashlib.sha256(password.encode()).hexdigest()
             
+            print(f"[AUTH DEBUG] Password hash: {password_hash}")
+            
             # Проверка администратора (по логину, email или телефону)
             login_escaped = login.replace("'", "''")
             password_hash_escaped = password_hash.replace("'", "''")
-            cur.execute(
-                f"SELECT id, email, name, role, permissions, is_active FROM t_p39732784_hourly_rentals_platf.admins WHERE (login = '{login_escaped}' OR email = '{login_escaped}') AND password_hash = '{password_hash_escaped}' AND is_active = true"
-            )
+            
+            query = f"SELECT id, email, name, role, permissions, is_active FROM t_p39732784_hourly_rentals_platf.admins WHERE (login = '{login_escaped}' OR email = '{login_escaped}') AND password_hash = '{password_hash_escaped}' AND is_active = true"
+            print(f"[AUTH DEBUG] Query: {query}")
+            
+            cur.execute(query)
             admin = cur.fetchone()
             
             print(f"[AUTH] Результат поиска: {admin}")
+            
+            # Дополнительная проверка - найдем пользователя без проверки пароля
+            cur.execute(
+                f"SELECT id, email, name, login, password_hash FROM t_p39732784_hourly_rentals_platf.admins WHERE (login = '{login_escaped}' OR email = '{login_escaped}') AND is_active = true"
+            )
+            user_check = cur.fetchone()
+            print(f"[AUTH DEBUG] User exists check: {user_check}")
             
             if not admin:
                 return {
