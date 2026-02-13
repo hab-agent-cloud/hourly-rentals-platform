@@ -27,6 +27,7 @@ interface ManagerData {
 interface ManagerDashboardOverviewProps {
   managerData: ManagerData;
   darkMode: boolean;
+  adminId?: number | null;
   onWithdraw: (
     amount: string,
     method: 'sbp' | 'card' | 'salary',
@@ -40,6 +41,7 @@ interface ManagerDashboardOverviewProps {
 export default function ManagerDashboardOverview({
   managerData,
   darkMode,
+  adminId,
   onWithdraw,
   onBalanceUpdate,
   onTabChange,
@@ -62,6 +64,7 @@ export default function ManagerDashboardOverview({
         balance={managerData.balance || 0}
         monthCommission={managerData.month_commission || 0}
         totalOwnerPayments={managerData.total_owner_payments || 0}
+        adminId={adminId}
         onBalanceUpdate={onBalanceUpdate}
       />
       

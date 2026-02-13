@@ -107,7 +107,7 @@ export default function ManagerStatsCards({ managerData, onWithdraw }: ManagerSt
                 <Icon name="TrendingUp" size={12} />
                 За месяц: +{managerData.month_commission || 0} ₽
               </p>
-              {managerData.copywriter_earnings !== undefined && managerData.copywriter_earnings !== null && (
+              {managerData.copywriter_earnings !== undefined && managerData.copywriter_earnings !== null && parseFloat(String(managerData.copywriter_earnings)) > 0 && (
                 <p className="text-xs font-semibold text-blue-600 flex items-center gap-1">
                   <Icon name="FileText" size={12} />
                   Копирайтер: {parseFloat(String(managerData.copywriter_earnings)).toFixed(0)} ₽

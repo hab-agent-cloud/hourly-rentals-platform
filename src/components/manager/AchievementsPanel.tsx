@@ -19,10 +19,11 @@ interface AchievementsPanelProps {
   balance: number;
   monthCommission: number;
   totalOwnerPayments: number;
+  adminId?: number | null;
   onBalanceUpdate?: () => void;
 }
 
-export default function AchievementsPanel({ objectsCount, balance, monthCommission, totalOwnerPayments, onBalanceUpdate }: AchievementsPanelProps) {
+export default function AchievementsPanel({ objectsCount, balance, monthCommission, totalOwnerPayments, adminId, onBalanceUpdate }: AchievementsPanelProps) {
   const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
   const [celebratedAchievements, setCelebratedAchievements] = useState<Set<string>>(new Set());
 
@@ -198,7 +199,6 @@ export default function AchievementsPanel({ objectsCount, balance, monthCommissi
 
   useEffect(() => {
     const checkAndAwardAchievements = async () => {
-      const adminId = localStorage.getItem('adminId');
       if (!adminId) return;
 
       for (const achievement of achievements) {
@@ -210,7 +210,7 @@ export default function AchievementsPanel({ objectsCount, balance, monthCommissi
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                admin_id: parseInt(adminId),
+                admin_id: adminId,
                 achievement_id: achievement.id
               })
             });
@@ -231,7 +231,7 @@ export default function AchievementsPanel({ objectsCount, balance, monthCommissi
     };
 
     checkAndAwardAchievements();
-  }, [objectsCount, balance, monthCommission, totalOwnerPayments]);
+  }, [objectsCount, balance, monthCommission, totalOwnerPayments, adminId]);
 
   return (
     <motion.div

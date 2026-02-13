@@ -62,6 +62,15 @@ def handler(event: dict, context) -> dict:
                 
                 result = dict(admin)
                 
+                # Получаем реальный заработок копирайтера из employee_bonuses
+                cur.execute("""
+                    SELECT COALESCE(SUM(bonus_amount), 0) as total_copywriter_earnings
+                    FROM t_p39732784_hourly_rentals_platf.employee_bonuses
+                    WHERE admin_id = %s
+                """, (admin_id_int,))
+                earnings_row = cur.fetchone()
+                result['copywriter_earnings'] = float(earnings_row['total_copywriter_earnings']) if earnings_row else 0
+                
                 # Получаем иерархию
                 cur.execute("""
                     SELECT operational_manager_id, chief_manager_id

@@ -448,6 +448,7 @@ export default function ManagerDashboard() {
             <ManagerDashboardOverview
               managerData={managerData}
               darkMode={darkMode}
+              adminId={adminId}
               onWithdraw={handleWithdraw}
               onBalanceUpdate={fetchManagerData}
               onTabChange={setActiveTab}
