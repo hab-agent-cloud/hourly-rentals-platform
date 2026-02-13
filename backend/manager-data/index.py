@@ -181,6 +181,17 @@ def handler(event: dict, context) -> dict:
                     """, (admin_id_int,))
                     result['total_owner_payments'] = float(cur.fetchone()['total_owner_payments'])
                     
+                    # Дублируем objects_count как total_listings для блока достижений на дашборде
+                    result['total_listings'] = result['objects_count']
+                    
+                    # Общий заработок менеджера за всё время (все комиссии)
+                    cur.execute("""
+                        SELECT COALESCE(SUM(amount), 0) as total_earned
+                        FROM t_p39732784_hourly_rentals_platf.commission_history
+                        WHERE admin_id = %s
+                    """, (admin_id_int,))
+                    result['total_earned'] = float(cur.fetchone()['total_earned'])
+                    
                     # Задачи от ОМ
                     cur.execute("""
                         SELECT id, title, description, deadline, completed
@@ -260,6 +271,17 @@ def handler(event: dict, context) -> dict:
                     rating_row = cur.fetchone()
                     result['om_rank'] = int(rating_row['rank']) if rating_row else None
                     result['rank_objects'] = int(rating_row['obj_count']) if rating_row else 0
+                    
+                    # total_listings для ОМ = total_objects
+                    result['total_listings'] = result.get('total_objects', 0)
+                    
+                    # Общий заработок ОМ за всё время
+                    cur.execute("""
+                        SELECT COALESCE(SUM(amount), 0) as total_earned
+                        FROM t_p39732784_hourly_rentals_platf.commission_history
+                        WHERE admin_id = %s
+                    """, (admin_id_int,))
+                    result['total_earned'] = float(cur.fetchone()['total_earned'])
                 
                 # Для УМ (Управляющего Менеджера)
                 elif admin['role'] == 'chief_manager':
