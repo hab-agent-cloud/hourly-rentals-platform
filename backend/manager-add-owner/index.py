@@ -107,11 +107,11 @@ def handler(event, context):
         cur.execute("""
             INSERT INTO t_p39732784_hourly_rentals_platf.owners 
             (full_name, phone, email, telegram_name, manager_comment, username, 
-             password_hash, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
+             password_hash, created_by_manager_id, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
             RETURNING id
         """, (
-            full_name, phone, email, telegram_name, manager_comment, username, password_hash
+            full_name, phone, email, telegram_name, manager_comment, username, password_hash, manager_id
         ))
         
         owner_id = cur.fetchone()[0]

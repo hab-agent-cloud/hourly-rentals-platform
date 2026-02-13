@@ -1,4 +1,5 @@
 import ManagerListingsSection from '@/components/manager/ManagerListingsSection';
+import ManagerOwnersSection from '@/components/manager/ManagerOwnersSection';
 import ManagerCashSection from '@/components/manager/ManagerCashSection';
 import ManagerTasksList from '@/components/manager/ManagerTasksList';
 import ManagerReviewsSection from '@/components/manager/ManagerReviewsSection';
@@ -11,6 +12,8 @@ interface ManagerData {
   balance?: number;
   pending_withdrawals?: number;
   total_earned?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  listings?: any[];
 }
 
 interface PaymentHistory {
@@ -58,6 +61,18 @@ export default function ManagerDashboardContent({
           adminId={adminId}
           onFreezeListing={onFreezeListing}
           onUnfreezeListing={onUnfreezeListing}
+          onRefresh={onRefresh}
+        />
+      )}
+
+      {activeTab === 'owners' && (
+        <ManagerOwnersSection
+          adminId={adminId}
+          managedListings={(managerData.listings || []).map((l: { id: number; name?: string; title?: string }) => ({
+            id: l.id,
+            name: l.name,
+            title: l.title
+          }))}
           onRefresh={onRefresh}
         />
       )}

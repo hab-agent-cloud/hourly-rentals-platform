@@ -404,6 +404,7 @@ export default function ManagerDashboard() {
   const tabs = [
     { id: 'overview', icon: 'LayoutDashboard', label: 'Обзор' },
     { id: 'listings', icon: 'Building2', label: 'Объекты' },
+    { id: 'owners', icon: 'UserCog', label: 'Владельцы' },
     { id: 'finance', icon: 'Wallet', label: 'Финансы' },
     { id: 'tasks', icon: 'CheckSquare', label: 'Задачи' },
     { id: 'reviews', icon: 'MessageSquare', label: 'Отзывы' },
