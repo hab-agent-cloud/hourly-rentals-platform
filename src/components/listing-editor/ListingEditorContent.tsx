@@ -66,6 +66,7 @@ export default function ListingEditorContent({
       <ListingBasicInfoSection
         formData={formData}
         onFormChange={onFormChange}
+        listingId={id ? parseInt(id) : undefined}
       />
 
       <ListingGiftsSection listingId={parseInt(id || '0')} />

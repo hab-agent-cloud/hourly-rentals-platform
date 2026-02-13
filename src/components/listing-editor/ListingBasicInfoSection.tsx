@@ -1,8 +1,13 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Icon from '@/components/ui/icon';
+import { api } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 interface FormDataType {
   name: string;
@@ -23,9 +28,30 @@ interface FormDataType {
 interface ListingBasicInfoSectionProps {
   formData: FormDataType;
   onFormChange: (field: string, value: string) => void;
+  listingId?: number;
 }
 
-export default function ListingBasicInfoSection({ formData, onFormChange }: ListingBasicInfoSectionProps) {
+export default function ListingBasicInfoSection({ formData, onFormChange, listingId }: ListingBasicInfoSectionProps) {
+  const { toast } = useToast();
+  const [generating, setGenerating] = useState(false);
+
+  const handleGenerateDescription = async () => {
+    if (!listingId) return;
+    setGenerating(true);
+    try {
+      const result = await api.generateDescription(listingId);
+      if (result.description) {
+        onFormChange('description', result.description);
+        toast({ title: 'Описание сгенерировано', description: 'Проверьте и отредактируйте при необходимости' });
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Попробуйте позже';
+      toast({ title: 'Ошибка генерации', description: message, variant: 'destructive' });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   return (
     <>
       <Card>
@@ -44,14 +70,35 @@ export default function ListingBasicInfoSection({ formData, onFormChange }: List
           </div>
           
           <div>
-            <Label htmlFor="description">Описание</Label>
+            <div className="flex items-center justify-between mb-1">
+              <Label htmlFor="description">Описание</Label>
+              {listingId && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGenerateDescription}
+                  disabled={generating}
+                  className="text-xs h-7"
+                >
+                  {generating ? (
+                    <><Icon name="Loader2" size={14} className="mr-1 animate-spin" />Генерация...</>
+                  ) : (
+                    <><Icon name="Sparkles" size={14} className="mr-1" />Сгенерировать</>
+                  )}
+                </Button>
+              )}
+            </div>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => onFormChange('description', e.target.value)}
               placeholder="Уютная квартира с отличным ремонтом..."
-              rows={4}
+              rows={6}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              Описание видят посетители на странице объекта. Можно написать вручную или сгенерировать на основе данных.
+            </p>
           </div>
         </CardContent>
       </Card>

@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { api } from '@/lib/api';
 import ImageUploader from '@/components/ImageUploader';
-import RoomCategoriesManager, { RoomCategory } from '@/components/RoomCategoriesManager';
+import RoomCategoriesManager, { type RoomCategory } from '@/components/RoomCategoriesManager';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface OwnerEditListingDialogNewProps {
@@ -57,6 +57,7 @@ export default function OwnerEditListingDialogNew({
 
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [roomCategories, setRoomCategories] = useState<RoomCategory[]>([]);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     if (listing && open) {
@@ -287,9 +288,42 @@ export default function OwnerEditListingDialogNew({
               </div>
 
               <div>
-                <Label htmlFor="description">Описание объекта</Label>
+                <div className="flex items-center justify-between mb-1">
+                  <Label htmlFor="description">Описание объекта</Label>
+                  {listing && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        if (!listing) return;
+                        setGenerating(true);
+                        try {
+                          const result = await api.generateDescription(listing.id);
+                          if (result.description) {
+                            setFormData(prev => ({ ...prev, description: result.description }));
+                            toast({ title: 'Описание сгенерировано', description: 'Проверьте и отредактируйте при необходимости' });
+                          }
+                        } catch (err: unknown) {
+                          const message = err instanceof Error ? err.message : 'Попробуйте позже';
+                          toast({ title: 'Ошибка генерации', description: message, variant: 'destructive' });
+                        } finally {
+                          setGenerating(false);
+                        }
+                      }}
+                      disabled={generating}
+                      className="text-xs h-7"
+                    >
+                      {generating ? (
+                        <><Icon name="Loader2" size={14} className="mr-1 animate-spin" />Генерация...</>
+                      ) : (
+                        <><Icon name="Sparkles" size={14} className="mr-1" />Сгенерировать</>
+                      )}
+                    </Button>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground mb-2">
-                  До 1000 слов. Описание будет отображаться сверху при открытии категорий номеров
+                  До 1000 слов. Описание видят посетители на странице объекта
                 </p>
                 <Textarea
                   id="description"

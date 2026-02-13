@@ -19,6 +19,7 @@ const API_URLS = {
   subscription: 'https://functions.poehali.dev/083c2fbe-03b3-474d-accd-281d4089bb06',
   detectCity: 'https://functions.poehali.dev/15d3dd6b-83e0-48c3-b215-802340270720',
   getVirtualNumber: 'https://functions.poehali.dev/4a500ec2-2f33-49d9-87d0-3779d8d52ae5',
+  generateDescription: 'https://functions.poehali.dev/c5a9830a-6bcf-45ed-a4bc-8992e19a7429',
 };
 
 export const api = {
@@ -873,6 +874,19 @@ export const api = {
       },
       body: JSON.stringify({ action: 'purchase_package', owner_id, listing_id, city, package_type }),
     });
+    return response.json();
+  },
+
+  generateDescription: async (listingId: number) => {
+    const response = await fetch(API_URLS.generateDescription, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ listing_id: listingId }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
     return response.json();
   },
 };
