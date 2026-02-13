@@ -165,6 +165,7 @@ export default function ManagerListingsSection({
         show={showBaseDialog}
         onClose={() => setShowBaseDialog(false)}
         listings={managerData?.listings || []}
+        adminId={adminId}
         onFreezeListing={onFreezeListing}
         onUnfreezeListing={onUnfreezeListing}
       />

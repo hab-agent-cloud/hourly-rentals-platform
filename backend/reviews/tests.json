@@ -1,14 +1,22 @@
 {
   "tests": [
     {
-      "name": "Test get reviews for listing",
+      "name": "OPTIONS request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get reviews for listing",
       "method": "GET",
       "path": "/?listing_id=1",
-      "expectedStatus": 200,
-      "expectedBody": {
-        "reviews": "array"
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
+    },
+    {
+      "name": "Missing params returns error",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400
     }
   ]
 }

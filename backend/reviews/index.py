@@ -33,6 +33,7 @@ def handler(event: dict, context) -> dict:
                 cur.execute(f"""
                     SELECT r.id, r.listing_id, r.client_name, r.rating, r.comment, 
                            r.manager_response, r.responded_at, r.created_at,
+                           r.source_url, r.source_site, r.added_by_manager_id,
                            a.name as responder_name
                     FROM {schema}.reviews r
                     LEFT JOIN {schema}.admins a ON r.responded_by = a.id
@@ -43,6 +44,7 @@ def handler(event: dict, context) -> dict:
                 cur.execute(f"""
                     SELECT r.id, r.listing_id, r.client_name, r.client_phone, r.rating, 
                            r.comment, r.manager_response, r.responded_at, r.created_at,
+                           r.source_url, r.source_site, r.added_by_manager_id,
                            l.title as listing_title, l.city,
                            a.name as responder_name
                     FROM {schema}.reviews r
@@ -84,6 +86,10 @@ def handler(event: dict, context) -> dict:
                 client_phone = data.get('client_phone')
                 rating = data.get('rating')
                 comment = data.get('comment')
+                source_url = data.get('source_url')
+                source_site = data.get('source_site')
+                added_by_manager_id = data.get('added_by_manager_id')
+                review_date = data.get('review_date')
                 
                 if not all([listing_id, client_name, rating, comment]):
                     return {
@@ -92,11 +98,20 @@ def handler(event: dict, context) -> dict:
                         'body': json.dumps({'error': 'Missing required fields'})
                     }
                 
-                cur.execute(f"""
-                    INSERT INTO {schema}.reviews (listing_id, client_name, client_phone, rating, comment)
-                    VALUES (%s, %s, %s, %s, %s)
-                    RETURNING id
-                """, (listing_id, client_name, client_phone, rating, comment))
+                if review_date:
+                    cur.execute(f"""
+                        INSERT INTO {schema}.reviews 
+                        (listing_id, client_name, client_phone, rating, comment, source_url, source_site, added_by_manager_id, created_at)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        RETURNING id
+                    """, (listing_id, client_name, client_phone, rating, comment, source_url, source_site, added_by_manager_id, review_date))
+                else:
+                    cur.execute(f"""
+                        INSERT INTO {schema}.reviews 
+                        (listing_id, client_name, client_phone, rating, comment, source_url, source_site, added_by_manager_id)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        RETURNING id
+                    """, (listing_id, client_name, client_phone, rating, comment, source_url, source_site, added_by_manager_id))
                 
                 review_id = cur.fetchone()[0]
                 conn.commit()
@@ -133,6 +148,26 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({'success': True})
                 }
             
+            elif action == 'delete':
+                review_id = data.get('review_id')
+                admin_id = data.get('admin_id')
+                
+                if not all([review_id, admin_id]):
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Missing required fields'})
+                    }
+                
+                cur.execute(f"DELETE FROM {schema}.reviews WHERE id = %s", (review_id,))
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'success': True})
+                }
+
             elif action == 'archive':
                 review_id = data.get('review_id')
                 admin_id = data.get('admin_id')

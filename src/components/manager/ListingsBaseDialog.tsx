@@ -10,11 +10,13 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import CopyReviewDialog from './CopyReviewDialog';
 
 interface ListingsBaseDialogProps {
   show: boolean;
   onClose: () => void;
   listings: any[];
+  adminId: number;
   onFreezeListing: (listingId: number) => void;
   onUnfreezeListing: (listingId: number) => void;
 }
@@ -23,10 +25,12 @@ export default function ListingsBaseDialog({
   show,
   onClose,
   listings,
+  adminId,
   onFreezeListing,
   onUnfreezeListing,
 }: ListingsBaseDialogProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [reviewListing, setReviewListing] = useState<{ id: number; name: string } | null>(null);
 
   const filteredListings = listings.filter((listing: any) => {
     const query = searchQuery.toLowerCase();
@@ -156,6 +160,15 @@ export default function ListingsBaseDialog({
                             <Icon name="Edit" size={16} className="mr-1" />
                             Редактировать
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-purple-300 text-purple-700 hover:bg-purple-50"
+                            onClick={() => setReviewListing({ id: listing.id, name: listing.name })}
+                          >
+                            <Icon name="MessageSquarePlus" size={16} className="mr-1" />
+                            Скопировать отзыв
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -166,6 +179,17 @@ export default function ListingsBaseDialog({
           </ScrollArea>
         </div>
       </DialogContent>
+
+      {reviewListing && (
+        <CopyReviewDialog
+          open={!!reviewListing}
+          onClose={() => setReviewListing(null)}
+          listingId={reviewListing.id}
+          listingName={reviewListing.name}
+          adminId={adminId}
+          onSuccess={() => {}}
+        />
+      )}
     </Dialog>
   );
 }
