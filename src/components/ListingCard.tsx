@@ -1,3 +1,4 @@
+import { useState, useCallback, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,25 +42,25 @@ interface ListingCardProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getFirstImage = (imageUrl: any) => {
-  if (!imageUrl) return null;
+const getAllImages = (imageUrl: any): string[] => {
+  if (!imageUrl) return [];
   
   if (typeof imageUrl === 'string') {
     try {
       const parsed = JSON.parse(imageUrl);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed[0];
+        return parsed.filter((u: unknown) => typeof u === 'string' && u.length > 0);
       }
     } catch {
-      return imageUrl;
+      return [imageUrl];
     }
   }
   
   if (Array.isArray(imageUrl) && imageUrl.length > 0) {
-    return imageUrl[0];
+    return imageUrl.filter((u: unknown) => typeof u === 'string' && u.length > 0);
   }
   
-  return null;
+  return [];
 };
 
 export default function ListingCard({ 
@@ -70,6 +71,37 @@ export default function ListingCard({
   onPhoneClick 
 }: ListingCardProps) {
   const hasActiveSubscription = listing.subscription_expires_at && new Date(listing.subscription_expires_at) > new Date();
+  const images = getAllImages(listing.image_url);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+
+  const handlePrev = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
+  }, [images.length]);
+
+  const handleNext = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+  }, [images.length]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null || images.length <= 1) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      e.stopPropagation();
+      if (diff > 0) {
+        setCurrentIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+      } else {
+        setCurrentIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
+      }
+    }
+    touchStartX.current = null;
+  }, [images.length]);
 
   return (
     <Card 
@@ -83,13 +115,59 @@ export default function ListingCard({
         onCardClick(listing);
       }}
     >
-      <div className="relative">
-        {getFirstImage(listing.image_url) ? (
-          <img 
-            src={getFirstImage(listing.image_url)!} 
-            alt={listing.title} 
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
-          />
+      <div
+        className="relative overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {images.length > 0 ? (
+          <>
+            <img 
+              src={images[currentIndex]} 
+              alt={listing.title} 
+              className="w-full h-48 object-cover transition-transform duration-300" 
+            />
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={handlePrev}
+                  className="absolute left-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
+                  aria-label="Предыдущее фото"
+                >
+                  <Icon name="ChevronLeft" size={18} />
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
+                  aria-label="Следующее фото"
+                >
+                  <Icon name="ChevronRight" size={18} />
+                </button>
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+                  {images.slice(0, 7).map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentIndex(idx);
+                      }}
+                      className={`w-1.5 h-1.5 rounded-full transition-all ${
+                        idx === currentIndex 
+                          ? 'bg-white w-3' 
+                          : 'bg-white/60 hover:bg-white/80'
+                      }`}
+                    />
+                  ))}
+                  {images.length > 7 && (
+                    <span className="text-white text-[10px] leading-none ml-0.5">+{images.length - 7}</span>
+                  )}
+                </div>
+                <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded z-10">
+                  {currentIndex + 1}/{images.length}
+                </div>
+              </>
+            )}
+          </>
         ) : (
           <div className="w-full h-48 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-6xl">
             🏨
