@@ -129,7 +129,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                       <a href="/owner/login" className="block">
                         <Button variant="outline" className="w-full group border-blue-300 text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-800 hover:border-blue-400">
                           <Icon name="LogIn" size={18} className="mr-2 group-hover:scale-110 transition-transform" />
-                          Войти в аккаунт
+                          Экстранет
                         </Button>
                       </a>
                     </div>
@@ -184,7 +184,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
                 <a href="/owner/login">
                   <Button variant="outline" className="group border-blue-300 text-blue-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-800 hover:border-blue-400 transition-all duration-300">
                     <Icon name="LogIn" size={18} className="mr-2 group-hover:scale-110 transition-transform" />
-                    Войти в аккаунт
+                    Экстранет
                   </Button>
                 </a>
               </nav>
