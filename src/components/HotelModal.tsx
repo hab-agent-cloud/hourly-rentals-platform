@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -6,6 +6,25 @@ import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
 import PromotionBadge from '@/components/PromotionBadge';
 import { metrika } from '@/lib/metrika';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getAllImages = (imageUrl: any): string[] => {
+  if (!imageUrl) return [];
+  if (typeof imageUrl === 'string') {
+    try {
+      const parsed = JSON.parse(imageUrl);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.filter((u: unknown) => typeof u === 'string' && u.length > 0);
+      }
+    } catch {
+      return [imageUrl];
+    }
+  }
+  if (Array.isArray(imageUrl) && imageUrl.length > 0) {
+    return imageUrl.filter((u: unknown) => typeof u === 'string' && u.length > 0);
+  }
+  return [];
+};
 
 type Hotel = {
   id: number;
@@ -38,7 +57,33 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   const [virtualPhone, setVirtualPhone] = useState('');
   const [isLoadingPhone, setIsLoadingPhone] = useState(false);
+  const [currentImgIdx, setCurrentImgIdx] = useState(0);
+  const touchStartX = useRef<number | null>(null);
   
+  const images = getAllImages(hotel?.image_url);
+
+  const handlePrevImg = useCallback(() => {
+    setCurrentImgIdx(prev => (prev === 0 ? images.length - 1 : prev - 1));
+  }, [images.length]);
+
+  const handleNextImg = useCallback(() => {
+    setCurrentImgIdx(prev => (prev === images.length - 1 ? 0 : prev + 1));
+  }, [images.length]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null || images.length <= 1) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) handleNextImg();
+      else handlePrevImg();
+    }
+    touchStartX.current = null;
+  }, [images.length, handleNextImg, handlePrevImg]);
+
   if (!hotel) return null;
 
   const handlePhoneClick = async () => {
@@ -95,15 +140,50 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
         </DialogHeader>
         
         <div className="space-y-6 mt-4">
-          <div className="relative">
-            {hotel.image_url ? (
-              <img src={hotel.image_url} alt={hotel.title} className="h-64 w-full object-cover rounded-xl" />
+          <div
+            className="relative group overflow-hidden rounded-xl"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            {images.length > 0 ? (
+              <>
+                <img src={images[currentImgIdx]} alt={hotel.title} className="h-64 w-full object-cover" />
+                {images.length > 1 && (
+                  <>
+                    <button
+                      onClick={handlePrevImg}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
+                    >
+                      <Icon name="ChevronLeft" size={20} />
+                    </button>
+                    <button
+                      onClick={handleNextImg}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
+                    >
+                      <Icon name="ChevronRight" size={20} />
+                    </button>
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                      {images.slice(0, 8).map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setCurrentImgIdx(idx)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            idx === currentImgIdx ? 'bg-white w-4' : 'bg-white/60 hover:bg-white/80'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded z-10">
+                      {currentImgIdx + 1}/{images.length}
+                    </div>
+                  </>
+                )}
+              </>
             ) : (
-              <div className="h-64 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-9xl rounded-xl">
+              <div className="h-64 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-9xl">
                 🏨
               </div>
             )}
-
           </div>
 
           <div>

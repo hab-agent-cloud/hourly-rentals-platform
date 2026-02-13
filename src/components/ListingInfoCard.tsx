@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
@@ -11,7 +11,27 @@ import {
 } from '@/components/ui/dialog';
 import PromotionBadge from '@/components/PromotionBadge';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getAllImages = (imageUrl: any): string[] => {
+  if (!imageUrl) return [];
+  if (typeof imageUrl === 'string') {
+    try {
+      const parsed = JSON.parse(imageUrl);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.filter((u: unknown) => typeof u === 'string' && u.length > 0);
+      }
+    } catch {
+      return [imageUrl];
+    }
+  }
+  if (Array.isArray(imageUrl) && imageUrl.length > 0) {
+    return imageUrl.filter((u: unknown) => typeof u === 'string' && u.length > 0);
+  }
+  return [];
+};
+
 interface ListingInfoCardProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   listing: any;
 }
 
@@ -19,44 +39,85 @@ export default function ListingInfoCard({ listing }: ListingInfoCardProps) {
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   const [virtualNumber, setVirtualNumber] = useState<string | null>(null);
   const [isLoadingNumber, setIsLoadingNumber] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
 
-  const getFirstImage = (imageUrl: any) => {
-    if (!imageUrl) return null;
-    
-    if (typeof imageUrl === 'string') {
-      try {
-        const parsed = JSON.parse(imageUrl);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed[0];
-        }
-      } catch {
-        return imageUrl;
-      }
-    }
-    
-    if (Array.isArray(imageUrl) && imageUrl.length > 0) {
-      return imageUrl[0];
-    }
-    
-    return null;
-  };
+  const images = getAllImages(listing.image_url);
 
-  const firstImage = getFirstImage(listing.image_url);
+  const handlePrev = useCallback(() => {
+    setCurrentIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
+  }, [images.length]);
+
+  const handleNext = useCallback(() => {
+    setCurrentIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+  }, [images.length]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null || images.length <= 1) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) handleNext();
+      else handlePrev();
+    }
+    touchStartX.current = null;
+  }, [images.length, handleNext, handlePrev]);
 
   return (
     <>
       <Card className="mb-6">
         <CardContent className="p-6">
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="relative">
-              {firstImage ? (
-                <img src={firstImage} alt={listing.title} className="w-full h-64 object-cover rounded-xl" />
+            <div
+              className="relative group overflow-hidden rounded-xl"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              {images.length > 0 ? (
+                <>
+                  <img src={images[currentIndex]} alt={listing.title} className="w-full h-64 object-cover" />
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={handlePrev}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
+                      >
+                        <Icon name="ChevronLeft" size={20} />
+                      </button>
+                      <button
+                        onClick={handleNext}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
+                      >
+                        <Icon name="ChevronRight" size={20} />
+                      </button>
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                        {images.slice(0, 8).map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setCurrentIndex(idx)}
+                            className={`w-2 h-2 rounded-full transition-all ${
+                              idx === currentIndex ? 'bg-white w-4' : 'bg-white/60 hover:bg-white/80'
+                            }`}
+                          />
+                        ))}
+                        {images.length > 8 && (
+                          <span className="text-white text-xs ml-0.5">+{images.length - 8}</span>
+                        )}
+                      </div>
+                      <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded z-10">
+                        {currentIndex + 1}/{images.length}
+                      </div>
+                    </>
+                  )}
+                </>
               ) : (
-                <div className="w-full h-64 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-9xl rounded-xl">
+                <div className="w-full h-64 bg-gradient-to-br from-purple-200 to-pink-200 flex items-center justify-center text-9xl">
                   🏨
                 </div>
               )}
-
             </div>
 
             <div className="space-y-4">
@@ -70,7 +131,7 @@ export default function ListingInfoCard({ listing }: ListingInfoCardProps) {
                   
                   {listing.metro_stations && listing.metro_stations.length > 0 ? (
                     <div className="space-y-1.5 mt-3">
-                      {listing.metro_stations.map((station: any, idx: number) => (
+                      {listing.metro_stations.map((station: { station_name: string; walk_minutes: number }, idx: number) => (
                         <div key={idx} className="flex items-center gap-2 text-muted-foreground">
                           <span className="text-blue-600">Ⓜ️</span>
                           <span>{station.station_name}</span>
