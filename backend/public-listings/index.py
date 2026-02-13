@@ -47,6 +47,75 @@ def get_room_details(listing_id: str, room_index: str) -> dict:
             'isBase64Encoded': False
         }
 
+def get_single_listing(listing_id: str) -> dict:
+    '''Получить один объект по ID со всеми комнатами'''
+    conn = None
+    try:
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        cur.execute("""
+            SELECT 
+                l.id, l.title, l.type, l.city, l.district, l.address, l.price, l.rating, l.reviews,
+                l.auction, l.image_url, l.logo_url, l.metro, l.metro_walk as "metroWalk",
+                l.has_parking as "hasParking", l.parking_type, l.parking_price_per_hour,
+                l.lat, l.lng,
+                l.min_hours as "minHours", l.phone, l.telegram,
+                l.price_warning_holidays, l.price_warning_daytime,
+                l.subscription_expires_at, l.description, l.status
+            FROM t_p39732784_hourly_rentals_platf.listings l
+            WHERE l.id = %s AND l.is_archived = false
+        """, (listing_id,))
+        listing = cur.fetchone()
+        
+        if not listing:
+            cur.close()
+            conn.close()
+            return {
+                'statusCode': 404,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'error': 'Listing not found'}),
+                'isBase64Encoded': False
+            }
+        
+        listing_dict = dict(listing)
+        
+        cur.execute("""
+            SELECT type, price, square_meters, min_hours, features, images, description
+            FROM t_p39732784_hourly_rentals_platf.rooms
+            WHERE listing_id = %s ORDER BY id
+        """, (listing_id,))
+        rooms = [dict(r) for r in cur.fetchall()]
+        listing_dict['rooms'] = rooms
+        
+        cur.execute("""
+            SELECT station_name, walk_minutes
+            FROM t_p39732784_hourly_rentals_platf.metro_stations
+            WHERE listing_id = %s
+        """, (listing_id,))
+        metro = [dict(m) for m in cur.fetchall()]
+        listing_dict['metro_stations'] = metro
+        
+        cur.close()
+        conn.close()
+        
+        return {
+            'statusCode': 200,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps(listing_dict, default=str),
+            'isBase64Encoded': False
+        }
+    except Exception as e:
+        if conn:
+            conn.close()
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': str(e)}),
+            'isBase64Encoded': False
+        }
+
+
 def handler(event: dict, context) -> dict:
     '''Публичный API для получения списка активных объектов и деталей номеров'''
     method = event.get('httpMethod', 'GET')
@@ -79,6 +148,9 @@ def handler(event: dict, context) -> dict:
     
     if listing_id and room_index is not None:
         return get_room_details(listing_id, room_index)
+    
+    if listing_id and room_index is None:
+        return get_single_listing(listing_id)
     
     conn = None
     try:

@@ -34,25 +34,32 @@ export default function ListingPage() {
   useEffect(() => {
     const loadListing = async () => {
       try {
-        const listings = await api.getPublicListings();
-        const foundListing = listings.find((l: any) => l.id === parseInt(listingId || '0'));
-        
-        // Загружаем детали всех номеров с фотографиями
-        if (foundListing && foundListing.rooms) {
-          const roomsWithImages = await Promise.all(
-            foundListing.rooms.map(async (_: any, index: number) => {
-              try {
-                return await api.getRoomDetails(foundListing.id, index);
-              } catch (error) {
-                console.error(`Failed to load room ${index}:`, error);
-                return foundListing.rooms[index]; // Fallback к данным без фото
-              }
-            })
-          );
-          foundListing.rooms = roomsWithImages;
+        const id = parseInt(listingId || '0');
+        if (!id) {
+          setIsLoading(false);
+          return;
         }
         
-        setListing(foundListing);
+        const foundListing = await api.getPublicListing(id);
+        
+        if (foundListing && !foundListing.error) {
+          if (foundListing.rooms && foundListing.rooms.length > 0) {
+            const needsImages = foundListing.rooms.some((r: Record<string, unknown>) => !r.images);
+            if (needsImages) {
+              const roomsWithImages = await Promise.all(
+                foundListing.rooms.map(async (_: Record<string, unknown>, index: number) => {
+                  try {
+                    return await api.getRoomDetails(foundListing.id, index);
+                  } catch {
+                    return foundListing.rooms[index];
+                  }
+                })
+              );
+              foundListing.rooms = roomsWithImages;
+            }
+          }
+          setListing(foundListing);
+        }
       } catch (error) {
         console.error('Failed to load listing:', error);
       } finally {

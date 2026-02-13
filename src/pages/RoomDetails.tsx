@@ -51,16 +51,18 @@ export default function RoomDetails() {
   useEffect(() => {
     const loadListing = async () => {
       try {
-        const listings = await api.getPublicListings();
-        const foundListing = listings.find((l: any) => l.id === parseInt(listingId || '0'));
+        const id = parseInt(listingId || '0');
+        if (!id) {
+          setIsLoading(false);
+          return;
+        }
         
-        // Загружаем полные детали номера с фотографиями
-        const roomDetails = await api.getRoomDetails(parseInt(listingId || '0'), parseInt(roomIndex || '0'));
+        const foundListing = await api.getPublicListing(id);
+        const roomDetails = await api.getRoomDetails(id, parseInt(roomIndex || '0'));
         
-        console.log('Room details with images:', roomDetails);
-        console.log('Room images:', roomDetails?.images);
-        
-        setListing(foundListing);
+        if (foundListing && !foundListing.error) {
+          setListing(foundListing);
+        }
         setRoom(roomDetails);
       } catch (error) {
         console.error('Failed to load listing:', error);
