@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -219,13 +218,7 @@ export default function RoomCategoryCard({
               </div>
             )}
 
-            <Button 
-              onClick={() => onOpenGallery(roomIndex)}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-lg py-6 mt-4"
-            >
-              <Icon name="Calendar" size={20} className="mr-2" />
-              Забронировать
-            </Button>
+
           </div>
         </div>
       </CardContent>
