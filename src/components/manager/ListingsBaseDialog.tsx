@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import CopyReviewDialog from './CopyReviewDialog';
+import ListingReviewsDialog from './ListingReviewsDialog';
 
 interface ListingsBaseDialogProps {
   show: boolean;
@@ -166,8 +166,8 @@ export default function ListingsBaseDialog({
                             className="border-purple-300 text-purple-700 hover:bg-purple-50"
                             onClick={() => setReviewListing({ id: listing.id, name: listing.name })}
                           >
-                            <Icon name="MessageSquarePlus" size={16} className="mr-1" />
-                            Скопировать отзыв
+                            <Icon name="MessageSquare" size={16} className="mr-1" />
+                            Отзывы
                           </Button>
                         </div>
                       </div>
@@ -181,13 +181,12 @@ export default function ListingsBaseDialog({
       </DialogContent>
 
       {reviewListing && (
-        <CopyReviewDialog
+        <ListingReviewsDialog
           open={!!reviewListing}
           onClose={() => setReviewListing(null)}
           listingId={reviewListing.id}
           listingName={reviewListing.name}
           adminId={adminId}
-          onSuccess={() => {}}
         />
       )}
     </Dialog>
