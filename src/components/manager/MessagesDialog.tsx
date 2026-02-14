@@ -207,6 +207,20 @@ export default function MessagesDialog({ adminId, role }: MessagesDialogProps) {
         </DialogHeader>
 
         <div className="space-y-4">
+          <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-amber-200">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center shrink-0 shadow">
+                <Icon name="Megaphone" size={20} className="text-white" />
+              </div>
+              <div>
+                <h4 className="font-bold text-amber-900 text-sm sm:text-base">Рекомендация для привлечения владельцев</h4>
+                <p className="text-xs sm:text-sm text-amber-800 mt-1 leading-relaxed">
+                  При покупке подписки на 30 дней — <strong>в подарок 14 дней пакета Золото</strong> в разделе Продвижение. Стоимость подписки <strong>2 000 руб</strong>. Используйте это предложение при общении с владельцами для повышения конверсии.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* История сообщений */}
           <ScrollArea className="h-[300px] sm:h-[400px] border rounded-lg p-3 sm:p-4">
             {loading ? (

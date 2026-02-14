@@ -61,7 +61,7 @@ export default function CityGuides({ city }: CityGuidesProps) {
               <Icon name="Clock" size={24} className="text-purple-600 flex-shrink-0" />
               <div>
                 <h3 className="font-semibold mb-1">От 2 часов</h3>
-                <p className="text-sm text-muted-foreground">Минимальный срок аренды от 2 часов</p>
+                <p className="text-sm text-muted-foreground">Минимальный срок аренды от 1 часа</p>
               </div>
             </div>
             <div className="flex gap-3">

@@ -7,8 +7,8 @@ import DocumentsLibraryDialog from './DocumentsLibraryDialog';
 interface AdminPanelHeaderProps {
   adminInfo: any;
   hasPermission: (permission: string) => boolean;
-  activeTab: 'listings' | 'moderation' | 'moderation2' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics';
-  onTabChange: (tab: 'listings' | 'moderation' | 'moderation2' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics') => void;
+  activeTab: 'listings' | 'moderation' | 'moderation2' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics' | 'tasks';
+  onTabChange: (tab: 'listings' | 'moderation' | 'moderation2' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics' | 'tasks') => void;
   onLogout: () => void;
   token: string;
 }
@@ -159,6 +159,14 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
               >
                 <Icon name="Phone" size={18} className="mr-2" />
                 Звонки
+              </Button>
+              <Button
+                variant={activeTab === 'tasks' ? 'default' : 'ghost'}
+                onClick={() => onTabChange('tasks')}
+                className="rounded-b-none"
+              >
+                <Icon name="ListTodo" size={18} className="mr-2" />
+                Задачи
               </Button>
               <Button
                 variant={activeTab === 'analytics' ? 'default' : 'ghost'}

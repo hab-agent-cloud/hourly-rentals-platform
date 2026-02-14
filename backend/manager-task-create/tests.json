@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {
+      "name": "Get tasks list",
+      "method": "GET",
+      "path": "/?admin_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {"tasks": "array"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create task missing fields",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "create", "admin_id": 1},
+      "expectedStatus": 400,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

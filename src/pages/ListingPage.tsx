@@ -128,7 +128,7 @@ export default function ListingPage() {
     "@context": "https://schema.org",
     "@type": "Hotel",
     "name": listing.title,
-    "description": listing.description || `Почасовая аренда номеров в ${listing.city}. ${listing.title} предлагает комфортные номера от 2 часов.`,
+    "description": listing.description || `Почасовая аренда номеров в ${listing.city}. ${listing.title} предлагает комфортные номера от 1 часа.`,
     "image": firstImage || listing.image_url,
     "address": {
       "@type": "PostalAddress",
@@ -153,9 +153,9 @@ export default function ListingPage() {
     <div className={`min-h-screen bg-gradient-to-br ${themes[currentTheme].gradient} transition-all duration-500`}>
       <Helmet>
         <title>{listing.title} — Почасовая аренда в {listing.city} от {minPrice ? `${minPrice}₽` : '500₽'} | 120 МИНУТ</title>
-        <meta name="description" content={`${listing.title} в ${listing.city}${listing.district ? `, ${listing.district}` : ''}. Почасовая аренда номеров от 2 часов. ${listing.description ? listing.description.slice(0, 120) : 'Бронирование напрямую у владельца.'}`} />
+        <meta name="description" content={`${listing.title} в ${listing.city}${listing.district ? `, ${listing.district}` : ''}. Почасовая аренда номеров от 1 часа. ${listing.description ? listing.description.slice(0, 120) : 'Бронирование напрямую у владельца.'}`} />
         <meta property="og:title" content={`${listing.title} — Почасовая аренда в ${listing.city}`} />
-        <meta property="og:description" content={`Аренда номеров от 2 часов в ${listing.city}. ${minPrice ? `От ${minPrice}₽` : 'Выгодные цены'}`} />
+        <meta property="og:description" content={`Аренда номеров от 1 часа в ${listing.city}. ${minPrice ? `От ${minPrice}₽` : 'Выгодные цены'}`} />
         <meta property="og:image" content={firstImage || listing.image_url} />
         <script type="application/ld+json">
           {JSON.stringify(schemaData)}

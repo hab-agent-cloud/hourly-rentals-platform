@@ -53,7 +53,7 @@ export default function CityHeader({ city }: CityHeaderProps) {
           <span>{city.name}</span>
         </div>
         <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Аренда на час в {city.name} — отели и номера от 2 часов
+          Аренда на час в {city.name} — отели и номера от 1 часа
         </h2>
         <p className="text-lg text-muted-foreground mb-2">{city.description}</p>
         <p className="text-sm text-muted-foreground">{city.region}</p>

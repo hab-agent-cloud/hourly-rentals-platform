@@ -22,10 +22,11 @@ import ModerationDialog from '@/components/admin/ModerationDialog';
 import OwnerModerationDialog from '@/components/admin/OwnerModerationDialog';
 import ExpertRatingDialogFull from '@/components/ExpertRatingDialogFull';
 import CopywriterInstructionDialog from '@/components/CopywriterInstructionDialog';
+import AdminTasksTab from '@/components/admin/AdminTasksTab';
 
 
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState<'listings' | 'moderation' | 'moderation2' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics'>('listings');
+  const [activeTab, setActiveTab] = useState<'listings' | 'moderation' | 'moderation2' | 'recheck' | 'rejected' | 'owners' | 'employees' | 'bonuses' | 'all-actions' | 'call-tracking' | 'my-earnings' | 'analytics' | 'tasks'>('listings');
   const [selectedListing, setSelectedListing] = useState<any>(null);
   const [showForm, setShowForm] = useState(false);
   const [subscriptionDialog, setSubscriptionDialog] = useState<{ open: boolean; listing: any | null }>({ open: false, listing: null });
@@ -256,6 +257,8 @@ export default function AdminPanel() {
           <AdminAllActionsTab token={token!} />
         ) : activeTab === 'call-tracking' && adminInfo?.role === 'superadmin' ? (
           <AdminCallTrackingTab />
+        ) : activeTab === 'tasks' && adminInfo?.role === 'superadmin' ? (
+          <AdminTasksTab adminId={adminInfo?.id || 1} />
         ) : activeTab === 'analytics' && adminInfo?.role === 'superadmin' ? (
           <AdminAnalyticsTab />
         ) : activeTab === 'my-earnings' && adminInfo?.role === 'employee' ? (
