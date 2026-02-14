@@ -10,8 +10,9 @@ export default function ProtectedRoute({ children, redirectTo = '/admin/login' }
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    setIsAuthenticated(!!token);
+    const adminToken = localStorage.getItem('adminToken');
+    const ownerToken = localStorage.getItem('ownerToken');
+    setIsAuthenticated(!!(adminToken || ownerToken));
   }, []);
 
   if (isAuthenticated === null) {

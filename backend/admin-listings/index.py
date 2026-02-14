@@ -142,12 +142,12 @@ def handler(event: dict, context) -> dict:
                 # Фильтр по статусу модерации
                 print(f"[DEBUG] Fetching moderation listings with status: {moderation_filter}")
                 
-                # owner_pending = объекты от владельцев в статусе pending
+                # owner_pending = объекты от владельцев (через форму добавления объекта) в статусе pending
                 if moderation_filter == 'owner_pending':
-                    where_clause = "l.moderation_status = 'pending' AND l.created_by_owner = TRUE"
-                # admin_pending = объекты от админов/сотрудников в статусе pending
+                    where_clause = "l.moderation_status = 'pending' AND l.created_by_owner = TRUE AND l.owner_id IS NOT NULL"
+                # admin_pending = объекты от копирайтеров (добавлены вручную) в статусе pending
                 elif moderation_filter == 'admin_pending':
-                    where_clause = "l.moderation_status = 'pending' AND (l.created_by_owner IS NULL OR l.created_by_owner = FALSE)"
+                    where_clause = "l.moderation_status = 'pending' AND (l.created_by_owner IS NULL OR l.created_by_owner = FALSE) AND l.created_by_employee_id IS NOT NULL"
                 else:
                     where_clause = f"l.moderation_status = '{moderation_filter}'"
                 
