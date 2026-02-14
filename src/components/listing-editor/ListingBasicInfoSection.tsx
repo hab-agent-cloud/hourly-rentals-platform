@@ -204,8 +204,14 @@ export default function ListingBasicInfoSection({ formData, onFormChange, listin
               <Input
                 id="price_per_day"
                 type="number"
+                min="0"
                 value={formData.price_per_day}
-                onChange={(e) => onFormChange('price_per_day', e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '' || (!isNaN(Number(value)) && Number(value) >= 0)) {
+                    onFormChange('price_per_day', value);
+                  }
+                }}
                 placeholder="3000"
               />
             </div>
@@ -215,8 +221,14 @@ export default function ListingBasicInfoSection({ formData, onFormChange, listin
               <Input
                 id="square_meters"
                 type="number"
+                min="0"
                 value={formData.square_meters}
-                onChange={(e) => onFormChange('square_meters', e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '' || (!isNaN(Number(value)) && Number(value) >= 0)) {
+                    onFormChange('square_meters', value);
+                  }
+                }}
                 placeholder="45"
               />
             </div>
@@ -243,8 +255,14 @@ export default function ListingBasicInfoSection({ formData, onFormChange, listin
               <Input
                 id="parking_price_per_hour"
                 type="number"
+                min="0"
                 value={formData.parking_price_per_hour}
-                onChange={(e) => onFormChange('parking_price_per_hour', e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === '' || (!isNaN(Number(value)) && Number(value) >= 0)) {
+                    onFormChange('parking_price_per_hour', value);
+                  }
+                }}
                 placeholder="100"
                 disabled={formData.parking_type !== 'paid'}
               />

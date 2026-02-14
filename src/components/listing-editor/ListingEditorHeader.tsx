@@ -6,7 +6,15 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ListingEditorHeaderProps {
-  listing: any;
+  listing: {
+    name: string;
+    status: string;
+    subscription_end?: string;
+    subscription_purchased_by_owner?: boolean;
+    subscription_is_gift?: boolean;
+    gold_gift_sent_at?: string;
+    trial_activated_at?: string;
+  };
   saving: boolean;
   sendingGoldGift: boolean;
   activatingTrial: boolean;
@@ -18,6 +26,7 @@ interface ListingEditorHeaderProps {
   onActivateTrial: () => void;
   onShowTrialDaysSelector: (show: boolean) => void;
   onTrialDaysChange: (days: number) => void;
+  onMoveToInactive?: () => void;
 }
 
 export default function ListingEditorHeader({
@@ -32,11 +41,15 @@ export default function ListingEditorHeader({
   onSendGoldGift,
   onActivateTrial,
   onShowTrialDaysSelector,
-  onTrialDaysChange
+  onTrialDaysChange,
+  onMoveToInactive
 }: ListingEditorHeaderProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [resettingSubscription, setResettingSubscription] = useState(false);
+  const [showInactiveDaysSelector, setShowInactiveDaysSelector] = useState(false);
+  const [inactiveDays, setInactiveDays] = useState(7);
+  const [movingToInactive, setMovingToInactive] = useState(false);
 
   const canResetSubscription = listing.subscription_end && 
     !listing.subscription_purchased_by_owner && 
@@ -144,6 +157,15 @@ export default function ListingEditorHeader({
         </div>
 
         <div className="flex flex-wrap gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => navigate('/manager/inactive-listings')}
+            className="border-orange-300 text-orange-700 hover:bg-orange-50"
+          >
+            <Icon name="Archive" size={18} className="mr-2" />
+            Базы неактивных
+          </Button>
+
           {!listing.gold_gift_sent_at && listing.subscription_end && (
             <Button 
               className="bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 hover:from-yellow-600 hover:via-amber-600 hover:to-yellow-700 text-white font-semibold shadow-md hover:shadow-lg transition-all"
@@ -215,6 +237,86 @@ export default function ListingEditorHeader({
                   </Button>
                 </div>
               )}
+            </div>
+          )}
+
+          {!showInactiveDaysSelector ? (
+            <Button 
+              variant="outline"
+              onClick={() => setShowInactiveDaysSelector(true)}
+              className="border-orange-400 text-orange-700 hover:bg-orange-50"
+            >
+              <Icon name="ArchiveX" size={18} className="mr-2" />
+              Перенести в неактивные
+            </Button>
+          ) : (
+            <div className="flex items-center gap-2 bg-orange-50 p-2 rounded-lg border-2 border-orange-300">
+              <label className="text-sm font-semibold text-orange-900 whitespace-nowrap">Дней обратной связи:</label>
+              <input 
+                type="number"
+                min="1"
+                max="30"
+                value={inactiveDays}
+                onChange={(e) => setInactiveDays(Math.min(30, Math.max(1, parseInt(e.target.value) || 1)))}
+                className="w-16 px-2 py-1 text-center border-2 border-orange-300 rounded font-bold text-orange-900"
+              />
+              <Button 
+                className="bg-orange-600 hover:bg-orange-700 text-white"
+                size="sm"
+                onClick={async () => {
+                  if (!window.confirm(`Перенести объект в неактивные с таймером обратной связи ${inactiveDays} ${inactiveDays === 1 ? 'день' : inactiveDays < 5 ? 'дня' : 'дней'}?`)) {
+                    return;
+                  }
+                  setMovingToInactive(true);
+                  try {
+                    const response = await fetch('https://functions.poehali.dev/4d42288a-e311-4754-98a2-944dfc667bd2', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        listing_id: parseInt(id || '0'),
+                        move_to_inactive: true,
+                        inactive_days: inactiveDays,
+                        inactive_reason: 'Владелец против размещения'
+                      })
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.success) {
+                      toast({ title: 'Успешно', description: `Объект перенесен в неактивные. Обратная связь через ${inactiveDays} дней` });
+                      navigate('/manager/inactive-listings');
+                    } else {
+                      toast({ title: 'Ошибка', description: data.error || 'Не удалось перенести', variant: 'destructive' });
+                    }
+                  } catch (error) {
+                    console.error(error);
+                    toast({ title: 'Ошибка', description: 'Не удалось перенести объект', variant: 'destructive' });
+                  } finally {
+                    setMovingToInactive(false);
+                  }
+                }}
+                disabled={movingToInactive}
+              >
+                {movingToInactive ? (
+                  <>
+                    <Icon name="Loader2" size={16} className="mr-1 animate-spin" />
+                    Перенос...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Check" size={16} className="mr-1" />
+                    Подтвердить
+                  </>
+                )}
+              </Button>
+              <Button 
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowInactiveDaysSelector(false);
+                  setInactiveDays(7);
+                }}
+              >
+                <Icon name="X" size={16} />
+              </Button>
             </div>
           )}
 

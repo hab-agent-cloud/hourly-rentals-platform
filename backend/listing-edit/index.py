@@ -27,6 +27,37 @@ def handler(event: dict, context) -> dict:
     try:
         if method == 'GET':
             query_params = event.get('queryStringParameters', {})
+            
+            if query_params and query_params.get('inactive') == 'true':
+                cur.execute(f'''
+                    SELECT id, title, address, inactive_at, inactive_reason, created_at
+                    FROM {schema}.listings
+                    WHERE status = 'inactive' AND inactive_at IS NOT NULL
+                    ORDER BY inactive_at ASC
+                ''')
+                
+                rows = cur.fetchall()
+                listings = []
+                for row in rows:
+                    listings.append({
+                        'id': row[0],
+                        'title': row[1],
+                        'address': row[2],
+                        'inactive_at': row[3].isoformat() if row[3] else None,
+                        'inactive_reason': row[4],
+                        'created_at': row[5].isoformat() if row[5] else None
+                    })
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'listings': listings}),
+                    'isBase64Encoded': False
+                }
+            
             listing_id = query_params.get('id') if query_params else None
             
             print(f"[DEBUG] Query params: {query_params}, listing_id: {listing_id}, schema: {schema}")
@@ -156,6 +187,33 @@ def handler(event: dict, context) -> dict:
                         'Access-Control-Allow-Origin': '*'
                     },
                     'body': json.dumps({'error': 'listing_id is required'}),
+                    'isBase64Encoded': False
+                }
+            
+            if body.get('move_to_inactive'):
+                inactive_days = body.get('inactive_days', 7)
+                inactive_reason = body.get('inactive_reason', 'Владелец против размещения')
+                
+                cur.execute(f'''
+                    UPDATE {schema}.listings
+                    SET inactive_at = NOW() + INTERVAL '%s days',
+                        inactive_reason = %s,
+                        status = 'inactive',
+                        updated_at = NOW()
+                    WHERE id = %s
+                ''', (inactive_days, inactive_reason, listing_id))
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({
+                        'success': True,
+                        'message': f'Объект перенесен в неактивные. Обратная связь через {inactive_days} дней'
+                    }),
                     'isBase64Encoded': False
                 }
             
