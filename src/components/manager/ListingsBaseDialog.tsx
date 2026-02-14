@@ -19,6 +19,7 @@ interface ListingsBaseDialogProps {
   adminId: number;
   onFreezeListing: (listingId: number) => void;
   onUnfreezeListing: (listingId: number) => void;
+  onDeactivateListing: (listingId: number) => void;
 }
 
 export default function ListingsBaseDialog({
@@ -28,6 +29,7 @@ export default function ListingsBaseDialog({
   adminId,
   onFreezeListing,
   onUnfreezeListing,
+  onDeactivateListing,
 }: ListingsBaseDialogProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [reviewListing, setReviewListing] = useState<{ id: number; name: string } | null>(null);
@@ -124,14 +126,28 @@ export default function ListingsBaseDialog({
                         )}
                         <div className="flex flex-wrap gap-2">
                           {listing.status === 'active' ? (
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => onFreezeListing(listing.id)}
-                            >
-                              <Icon name="Snowflake" size={16} className="mr-1" />
-                              Заморозить
-                            </Button>
+                            <>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => onFreezeListing(listing.id)}
+                              >
+                                <Icon name="Snowflake" size={16} className="mr-1" />
+                                Заморозить
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="destructive"
+                                onClick={() => {
+                                  if (confirm('Убрать объект в неактивные? Он не будет отображаться на сайте.')) {
+                                    onDeactivateListing(listing.id);
+                                  }
+                                }}
+                              >
+                                <Icon name="Ban" size={16} className="mr-1" />
+                                Убрать в неактивные
+                              </Button>
+                            </>
                           ) : listing.status === 'frozen' ? (
                             <Button 
                               size="sm" 

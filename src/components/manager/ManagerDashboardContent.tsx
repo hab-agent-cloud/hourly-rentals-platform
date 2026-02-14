@@ -27,6 +27,7 @@ interface ManagerDashboardContentProps {
   paymentHistory: PaymentHistory | null;
   onFreezeListing: (listingId: number) => void;
   onUnfreezeListing: (listingId: number) => void;
+  onDeactivateListing: (listingId: number) => void;
   onRefresh: () => void;
   onWithdraw: (
     amount: string,
@@ -42,6 +43,7 @@ export default function ManagerDashboardContent({
   paymentHistory,
   onFreezeListing,
   onUnfreezeListing,
+  onDeactivateListing,
   onRefresh,
   onWithdraw,
 }: ManagerDashboardContentProps) {
@@ -61,6 +63,7 @@ export default function ManagerDashboardContent({
           adminId={adminId}
           onFreezeListing={onFreezeListing}
           onUnfreezeListing={onUnfreezeListing}
+          onDeactivateListing={onDeactivateListing}
           onRefresh={onRefresh}
         />
       )}

@@ -180,6 +180,26 @@ def handler(event: dict, context) -> dict:
                     log_action(conn, manager_id_int, 'freeze_listing', listing_id_int, {'reason': reason})
                     message = 'Объект заморожен'
                 
+                # Действие: УБРАТЬ В НЕАКТИВНЫЕ
+                elif action == 'deactivate':
+                    cur.execute(f"SELECT 1 FROM manager_listings WHERE manager_id = {manager_id_int} AND listing_id = {listing_id_int}")
+                    if not cur.fetchone() and manager['role'] not in ['superadmin', 'chief_manager', 'operational_manager']:
+                        return {
+                            'statusCode': 403,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Вы не сопровождаете этот объект'}),
+                            'isBase64Encoded': False
+                        }
+                    
+                    cur.execute(f"""
+                        UPDATE listings 
+                        SET status = 'inactive', inactive_at = NOW(), inactive_reason = '{reason_esc}'
+                        WHERE id = {listing_id_int}
+                    """)
+                    
+                    log_action(conn, manager_id_int, 'deactivate_listing', listing_id_int, {'reason': reason})
+                    message = 'Объект перемещён в неактивные'
+                
                 # Действие: РАЗМОРОЗИТЬ
                 elif action == 'unfreeze':
                     cur.execute(f"SELECT 1 FROM manager_listings WHERE manager_id = {manager_id_int} AND listing_id = {listing_id_int}")

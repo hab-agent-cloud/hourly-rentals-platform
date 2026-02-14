@@ -134,7 +134,7 @@ def handler(event: dict, context) -> dict:
                     result['manager_rank'] = int(rating_row['rank']) if rating_row else None
                     result['rank_objects'] = int(rating_row['obj_count']) if rating_row else 0
                     
-                    # Список объектов с критичностью
+                    # Список активных объектов с критичностью
                     cur.execute("""
                         SELECT 
                             l.id, l.title as name, l.district, l.status,
@@ -149,7 +149,7 @@ def handler(event: dict, context) -> dict:
                             CASE WHEN l.owner_id IS NULL THEN true ELSE false END as no_payments
                         FROM t_p39732784_hourly_rentals_platf.manager_listings ml
                         JOIN t_p39732784_hourly_rentals_platf.listings l ON ml.listing_id = l.id
-                        WHERE ml.manager_id = %s
+                        WHERE ml.manager_id = %s AND l.status != 'inactive'
                         ORDER BY 
                             CASE 
                                 WHEN l.subscription_expires_at < NOW() + INTERVAL '1 day' THEN 1
@@ -159,6 +159,21 @@ def handler(event: dict, context) -> dict:
                             l.subscription_expires_at ASC
                     """, (admin_id_int,))
                     result['listings'] = [dict(row) for row in cur.fetchall()]
+                    
+                    # Список неактивных объектов
+                    cur.execute("""
+                        SELECT 
+                            l.id, l.title as name, l.district, l.status,
+                            l.image_url as photo,
+                            l.phone as owner_phone,
+                            l.inactive_at,
+                            l.inactive_reason
+                        FROM t_p39732784_hourly_rentals_platf.manager_listings ml
+                        JOIN t_p39732784_hourly_rentals_platf.listings l ON ml.listing_id = l.id
+                        WHERE ml.manager_id = %s AND l.status = 'inactive'
+                        ORDER BY l.inactive_at DESC
+                    """, (admin_id_int,))
+                    result['inactive_listings'] = [dict(row) for row in cur.fetchall()]
                     
                     # Статистика комиссий за месяц
                     cur.execute("""

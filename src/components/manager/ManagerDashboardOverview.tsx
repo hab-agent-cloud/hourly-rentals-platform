@@ -4,6 +4,7 @@ import Icon from '@/components/ui/icon';
 import ManagerStatsCards from '@/components/manager/ManagerStatsCards';
 import ManagerLevelCard from '@/components/manager/ManagerLevelCard';
 import AchievementsPanel from '@/components/manager/AchievementsPanel';
+import InactiveListingsSection from '@/components/manager/InactiveListingsSection';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
@@ -22,6 +23,7 @@ interface ManagerData {
   manager_rank?: number | string;
   total_listings?: number;
   total_earned?: number;
+  inactive_listings?: any[];
 }
 
 interface ManagerDashboardOverviewProps {
@@ -330,6 +332,10 @@ export default function ManagerDashboardOverview({
           </Card>
         </motion.div>
       </div>
+      
+      {managerData.inactive_listings && managerData.inactive_listings.length > 0 && (
+        <InactiveListingsSection inactiveListings={managerData.inactive_listings} />
+      )}
     </div>
   );
 }

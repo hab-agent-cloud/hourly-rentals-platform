@@ -261,6 +261,38 @@ export default function ManagerDashboard() {
     }
   };
   
+  const handleDeactivateListing = async (listingId: number) => {
+    try {
+      const response = await fetch(FUNC_URLS.managerOperations, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'deactivate',
+          manager_id: adminId,
+          listing_id: listingId,
+          reason: 'Перемещён в неактивные через интерфейс'
+        })
+      });
+      
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: 'Объект перемещён в неактивные'
+        });
+        fetchManagerData();
+      } else {
+        const error = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: error.error,
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
   const handleWithdraw = async (
     withdrawAmount: string,
     withdrawMethod: 'sbp' | 'card' | 'salary',
@@ -463,6 +495,7 @@ export default function ManagerDashboard() {
             paymentHistory={paymentHistory}
             onFreezeListing={handleFreezeListing}
             onUnfreezeListing={handleUnfreezeListing}
+            onDeactivateListing={handleDeactivateListing}
             onRefresh={fetchManagerData}
             onWithdraw={handleWithdraw}
           />

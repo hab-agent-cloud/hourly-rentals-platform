@@ -12,6 +12,7 @@ interface ManagerListingsSectionProps {
   adminId: number;
   onFreezeListing: (listingId: number) => void;
   onUnfreezeListing: (listingId: number) => void;
+  onDeactivateListing: (listingId: number) => void;
   onRefresh: () => void;
 }
 
@@ -20,6 +21,7 @@ export default function ManagerListingsSection({
   adminId, 
   onFreezeListing, 
   onUnfreezeListing,
+  onDeactivateListing,
   onRefresh
 }: ManagerListingsSectionProps) {
   const [showBaseDialog, setShowBaseDialog] = useState(false);
@@ -168,6 +170,7 @@ export default function ManagerListingsSection({
         adminId={adminId}
         onFreezeListing={onFreezeListing}
         onUnfreezeListing={onUnfreezeListing}
+        onDeactivateListing={onDeactivateListing}
       />
       
       {managerData.tasks && managerData.tasks.length > 0 && (
