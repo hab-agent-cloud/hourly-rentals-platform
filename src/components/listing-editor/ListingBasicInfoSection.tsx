@@ -200,11 +200,11 @@ export default function ListingBasicInfoSection({ formData, onFormChange, listin
           
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="price_per_day">Цена за сутки (₽)</Label>
+              <Label htmlFor="price_per_day">Минимальное количество часов</Label>
               <Input
                 id="price_per_day"
                 type="number"
-                min="0"
+                min="1"
                 value={formData.price_per_day}
                 onChange={(e) => {
                   const value = e.target.value;
@@ -212,8 +212,11 @@ export default function ListingBasicInfoSection({ formData, onFormChange, listin
                     onFormChange('price_per_day', value);
                   }
                 }}
-                placeholder="3000"
+                placeholder="2"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                От скольки часов минимум принимает объект
+              </p>
             </div>
             
             <div>
