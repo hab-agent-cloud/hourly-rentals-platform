@@ -291,7 +291,7 @@ export default function ListingCard({
               </Button>
             )}
           </div>
-          <div onClick={(e) => e.stopPropagation()} className="flex justify-center">
+          <div onClick={(e) => e.stopPropagation()} className="flex justify-start">
             <ReviewForm listingId={listing.id} />
           </div>
         </div>

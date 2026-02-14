@@ -85,9 +85,9 @@ export default function ReviewForm({ listingId, onSuccess }: ReviewFormProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="text-xs px-2 py-0.5 h-6 text-muted-foreground hover:text-foreground">
-          <Icon name="MessageSquare" size={10} className="mr-1" />
-          Отзыв
+        <Button variant="ghost" size="sm" className="text-[10px] px-1.5 py-0.5 h-5 text-muted-foreground hover:text-foreground">
+          <Icon name="MessageSquare" size={9} className="mr-0.5" />
+          Оставить отзыв
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
