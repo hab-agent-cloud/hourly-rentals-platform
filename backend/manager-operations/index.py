@@ -197,8 +197,13 @@ def handler(event: dict, context) -> dict:
                         WHERE id = {listing_id_int}
                     """)
                     
+                    cur.execute(f"""
+                        DELETE FROM manager_listings 
+                        WHERE listing_id = {listing_id_int}
+                    """)
+                    
                     log_action(conn, manager_id_int, 'deactivate_listing', listing_id_int, {'reason': reason})
-                    message = 'Объект перемещён в неактивные'
+                    message = 'Объект перемещён в неактивные и отвязан от менеджера'
                 
                 # Действие: РАЗМОРОЗИТЬ
                 elif action == 'unfreeze':
