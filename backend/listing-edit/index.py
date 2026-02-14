@@ -182,8 +182,19 @@ def handler(event: dict, context) -> dict:
             
             for frontend_field, db_field in field_mapping.items():
                 if frontend_field in body:
+                    value = body[frontend_field]
+                    
+                    if frontend_field in ['square_meters', 'parking_price_per_hour', 'price_per_day']:
+                        if value == '' or value is None:
+                            value = None
+                        else:
+                            try:
+                                value = float(value) if frontend_field == 'price_per_day' else int(value)
+                            except (ValueError, TypeError):
+                                value = None
+                    
                     updates.append(f"{db_field} = %s")
-                    params.append(body[frontend_field])
+                    params.append(value)
             
             if not updates:
                 return {
