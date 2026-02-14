@@ -85,7 +85,7 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
                 className="rounded-b-none"
               >
                 <Icon name="Shield" size={18} className="mr-2" />
-                Модерация (Админы)
+                Модерация сотрудников
               </Button>
               <Button
                 variant={activeTab === 'moderation2' ? 'default' : 'ghost'}
@@ -93,7 +93,7 @@ export default function AdminPanelHeader({ adminInfo, hasPermission, activeTab, 
                 className="rounded-b-none"
               >
                 <Icon name="UserPlus" size={18} className="mr-2" />
-                Модерация (Владельцы)
+                Заявки от посетителей
               </Button>
               <Button
                 variant={activeTab === 'recheck' ? 'default' : 'ghost'}
