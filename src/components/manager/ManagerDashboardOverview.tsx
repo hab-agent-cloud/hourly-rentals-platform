@@ -38,6 +38,7 @@ interface ManagerDashboardOverviewProps {
   onBalanceUpdate: () => void;
   onTabChange: (tabId: string) => void;
   onNavigate: (path: string) => void;
+  onActivateListing?: (listingId: number) => void;
 }
 
 export default function ManagerDashboardOverview({
@@ -48,6 +49,7 @@ export default function ManagerDashboardOverview({
   onBalanceUpdate,
   onTabChange,
   onNavigate,
+  onActivateListing,
 }: ManagerDashboardOverviewProps) {
   const isOM = managerData.role === 'om';
   const isUM = managerData.role === 'um';
@@ -334,7 +336,10 @@ export default function ManagerDashboardOverview({
       </div>
       
       {managerData.inactive_listings && managerData.inactive_listings.length > 0 && (
-        <InactiveListingsSection inactiveListings={managerData.inactive_listings} />
+        <InactiveListingsSection 
+          inactiveListings={managerData.inactive_listings} 
+          onActivateListing={onActivateListing}
+        />
       )}
     </div>
   );

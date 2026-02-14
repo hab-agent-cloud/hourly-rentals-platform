@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -18,6 +19,7 @@ interface InactiveListing {
 
 interface InactiveListingsSectionProps {
   inactiveListings: InactiveListing[];
+  onActivateListing?: (listingId: number) => void;
 }
 
 function InactiveTimer({ inactiveAt }: { inactiveAt: string }) {
@@ -55,7 +57,7 @@ function InactiveTimer({ inactiveAt }: { inactiveAt: string }) {
   );
 }
 
-export default function InactiveListingsSection({ inactiveListings }: InactiveListingsSectionProps) {
+export default function InactiveListingsSection({ inactiveListings, onActivateListing }: InactiveListingsSectionProps) {
   const [search, setSearch] = useState('');
 
   const filtered = inactiveListings.filter((l) => {
@@ -132,14 +134,32 @@ export default function InactiveListingsSection({ inactiveListings }: InactiveLi
                         </p>
                       )}
 
-                      {listing.inactive_at ? (
-                        <InactiveTimer inactiveAt={listing.inactive_at} />
-                      ) : (
-                        <div className="flex items-center gap-2 text-red-600">
-                          <Icon name="Clock" size={16} />
-                          <span className="text-sm font-semibold">Неактивно (дата неизвестна)</span>
-                        </div>
-                      )}
+                      <div className="flex items-center justify-between gap-3">
+                        {listing.inactive_at ? (
+                          <InactiveTimer inactiveAt={listing.inactive_at} />
+                        ) : (
+                          <div className="flex items-center gap-2 text-red-600">
+                            <Icon name="Clock" size={16} />
+                            <span className="text-sm font-semibold">Неактивно (дата неизвестна)</span>
+                          </div>
+                        )}
+                        
+                        {onActivateListing && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-green-400 text-green-700 hover:bg-green-50"
+                            onClick={() => {
+                              if (confirm('Вернуть объект в работу?')) {
+                                onActivateListing(listing.id);
+                              }
+                            }}
+                          >
+                            <Icon name="CheckCircle" size={16} className="mr-1" />
+                            Вернуть в работу
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

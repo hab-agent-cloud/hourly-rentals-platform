@@ -293,6 +293,38 @@ export default function ManagerDashboard() {
     }
   };
   
+  const handleActivateListing = async (listingId: number) => {
+    try {
+      const response = await fetch(FUNC_URLS.managerOperations, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'activate',
+          manager_id: adminId,
+          listing_id: listingId,
+          reason: 'Возвращён в работу через интерфейс'
+        })
+      });
+      
+      if (response.ok) {
+        toast({
+          title: 'Успешно',
+          description: 'Объект возвращён в работу'
+        });
+        fetchManagerData();
+      } else {
+        const error = await response.json();
+        toast({
+          title: 'Ошибка',
+          description: error.error,
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
   const handleWithdraw = async (
     withdrawAmount: string,
     withdrawMethod: 'sbp' | 'card' | 'salary',
@@ -485,6 +517,7 @@ export default function ManagerDashboard() {
               onBalanceUpdate={fetchManagerData}
               onTabChange={setActiveTab}
               onNavigate={navigate}
+              onActivateListing={handleActivateListing}
             />
           </motion.div>
         ) : (
