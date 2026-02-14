@@ -26,7 +26,7 @@ type Listing = {
   lat: number;
   lng: number;
   minHours: number;
-  rooms: { type: string; price: number }[];
+  rooms: { type: string; price: number; images?: string[] | string }[];
   phone?: string;
   telegram?: string;
   subscription_expires_at?: string;
@@ -42,25 +42,44 @@ interface ListingCardProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getAllImages = (imageUrl: any): string[] => {
-  if (!imageUrl) return [];
+const getAllImages = (imageUrl: any, rooms?: any[]): string[] => {
+  const mainImages: string[] = [];
   
-  if (typeof imageUrl === 'string') {
-    try {
-      const parsed = JSON.parse(imageUrl);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.filter((u: unknown) => typeof u === 'string' && u.length > 0);
+  if (imageUrl) {
+    if (typeof imageUrl === 'string') {
+      try {
+        const parsed = JSON.parse(imageUrl);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          mainImages.push(...parsed.filter((u: unknown) => typeof u === 'string' && u.length > 0));
+        }
+      } catch {
+        mainImages.push(imageUrl);
       }
-    } catch {
-      return [imageUrl];
+    } else if (Array.isArray(imageUrl) && imageUrl.length > 0) {
+      mainImages.push(...imageUrl.filter((u: unknown) => typeof u === 'string' && u.length > 0));
     }
   }
   
-  if (Array.isArray(imageUrl) && imageUrl.length > 0) {
-    return imageUrl.filter((u: unknown) => typeof u === 'string' && u.length > 0);
+  if (rooms && rooms.length === 1 && rooms[0].images) {
+    let roomImages: string[] = [];
+    
+    if (Array.isArray(rooms[0].images)) {
+      roomImages = rooms[0].images.filter((u: unknown) => typeof u === 'string' && u.length > 0);
+    } else if (typeof rooms[0].images === 'string') {
+      try {
+        const parsed = JSON.parse(rooms[0].images);
+        if (Array.isArray(parsed)) {
+          roomImages = parsed.filter((u: unknown) => typeof u === 'string' && u.length > 0);
+        }
+      } catch {
+        // Ignore parse errors
+      }
+    }
+    
+    mainImages.push(...roomImages.filter((img: string) => !mainImages.includes(img)));
   }
   
-  return [];
+  return mainImages;
 };
 
 export default function ListingCard({ 
@@ -71,7 +90,7 @@ export default function ListingCard({
   onPhoneClick 
 }: ListingCardProps) {
   const hasActiveSubscription = listing.subscription_expires_at && new Date(listing.subscription_expires_at) > new Date();
-  const images = getAllImages(listing.image_url);
+  const images = getAllImages(listing.image_url, listing.rooms);
   const [currentIndex, setCurrentIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
 

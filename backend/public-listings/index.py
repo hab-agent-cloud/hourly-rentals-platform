@@ -200,11 +200,11 @@ def handler(event: dict, context) -> dict:
                 'isBase64Encoded': False
             }
         
-        # Получаем комнаты (возвращаем все поля как раньше)
+        # Получаем комнаты (включая images для единственного номера)
         listing_ids = tuple(l['id'] for l in listings)
         placeholders = ','.join(['%s'] * len(listing_ids))
         cur.execute(
-            f"""SELECT listing_id, type, price, square_meters, min_hours, features
+            f"""SELECT listing_id, type, price, square_meters, min_hours, features, images
                 FROM t_p39732784_hourly_rentals_platf.rooms 
                 WHERE listing_id IN ({placeholders})""",
             listing_ids
