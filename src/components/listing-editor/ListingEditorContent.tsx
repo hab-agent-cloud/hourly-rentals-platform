@@ -8,6 +8,7 @@ import ListingRoomsPhotosSection from '@/components/listing-editor/ListingRoomsP
 import ListingCategoriesSection from '@/components/listing-editor/ListingCategoriesSection';
 import ListingGiftsSection from '@/components/listing-editor/ListingGiftsSection';
 import ListingManagerChat from '@/components/listing-editor/ListingManagerChat';
+import ListingAllPhotosSection from '@/components/listing-editor/ListingAllPhotosSection';
 
 interface ListingEditorContentProps {
   listing: any;
@@ -67,6 +68,11 @@ export default function ListingEditorContent({
         formData={formData}
         onFormChange={onFormChange}
         listingId={id ? parseInt(id) : undefined}
+      />
+
+      <ListingAllPhotosSection
+        imageUrl={formData.image_url}
+        rooms={formData.rooms}
       />
 
       <ListingGiftsSection listingId={parseInt(id || '0')} />
