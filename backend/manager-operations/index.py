@@ -308,8 +308,8 @@ def handler(event: dict, context) -> dict:
                     
                     cur.execute(f"""
                         SELECT id, created_by FROM subscriptions 
-                        WHERE listing_id = {listing_id_int} AND end_date > NOW()
-                        ORDER BY end_date DESC LIMIT 1
+                        WHERE listing_id = {listing_id_int} AND is_active = true
+                        ORDER BY created_at DESC LIMIT 1
                     """)
                     active_sub = cur.fetchone()
                     
@@ -324,8 +324,8 @@ def handler(event: dict, context) -> dict:
                     if active_sub:
                         cur.execute(f"""
                             UPDATE subscriptions 
-                            SET end_date = NOW() - INTERVAL '1 day'
-                            WHERE listing_id = {listing_id_int} AND end_date > NOW()
+                            SET is_active = false
+                            WHERE listing_id = {listing_id_int} AND is_active = true
                         """)
                     
                     cur.execute(f"""
