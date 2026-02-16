@@ -31,7 +31,24 @@ export default function ListingManagerChat({ listingId, ownerId, ownerName }: Li
   const [showChat, setShowChat] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const managerId = 1; // Здесь нужно получать ID текущего менеджера из контекста
+
+  const getManagerId = (): number | null => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return null;
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => 
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join(''));
+      const decoded = JSON.parse(jsonPayload);
+      return decoded?.admin_id || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const managerId = getManagerId();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

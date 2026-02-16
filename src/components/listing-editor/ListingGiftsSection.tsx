@@ -32,6 +32,22 @@ export default function ListingGiftsSection({ listingId }: ListingGiftsSectionPr
   const [daysCount, setDaysCount] = useState('7');
   const [showGiftForm, setShowGiftForm] = useState(false);
 
+  const getManagerId = (): number | null => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return null;
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => 
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join(''));
+      const decoded = JSON.parse(jsonPayload);
+      return decoded?.admin_id || null;
+    } catch {
+      return null;
+    }
+  };
+
   const fetchGifts = async () => {
     setLoading(true);
     try {
@@ -68,7 +84,7 @@ export default function ListingGiftsSection({ listingId }: ListingGiftsSectionPr
           listing_id: listingId,
           gift_type: 'subscription',
           gift_value: days,
-          manager_id: null
+          manager_id: getManagerId()
         })
       });
 
