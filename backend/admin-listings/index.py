@@ -151,18 +151,14 @@ def handler(event: dict, context) -> dict:
                 else:
                     where_clause = f"l.moderation_status = '{moderation_filter}'"
                 
-                # ⚠️ Явно указываем поля БЕЗ images для экономии памяти
                 query = f"""
-                    SELECT l.id, l.owner_id, l.title, l.city, l.district, l.address, l.lat, l.lng,
-                           l.phone, l.telegram, l.description, l.image_url, l.logo_url,
+                    SELECT l.id, l.title, l.city, l.district,
+                           l.image_url, l.logo_url,
                            l.auction, l.is_archived, l.moderation_status, l.moderation_comment,
-                           l.created_at, l.updated_at, l.created_by_employee_id,
-                           l.subscription_expires_at, l.subscription_auto_renew,
-                           l.type, l.price, l.rating, l.reviews, l.metro, l.metro_walk,
-                           l.has_parking, l.features, l.min_hours,
-                           l.square_meters, l.parking_type, l.parking_price_per_hour,
-                           l.expert_photo_rating, l.expert_description_rating, l.short_title,
-                           l.created_by_owner,
+                           l.subscription_expires_at,
+                           l.type, l.price, l.rating,
+                           l.expert_photo_rating, l.expert_fullness_rating,
+                           l.submitted_for_moderation, l.created_by_owner,
                            a.name as created_by_employee_name,
                            o.full_name as owner_name
                     FROM t_p39732784_hourly_rentals_platf.listings l
@@ -176,32 +172,26 @@ def handler(event: dict, context) -> dict:
                 cur.execute(query)
             elif show_archived:
                 print(f"[DEBUG] Fetching archived listings")
-                # ⚠️ Явно указываем поля БЕЗ images для экономии памяти
-                cur.execute(f"""SELECT id, owner_id, title, city, district, address, lat, lng,
-                           phone, telegram, description, image_url, logo_url,
+                cur.execute(f"""SELECT id, title, city, district,
+                           image_url, logo_url,
                            auction, is_archived, moderation_status, moderation_comment,
-                           created_at, updated_at, created_by_employee_id,
-                           subscription_expires_at, subscription_auto_renew,
-                           type, price, rating, reviews, metro, metro_walk,
-                           has_parking, features, min_hours,
-                           square_meters, parking_type, parking_price_per_hour,
-                           expert_photo_rating, expert_description_rating, short_title
+                           subscription_expires_at,
+                           type, price, rating,
+                           expert_photo_rating, expert_fullness_rating,
+                           submitted_for_moderation, created_by_owner
                     FROM t_p39732784_hourly_rentals_platf.listings 
                     WHERE is_archived = true 
                     ORDER BY created_at DESC 
                     LIMIT {limit} OFFSET {offset}""")
             else:
                 print(f"[DEBUG] Fetching active listings")
-                # ⚠️ Явно указываем поля БЕЗ images для экономии памяти
-                cur.execute(f"""SELECT id, owner_id, title, city, district, address, lat, lng,
-                           phone, telegram, description, image_url, logo_url,
+                cur.execute(f"""SELECT id, title, city, district,
+                           image_url, logo_url,
                            auction, is_archived, moderation_status, moderation_comment,
-                           created_at, updated_at, created_by_employee_id,
-                           subscription_expires_at, subscription_auto_renew,
-                           type, price, rating, reviews, metro, metro_walk,
-                           has_parking, features, min_hours,
-                           square_meters, parking_type, parking_price_per_hour,
-                           expert_photo_rating, expert_description_rating, short_title
+                           subscription_expires_at,
+                           type, price, rating,
+                           expert_photo_rating, expert_fullness_rating,
+                           submitted_for_moderation, created_by_owner
                     FROM t_p39732784_hourly_rentals_platf.listings 
                     WHERE is_archived = false 
                     ORDER BY auction ASC 
@@ -235,38 +225,22 @@ def handler(event: dict, context) -> dict:
             listing_ids = [l['id'] for l in listings]
             
             all_rooms = []
-            all_metro = []
             
             if listing_ids:
                 listing_ids_str = ','.join([str(lid) for lid in listing_ids])
                 
                 print(f"[DEBUG] Fetching rooms for {len(listing_ids)} listings")
-                # ⚠️ НЕ загружаем images для экономии памяти - только считаем количество
-                rooms_query = f"""SELECT id, listing_id, type, price, description, square_meters, features, 
-                               min_hours, payment_methods, cancellation_policy,
-                               CASE WHEN images IS NOT NULL AND array_length(images, 1) > 0 
-                                    THEN array_length(images, 1)
-                                    ELSE 0
-                               END as images_count,
-                               expert_photo_rating, expert_description_rating
+                rooms_query = f"""SELECT id, listing_id, type, price,
+                               expert_photo_rating, expert_fullness_rating
                         FROM t_p39732784_hourly_rentals_platf.rooms 
                         WHERE listing_id IN ({listing_ids_str})"""
                 cur.execute(rooms_query)
                 all_rooms = cur.fetchall()
                 print(f"[DEBUG] Fetched {len(all_rooms)} rooms")
                 
-                # Получаем все станции метро одним запросом
-                print(f"[DEBUG] Fetching metro stations")
-                metro_query = f"""SELECT listing_id, station_name, walk_minutes 
-                        FROM t_p39732784_hourly_rentals_platf.metro_stations 
-                        WHERE listing_id IN ({listing_ids_str})"""
-                cur.execute(metro_query)
-                all_metro = cur.fetchall()
-                print(f"[DEBUG] Fetched {len(all_metro)} metro stations")
             else:
-                print(f"[DEBUG] No listings to fetch rooms/metro for")
+                print(f"[DEBUG] No listings to fetch rooms for")
             
-            # Группируем по listing_id
             rooms_by_listing = {}
             for room in all_rooms:
                 lid = room.pop('listing_id')
@@ -274,40 +248,24 @@ def handler(event: dict, context) -> dict:
                     rooms_by_listing[lid] = []
                 rooms_by_listing[lid].append(room)
             
-            metro_by_listing = {}
-            for metro in all_metro:
-                lid = metro.pop('listing_id')
-                if lid not in metro_by_listing:
-                    metro_by_listing[lid] = []
-                metro_by_listing[lid].append(metro)
-            
             # Присваиваем данные каждому объекту и конвертируем в обычные dict
             # Оптимизация: для списка убираем тяжелые поля
             result = []
             for listing in listings:
                 listing_dict = dict(listing)
                 
-                # images уже не загружается из БД (только images_count), так что очищать нечего
-                
-                # Обрезаем длинные текстовые поля для списка (более агрессивно)
-                if listing_dict.get('description') and len(listing_dict['description']) > 100:
-                    listing_dict['description'] = listing_dict['description'][:100] + '...'
-                
-                # Для комнат минимальная информация для списка
                 rooms = []
                 for r in rooms_by_listing.get(listing['id'], []):
                     room_dict = {
                         'id': r['id'],
                         'type': r['type'],
                         'price': r['price'],
-                        'square_meters': r.get('square_meters'),
                         'expert_photo_rating': r.get('expert_photo_rating'),
-                        'expert_description_rating': r.get('expert_description_rating'),
+                        'expert_fullness_rating': r.get('expert_fullness_rating'),
                     }
                     rooms.append(room_dict)
                 
                 listing_dict['rooms'] = rooms
-                listing_dict['metro_stations'] = [dict(m) for m in metro_by_listing.get(listing['id'], [])]
                 result.append(listing_dict)
             
             print(f"[DEBUG] About to serialize {len(result)} listings")
