@@ -66,16 +66,32 @@ export default function ListingEditorHeader({
 
   const remainingDays = calculateRemainingDays();
 
+  const getAdminIdFromToken = (): number | null => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return null;
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => 
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join(''));
+      const decoded = JSON.parse(jsonPayload);
+      return decoded?.admin_id || null;
+    } catch {
+      return null;
+    }
+  };
+
   const handleResetSubscription = async () => {
     if (!window.confirm('Вы уверены, что хотите обнулить подписку? Это действие необратимо.')) {
       return;
     }
 
-    const adminId = localStorage.getItem('adminId');
+    const adminId = getAdminIdFromToken();
     if (!adminId) {
       toast({
         title: 'Ошибка',
-        description: 'Не удалось определить ID менеджера',
+        description: 'Не удалось определить ID менеджера. Попробуйте перезайти в систему.',
         variant: 'destructive'
       });
       return;
@@ -89,7 +105,7 @@ export default function ListingEditorHeader({
         body: JSON.stringify({
           action: 'reset_subscription',
           listing_id: parseInt(id || '0'),
-          manager_id: parseInt(adminId)
+          manager_id: adminId
         })
       });
 
