@@ -48,6 +48,17 @@ interface Bonus {
   notes: string;
 }
 
+interface PayoutRecord {
+  id: number;
+  admin_id: number;
+  amount: number;
+  bonuses_closed: number;
+  note: string | null;
+  created_at: string;
+  employee_name: string;
+  paid_by_name: string;
+}
+
 interface AdminBonusesTabProps {
   token: string;
 }
@@ -65,6 +76,9 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
   const [payAmount, setPayAmount] = useState('');
   const [showPayDialog, setShowPayDialog] = useState(false);
   const [payTarget, setPayTarget] = useState<BonusStat | null>(null);
+  const [showHistoryDialog, setShowHistoryDialog] = useState(false);
+  const [payoutHistory, setPayoutHistory] = useState<PayoutRecord[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -94,6 +108,20 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Не удалось загрузить бонусы';
       toast({ title: 'Ошибка', description: msg, variant: 'destructive' });
+    }
+  };
+
+  const fetchPayoutHistory = async () => {
+    try {
+      setHistoryLoading(true);
+      const data = await api.getPayoutHistory(token);
+      setPayoutHistory(data);
+      setShowHistoryDialog(true);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Не удалось загрузить историю';
+      toast({ title: 'Ошибка', description: msg, variant: 'destructive' });
+    } finally {
+      setHistoryLoading(false);
     }
   };
 
@@ -192,6 +220,14 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
             {stats.length} сотрудников
           </Badge>
         </div>
+        <Button variant="outline" onClick={fetchPayoutHistory} disabled={historyLoading}>
+          {historyLoading ? (
+            <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+          ) : (
+            <Icon name="History" size={16} className="mr-2" />
+          )}
+          История выплат
+        </Button>
       </div>
 
       {isLoading ? (
@@ -329,6 +365,48 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
               Выплатить {payAmount ? `${parseFloat(payAmount).toLocaleString('ru-RU')} ₽` : ''}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>История выплат</DialogTitle>
+          </DialogHeader>
+          {payoutHistory.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-muted-foreground">Выплат пока не было</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Дата</TableHead>
+                  <TableHead>Сотрудник</TableHead>
+                  <TableHead className="text-right">Сумма</TableHead>
+                  <TableHead>Бонусов</TableHead>
+                  <TableHead>Кто выплатил</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {payoutHistory.map((record) => (
+                  <TableRow key={record.id}>
+                    <TableCell className="text-sm">{formatDate(record.created_at)}</TableCell>
+                    <TableCell className="font-medium">{record.employee_name}</TableCell>
+                    <TableCell className="text-right font-bold text-green-700">
+                      {Number(record.amount).toLocaleString('ru-RU')} ₽
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{record.bonuses_closed}</Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {record.paid_by_name || '—'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </DialogContent>
       </Dialog>
 

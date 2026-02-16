@@ -807,6 +807,20 @@ export const api = {
     return response.json();
   },
 
+  getPayoutHistory: async (token: string, targetAdminId?: number) => {
+    const url = targetAdminId
+      ? `${API_URLS.employeeBonuses}?action=payout_history&target_admin_id=${targetAdminId}`
+      : `${API_URLS.employeeBonuses}?action=payout_history`;
+    const response = await fetch(url, {
+      headers: { 'X-Authorization': `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
   payBonusAmount: async (token: string, adminId: number, amount: number) => {
     const response = await fetch(API_URLS.employeeBonuses, {
       method: 'PATCH',

@@ -50,10 +50,36 @@ def handler(event: dict, context) -> dict:
     
     try:
         if method == 'GET':
-            admin_id = event.get('queryStringParameters', {}).get('admin_id')
-            show_paid = event.get('queryStringParameters', {}).get('paid') == 'true'
+            query_params = event.get('queryStringParameters') or {}
+            admin_id = query_params.get('admin_id')
+            show_paid = query_params.get('paid') == 'true'
+            action = query_params.get('action')
             
-            # Получение статистики по всем сотрудникам
+            if action == 'payout_history':
+                target_id = query_params.get('target_admin_id')
+                query = """
+                    SELECT h.id, h.admin_id, h.amount, h.bonuses_closed, h.note, h.created_at,
+                           a.name as employee_name, p.name as paid_by_name
+                    FROM t_p39732784_hourly_rentals_platf.employee_payout_history h
+                    LEFT JOIN t_p39732784_hourly_rentals_platf.admins a ON h.admin_id = a.id
+                    LEFT JOIN t_p39732784_hourly_rentals_platf.admins p ON h.paid_by_admin_id = p.id
+                """
+                if target_id:
+                    query += " WHERE h.admin_id = %s"
+                    query += " ORDER BY h.created_at DESC LIMIT 200"
+                    cur.execute(query, (target_id,))
+                else:
+                    query += " ORDER BY h.created_at DESC LIMIT 200"
+                    cur.execute(query)
+                
+                history = cur.fetchall()
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps([dict(row) for row in history], default=str),
+                    'isBase64Encoded': False
+                }
+            
             if not admin_id:
                 cur.execute("""
                     SELECT 
@@ -127,6 +153,20 @@ def handler(event: dict, context) -> dict:
                 """, [admin.get('admin_id')] + bonus_ids)
                 
                 updated = cur.fetchall()
+                
+                if updated:
+                    total_paid = sum(float(r['bonus_amount']) for r in updated)
+                    target_ids = set(r['admin_id'] for r in updated)
+                    for tid in target_ids:
+                        tid_amount = sum(float(r['bonus_amount']) for r in updated if r['admin_id'] == tid)
+                        tid_count = sum(1 for r in updated if r['admin_id'] == tid)
+                        cur.execute("""
+                            INSERT INTO t_p39732784_hourly_rentals_platf.employee_payout_history
+                            (admin_id, amount, paid_by_admin_id, bonuses_closed, note)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (tid, tid_amount, admin.get('admin_id'), tid_count,
+                              f'Ручная отметка {tid_count} бонусов'))
+                
                 conn.commit()
                 
                 return {
@@ -270,6 +310,13 @@ def handler(event: dict, context) -> dict:
                     """, (target_admin_id, orig['entity_type'], orig['entity_id'],
                           orig['entity_name'], leftover,
                           f"Остаток от частичной выплаты ({orig['notes'] or ''})".strip()))
+                
+                cur.execute("""
+                    INSERT INTO t_p39732784_hourly_rentals_platf.employee_payout_history
+                    (admin_id, amount, paid_by_admin_id, bonuses_closed, note)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (target_admin_id, pay_amount, admin.get('admin_id'), paid_count,
+                      f'Выплата {pay_amount} ₽'))
                 
                 conn.commit()
                 
