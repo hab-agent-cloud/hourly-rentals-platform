@@ -287,6 +287,16 @@ def handler(event: dict, context) -> dict:
                 
                 # Действие: ОБНУЛИТЬ ПОДПИСКУ
                 elif action == 'reset_subscription':
+                    # Проверяем существование объекта
+                    cur.execute(f"SELECT id FROM listings WHERE id = {listing_id_int}")
+                    if not cur.fetchone():
+                        return {
+                            'statusCode': 404,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'Объект не найден'}),
+                            'isBase64Encoded': False
+                        }
+                    
                     # Проверяем, что подписка не была куплена владельцем и не является подарком
                     cur.execute(f"""
                         SELECT 
