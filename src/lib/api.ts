@@ -807,6 +807,22 @@ export const api = {
     return response.json();
   },
 
+  payBonusAmount: async (token: string, adminId: number, amount: number) => {
+    const response = await fetch(API_URLS.employeeBonuses, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ action: 'pay_amount', admin_id: adminId, amount }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+    return response.json();
+  },
+
   getStatsReports: async (token: string, listingId?: number) => {
     const url = listingId 
       ? `${API_URLS.statsReports}?listing_id=${listingId}`

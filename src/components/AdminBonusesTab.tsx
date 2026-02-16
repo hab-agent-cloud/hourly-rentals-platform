@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
@@ -61,6 +62,9 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
   const [selectedBonusIds, setSelectedBonusIds] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [payAmount, setPayAmount] = useState('');
+  const [showPayDialog, setShowPayDialog] = useState(false);
+  const [payTarget, setPayTarget] = useState<BonusStat | null>(null);
 
   useEffect(() => {
     fetchStats();
@@ -71,12 +75,9 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
       setIsLoading(true);
       const data = await api.getBonusStats(token);
       setStats(data);
-    } catch (error: any) {
-      toast({
-        title: 'Ошибка',
-        description: error.message || 'Не удалось загрузить статистику',
-        variant: 'destructive',
-      });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Не удалось загрузить статистику';
+      toast({ title: 'Ошибка', description: msg, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -90,38 +91,24 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
       setBonuses(data);
       setSelectedBonusIds([]);
       setShowDetailsDialog(true);
-    } catch (error: any) {
-      toast({
-        title: 'Ошибка',
-        description: error.message || 'Не удалось загрузить бонусы',
-        variant: 'destructive',
-      });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Не удалось загрузить бонусы';
+      toast({ title: 'Ошибка', description: msg, variant: 'destructive' });
     }
   };
 
   const handleMarkPaid = async () => {
     if (selectedBonusIds.length === 0) return;
-
     try {
       setIsProcessing(true);
       await api.markBonusesPaid(token, selectedBonusIds);
-      
-      toast({
-        title: 'Успешно',
-        description: `Оплачено ${selectedBonusIds.length} бонусов`,
-      });
-
-      if (selectedEmployee) {
-        await fetchEmployeeBonuses(selectedEmployee, showPaid);
-      }
+      toast({ title: 'Успешно', description: `Оплачено ${selectedBonusIds.length} бонусов` });
+      if (selectedEmployee) await fetchEmployeeBonuses(selectedEmployee, showPaid);
       await fetchStats();
       setSelectedBonusIds([]);
-    } catch (error: any) {
-      toast({
-        title: 'Ошибка',
-        description: error.message || 'Не удалось отметить как оплаченные',
-        variant: 'destructive',
-      });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Не удалось отметить как оплаченные';
+      toast({ title: 'Ошибка', description: msg, variant: 'destructive' });
     } finally {
       setIsProcessing(false);
     }
@@ -129,27 +116,47 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
 
   const handleMarkUnpaid = async () => {
     if (selectedBonusIds.length === 0) return;
-
     try {
       setIsProcessing(true);
       await api.markBonusesUnpaid(token, selectedBonusIds);
-      
-      toast({
-        title: 'Успешно',
-        description: `Отменена оплата ${selectedBonusIds.length} бонусов`,
-      });
-
-      if (selectedEmployee) {
-        await fetchEmployeeBonuses(selectedEmployee, showPaid);
-      }
+      toast({ title: 'Успешно', description: `Отменена оплата ${selectedBonusIds.length} бонусов` });
+      if (selectedEmployee) await fetchEmployeeBonuses(selectedEmployee, showPaid);
       await fetchStats();
       setSelectedBonusIds([]);
-    } catch (error: any) {
-      toast({
-        title: 'Ошибка',
-        description: error.message || 'Не удалось отменить оплату',
-        variant: 'destructive',
-      });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Не удалось отменить оплату';
+      toast({ title: 'Ошибка', description: msg, variant: 'destructive' });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const openPayDialog = (employee: BonusStat) => {
+    setPayTarget(employee);
+    setPayAmount('');
+    setShowPayDialog(true);
+  };
+
+  const handlePayAmount = async () => {
+    if (!payTarget) return;
+    const amount = parseFloat(payAmount);
+    if (!amount || amount <= 0) {
+      toast({ title: 'Ошибка', description: 'Введите корректную сумму', variant: 'destructive' });
+      return;
+    }
+    if (amount > payTarget.unpaid_amount) {
+      toast({ title: 'Ошибка', description: `Сумма не может превышать ${payTarget.unpaid_amount} ₽`, variant: 'destructive' });
+      return;
+    }
+    try {
+      setIsProcessing(true);
+      await api.payBonusAmount(token, payTarget.id, amount);
+      toast({ title: 'Успешно', description: `Выплачено ${amount.toLocaleString('ru-RU')} ₽ для ${payTarget.name}` });
+      setShowPayDialog(false);
+      await fetchStats();
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Не удалось выполнить выплату';
+      toast({ title: 'Ошибка', description: msg, variant: 'destructive' });
     } finally {
       setIsProcessing(false);
     }
@@ -157,9 +164,7 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
 
   const toggleBonusSelection = (bonusId: number) => {
     setSelectedBonusIds((prev) =>
-      prev.includes(bonusId)
-        ? prev.filter((id) => id !== bonusId)
-        : [...prev, bonusId]
+      prev.includes(bonusId) ? prev.filter((id) => id !== bonusId) : [...prev, bonusId]
     );
   };
 
@@ -173,13 +178,8 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '—';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString('ru-RU', {
+      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
     });
   };
 
@@ -216,14 +216,14 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-red-600">К выплате:</span>
                     <span className="text-lg font-bold text-red-600">
-                      {employee.unpaid_amount} ₽
+                      {Number(employee.unpaid_amount).toLocaleString('ru-RU')} ₽
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Выплачено:</span>
                     <span className="text-sm font-medium text-green-600">
-                      {employee.paid_amount} ₽
+                      {Number(employee.paid_amount).toLocaleString('ru-RU')} ₽
                     </span>
                   </div>
 
@@ -231,11 +231,19 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
                     <Button
                       variant="default"
                       size="sm"
-                      className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600"
+                      className="flex-1 bg-gradient-to-r from-green-600 to-green-700"
+                      onClick={() => openPayDialog(employee)}
+                      disabled={!employee.unpaid_amount || Number(employee.unpaid_amount) === 0}
+                    >
+                      <Icon name="Wallet" size={14} className="mr-1" />
+                      Выплатить
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => fetchEmployeeBonuses(employee, false)}
                     >
-                      <Icon name="DollarSign" size={14} className="mr-1" />
-                      К выплате
+                      <Icon name="List" size={14} />
                     </Button>
                     <Button
                       variant="outline"
@@ -261,6 +269,68 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
           </p>
         </div>
       )}
+
+      <Dialog open={showPayDialog} onOpenChange={setShowPayDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Выплата — {payTarget?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Задолженность:</span>
+              <span className="font-bold text-red-600 text-lg">
+                {Number(payTarget?.unpaid_amount || 0).toLocaleString('ru-RU')} ₽
+              </span>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Сумма к выплате (₽)</label>
+              <Input
+                type="number"
+                placeholder="Введите сумму"
+                value={payAmount}
+                onChange={(e) => setPayAmount(e.target.value)}
+                min={1}
+                max={payTarget?.unpaid_amount || 0}
+                autoFocus
+              />
+            </div>
+            <div className="flex gap-2">
+              {[0.25, 0.5, 1].map((fraction) => {
+                const val = Math.floor(Number(payTarget?.unpaid_amount || 0) * fraction);
+                if (val <= 0) return null;
+                return (
+                  <Button
+                    key={fraction}
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => setPayAmount(String(val))}
+                  >
+                    {fraction === 1 ? 'Всё' : `${fraction * 100}%`}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPayDialog(false)}>
+              Отмена
+            </Button>
+            <Button
+              onClick={handlePayAmount}
+              disabled={isProcessing || !payAmount || parseFloat(payAmount) <= 0}
+              className="bg-gradient-to-r from-green-600 to-green-700"
+            >
+              {isProcessing ? (
+                <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+              ) : (
+                <Icon name="Check" size={16} className="mr-2" />
+              )}
+              Выплатить {payAmount ? `${parseFloat(payAmount).toLocaleString('ru-RU')} ₽` : ''}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
@@ -317,7 +387,7 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
                         {bonus.notes}
                       </TableCell>
                       <TableCell className="text-right font-bold">
-                        {bonus.bonus_amount} ₽
+                        {Number(bonus.bonus_amount).toLocaleString('ru-RU')} ₽
                       </TableCell>
                       {showPaid && (
                         <TableCell className="text-sm">
@@ -341,7 +411,8 @@ export default function AdminBonusesTab({ token }: AdminBonusesTabProps) {
                       Выбрано: {selectedBonusIds.length} ({' '}
                       {bonuses
                         .filter((b) => selectedBonusIds.includes(b.id))
-                        .reduce((sum, b) => sum + b.bonus_amount, 0)}{' '}
+                        .reduce((sum, b) => sum + Number(b.bonus_amount), 0)
+                        .toLocaleString('ru-RU')}{' '}
                       ₽ )
                     </div>
                   )}

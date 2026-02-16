@@ -84,10 +84,10 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
       
       const employeesWithEarnings = data.map((emp: Employee) => ({
         ...emp,
-        earnings: emp.role === 'employee' ? {
-          total: emp.earnings?.total || 0,
-          paid: emp.earnings?.paid || 0,
-          pending: emp.earnings?.pending || 0,
+        earnings: emp.earnings ? {
+          total: emp.earnings.total || 0,
+          paid: emp.earnings.paid || 0,
+          pending: emp.earnings.pending || 0,
         } : undefined
       }));
       
@@ -111,10 +111,10 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
       
       const employeeWithEarnings = {
         ...data.employee,
-        earnings: data.employee.role === 'employee' ? {
-          total: data.employee.earnings?.total || 0,
-          paid: data.employee.earnings?.paid || 0,
-          pending: data.employee.earnings?.pending || 0,
+        earnings: data.employee.earnings ? {
+          total: data.employee.earnings.total || 0,
+          paid: data.employee.earnings.paid || 0,
+          pending: data.employee.earnings.pending || 0,
         } : undefined
       };
       

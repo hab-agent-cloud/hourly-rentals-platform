@@ -157,7 +157,6 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 else:
-                    # Получить список всех сотрудников
                     cur.execute("""
                         SELECT id, email, name, role, permissions, is_active, 
                                created_at, last_login, login
@@ -166,7 +165,6 @@ def handler(event: dict, context) -> dict:
                     """)
                     employees = cur.fetchall()
                     
-                    # Получить количество действий для каждого сотрудника
                     cur.execute("""
                         SELECT admin_id, COUNT(*) as action_count
                         FROM t_p39732784_hourly_rentals_platf.admin_action_logs
@@ -174,10 +172,27 @@ def handler(event: dict, context) -> dict:
                     """)
                     action_counts = {row['admin_id']: row['action_count'] for row in cur.fetchall()}
                     
+                    cur.execute("""
+                        SELECT admin_id,
+                            COALESCE(SUM(bonus_amount), 0) as total,
+                            COALESCE(SUM(CASE WHEN is_paid = true THEN bonus_amount ELSE 0 END), 0) as paid,
+                            COALESCE(SUM(CASE WHEN is_paid = false OR is_paid IS NULL THEN bonus_amount ELSE 0 END), 0) as pending
+                        FROM t_p39732784_hourly_rentals_platf.employee_bonuses
+                        GROUP BY admin_id
+                    """)
+                    earnings_map = {}
+                    for row in cur.fetchall():
+                        earnings_map[row['admin_id']] = {
+                            'total': float(row['total']),
+                            'paid': float(row['paid']),
+                            'pending': float(row['pending'])
+                        }
+                    
                     employees_with_counts = []
                     for emp in employees:
                         emp_dict = dict(emp)
                         emp_dict['action_count'] = action_counts.get(emp['id'], 0)
+                        emp_dict['earnings'] = earnings_map.get(emp['id'], {'total': 0, 'paid': 0, 'pending': 0})
                         employees_with_counts.append(emp_dict)
                     
                     return {

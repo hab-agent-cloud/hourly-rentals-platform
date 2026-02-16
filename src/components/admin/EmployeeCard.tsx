@@ -108,7 +108,7 @@ export default function EmployeeCard({ employee, onEdit, onDelete, onViewDetails
             </div>
           )}
           
-          {employee.role === 'employee' && employee.earnings && (
+          {employee.earnings && (employee.earnings.total > 0 || employee.earnings.pending > 0) && (
             <div className="space-y-2 pt-3 border-t">
               <div className="text-sm font-semibold">Заработок:</div>
               <div className="grid grid-cols-3 gap-2 text-xs">

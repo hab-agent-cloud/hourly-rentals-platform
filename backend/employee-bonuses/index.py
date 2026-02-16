@@ -151,7 +151,6 @@ def handler(event: dict, context) -> dict:
                         'isBase64Encoded': False
                     }
                 
-                # Отметить как неоплаченные
                 placeholders = ','.join(['%s'] * len(bonus_ids))
                 cur.execute(f"""
                     UPDATE t_p39732784_hourly_rentals_platf.employee_bonuses
@@ -169,6 +168,118 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({
                         'success': True,
                         'message': f'Отменена оплата {len(updated)} бонусов'
+                    }, default=str),
+                    'isBase64Encoded': False
+                }
+            
+            elif action == 'pay_amount':
+                target_admin_id = body.get('admin_id')
+                pay_amount = body.get('amount')
+                
+                if not target_admin_id or not pay_amount:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'admin_id и amount обязательны'}),
+                        'isBase64Encoded': False
+                    }
+                
+                pay_amount = float(pay_amount)
+                if pay_amount <= 0:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Сумма должна быть больше 0'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute("""
+                    SELECT COALESCE(SUM(bonus_amount), 0) as unpaid
+                    FROM t_p39732784_hourly_rentals_platf.employee_bonuses
+                    WHERE admin_id = %s AND (is_paid = false OR is_paid IS NULL)
+                """, (target_admin_id,))
+                row = cur.fetchone()
+                unpaid_total = float(row['unpaid']) if row else 0
+                
+                if pay_amount > unpaid_total:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': f'Сумма {pay_amount} превышает задолженность {unpaid_total}'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute("""
+                    SELECT id, bonus_amount
+                    FROM t_p39732784_hourly_rentals_platf.employee_bonuses
+                    WHERE admin_id = %s AND (is_paid = false OR is_paid IS NULL)
+                    ORDER BY created_at ASC
+                """, (target_admin_id,))
+                unpaid_bonuses = cur.fetchall()
+                
+                remaining = pay_amount
+                paid_ids = []
+                split_bonus_id = None
+                split_paid_part = 0
+                
+                for bonus in unpaid_bonuses:
+                    b_amount = float(bonus['bonus_amount'])
+                    if remaining >= b_amount:
+                        paid_ids.append(bonus['id'])
+                        remaining -= b_amount
+                        remaining = round(remaining, 2)
+                    elif remaining > 0:
+                        split_bonus_id = bonus['id']
+                        split_paid_part = remaining
+                        remaining = 0
+                        break
+                    else:
+                        break
+                
+                paid_count = 0
+                if paid_ids:
+                    placeholders = ','.join(['%s'] * len(paid_ids))
+                    cur.execute(f"""
+                        UPDATE t_p39732784_hourly_rentals_platf.employee_bonuses
+                        SET is_paid = TRUE, paid_at = CURRENT_TIMESTAMP, paid_by_admin_id = %s
+                        WHERE id IN ({placeholders})
+                    """, [admin.get('admin_id')] + paid_ids)
+                    paid_count = len(paid_ids)
+                
+                if split_bonus_id and split_paid_part > 0:
+                    cur.execute("""
+                        SELECT bonus_amount, entity_type, entity_id, entity_name, notes
+                        FROM t_p39732784_hourly_rentals_platf.employee_bonuses
+                        WHERE id = %s
+                    """, (split_bonus_id,))
+                    orig = cur.fetchone()
+                    orig_amount = float(orig['bonus_amount'])
+                    leftover = round(orig_amount - split_paid_part, 2)
+                    
+                    cur.execute("""
+                        UPDATE t_p39732784_hourly_rentals_platf.employee_bonuses
+                        SET bonus_amount = %s, is_paid = TRUE, paid_at = CURRENT_TIMESTAMP, paid_by_admin_id = %s
+                        WHERE id = %s
+                    """, (split_paid_part, admin.get('admin_id'), split_bonus_id))
+                    paid_count += 1
+                    
+                    cur.execute("""
+                        INSERT INTO t_p39732784_hourly_rentals_platf.employee_bonuses
+                        (admin_id, entity_type, entity_id, entity_name, bonus_amount, is_paid, notes, created_at)
+                        VALUES (%s, %s, %s, %s, %s, FALSE, %s, CURRENT_TIMESTAMP)
+                    """, (target_admin_id, orig['entity_type'], orig['entity_id'],
+                          orig['entity_name'], leftover,
+                          f"Остаток от частичной выплаты ({orig['notes'] or ''})".strip()))
+                
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'message': f'Выплачено {pay_amount} ₽ ({paid_count} бонусов)',
+                        'paid_amount': pay_amount
                     }, default=str),
                     'isBase64Encoded': False
                 }
