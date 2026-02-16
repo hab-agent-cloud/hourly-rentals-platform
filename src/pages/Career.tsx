@@ -3,9 +3,49 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useNavigate } from 'react-router-dom';
+import { useRef, useState } from 'react';
+
+async function downloadCareerPdf(contentRef: React.RefObject<HTMLDivElement | null>) {
+  if (!contentRef.current) return;
+  const html2canvas = (await import('html2canvas')).default;
+  const { jsPDF } = await import('jspdf');
+  const element = contentRef.current;
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#faf5ff',
+  });
+  const imgData = canvas.toDataURL('image/jpeg', 0.95);
+  const imgWidth = 210;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  const pdf = new jsPDF('p', 'mm', 'a4');
+  let position = 0;
+  const pageHeight = 297;
+  let remainingHeight = imgHeight;
+
+  while (remainingHeight > 0) {
+    if (position > 0) pdf.addPage();
+    pdf.addImage(imgData, 'JPEG', 0, -position, imgWidth, imgHeight);
+    remainingHeight -= pageHeight;
+    position += pageHeight;
+  }
+
+  pdf.save('career-plan.pdf');
+}
 
 export default function Career() {
   const navigate = useNavigate();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      await downloadCareerPdf(contentRef);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -17,9 +57,18 @@ export default function Career() {
           <p className="text-xl text-muted-foreground">
             Прозрачная система развития и вознаграждений
           </p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={handleDownload}
+            disabled={downloading}
+          >
+            <Icon name="Download" size={18} className="mr-2" />
+            {downloading ? 'Формируется PDF...' : 'Скачать описание в PDF'}
+          </Button>
         </div>
 
-        <div className="max-w-6xl mx-auto space-y-8">
+        <div ref={contentRef} className="max-w-6xl mx-auto space-y-8">
           {/* Ступень 1 - Копирайтер */}
           <Card className="border-2 border-purple-200 shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="bg-gradient-to-r from-purple-100 to-pink-100">
