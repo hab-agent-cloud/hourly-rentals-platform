@@ -287,9 +287,9 @@ def handler(event: dict, context) -> dict:
                 
                 # Действие: ОБНУЛИТЬ ПОДПИСКУ
                 elif action == 'reset_subscription':
-                    # Проверяем существование объекта
-                    cur.execute(f"SELECT id FROM listings WHERE id = {listing_id_int}")
-                    if not cur.fetchone():
+                    cur.execute(f"SELECT id, subscription_expires_at FROM listings WHERE id = {listing_id_int}")
+                    listing_row = cur.fetchone()
+                    if not listing_row:
                         return {
                             'statusCode': 404,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -297,20 +297,8 @@ def handler(event: dict, context) -> dict:
                             'isBase64Encoded': False
                         }
                     
-                    # Проверяем, что подписка не была куплена владельцем и не является подарком
-                    cur.execute(f"""
-                        SELECT 
-                            (SELECT end_date FROM subscriptions 
-                             WHERE listing_id = {listing_id_int} AND end_date > NOW() 
-                             ORDER BY end_date DESC LIMIT 1) as subscription_end,
-                            (SELECT COUNT(*) FROM subscription_payments 
-                             WHERE listing_id = {listing_id_int}) > 0 as purchased,
-                            (SELECT COUNT(*) FROM listing_gifts 
-                             WHERE listing_id = {listing_id_int} AND used_at IS NOT NULL) > 0 as is_gift
-                    """)
-                    sub_info = cur.fetchone()
-                    
-                    if not sub_info or not sub_info['subscription_end']:
+                    has_active_sub = listing_row['subscription_expires_at'] and listing_row['subscription_expires_at'] > datetime.now()
+                    if not has_active_sub:
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -318,7 +306,14 @@ def handler(event: dict, context) -> dict:
                             'isBase64Encoded': False
                         }
                     
-                    if sub_info['purchased']:
+                    cur.execute(f"""
+                        SELECT id, created_by FROM subscriptions 
+                        WHERE listing_id = {listing_id_int} AND end_date > NOW()
+                        ORDER BY end_date DESC LIMIT 1
+                    """)
+                    active_sub = cur.fetchone()
+                    
+                    if active_sub and active_sub['created_by'] == 'owner':
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -326,19 +321,17 @@ def handler(event: dict, context) -> dict:
                             'isBase64Encoded': False
                         }
                     
-                    if sub_info['is_gift']:
-                        return {
-                            'statusCode': 400,
-                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Нельзя обнулить подписку-подарок'}),
-                            'isBase64Encoded': False
-                        }
+                    if active_sub:
+                        cur.execute(f"""
+                            UPDATE subscriptions 
+                            SET end_date = NOW() - INTERVAL '1 day'
+                            WHERE listing_id = {listing_id_int} AND end_date > NOW()
+                        """)
                     
-                    # Удаляем подписку
                     cur.execute(f"""
-                        UPDATE subscriptions 
-                        SET end_date = NOW() - INTERVAL '1 day'
-                        WHERE listing_id = {listing_id_int} AND end_date > NOW()
+                        UPDATE listings 
+                        SET subscription_expires_at = NULL
+                        WHERE id = {listing_id_int}
                     """)
                     
                     log_action(conn, manager_id_int, 'reset_subscription', listing_id_int, {'reason': 'Обнуление подписки менеджером'})
