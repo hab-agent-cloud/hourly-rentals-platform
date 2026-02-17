@@ -253,80 +253,84 @@ export function useDocumentsLibrary(show: boolean) {
 
   const handleDownloadPdf = async (doc: Document) => {
     try {
+      const container = document.createElement('div');
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      container.style.width = '210mm';
+      container.style.padding = '20mm';
+      container.style.backgroundColor = '#ffffff';
+      container.style.fontFamily = 'Arial, sans-serif';
+      container.style.fontSize = '12px';
+      container.style.lineHeight = '1.6';
+      container.style.color = '#000000';
+      
+      const title = document.createElement('h1');
+      title.textContent = doc.title;
+      title.style.fontSize = '24px';
+      title.style.fontWeight = 'bold';
+      title.style.marginBottom = '10px';
+      title.style.color = '#1a1a1a';
+      container.appendChild(title);
+      
+      if (doc.description) {
+        const desc = document.createElement('p');
+        desc.textContent = doc.description;
+        desc.style.fontSize = '14px';
+        desc.style.fontStyle = 'italic';
+        desc.style.marginBottom = '20px';
+        desc.style.color = '#666666';
+        container.appendChild(desc);
+      }
+      
+      const content = document.createElement('pre');
+      content.textContent = doc.content;
+      content.style.whiteSpace = 'pre-wrap';
+      content.style.wordWrap = 'break-word';
+      content.style.fontFamily = 'Arial, sans-serif';
+      content.style.fontSize = '12px';
+      content.style.lineHeight = '1.6';
+      container.appendChild(content);
+      
+      document.body.appendChild(container);
+      
+      const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
       
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+      
+      document.body.removeChild(container);
+      
+      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
       });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 15;
-      const lineHeight = 7;
-      const maxWidth = pageWidth - margin * 2;
-      let y = margin;
-
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(16);
       
-      const titleLines = pdf.splitTextToSize(doc.title, maxWidth);
-      titleLines.forEach((line: string) => {
-        if (y + lineHeight > pageHeight - margin) {
-          pdf.addPage();
-          y = margin;
-        }
-        pdf.text(line, margin, y);
-        y += lineHeight;
-      });
-
-      y += 5;
-
-      if (doc.description) {
-        pdf.setFont('helvetica', 'italic');
-        pdf.setFontSize(10);
-        const descLines = pdf.splitTextToSize(doc.description, maxWidth);
-        descLines.forEach((line: string) => {
-          if (y + lineHeight > pageHeight - margin) {
-            pdf.addPage();
-            y = margin;
-          }
-          pdf.text(line, margin, y);
-          y += lineHeight;
-        });
-        y += 5;
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
       }
-
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(10);
-
-      const contentLines = doc.content.split('\n');
-      contentLines.forEach((line) => {
-        if (y + lineHeight > pageHeight - margin) {
-          pdf.addPage();
-          y = margin;
-        }
-
-        if (line.trim() === '') {
-          y += lineHeight / 2;
-          return;
-        }
-
-        const wrappedLines = pdf.splitTextToSize(line, maxWidth);
-        wrappedLines.forEach((wrappedLine: string) => {
-          if (y + lineHeight > pageHeight - margin) {
-            pdf.addPage();
-            y = margin;
-          }
-          pdf.text(wrappedLine, margin, y);
-          y += lineHeight;
-        });
-      });
-
-      const fileName = `${doc.title.replace(/[^a-zа-яё0-9]/gi, '_')}_${new Date().toLocaleDateString('ru-RU').replace(/\./g, '-')}.pdf`;
+      
+      const fileName = `${doc.title.replace(/[^a-zа-яё0-9\s]/gi, '_')}_${new Date().toLocaleDateString('ru-RU').replace(/\./g, '-')}.pdf`;
       pdf.save(fileName);
-
+      
       toast({
         title: 'Успешно',
         description: 'PDF документ скачан',

@@ -224,9 +224,63 @@ export default function InterviewScript() {
     });
   };
 
+  const handleDownloadPdf = async () => {
+    try {
+      const element = document.getElementById('interview-script-content');
+      if (!element) return;
+
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save('Скрипт_собеседования_ОМ.pdf');
+
+      toast({
+        title: 'PDF скачан',
+        description: 'Файл сохранен на ваше устройство'
+      });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось создать PDF',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <div className="container mx-auto px-4 py-8 sm:py-12">
+      <div id="interview-script-content" className="container mx-auto px-4 py-8 sm:py-12">
         <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <Button
             variant="outline"
@@ -245,7 +299,16 @@ export default function InterviewScript() {
               size="sm"
             >
               <Icon name="Download" size={16} />
-              <span className="hidden sm:inline">Скачать</span>
+              <span className="hidden sm:inline">TXT</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleDownloadPdf}
+              className="gap-2 flex-1 sm:flex-none"
+              size="sm"
+            >
+              <Icon name="FileText" size={16} />
+              <span className="hidden sm:inline">PDF</span>
             </Button>
             <Button
               variant="outline"
