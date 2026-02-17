@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Document, getTraineeInstructionContent, getManagerSalesScriptContent, getBusinessPlan2026Content } from '@/components/admin/documents/DocumentsLibraryConstants';
+import { Document, getTraineeInstructionContent, getManagerSalesScriptContent, getBusinessPlan2026Content, getInterviewScriptContent } from '@/components/admin/documents/DocumentsLibraryConstants';
 
 export function useDocumentsLibrary(show: boolean) {
   const { toast } = useToast();
@@ -39,6 +39,9 @@ export function useDocumentsLibrary(show: boolean) {
         const hasBusinessPlan = docs.some((doc: Document) =>
           doc.title === 'Бизнес-план проекта 120 МИНУТ на 2026 год'
         );
+        const hasInterviewScript = docs.some((doc: Document) =>
+          doc.title === 'Скрипт собеседования для офис-менеджера'
+        );
         
         if (!hasTraineeInstruction) {
           addTraineeInstruction(docs);
@@ -48,6 +51,9 @@ export function useDocumentsLibrary(show: boolean) {
         }
         if (!hasBusinessPlan) {
           addBusinessPlan(docs);
+        }
+        if (!hasInterviewScript) {
+          addInterviewScript(docs);
         }
       } catch (e) {
         console.error('Failed to parse documents:', e);
@@ -60,6 +66,7 @@ export function useDocumentsLibrary(show: boolean) {
       addTraineeInstruction(emptyDocs);
       addManagerSalesScript(emptyDocs);
       addBusinessPlan(emptyDocs);
+      addInterviewScript(emptyDocs);
     }
   };
 
@@ -135,6 +142,35 @@ export function useDocumentsLibrary(show: boolean) {
     }
 
     const updatedDocs = [...currentDocs, newPlan];
+    localStorage.setItem('documents_library', JSON.stringify(updatedDocs));
+    setDocuments(updatedDocs);
+  };
+
+  const addInterviewScript = (existingDocs: Document[]) => {
+    const scriptContent = getInterviewScriptContent();
+
+    const newScript: Document = {
+      id: 'interview-script-' + Date.now(),
+      title: 'Скрипт собеседования для офис-менеджера',
+      description: 'Полное руководство по проведению собеседований: структура интервью, вопросы, тестовые задания, чеклист оценки кандидатов',
+      content: scriptContent,
+      category: 'instruction',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const stored = localStorage.getItem('documents_library');
+    let currentDocs = existingDocs;
+    
+    if (stored) {
+      try {
+        currentDocs = JSON.parse(stored);
+      } catch (e) {
+        currentDocs = existingDocs;
+      }
+    }
+
+    const updatedDocs = [...currentDocs, newScript];
     localStorage.setItem('documents_library', JSON.stringify(updatedDocs));
     setDocuments(updatedDocs);
   };
