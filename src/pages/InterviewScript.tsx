@@ -323,9 +323,19 @@ export default function InterviewScript() {
         </div>
 
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3 sm:mb-4">
-            Скрипт собеседования
-          </h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <span className="text-2xl sm:text-3xl font-bold text-white">120</span>
+            </div>
+            <div className="text-left">
+              <h1 className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Скрипт собеседования
+              </h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                120 минут
+              </p>
+            </div>
+          </div>
           <p className="text-lg sm:text-xl text-muted-foreground">
             Для офис-менеджера: как проводить собеседования с кандидатами
           </p>
