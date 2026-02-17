@@ -103,6 +103,17 @@ def handler(event: dict, context) -> dict:
             
             password_hash = hashlib.sha256(password.encode()).hexdigest()
             
+            print(f'[DEBUG] Login attempt: login={login}, password_hash={password_hash}')
+            
+            cur.execute("""
+                SELECT id, email, full_name, balance, bonus_balance, phone, login, username, password_hash
+                FROM owners 
+                WHERE (login = %s OR email = %s OR username = %s) AND is_archived = false
+            """, (login, login, login))
+            
+            found_owner = cur.fetchone()
+            print(f'[DEBUG] Found owner: {found_owner}')
+            
             cur.execute("""
                 SELECT id, email, full_name, balance, bonus_balance, phone, login
                 FROM owners 
