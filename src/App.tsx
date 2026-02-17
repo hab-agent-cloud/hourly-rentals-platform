@@ -26,6 +26,7 @@ import ManagerDashboard from "./pages/ManagerDashboard";
 import Career from "./pages/Career";
 import ListingEditor from "./pages/ListingEditor";
 import SalesScripts from "./pages/SalesScripts";
+import InterviewScript from "./pages/InterviewScript";
 import InactiveListings from "./pages/InactiveListings";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MetrikaScrollTracker from "./components/MetrikaScrollTracker";
@@ -68,6 +69,7 @@ const App = () => (
           <Route path="/accounting" element={<ProtectedRoute><Accounting /></ProtectedRoute>} />
           <Route path="/career" element={<Career />} />
           <Route path="/sales-scripts" element={<ProtectedRoute><SalesScripts /></ProtectedRoute>} />
+          <Route path="/interview-script" element={<ProtectedRoute><InterviewScript /></ProtectedRoute>} />
           <Route path="/listing/:id/edit" element={<ProtectedRoute><ListingEditor /></ProtectedRoute>} />
           
           <Route path="/company-info" element={<CompanyInfo />} />
