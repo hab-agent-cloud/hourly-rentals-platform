@@ -35,6 +35,7 @@ export default function DocumentsLibraryDialog({
     handleUpdateDocument,
     handleDeleteDocument,
     handleDownloadDocument,
+    handleDownloadPdf,
     startEdit,
     resetForm,
   } = useDocumentsLibrary(show);
@@ -65,6 +66,7 @@ export default function DocumentsLibraryDialog({
           onSubmit={editingDoc ? handleUpdateDocument : handleAddDocument}
           onCancel={resetForm}
           onDownload={handleDownloadDocument}
+          onDownloadPdf={handleDownloadPdf}
           onEdit={startEdit}
           onDelete={handleDeleteDocument}
         />

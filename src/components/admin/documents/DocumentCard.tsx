@@ -18,6 +18,7 @@ interface DocumentCardProps {
   categoryLabels: Record<string, string>;
   categoryIcons: Record<string, string>;
   onDownload: (doc: Document) => void;
+  onDownloadPdf?: (doc: Document) => void;
   onEdit: (doc: Document) => void;
   onDelete: (id: string) => void;
 }
@@ -27,6 +28,7 @@ export default function DocumentCard({
   categoryLabels,
   categoryIcons,
   onDownload,
+  onDownloadPdf,
   onEdit,
   onDelete,
 }: DocumentCardProps) {
@@ -69,8 +71,19 @@ export default function DocumentCard({
             className="flex-1"
           >
             <Icon name="Download" size={14} className="mr-1" />
-            Скачать
+            TXT
           </Button>
+          {onDownloadPdf && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onDownloadPdf(doc)}
+              className="flex-1"
+            >
+              <Icon name="FileText" size={14} className="mr-1" />
+              PDF
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"

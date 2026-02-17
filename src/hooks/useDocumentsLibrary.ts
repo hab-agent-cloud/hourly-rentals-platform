@@ -251,6 +251,96 @@ export function useDocumentsLibrary(show: boolean) {
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadPdf = async (doc: Document) => {
+    try {
+      const { jsPDF } = await import('jspdf');
+      
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      const lineHeight = 7;
+      const maxWidth = pageWidth - margin * 2;
+      let y = margin;
+
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(16);
+      
+      const titleLines = pdf.splitTextToSize(doc.title, maxWidth);
+      titleLines.forEach((line: string) => {
+        if (y + lineHeight > pageHeight - margin) {
+          pdf.addPage();
+          y = margin;
+        }
+        pdf.text(line, margin, y);
+        y += lineHeight;
+      });
+
+      y += 5;
+
+      if (doc.description) {
+        pdf.setFont('helvetica', 'italic');
+        pdf.setFontSize(10);
+        const descLines = pdf.splitTextToSize(doc.description, maxWidth);
+        descLines.forEach((line: string) => {
+          if (y + lineHeight > pageHeight - margin) {
+            pdf.addPage();
+            y = margin;
+          }
+          pdf.text(line, margin, y);
+          y += lineHeight;
+        });
+        y += 5;
+      }
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(10);
+
+      const contentLines = doc.content.split('\n');
+      contentLines.forEach((line) => {
+        if (y + lineHeight > pageHeight - margin) {
+          pdf.addPage();
+          y = margin;
+        }
+
+        if (line.trim() === '') {
+          y += lineHeight / 2;
+          return;
+        }
+
+        const wrappedLines = pdf.splitTextToSize(line, maxWidth);
+        wrappedLines.forEach((wrappedLine: string) => {
+          if (y + lineHeight > pageHeight - margin) {
+            pdf.addPage();
+            y = margin;
+          }
+          pdf.text(wrappedLine, margin, y);
+          y += lineHeight;
+        });
+      });
+
+      const fileName = `${doc.title.replace(/[^a-zа-яё0-9]/gi, '_')}_${new Date().toLocaleDateString('ru-RU').replace(/\./g, '-')}.pdf`;
+      pdf.save(fileName);
+
+      toast({
+        title: 'Успешно',
+        description: 'PDF документ скачан',
+      });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось создать PDF',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const startEdit = (doc: Document) => {
     setEditingDoc(doc);
     setFormData({
@@ -297,6 +387,7 @@ export function useDocumentsLibrary(show: boolean) {
     handleUpdateDocument,
     handleDeleteDocument,
     handleDownloadDocument,
+    handleDownloadPdf,
     startEdit,
     resetForm,
   };

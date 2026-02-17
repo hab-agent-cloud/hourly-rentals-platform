@@ -16,6 +16,7 @@ interface DocumentsListProps {
   categoryLabels: Record<string, string>;
   categoryIcons: Record<string, string>;
   onDownload: (doc: Document) => void;
+  onDownloadPdf?: (doc: Document) => void;
   onEdit: (doc: Document) => void;
   onDelete: (id: string) => void;
 }
@@ -25,6 +26,7 @@ export default function DocumentsList({
   categoryLabels,
   categoryIcons,
   onDownload,
+  onDownloadPdf,
   onEdit,
   onDelete,
 }: DocumentsListProps) {
@@ -46,6 +48,7 @@ export default function DocumentsList({
           categoryLabels={categoryLabels}
           categoryIcons={categoryIcons}
           onDownload={onDownload}
+          onDownloadPdf={onDownloadPdf}
           onEdit={onEdit}
           onDelete={onDelete}
         />

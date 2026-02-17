@@ -20,10 +20,11 @@ interface DocumentsLibraryViewProps {
   onSearchChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onAddClick: () => void;
-  onFormChange: (data: any) => void;
+  onFormChange: (data: { title: string; description: string; content: string; category: Document['category'] }) => void;
   onSubmit: () => void;
   onCancel: () => void;
   onDownload: (doc: Document) => void;
+  onDownloadPdf?: (doc: Document) => void;
   onEdit: (doc: Document) => void;
   onDelete: (id: string) => void;
 }
@@ -44,6 +45,7 @@ export default function DocumentsLibraryView({
   onSubmit,
   onCancel,
   onDownload,
+  onDownloadPdf,
   onEdit,
   onDelete,
 }: DocumentsLibraryViewProps) {
@@ -66,6 +68,7 @@ export default function DocumentsLibraryView({
               categoryLabels={categoryLabels}
               categoryIcons={categoryIcons}
               onDownload={onDownload}
+              onDownloadPdf={onDownloadPdf}
               onEdit={onEdit}
               onDelete={onDelete}
             />
