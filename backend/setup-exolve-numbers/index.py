@@ -3,6 +3,7 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import urllib.request
+import urllib.error
 
 
 def handler(event: dict, context) -> dict:
@@ -54,14 +55,20 @@ def handler(event: dict, context) -> dict:
         
         for row in numbers:
             phone = row['phone']
+            # Убираем + — Exolve принимает number_code как целое число
+            import re
+            phone_digits = int(re.sub(r'[^\d]', '', phone))
             
-            # МТС Exolve API для настройки webhook на номере
-            # Endpoint: PUT /numberoperations/v2/numbers/{number}/inbound
-            url = f'https://api.exolve.ru/numberoperations/v2/numbers/{phone}/inbound'
+            # POST https://api.exolve.ru/number/v1/SetCallForwarding
+            # call_forwarding_type: 3 = переадресация на URL (IPCR/webhook)
+            api_url = 'https://api.exolve.ru/number/v1/SetCallForwarding'
             
             config_data = {
-                'inboundType': 'webhook',
-                'webhookUrl': webhook_url
+                'number_code': phone_digits,
+                'call_forwarding_type': 3,
+                'call_forwarding_ipcr': {
+                    'url': webhook_url
+                }
             }
             
             headers = {
@@ -71,28 +78,30 @@ def handler(event: dict, context) -> dict:
             
             try:
                 req = urllib.request.Request(
-                    url,
+                    api_url,
                     data=json.dumps(config_data).encode('utf-8'),
                     headers=headers,
-                    method='PUT'
+                    method='POST'
                 )
                 
-                with urllib.request.urlopen(req, timeout=10) as response:
-                    if response.status in (200, 201, 204):
+                try:
+                    with urllib.request.urlopen(req, timeout=10) as response:
+                        resp_text = response.read().decode('utf-8')
                         results.append({
                             'phone': phone,
                             'status': 'configured',
-                            'webhook': webhook_url
+                            'webhook': webhook_url,
+                            'response': resp_text
                         })
-                        print(f"[SETUP] Configured {phone} -> webhook")
-                    else:
-                        resp_data = json.loads(response.read().decode('utf-8'))
-                        results.append({
-                            'phone': phone,
-                            'status': 'error',
-                            'error': f"Status {response.status}: {resp_data}"
-                        })
-                        print(f"[SETUP] Error for {phone}: {resp_data}")
+                        print(f"[SETUP] Configured {phone} -> {webhook_url}: {resp_text}")
+                except urllib.error.HTTPError as e:
+                    err_body = e.read().decode('utf-8')
+                    results.append({
+                        'phone': phone,
+                        'status': 'error',
+                        'error': f"HTTP {e.code}: {err_body}"
+                    })
+                    print(f"[SETUP] Error for {phone}: HTTP {e.code}: {err_body}")
                         
             except Exception as e:
                 results.append({
