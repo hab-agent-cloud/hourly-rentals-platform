@@ -106,6 +106,15 @@ export default function PopularCitiesSection({ allCities = [] }: PopularCitiesSe
   }, []);
 
   useEffect(() => {
+    if (detectedCity) {
+      const detectedIndex = popularCities.findIndex(c => c.name === detectedCity);
+      if (detectedIndex >= 0) {
+        setCurrentCityIndex(Math.floor(detectedIndex / 4));
+      }
+    }
+  }, [detectedCity]);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentCityIndex((prev) => (prev + 1) % Math.ceil(popularCities.length / 4));
     }, 5000);

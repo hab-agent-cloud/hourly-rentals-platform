@@ -152,10 +152,15 @@ export default function Index() {
       .filter(l => minHours === null || l.minHours <= minHours)
       .filter(l => maxPrice === null || l.price <= maxPrice)
       .filter(l => {
+        if (!search) return true;
         return l.title.toLowerCase().includes(search) || 
                l.city.toLowerCase().includes(search) ||
                (l.metro && l.metro.toLowerCase().includes(search)) ||
-               (l.district && l.district.toLowerCase().includes(search));
+               (l.district && l.district.toLowerCase().includes(search)) ||
+               (l.address && l.address.toLowerCase().includes(search)) ||
+               (Array.isArray(l.metro_stations) && l.metro_stations.some((s: any) =>
+                 s.station_name && s.station_name.toLowerCase().includes(search)
+               ));
       })
       .filter(l => {
         if (selectedFeatures.length === 0) return true;
