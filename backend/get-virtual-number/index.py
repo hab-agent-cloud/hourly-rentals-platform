@@ -106,11 +106,11 @@ def handler(event: dict, context) -> dict:
               AND assigned_until < NOW()
         """)
         
-        # Ищем свободный номер
+        # Ищем свободный активный номер
         cur.execute("""
             SELECT phone 
             FROM virtual_numbers 
-            WHERE is_busy = FALSE 
+            WHERE is_busy = FALSE AND (is_active = TRUE OR is_active IS NULL)
             LIMIT 1
             FOR UPDATE SKIP LOCKED
         """)

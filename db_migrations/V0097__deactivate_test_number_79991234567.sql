@@ -1,0 +1,2 @@
+ALTER TABLE t_p39732784_hourly_rentals_platf.virtual_numbers ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+UPDATE t_p39732784_hourly_rentals_platf.virtual_numbers SET is_active = FALSE WHERE phone = '+79991234567';

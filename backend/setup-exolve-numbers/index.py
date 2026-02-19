@@ -44,7 +44,7 @@ def handler(event: dict, context) -> dict:
         conn = psycopg2.connect(os.environ['DATABASE_URL'])
         cur = conn.cursor(cursor_factory=RealDictCursor)
         
-        cur.execute("SELECT phone FROM virtual_numbers ORDER BY id")
+        cur.execute("SELECT phone FROM virtual_numbers WHERE is_active = TRUE OR is_active IS NULL ORDER BY id")
         numbers = cur.fetchall()
         
         cur.close()
