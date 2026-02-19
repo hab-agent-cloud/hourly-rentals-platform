@@ -1,0 +1,1 @@
+UPDATE t_p39732784_hourly_rentals_platf.listings SET is_archived = true, moderation_status = 'rejected' WHERE id = 2191;

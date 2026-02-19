@@ -35,7 +35,8 @@ def handler(event: dict, context) -> dict:
         }
     
     try:
-        body = json.loads(event.get('body', '{}'))
+        raw_body = event.get('body') or '{}'
+        body = json.loads(raw_body)
         
         # Валидация обязательных полей
         required_fields = ['owner_full_name', 'owner_email', 'owner_phone', 'title', 'type', 'city', 'district', 'address', 'rooms']

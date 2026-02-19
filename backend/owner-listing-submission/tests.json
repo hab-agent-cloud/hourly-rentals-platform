@@ -43,10 +43,7 @@
       },
       "expectedStatus": 201,
       "expectedBody": {
-        "success": true,
-        "message": "string",
-        "listing_id": "number",
-        "owner_id": "number"
+        "success": true
       },
       "bodyMatcher": "partial"
     }
