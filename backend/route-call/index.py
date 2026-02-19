@@ -229,7 +229,8 @@ def handler(event: dict, context) -> dict:
                 print(f"[ROUTE] Forwarding {virtual_number} -> {result['owner_phone']} (listing {result['listing_id']})")
                 
                 # Конвертируем номер в международный формат для МТС Exolve
-                owner_phone = result['owner_phone'].replace('+', '').replace(' ', '')
+                import re
+                owner_phone = re.sub(r'[^\d]', '', result['owner_phone'])
                 if owner_phone.startswith('8'):
                     owner_phone = '7' + owner_phone[1:]  # 89104676860 -> 79104676860
                 
