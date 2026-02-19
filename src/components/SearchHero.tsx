@@ -220,7 +220,7 @@ export default function SearchHero({
               <div className="relative">
                 <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Город, адрес, метро..."
+                  placeholder={detectedCity ? `Поиск в ${detectedCity}...` : "Город, адрес, метро..."}
                   className="pl-10 pr-20 h-10 sm:h-12 text-base sm:text-lg border-purple-200"
                   value={searchCity}
                   onChange={(e) => {

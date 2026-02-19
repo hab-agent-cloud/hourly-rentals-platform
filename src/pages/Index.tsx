@@ -75,8 +75,8 @@ export default function Index() {
         console.log('City detected:', cityData.city);
         setDetectedCity(cityData.city);
         setSelectedCity(cityData.city);
-        // Загружаем объекты определённого города
-        loadListings(cityData.city);
+        await loadListings(cityData.city);
+        setTimeout(() => scrollToResults(), 300);
       }
     } catch (error) {
       console.error('Failed to detect city:', error);
