@@ -1,30 +1,62 @@
 import { Helmet } from 'react-helmet-async';
 
 interface SEOStructuredDataProps {
-  listings?: any[];
+  listings?: Record<string, unknown>[];
   cities?: string[];
 }
 
 const SEOStructuredData = ({ listings = [], cities = [] }: SEOStructuredDataProps) => {
+  const getFirstImage = (imageUrl: unknown): string | undefined => {
+    if (!imageUrl) return undefined;
+    if (typeof imageUrl === 'string') {
+      try {
+        const parsed = JSON.parse(imageUrl);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed[0];
+      } catch {
+        return imageUrl;
+      }
+    }
+    if (Array.isArray(imageUrl) && imageUrl.length > 0) return imageUrl[0] as string;
+    return undefined;
+  };
+
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": listings.slice(0, 10).map((listing, index) => ({
+    "name": "Почасовая аренда номеров — каталог объектов",
+    "description": "Лучшие объекты для почасовой аренды по всей России",
+    "itemListElement": listings.slice(0, 12).map((listing, index) => ({
       "@type": "ListItem",
       "position": index + 1,
       "item": {
-        "@type": "Hotel",
+        "@type": "LodgingBusiness",
         "name": listing.title,
-        "description": listing.description || `Почасовая аренда номеров в ${listing.city}`,
-        "image": listing.image_url,
+        "description": `Почасовая аренда номеров в ${listing.city}. От ${listing.price || 250}₽/час. Минимум ${listing.minHours || 1} час.`,
+        "image": getFirstImage(listing.image_url),
         "address": {
           "@type": "PostalAddress",
           "addressLocality": listing.city,
-          "addressRegion": listing.district,
+          "streetAddress": listing.address || listing.district,
           "addressCountry": "RU"
         },
         "url": `https://120minut.ru/listing/${listing.id}`,
-        "priceRange": "$$"
+        "priceRange": `от ${listing.price || 250}₽/час`,
+        "telephone": listing.phone,
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+          "opens": "00:00",
+          "closes": "23:59"
+        },
+        ...(listing.rating ? {
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": listing.rating,
+            "reviewCount": listing.reviews || 1,
+            "bestRating": "5",
+            "worstRating": "1"
+          }
+        } : {})
       }
     }))
   };

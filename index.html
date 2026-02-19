@@ -16,7 +16,7 @@
     <meta name="bingbot" content="index, follow"/>
     <meta name="yandex-verification" content="e4f71593ff2478e9"/>
     <meta name="title" content="Аренда на час - отели и гостиницы от 2 часов | 120 МИНУТ"/>
-    <meta property="ya:ovs:upload_date" content="2024-01-15"/>
+    <meta property="ya:ovs:upload_date" content="2026-02-19"/>
     <meta property="ya:ovs:adult" content="false"/>
     <meta property="ya:ovs:allow_embed" content="true"/>
     <meta name="geo.region" content="RU"/>
@@ -52,7 +52,7 @@
     <meta property="og:locale" content="ru_RU">
     <meta property="og:locale:alternate" content="en_US">
     <meta property="article:publisher" content="https://120minut.ru">
-    <meta property="article:modified_time" content="2026-02-05T12:00:00+03:00">
+    <meta property="article:modified_time" content="2026-02-19T12:00:00+03:00">
     <meta property="article:tag" content="почасовая аренда"/>
     <meta property="article:tag" content="отель на час"/>
     <meta property="article:tag" content="гостиница на час"/>
@@ -84,11 +84,16 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "120 МИНУТ",
+      "alternateName": "120minut.ru",
       "url": "https://120minut.ru",
+      "inLanguage": "ru-RU",
       "description": "Почасовая аренда номеров в отелях и апартаментов от 2 часов по всей России",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://120minut.ru/?search={search_term_string}",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://120minut.ru/?city={search_term_string}"
+        },
         "query-input": "required name=search_term_string"
       }
     }
@@ -107,19 +112,28 @@
         "height": 512
       },
       "description": "Платформа для почасовой аренды номеров в отелях по всей России. Более 500 проверенных объектов в 21 городе. Без комиссии. Работаем в городах: Москва, Санкт-Петербург, Казань, Екатеринбург, Новосибирск, Нижний Новгород, Челябинск, Самара, Омск, Ростов-на-Дону, Уфа, Красноярск, Пермь, Воронеж, Волгоград, Краснодар, Сочи, Тюмень, Барнаул, Владивосток, Иркутск.",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "contactType": "customer support",
-        "email": "support@120minut.ru",
-        "availableLanguage": ["Russian", "English"],
-        "areaServed": "RU"
-      },
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "email": "support@120minut.ru",
+          "availableLanguage": ["Russian"],
+          "areaServed": "RU",
+          "hoursAvailable": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+            "opens": "00:00",
+            "closes": "23:59"
+          }
+        }
+      ],
       "sameAs": [
         "https://t.me/HELP120MINUT"
       ],
       "address": {
         "@type": "PostalAddress",
-        "addressCountry": "RU"
+        "addressCountry": "RU",
+        "addressLocality": "Москва"
       },
       "aggregateRating": {
         "@type": "AggregateRating",
@@ -129,7 +143,23 @@
         "worstRating": "1"
       },
       "foundingDate": "2025",
-      "slogan": "Почасовая аренда отелей от 2 часов"
+      "slogan": "Почасовая аренда отелей от 2 часов",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Почасовая аренда номеров",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Почасовая аренда номеров в отелях"
+            },
+            "priceCurrency": "RUB",
+            "price": "250",
+            "availability": "https://schema.org/InStock"
+          }
+        ]
+      }
     }
     </script>
     <script type="application/ld+json">
