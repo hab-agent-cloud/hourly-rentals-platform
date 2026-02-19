@@ -24,7 +24,8 @@ def setup_mts_forwarding(api_key: str, virtual_number: str, target_phone: str, e
 def handler(event: dict, context) -> dict:
     """
     Выдаёт виртуальный номер из пула для звонка по объекту.
-    Привязывает номер к объекту на 30 минут.
+    Привязывает номер к объекту на 10 минут.
+    Если все подменные номера заняты — возвращает прямой номер владельца.
     """
     method = event.get('httpMethod', 'POST')
     
@@ -118,12 +119,21 @@ def handler(event: dict, context) -> dict:
         result = cur.fetchone()
         
         if not result:
+            cur.execute("""
+                INSERT INTO call_tracking 
+                (virtual_number, listing_id, client_phone, shown_at, expires_at)
+                VALUES ('direct', %s, %s, NOW(), NOW() + INTERVAL '10 minutes')
+            """, (listing_id, client_phone))
+            conn.commit()
+            cur.close()
             conn.close()
             return {
-                'statusCode': 503,
+                'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
-                    'error': 'All virtual numbers are busy. Please try again in a few minutes.'
+                    'owner_phone': owner_phone,
+                    'fallback': True,
+                    'message': 'All virtual numbers are busy, showing direct number'
                 })
             }
         

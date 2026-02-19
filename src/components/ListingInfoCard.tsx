@@ -195,6 +195,9 @@ export default function ListingInfoCard({ listing }: ListingInfoCardProps) {
                         if (data.virtual_number) {
                           console.log('[ListingInfoCard] Got virtual number:', data.virtual_number);
                           setVirtualNumber(data.virtual_number);
+                        } else if (data.owner_phone) {
+                          console.log('[ListingInfoCard] All virtual numbers busy, using owner phone:', data.owner_phone);
+                          setVirtualNumber(data.owner_phone);
                         } else {
                           console.log('[ListingInfoCard] No virtual number, using fallback:', listing.phone);
                           setVirtualNumber(listing.phone);
