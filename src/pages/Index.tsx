@@ -245,6 +245,12 @@ export default function Index() {
             setNearMe={setNearMe}
             setUserLocation={setUserLocation}
             onFilterChange={() => setTimeout(scrollToResults, 200)}
+            allListings={allListings}
+            onCityAndSearchSelect={(city, search) => {
+              handleCityChange(city);
+              setSearchCity(search);
+              setTimeout(scrollToResults, 400);
+            }}
             />
           </div>
 

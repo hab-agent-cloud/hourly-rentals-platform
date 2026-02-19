@@ -2,7 +2,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+interface SearchSuggestion {
+  type: 'metro' | 'city' | 'address' | 'title';
+  label: string;
+  city: string;
+  walk_minutes?: number;
+}
 
 interface SearchHeroProps {
   searchCity: string;
@@ -27,6 +34,8 @@ interface SearchHeroProps {
   setNearMe: (value: boolean) => void;
   setUserLocation: (value: {lat: number, lng: number} | null) => void;
   onFilterChange?: () => void;
+  allListings?: Record<string, unknown>[];
+  onCityAndSearchSelect?: (city: string, search: string) => void;
 }
 
 export default function SearchHero({
@@ -52,7 +61,118 @@ export default function SearchHero({
   setNearMe,
   setUserLocation,
   onFilterChange,
+  allListings = [],
+  onCityAndSearchSelect,
 }: SearchHeroProps) {
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  const normalize = (str: string) =>
+    str.toLowerCase()
+      .replace(/ё/g, 'е')
+      .replace(/й/g, 'и')
+      .trim();
+
+  const buildSuggestions = useCallback((query: string): SearchSuggestion[] => {
+    if (!query || query.length < 2 || !allListings.length) return [];
+    const q = normalize(query);
+    const seen = new Set<string>();
+    const result: SearchSuggestion[] = [];
+
+    for (const l of allListings) {
+      const city = (l.city as string) || '';
+      const metro = (l.metro as string) || '';
+      const district = (l.district as string) || '';
+      const address = (l.address as string) || '';
+      const title = (l.title as string) || '';
+      const metroStations = (l.metro_stations as { station_name: string; walk_minutes?: number }[]) || [];
+
+      if (metro && normalize(metro).includes(q)) {
+        const key = `metro:${metro}:${city}`;
+        if (!seen.has(key)) { seen.add(key); result.push({ type: 'metro', label: metro, city, walk_minutes: l.metro_walk as number }); }
+      }
+      for (const s of metroStations) {
+        if (s.station_name && normalize(s.station_name).includes(q)) {
+          const key = `metro:${s.station_name}:${city}`;
+          if (!seen.has(key)) { seen.add(key); result.push({ type: 'metro', label: s.station_name, city, walk_minutes: s.walk_minutes }); }
+        }
+      }
+      if (district && normalize(district).includes(q)) {
+        const key = `district:${district}:${city}`;
+        if (!seen.has(key)) { seen.add(key); result.push({ type: 'address', label: district, city }); }
+      }
+      if (title && normalize(title).includes(q)) {
+        const key = `title:${title}`;
+        if (!seen.has(key)) { seen.add(key); result.push({ type: 'title', label: title, city }); }
+      }
+      if (address && normalize(address).includes(q)) {
+        const key = `address:${address}`;
+        if (!seen.has(key)) { seen.add(key); result.push({ type: 'address', label: address, city }); }
+      }
+    }
+
+    return result.slice(0, 8);
+  }, [allListings]);
+
+  const handleSearchInput = (value: string) => {
+    setSearchCity(value);
+    if (value.length >= 2) {
+      const s = buildSuggestions(value);
+      setSuggestions(s);
+      setShowSuggestions(s.length > 0);
+    } else {
+      setShowSuggestions(false);
+    }
+    const matchingCity = cities.find(city => city.toLowerCase() === value.toLowerCase());
+    if (matchingCity) {
+      setSelectedCity(matchingCity);
+    } else if (value === '') {
+      setSelectedCity('');
+    }
+  };
+
+  const handleSuggestionClick = (s: SearchSuggestion) => {
+    setShowSuggestions(false);
+    if (s.type === 'metro') {
+      setSearchCity(s.label);
+      if (onCityAndSearchSelect) {
+        onCityAndSearchSelect(s.city, s.label);
+      } else {
+        setSelectedCity(s.city);
+      }
+    } else if (s.type === 'title') {
+      setSearchCity(s.label);
+    } else {
+      setSearchCity(s.label);
+      setSelectedCity(s.city);
+    }
+    onFilterChange?.();
+    setTimeout(() => onFilterChange?.(), 100);
+  };
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(e.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(e.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const suggestionIcon = (type: SearchSuggestion['type']) => {
+    if (type === 'metro') return 'Train';
+    if (type === 'title') return 'Building2';
+    return 'MapPin';
+  };
+
   const popularFeatures = [
     { name: 'Джакузи', icon: 'Bath' },
     { name: 'Кухня', icon: 'ChefHat' },
@@ -154,7 +274,7 @@ export default function SearchHero({
     }
 
     try {
-      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const SpeechRecognition = (window as { webkitSpeechRecognition?: unknown; SpeechRecognition?: unknown }).webkitSpeechRecognition || (window as { webkitSpeechRecognition?: unknown; SpeechRecognition?: unknown }).SpeechRecognition;
       console.log('[Voice] Creating recognition instance');
       const recognition = new SpeechRecognition();
       recognition.lang = 'ru-RU';
@@ -167,7 +287,7 @@ export default function SearchHero({
         setVoiceError(null);
       };
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: { results: { [key: number]: { [key: number]: { transcript: string } } } }) => {
         const transcript = event.results[0][0].transcript;
         console.log('[Voice] Transcript:', transcript);
         const parsed = parseVoiceQuery(transcript);
@@ -186,7 +306,7 @@ export default function SearchHero({
         onFilterChange?.();
       };
 
-      recognition.onerror = (event: any) => {
+      recognition.onerror = (event: { error: string }) => {
         console.log('[Voice] Error:', event.error);
         setIsListening(false);
         if (event.error === 'no-speech') {
@@ -220,22 +340,15 @@ export default function SearchHero({
               <div className="relative">
                 <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder={detectedCity ? `Поиск в ${detectedCity}...` : "Город, адрес, метро..."}
+                  ref={inputRef}
+                  placeholder={detectedCity ? `Поиск в ${detectedCity}...` : "Метро, адрес, название..."}
                   className="pl-10 pr-20 h-10 sm:h-12 text-base sm:text-lg border-purple-200"
                   value={searchCity}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setSearchCity(value);
-                    // Если введенное значение точно совпадает с городом из списка, выбираем его
-                    const matchingCity = cities.find(city => 
-                      city.toLowerCase() === value.toLowerCase()
-                    );
-                    if (matchingCity) {
-                      setSelectedCity(matchingCity);
-                    } else if (value === '') {
-                      setSelectedCity('');
-                    }
+                  onChange={(e) => handleSearchInput(e.target.value)}
+                  onFocus={() => {
+                    if (suggestions.length > 0) setShowSuggestions(true);
                   }}
+                  autoComplete="off"
                 />
                 <button
                   onClick={handleVoiceSearch}
@@ -251,6 +364,32 @@ export default function SearchHero({
                   )}
                   <Icon name={isListening ? "Radio" : "Mic"} size={20} className="relative" />
                 </button>
+
+                {showSuggestions && suggestions.length > 0 && (
+                  <div
+                    ref={suggestionsRef}
+                    className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl border border-purple-100 overflow-hidden z-50"
+                  >
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-purple-50 transition-colors text-left"
+                        onMouseDown={(e) => { e.preventDefault(); handleSuggestionClick(s); }}
+                      >
+                        <span className="shrink-0 w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center">
+                          <Icon name={suggestionIcon(s.type)} size={14} className="text-purple-600" />
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-sm font-medium text-gray-900 truncate">{s.label}</span>
+                          <span className="block text-xs text-gray-400">
+                            {s.type === 'metro' ? `Метро · ${s.city}${s.walk_minutes ? ` · ${s.walk_minutes} мин пешком` : ''}` : s.type === 'title' ? `Объект · ${s.city}` : s.city}
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               {voiceError && (
                 <p className="text-xs text-red-500 mt-1">{voiceError}</p>
