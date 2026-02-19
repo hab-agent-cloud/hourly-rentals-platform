@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
@@ -57,6 +59,8 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [employeeActions, setEmployeeActions] = useState<EmployeeAction[]>([]);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [empSearch, setEmpSearch] = useState('');
+  const [empRoleFilter, setEmpRoleFilter] = useState('all');
   const [formData, setFormData] = useState({
     email: '',
     name: '',
@@ -223,13 +227,35 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
     setFormData((prev) => ({ ...prev, ...data }));
   };
 
+  const roleLabels: Record<string, string> = {
+    superadmin: 'Суперадмин',
+    manager: 'Менеджер',
+    chief_manager: 'Главный менеджер',
+    operational_manager: 'Операционный менеджер',
+    employee: 'Сотрудник',
+    operator: 'Оператор',
+  };
+
+  const filteredEmployees = useMemo(() => {
+    return employees.filter(e => {
+      const roleMatch = empRoleFilter === 'all' || e.role === empRoleFilter;
+      if (!empSearch) return roleMatch;
+      const q = empSearch.toLowerCase();
+      return roleMatch && (
+        e.name?.toLowerCase().includes(q) ||
+        e.email?.toLowerCase().includes(q) ||
+        e.login?.toLowerCase().includes(q)
+      );
+    });
+  }, [employees, empSearch, empRoleFilter]);
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-4">
           <h2 className="text-3xl font-bold">Сотрудники</h2>
           <Badge variant="secondary" className="text-lg px-4 py-1">
-            {employees.length}
+            {filteredEmployees.length} из {employees.length}
           </Badge>
         </div>
         <Button
@@ -241,13 +267,46 @@ export default function AdminEmployeesTab({ token }: AdminEmployeesTabProps) {
         </Button>
       </div>
 
+      <div className="flex gap-3 mb-6">
+        <div className="relative flex-1">
+          <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Поиск по имени, email, логину..."
+            value={empSearch}
+            onChange={(e) => setEmpSearch(e.target.value)}
+            className="pl-10"
+          />
+          {empSearch && (
+            <button onClick={() => setEmpSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <Icon name="X" size={18} />
+            </button>
+          )}
+        </div>
+        <Select value={empRoleFilter} onValueChange={setEmpRoleFilter}>
+          <SelectTrigger className="w-[220px]">
+            <SelectValue placeholder="Все роли" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Все роли</SelectItem>
+            {Object.entries(roleLabels).map(([value, label]) => (
+              <SelectItem key={value} value={value}>{label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
           <Icon name="Loader2" size={48} className="animate-spin text-purple-600" />
         </div>
+      ) : filteredEmployees.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-2">
+          <Icon name="SearchX" size={40} />
+          <p>Ничего не найдено</p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {employees.map((employee) => (
+          {filteredEmployees.map((employee) => (
             <EmployeeCard
               key={employee.id}
               employee={employee}

@@ -163,9 +163,15 @@ export function useAdminListings(token: string | null) {
       const cityMatch = selectedCity === 'all' || listing.city === selectedCity;
       const typeMatch = selectedType === 'all' || listing.type === selectedType;
       
+      const q = searchQuery.toLowerCase();
       const searchMatch = !searchQuery || 
-        listing.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        listing.district?.toLowerCase().includes(searchQuery.toLowerCase());
+        listing.title?.toLowerCase().includes(q) ||
+        listing.district?.toLowerCase().includes(q) ||
+        listing.metro?.toLowerCase().includes(q) ||
+        listing.address?.toLowerCase().includes(q) ||
+        listing.city?.toLowerCase().includes(q) ||
+        listing.manager_name?.toLowerCase().includes(q) ||
+        String(listing.id) === q.trim();
       
       if (showOnlyUnrated) {
         const hasMainRating = (listing.expert_photo_rating && listing.expert_photo_rating > 0) || 

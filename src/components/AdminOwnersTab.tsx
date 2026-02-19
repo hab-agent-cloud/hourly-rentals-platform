@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
@@ -43,6 +44,8 @@ export default function AdminOwnersTab({ token }: { token: string }) {
   const [bonusAmount, setBonusAmount] = useState('');
   const [availableListings, setAvailableListings] = useState<Listing[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [ownersSearch, setOwnersSearch] = useState('');
+  const [showArchived, setShowArchived] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedListingIds, setSelectedListingIds] = useState<number[]>([]);
   const { toast } = useToast();
@@ -76,6 +79,22 @@ export default function AdminOwnersTab({ token }: { token: string }) {
       setIsLoading(false);
     }
   };
+
+  const filteredOwners = useMemo(() => {
+    return owners.filter(o => {
+      if (!showArchived && o.is_archived) return false;
+      if (showArchived && !o.is_archived) return false;
+      if (!ownersSearch) return true;
+      const q = ownersSearch.toLowerCase();
+      return (
+        o.full_name?.toLowerCase().includes(q) ||
+        o.email?.toLowerCase().includes(q) ||
+        o.phone?.toLowerCase().includes(q) ||
+        o.login?.toLowerCase().includes(q) ||
+        o.hotels?.some(h => h.title?.toLowerCase().includes(q) || h.city?.toLowerCase().includes(q))
+      );
+    });
+  }, [owners, ownersSearch, showArchived]);
 
   const handleCreate = () => {
     setSelectedOwner(null);
@@ -320,25 +339,54 @@ export default function AdminOwnersTab({ token }: { token: string }) {
         <div className="flex items-center gap-4">
           <h2 className="text-3xl font-bold">Владельцы отелей</h2>
           <Badge variant="secondary" className="text-lg px-4 py-1">
-            {owners.length}
+            {filteredOwners.length} из {owners.filter(o => showArchived ? o.is_archived : !o.is_archived).length}
           </Badge>
         </div>
-        <Button
-          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-          onClick={handleCreate}
-        >
-          <Icon name="Plus" size={18} className="mr-2" />
-          Добавить владельца
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant={showArchived ? 'default' : 'outline'}
+            onClick={() => setShowArchived(!showArchived)}
+          >
+            <Icon name="Archive" size={18} className="mr-2" />
+            {showArchived ? 'Скрыть архив' : 'Архив'}
+          </Button>
+          <Button
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            onClick={handleCreate}
+          >
+            <Icon name="Plus" size={18} className="mr-2" />
+            Добавить владельца
+          </Button>
+        </div>
+      </div>
+
+      <div className="relative">
+        <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Поиск по имени, email, телефону, логину, названию отеля..."
+          value={ownersSearch}
+          onChange={(e) => setOwnersSearch(e.target.value)}
+          className="pl-10"
+        />
+        {ownersSearch && (
+          <button onClick={() => setOwnersSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+            <Icon name="X" size={18} />
+          </button>
+        )}
       </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
           <Icon name="Loader2" size={48} className="animate-spin text-purple-600" />
         </div>
+      ) : filteredOwners.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-2">
+          <Icon name="SearchX" size={40} />
+          <p>Ничего не найдено</p>
+        </div>
       ) : (
         <div className="grid gap-4">
-          {owners.map((owner) => (
+          {filteredOwners.map((owner) => (
             <OwnerCard
               key={owner.id}
               owner={owner}

@@ -136,7 +136,7 @@ export default function AdminListingsFilters({
         <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Поиск по названию объекта..."
+          placeholder="Поиск по названию, адресу, метро, менеджеру, ID..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-10 w-full"
