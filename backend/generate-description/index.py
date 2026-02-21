@@ -1,6 +1,7 @@
 import json
 import os
 import psycopg2
+# yandexgpt
 from psycopg2.extras import RealDictCursor
 import urllib.request
 import urllib.error
