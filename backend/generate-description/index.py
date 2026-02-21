@@ -202,6 +202,7 @@ def handler(event: dict, context) -> dict:
         }
 
     except ValueError as e:
+        print(f"ERROR ValueError: {e}")
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -210,6 +211,7 @@ def handler(event: dict, context) -> dict:
         }
     except urllib.error.HTTPError as e:
         error_body = e.read().decode('utf-8') if e.fp else ''
+        print(f"ERROR OpenAI HTTPError: {e.code}, body={error_body[:500]}")
         return {
             'statusCode': 502,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -217,6 +219,9 @@ def handler(event: dict, context) -> dict:
             'isBase64Encoded': False
         }
     except Exception as e:
+        import traceback
+        print(f"ERROR Exception: {type(e).__name__}: {e}")
+        print(traceback.format_exc())
         if conn:
             conn.close()
         return {
