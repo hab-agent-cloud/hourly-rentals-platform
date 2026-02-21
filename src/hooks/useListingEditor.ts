@@ -227,6 +227,12 @@ export function useListingEditor(id: string | undefined) {
     toast({ title: 'Удалено', description: 'Фото удалено' });
   };
 
+  const handleReorderRoomPhotos = (roomIndex: number, newImages: string[]) => {
+    const updatedRooms = [...formData.rooms];
+    updatedRooms[roomIndex].images = newImages;
+    setFormData({ ...formData, rooms: updatedRooms });
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -366,6 +372,7 @@ export function useListingEditor(id: string | undefined) {
     handleLogoUpload,
     handleRoomPhotoUpload,
     handleDeleteRoomPhoto,
+    handleReorderRoomPhotos,
     handleSave,
     handleFormChange,
     handleActivateTrial,

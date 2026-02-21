@@ -27,6 +27,7 @@ interface ListingEditorContentProps {
   onRoomPhotoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSelectRoom: (roomIdx: number) => void;
   onDeleteRoomPhoto: (roomIndex: number, photoIndex: number) => void;
+  onReorderRoomPhotos: (roomIndex: number, newImages: string[]) => void;
   onSave: () => void;
 }
 
@@ -47,6 +48,7 @@ export default function ListingEditorContent({
   onRoomPhotoUpload,
   onSelectRoom,
   onDeleteRoomPhoto,
+  onReorderRoomPhotos,
   onSave
 }: ListingEditorContentProps) {
   const navigate = useNavigate();
@@ -108,6 +110,7 @@ export default function ListingEditorContent({
         onRoomPhotoUpload={onRoomPhotoUpload}
         onSelectRoom={onSelectRoom}
         onDeleteRoomPhoto={onDeleteRoomPhoto}
+        onReorderRoomPhotos={onReorderRoomPhotos}
       />
       
       <div className="flex justify-between items-center pt-4">

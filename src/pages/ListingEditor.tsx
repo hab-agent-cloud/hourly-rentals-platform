@@ -29,6 +29,7 @@ export default function ListingEditor() {
     handleLogoUpload,
     handleRoomPhotoUpload,
     handleDeleteRoomPhoto,
+    handleReorderRoomPhotos,
     handleSave,
     handleFormChange,
     handleActivateTrial,
@@ -96,6 +97,7 @@ export default function ListingEditor() {
           onRoomPhotoUpload={handleRoomPhotoUpload}
           onSelectRoom={(roomIdx) => setSelectedRoomForPhoto(roomIdx)}
           onDeleteRoomPhoto={handleDeleteRoomPhoto}
+          onReorderRoomPhotos={handleReorderRoomPhotos}
           onSave={handleSave}
         />
       </div>
