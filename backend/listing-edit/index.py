@@ -118,7 +118,7 @@ def handler(event: dict, context) -> dict:
             
             # Получаем комнаты для объекта
             cur.execute(f'''
-                SELECT id, type, price, description, image_url, square_meters, features, min_hours
+                SELECT id, type, price, description, image_url, square_meters, features, min_hours, images
                 FROM {schema}.rooms
                 WHERE listing_id = %s
                 ORDER BY id
@@ -135,7 +135,8 @@ def handler(event: dict, context) -> dict:
                     'image_url': room_row[4],
                     'square_meters': room_row[5],
                     'features': room_row[6] if room_row[6] else [],
-                    'min_hours': room_row[7]
+                    'min_hours': room_row[7],
+                    'images': list(room_row[8]) if room_row[8] else []
                 })
             
             listing = {
@@ -275,6 +276,20 @@ def handler(event: dict, context) -> dict:
             '''
             
             cur.execute(query, params)
+            
+            # Сохраняем фотографии комнат если переданы
+            rooms = body.get('rooms')
+            if rooms and isinstance(rooms, list):
+                for room in rooms:
+                    room_id = room.get('id')
+                    room_images = room.get('images')
+                    if room_id and room_images is not None:
+                        cur.execute(f'''
+                            UPDATE {schema}.rooms
+                            SET images = %s
+                            WHERE id = %s AND listing_id = %s
+                        ''', (room_images, room_id, listing_id))
+            
             conn.commit()
             
             return {

@@ -270,6 +270,17 @@ export default function HotelSubscriptionCard({ listing, subscriptionInfo, onExt
               <span className="sm:hidden">{listing.moderation_status === 'rejected' ? 'Исправить' : 'Редактировать'}</span>
             </Button>
           )}
+          {onEdit && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open(`/listing/${listing.id}/edit`, '_blank')}
+              className="w-full h-8 sm:h-9 text-xs sm:text-sm border-purple-300 text-purple-700 hover:bg-purple-50"
+            >
+              <Icon name="Images" size={14} className="mr-1 sm:mr-2" />
+              <span>Управление фотографиями</span>
+            </Button>
+          )}
 
           {listing.is_archived && onUnarchive && (
             <Button

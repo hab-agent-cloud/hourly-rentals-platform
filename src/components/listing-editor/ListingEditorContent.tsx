@@ -111,7 +111,10 @@ export default function ListingEditorContent({
       />
       
       <div className="flex justify-between items-center pt-4">
-        <Button variant="outline" onClick={() => navigate('/manager')}>
+        <Button variant="outline" onClick={() => {
+          const isOwner = !!localStorage.getItem('ownerToken') && !localStorage.getItem('adminToken');
+          navigate(isOwner ? '/owner/dashboard' : '/manager');
+        }}>
           <Icon name="X" size={16} className="mr-2" />
           Отменить
         </Button>
