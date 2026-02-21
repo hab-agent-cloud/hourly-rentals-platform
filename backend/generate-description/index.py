@@ -66,7 +66,11 @@ def handler(event: dict, context) -> dict:
     if isinstance(raw_body, dict):
         body = raw_body
     else:
-        body = json.loads(raw_body or '{}')
+        parsed = json.loads(raw_body or '{}')
+        if isinstance(parsed, str):
+            body = json.loads(parsed)
+        else:
+            body = parsed
     listing_id = body.get('listing_id')
 
     if not listing_id:
