@@ -128,6 +128,7 @@ def handler(event: dict, context) -> dict:
         conn.close()
         conn = None
 
+        print(f"DB DONE: listing_found={listing is not None}, rooms_count={len(rooms)}, metro_count={len(metro_stations)}")
         parts = []
         parts.append(f"Название: {listing['title']}")
         if listing.get('type'):
