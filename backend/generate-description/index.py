@@ -63,6 +63,8 @@ def handler(event: dict, context) -> dict:
         }
 
     raw_body = event.get('body', '{}')
+    print(f"RAW_BODY type={type(raw_body).__name__} repr={repr(raw_body)[:300]}")
+    print(f"EVENT keys={list(event.keys())}")
     if isinstance(raw_body, dict):
         body = raw_body
     else:
@@ -72,6 +74,7 @@ def handler(event: dict, context) -> dict:
         else:
             body = parsed
     listing_id = body.get('listing_id')
+    print(f"BODY={body}, listing_id={listing_id}")
 
     if not listing_id:
         return {
