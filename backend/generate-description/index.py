@@ -6,27 +6,32 @@ import urllib.request
 import urllib.error
 
 
-def call_openai(prompt: str, max_tokens: int = 1000) -> str:
-    api_key = os.environ.get('OPENAI_API_KEY', '')
-    if not api_key:
-        raise ValueError('OPENAI_API_KEY not configured')
+def call_yandexgpt(prompt: str, max_tokens: int = 1000) -> str:
+    api_key = os.environ.get('YANDEX_GPT_API_KEY', '')
+    folder_id = os.environ.get('YANDEX_FOLDER_ID', '')
+    if not api_key or not folder_id:
+        raise ValueError('YANDEX_GPT_API_KEY or YANDEX_FOLDER_ID not configured')
 
     data = json.dumps({
-        "model": "gpt-4o-mini",
+        "modelUri": f"gpt://{folder_id}/yandexgpt-lite",
+        "completionOptions": {
+            "stream": False,
+            "temperature": 0.7,
+            "maxTokens": max_tokens
+        },
         "messages": [
-            {"role": "system", "content": "Ты — копирайтер для сайта почасовой аренды номеров. Пиши живо, без воды, по делу. Без приветствий и заголовков. Только текст описания."},
-            {"role": "user", "content": prompt}
-        ],
-        "max_tokens": max_tokens,
-        "temperature": 0.7
+            {"role": "system", "text": "Ты — копирайтер для сайта почасовой аренды номеров. Пиши живо, без воды, по делу. Без приветствий и заголовков. Только текст описания."},
+            {"role": "user", "text": prompt}
+        ]
     }).encode('utf-8')
 
     req = urllib.request.Request(
-        'https://api.openai.com/v1/chat/completions',
+        'https://llm.api.cloud.yandex.net/foundationModels/v1/completion',
         data=data,
         headers={
             'Content-Type': 'application/json',
-            'Authorization': f'Bearer {api_key}'
+            'Authorization': f'Api-Key {api_key}',
+            'x-folder-id': folder_id
         },
         method='POST'
     )
@@ -34,7 +39,7 @@ def call_openai(prompt: str, max_tokens: int = 1000) -> str:
     with urllib.request.urlopen(req, timeout=30) as resp:
         result = json.loads(resp.read().decode('utf-8'))
 
-    return result['choices'][0]['message']['content'].strip()
+    return result['result']['alternatives'][0]['message']['text'].strip()
 
 
 def handler(event: dict, context) -> dict:
@@ -192,7 +197,7 @@ def handler(event: dict, context) -> dict:
         if images:
             prompt += f"\n\nОбъект имеет {len(images)} фотографий — упомяни что можно оценить обстановку по фото."
 
-        description = call_openai(prompt)
+        description = call_yandexgpt(prompt)
 
         return {
             'statusCode': 200,
@@ -211,11 +216,11 @@ def handler(event: dict, context) -> dict:
         }
     except urllib.error.HTTPError as e:
         error_body = e.read().decode('utf-8') if e.fp else ''
-        print(f"ERROR OpenAI HTTPError: {e.code}, body={error_body[:500]}")
+        print(f"ERROR YandexGPT HTTPError: {e.code}, body={error_body[:500]}")
         return {
             'statusCode': 502,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': f'OpenAI API error: {e.code}', 'details': error_body[:200]}),
+            'body': json.dumps({'error': f'YandexGPT API error: {e.code}', 'details': error_body[:200]}),
             'isBase64Encoded': False
         }
     except Exception as e:
