@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import Icon from '@/components/ui/icon';
 
 interface FormDataType {
@@ -150,16 +151,33 @@ export default function ListingNotesSection({ notes, onChange, formData }: Listi
                 Заполнить бриф
               </Button>
             ) : (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="border-amber-300 text-amber-700 hover:bg-amber-100"
-                onClick={() => onChange(buildBrief(formData))}
-              >
-                <Icon name="RefreshCw" size={14} className="mr-1.5" />
-                Перезаполнить бриф
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                  >
+                    <Icon name="RefreshCw" size={14} className="mr-1.5" />
+                    Перезаполнить бриф
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Перезаполнить бриф?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Текущие заметки будут заменены шаблоном с актуальными данными объекта. Все вручную внесённые изменения будут потеряны.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Отмена</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onChange(buildBrief(formData))}>
+                      Перезаполнить
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
             <Button
               type="button"

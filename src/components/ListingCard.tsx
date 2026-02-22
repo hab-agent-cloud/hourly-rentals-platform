@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useId } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ type Listing = {
   telegram?: string;
   subscription_expires_at?: string;
   distance?: number;
+  description?: string;
 };
 
 interface ListingCardProps {
@@ -92,6 +93,7 @@ export default function ListingCard({
   const hasActiveSubscription = listing.subscription_expires_at && new Date(listing.subscription_expires_at) > new Date();
   const images = getAllImages(listing.image_url, listing.rooms);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [descExpanded, setDescExpanded] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
   const handlePrev = useCallback((e: React.MouseEvent) => {
@@ -258,6 +260,24 @@ export default function ListingCard({
             <Badge key={idx} variant="secondary">{feature}</Badge>
           ))}
         </div>
+
+        {listing.description && (
+          <div className="mb-3" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-800 font-medium mb-1"
+              onClick={() => setDescExpanded(!descExpanded)}
+            >
+              <Icon name={descExpanded ? 'ChevronUp' : 'ChevronDown'} size={14} />
+              {descExpanded ? 'Скрыть' : 'Подробнее об объекте'}
+            </button>
+            {descExpanded && (
+              <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed border-l-2 border-purple-200 pl-3">
+                {listing.description}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="border-t pt-3 mb-3">
           <div className="flex items-baseline gap-2">
