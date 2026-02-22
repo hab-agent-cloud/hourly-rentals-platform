@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -68,6 +69,8 @@ export default function EmployeeFormDialog({
   onSave,
   onClose,
 }: EmployeeFormDialogProps) {
+  const [showPassword, setShowPassword] = useState(false);
+
   const formatPhoneNumber = (value: string) => {
     const cleaned = value.replace(/\D/g, '');
     if (cleaned.startsWith('7')) {
@@ -153,12 +156,24 @@ export default function EmployeeFormDialog({
             <Label>
               Пароль {editingEmployee && '(оставьте пустым, чтобы не менять)'}
             </Label>
-            <Input
-              type="password"
-              value={formData.password}
-              onChange={(e) => onFormDataChange({ password: e.target.value })}
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={(e) => onFormDataChange({ password: e.target.value })}
+                placeholder="••••••••"
+                className="pr-10"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={16} />
+              </Button>
+            </div>
           </div>
 
           <div>

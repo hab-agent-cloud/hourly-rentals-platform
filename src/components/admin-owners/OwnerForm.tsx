@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -36,6 +37,8 @@ export default function OwnerForm({
   onSubmit,
   onCancel,
 }: OwnerFormProps) {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div className="max-w-2xl mx-auto">
       <Card>
@@ -97,13 +100,25 @@ export default function OwnerForm({
               <Label htmlFor="password">
                 Пароль {selectedOwner ? '(оставьте пустым, чтобы не менять)' : '*'}
               </Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required={!selectedOwner}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required={!selectedOwner}
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={16} />
+                </Button>
+              </div>
             </div>
 
             <div>
