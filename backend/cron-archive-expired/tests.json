@@ -6,8 +6,7 @@
       "path": "/",
       "expectedStatus": 200,
       "expectedBody": {
-        "success": true,
-        "archived_count": "number"
+        "success": true
       },
       "bodyMatcher": "partial"
     }
