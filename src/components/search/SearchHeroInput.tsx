@@ -1,0 +1,349 @@
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+interface SearchSuggestion {
+  type: 'metro' | 'city' | 'address' | 'title';
+  label: string;
+  city: string;
+  walk_minutes?: number;
+}
+
+interface SearchHeroInputProps {
+  searchCity: string;
+  setSearchCity: (value: string) => void;
+  selectedCity: string;
+  setSelectedCity: (value: string) => void;
+  cities: string[];
+  detectedCity?: string | null;
+  allListings?: Record<string, unknown>[];
+  onFilterChange?: () => void;
+  onCityAndSearchSelect?: (city: string, search: string) => void;
+}
+
+export default function SearchHeroInput({
+  searchCity,
+  setSearchCity,
+  selectedCity,
+  setSelectedCity,
+  cities,
+  detectedCity,
+  allListings = [],
+  onFilterChange,
+  onCityAndSearchSelect,
+}: SearchHeroInputProps) {
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  const normalize = (str: string) =>
+    str.toLowerCase()
+      .replace(/ё/g, 'е')
+      .replace(/й/g, 'и')
+      .trim();
+
+  const buildSuggestions = useCallback((query: string): SearchSuggestion[] => {
+    if (!query || query.length < 2 || !allListings.length) return [];
+    const q = normalize(query);
+    const seen = new Set<string>();
+    const result: SearchSuggestion[] = [];
+
+    for (const l of allListings) {
+      const city = (l.city as string) || '';
+      const metro = (l.metro as string) || '';
+      const district = (l.district as string) || '';
+      const address = (l.address as string) || '';
+      const title = (l.title as string) || '';
+      const metroStations = (l.metro_stations as { station_name: string; walk_minutes?: number }[]) || [];
+
+      if (metro && normalize(metro).includes(q)) {
+        const key = `metro:${metro}:${city}`;
+        if (!seen.has(key)) { seen.add(key); result.push({ type: 'metro', label: metro, city, walk_minutes: l.metro_walk as number }); }
+      }
+      for (const s of metroStations) {
+        if (s.station_name && normalize(s.station_name).includes(q)) {
+          const key = `metro:${s.station_name}:${city}`;
+          if (!seen.has(key)) { seen.add(key); result.push({ type: 'metro', label: s.station_name, city, walk_minutes: s.walk_minutes }); }
+        }
+      }
+      if (district && normalize(district).includes(q)) {
+        const key = `district:${district}:${city}`;
+        if (!seen.has(key)) { seen.add(key); result.push({ type: 'address', label: district, city }); }
+      }
+      if (title && normalize(title).includes(q)) {
+        const key = `title:${title}`;
+        if (!seen.has(key)) { seen.add(key); result.push({ type: 'title', label: title, city }); }
+      }
+      if (address && normalize(address).includes(q)) {
+        const key = `address:${address}`;
+        if (!seen.has(key)) { seen.add(key); result.push({ type: 'address', label: address, city }); }
+      }
+    }
+
+    return result.slice(0, 8);
+  }, [allListings]);
+
+  const handleSearchInput = (value: string) => {
+    setSearchCity(value);
+    if (value.length >= 2) {
+      const s = buildSuggestions(value);
+      setSuggestions(s);
+      setShowSuggestions(s.length > 0);
+    } else {
+      setShowSuggestions(false);
+    }
+    const matchingCity = cities.find(city => city.toLowerCase() === value.toLowerCase());
+    if (matchingCity) {
+      setSelectedCity(matchingCity);
+    } else if (value === '') {
+      setSelectedCity('');
+    }
+  };
+
+  const handleSuggestionClick = (s: SearchSuggestion) => {
+    setShowSuggestions(false);
+    if (s.type === 'metro') {
+      setSearchCity(s.label);
+      if (onCityAndSearchSelect) {
+        onCityAndSearchSelect(s.city, s.label);
+      } else {
+        setSelectedCity(s.city);
+      }
+    } else if (s.type === 'title') {
+      setSearchCity(s.label);
+    } else {
+      setSearchCity(s.label);
+      setSelectedCity(s.city);
+    }
+    onFilterChange?.();
+    setTimeout(() => onFilterChange?.(), 100);
+  };
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(e.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(e.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const suggestionIcon = (type: SearchSuggestion['type']) => {
+    if (type === 'metro') return 'Train';
+    if (type === 'title') return 'Building2';
+    return 'MapPin';
+  };
+
+  const parseVoiceQuery = (text: string) => {
+    const lowerText = text.toLowerCase();
+
+    const cityPatterns = [
+      { pattern: /москв/i, city: 'Москва' },
+      { pattern: /(санкт[- ]петербург|питер|спб)/i, city: 'Санкт-Петербург' },
+      { pattern: /казан/i, city: 'Казань' },
+      { pattern: /самар/i, city: 'Самара' },
+      { pattern: /екатеринбург/i, city: 'Екатеринбург' },
+      { pattern: /уф/i, city: 'Уфа' },
+      { pattern: /ростов/i, city: 'Ростов-на-Дону' },
+      { pattern: /краснодар/i, city: 'Краснодар' },
+      { pattern: /(нижний новгород|нижний)/i, city: 'Нижний Новгород' },
+      { pattern: /новосибирск/i, city: 'Новосибирск' }
+    ];
+
+    let detectedVoiceCity = '';
+    for (const { pattern, city } of cityPatterns) {
+      if (pattern.test(lowerText)) {
+        detectedVoiceCity = city;
+        break;
+      }
+    }
+
+    let metro = '';
+    const metroMatch = lowerText.match(/метро\s+([а-яё\s-]+?)(?:\s*,|\s*$)/i);
+    if (metroMatch) {
+      metro = metroMatch[1].trim();
+    } else if (detectedVoiceCity) {
+      const cityInText = lowerText.match(new RegExp(detectedVoiceCity, 'i'));
+      if (cityInText) {
+        const afterCity = lowerText.substring(cityInText.index! + cityInText[0].length).trim();
+        metro = afterCity.replace(/^[,\s]+/, '').split(/[\s,]+/)[0] || '';
+      }
+    }
+
+    return { city: detectedVoiceCity, metro };
+  };
+
+  const handleVoiceSearch = async () => {
+    console.log('[Voice] Button clicked');
+    console.log('[Voice] User agent:', navigator.userAgent);
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    console.log('[Voice] isIOS:', isIOS, 'isSafari:', isSafari);
+
+    if (isIOS && !isSafari) {
+      console.log('[Voice] Error: iOS but not Safari');
+      setVoiceError('На iOS голосовой поиск работает только в Safari');
+      return;
+    }
+
+    const hasWebkit = 'webkitSpeechRecognition' in window;
+    const hasStandard = 'SpeechRecognition' in window;
+    console.log('[Voice] webkitSpeechRecognition:', hasWebkit, 'SpeechRecognition:', hasStandard);
+
+    if (!hasWebkit && !hasStandard) {
+      console.log('[Voice] Error: No speech recognition support');
+      setVoiceError('Голосовой поиск не поддерживается в вашем браузере');
+      return;
+    }
+
+    try {
+      const SpeechRecognition = (window as { webkitSpeechRecognition?: unknown; SpeechRecognition?: unknown }).webkitSpeechRecognition || (window as { webkitSpeechRecognition?: unknown; SpeechRecognition?: unknown }).SpeechRecognition;
+      console.log('[Voice] Creating recognition instance');
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ru-RU';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        console.log('[Voice] Recognition started');
+        setIsListening(true);
+        setVoiceError(null);
+      };
+
+      recognition.onresult = (event: { results: { [key: number]: { [key: number]: { transcript: string } } } }) => {
+        const transcript = event.results[0][0].transcript;
+        console.log('[Voice] Transcript:', transcript);
+        const parsed = parseVoiceQuery(transcript);
+        console.log('[Voice] Parsed:', parsed);
+
+        if (parsed.city) {
+          setSelectedCity(parsed.city);
+          setSearchCity(parsed.metro || '');
+        } else if (parsed.metro) {
+          setSearchCity(parsed.metro);
+        } else {
+          setSearchCity(transcript);
+        }
+
+        onFilterChange?.();
+      };
+
+      recognition.onerror = (event: { error: string }) => {
+        console.log('[Voice] Error:', event.error);
+        setIsListening(false);
+        if (event.error === 'no-speech') {
+          setVoiceError('Речь не распознана. Попробуйте еще раз');
+        } else if (event.error === 'not-allowed') {
+          setVoiceError('Доступ к микрофону запрещен. Проверьте настройки браузера');
+        } else {
+          setVoiceError(`Ошибка: ${event.error}`);
+        }
+      };
+
+      recognition.onend = () => {
+        console.log('[Voice] Recognition ended');
+        setIsListening(false);
+      };
+
+      console.log('[Voice] Starting recognition...');
+      recognition.start();
+    } catch (error) {
+      console.error('[Voice] Exception:', error);
+      setVoiceError('Ошибка инициализации голосового поиска');
+      setIsListening(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row gap-2 sm:gap-4">
+      <div className="flex-1">
+        <div className="relative">
+          <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            ref={inputRef}
+            placeholder={detectedCity ? `Поиск в ${detectedCity}...` : "Метро, адрес, название..."}
+            className="pl-10 pr-20 h-10 sm:h-12 text-base sm:text-lg border-purple-200"
+            value={searchCity}
+            onChange={(e) => handleSearchInput(e.target.value)}
+            onFocus={() => {
+              if (suggestions.length > 0) setShowSuggestions(true);
+            }}
+            autoComplete="off"
+          />
+          <button
+            onClick={handleVoiceSearch}
+            disabled={isListening}
+            type="button"
+            className={`absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 hover:scale-110 hover:shadow-2xl disabled:opacity-50 transition-all duration-300 shadow-xl hover:shadow-purple-500/50 ${isListening ? 'animate-pulse scale-110' : ''}`}
+            style={{ zIndex: 9999 }}
+            title="Голосовой поиск"
+            aria-label="Голосовой поиск"
+          >
+            {isListening && (
+              <span className="absolute inset-0 rounded-full bg-purple-400 animate-ping opacity-75"></span>
+            )}
+            <Icon name={isListening ? "Radio" : "Mic"} size={20} className="relative" />
+          </button>
+
+          {showSuggestions && suggestions.length > 0 && (
+            <div
+              ref={suggestionsRef}
+              className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl border border-purple-100 overflow-hidden z-50"
+            >
+              {suggestions.map((s, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-purple-50 transition-colors text-left"
+                  onMouseDown={(e) => { e.preventDefault(); handleSuggestionClick(s); }}
+                >
+                  <span className="shrink-0 w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center">
+                    <Icon name={suggestionIcon(s.type)} size={14} className="text-purple-600" />
+                  </span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm font-medium text-gray-900 truncate">{s.label}</span>
+                    <span className="block text-xs text-gray-400">
+                      {s.type === 'metro' ? `Метро · ${s.city}${s.walk_minutes ? ` · ${s.walk_minutes} мин пешком` : ''}` : s.type === 'title' ? `Объект · ${s.city}` : s.city}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {voiceError && (
+          <p className="text-xs text-red-500 mt-1">{voiceError}</p>
+        )}
+        {!isListening && !voiceError && (
+          <p className="text-xs text-purple-600 mt-1 flex items-center gap-1">
+            <Icon name="Info" size={12} />
+            <span>Нажмите на микрофон и скажите: "Москва, метро Чистые пруды"</span>
+          </p>
+        )}
+        {isListening && (
+          <p className="text-xs text-purple-600 mt-1 flex items-center gap-1 animate-pulse">
+            <Icon name="Radio" size={12} />
+            <span>Слушаю...</span>
+          </p>
+        )}
+      </div>
+
+      <Button size="lg" className="h-10 sm:h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-sm sm:text-base">
+        <Icon name="Search" size={18} className="mr-2" />
+        Найти
+      </Button>
+    </div>
+  );
+}
