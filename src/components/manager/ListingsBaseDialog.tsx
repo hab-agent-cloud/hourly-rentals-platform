@@ -113,6 +113,15 @@ export default function ListingsBaseDialog({
                               🆕 Нет пополнений
                             </Badge>
                           )}
+                          {listing.has_notes ? (
+                            <Badge variant="outline" className="border-green-600 text-green-700">
+                              📋 Бриф заполнен
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="border-amber-500 text-amber-700">
+                              📋 Бриф не заполнен
+                            </Badge>
+                          )}
                         </div>
                         {listing.district && (
                           <p className="text-sm text-muted-foreground mb-1">

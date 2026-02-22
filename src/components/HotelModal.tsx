@@ -56,6 +56,8 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
   const navigate = useNavigate();
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
   const [virtualPhone, setVirtualPhone] = useState('');
+  const [ownerPhone, setOwnerPhone] = useState('');
+  const [isVirtualNumber, setIsVirtualNumber] = useState(false);
   const [isLoadingPhone, setIsLoadingPhone] = useState(false);
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -111,13 +113,19 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
       if (response.ok && data.virtual_number) {
         console.log('[HotelModal] Got virtual number:', data.virtual_number);
         setVirtualPhone(data.virtual_number);
+        setOwnerPhone(data.owner_phone || hotel.phone || '');
+        setIsVirtualNumber(true);
       } else {
         console.log('[HotelModal] Using fallback phone:', hotel.phone);
         setVirtualPhone(hotel.phone || '');
+        setOwnerPhone('');
+        setIsVirtualNumber(false);
       }
     } catch (error) {
       console.error('[HotelModal] Failed to get virtual number:', error);
       setVirtualPhone(hotel.phone || '');
+      setOwnerPhone('');
+      setIsVirtualNumber(false);
     } finally {
       setIsLoadingPhone(false);
     }
@@ -311,7 +319,7 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
                     {virtualPhone}
                   </a>
                   <p className="text-xs text-muted-foreground mt-2">
-                    Защищённый номер действует 10 минут
+                    {isVirtualNumber ? 'Защищённый номер действует 5 минут' : 'Прямой номер объекта'}
                   </p>
                 </div>
                 <Button 
@@ -323,6 +331,19 @@ export default function HotelModal({ open, onOpenChange, hotel }: HotelModalProp
                     Позвонить сейчас
                   </a>
                 </Button>
+                {isVirtualNumber && ownerPhone && ownerPhone !== virtualPhone && (
+                  <div className="border border-gray-200 rounded-xl p-4 text-center bg-gray-50">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Не дозвонились? Воспользуйтесь прямым номером объекта:
+                    </p>
+                    <a
+                      href={`tel:${ownerPhone}`}
+                      className="text-lg font-semibold text-gray-700 hover:text-gray-900 transition-colors underline underline-offset-2"
+                    >
+                      {ownerPhone}
+                    </a>
+                  </div>
+                )}
               </>
             )}
           </div>

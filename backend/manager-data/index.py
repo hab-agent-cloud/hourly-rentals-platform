@@ -146,7 +146,8 @@ def handler(event: dict, context) -> dict:
                                 WHEN l.subscription_expires_at < NOW() + INTERVAL '3 days' THEN 'warning'
                                 ELSE 'ok'
                             END as urgency,
-                            CASE WHEN l.owner_id IS NULL THEN true ELSE false END as no_payments
+                            CASE WHEN l.owner_id IS NULL THEN true ELSE false END as no_payments,
+                            CASE WHEN l.manager_notes IS NOT NULL AND l.manager_notes != '' THEN true ELSE false END as has_notes
                         FROM t_p39732784_hourly_rentals_platf.manager_listings ml
                         JOIN t_p39732784_hourly_rentals_platf.listings l ON ml.listing_id = l.id
                         WHERE ml.manager_id = %s AND l.status != 'inactive'
