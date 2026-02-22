@@ -29,8 +29,13 @@ def call_yandex_gpt(prompt: str) -> str:
             'x-folder-id': folder_id
         }
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        result = json.loads(resp.read().decode('utf-8'))
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            result = json.loads(resp.read().decode('utf-8'))
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode('utf-8') if e.fp else ''
+        print(f"YandexGPT HTTP {e.code}: {error_body}")
+        raise ValueError(f"YandexGPT API error {e.code}: {error_body}")
     return result['result']['alternatives'][0]['message']['text'].strip()
 
 
