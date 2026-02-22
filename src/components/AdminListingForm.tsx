@@ -23,6 +23,24 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
   const [isLoading, setIsLoading] = useState(false);
   const [owners, setOwners] = useState<any[]>([]);
   const [loadingOwners, setLoadingOwners] = useState(false);
+  const [generating, setGenerating] = useState(false);
+
+  const handleGenerateDescription = async () => {
+    if (!listing?.id) return;
+    setGenerating(true);
+    try {
+      const result = await api.generateDescription(listing.id);
+      if (result.description) {
+        setFormData((prev: typeof formData) => ({ ...prev, description: result.description }));
+        toast({ title: 'Описание сгенерировано', description: 'Проверьте и отредактируйте при необходимости' });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Попробуйте позже';
+      toast({ title: 'Ошибка генерации', description: message, variant: 'destructive' });
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const [formData, setFormData] = useState(() => {
     console.log('=== INITIALIZING FORM DATA ===');
@@ -36,6 +54,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
       type: listing?.type || 'hotel',
       city: listing?.city || '',
       district: listing?.district || '',
+      description: listing?.description || '',
       price: listing?.price || 0,
       auction: listing?.auction || 999,
       image_url: listing?.image_url || '',
@@ -108,6 +127,7 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
         type: listing.type || 'hotel',
         city: listing.city || '',
         district: listing.district || '',
+        description: listing.description || '',
         price: listing.price || 0,
         auction: listing.auction || 999,
         image_url: listing.image_url || '',
@@ -347,6 +367,9 @@ export default function AdminListingForm({ listing, token, onClose }: AdminListi
             handleLogoUpload={handleLogoUpload}
             owners={owners}
             loadingOwners={loadingOwners}
+            listingId={listing?.id}
+            onGenerateDescription={handleGenerateDescription}
+            generating={generating}
           />
 
           <Card>

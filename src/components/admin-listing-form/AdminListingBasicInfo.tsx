@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,9 @@ interface AdminListingBasicInfoProps {
   handleLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   owners: any[];
   loadingOwners: boolean;
+  listingId?: number;
+  onGenerateDescription?: () => void;
+  generating?: boolean;
 }
 
 export default function AdminListingBasicInfo({
@@ -29,6 +33,9 @@ export default function AdminListingBasicInfo({
   handleLogoUpload,
   owners,
   loadingOwners,
+  listingId,
+  onGenerateDescription,
+  generating,
 }: AdminListingBasicInfoProps) {
   return (
     <Card>
@@ -149,6 +156,34 @@ export default function AdminListingBasicInfo({
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium">Описание объекта</label>
+            {listingId && onGenerateDescription && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onGenerateDescription}
+                disabled={generating}
+                className="text-xs h-7"
+              >
+                {generating ? (
+                  <><Icon name="Loader2" size={14} className="mr-1 animate-spin" />Генерация...</>
+                ) : (
+                  <><Icon name="Sparkles" size={14} className="mr-1" />Сгенерировать</>
+                )}
+              </Button>
+            )}
+          </div>
+          <Textarea
+            value={formData.description || ''}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            rows={5}
+            placeholder="Описание объекта для посетителей..."
+          />
         </div>
 
         <div>

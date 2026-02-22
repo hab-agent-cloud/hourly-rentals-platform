@@ -475,7 +475,8 @@ def handler(event: dict, context) -> dict:
                         has_parking=%s, parking_type=%s, parking_price_per_hour=%s,
                         features=%s, lat=%s, lng=%s, min_hours=%s, 
                         phone=%s, telegram=%s, logo_url=%s, is_archived=%s,
-                        price_warning_holidays=%s, price_warning_daytime=%s, owner_id=%s, updated_at=CURRENT_TIMESTAMP
+                        price_warning_holidays=%s, price_warning_daytime=%s, owner_id=%s,
+                        description=%s, updated_at=CURRENT_TIMESTAMP
                     WHERE id=%s
                     RETURNING *
                 """, (
@@ -491,7 +492,7 @@ def handler(event: dict, context) -> dict:
                     body.get('min_hours', 1), body.get('phone'), body.get('telegram'),
                     body.get('logo_url'), body.get('is_archived', False),
                     body.get('price_warning_holidays', False), body.get('price_warning_daytime', False),
-                    body.get('owner_id'), listing_id
+                    body.get('owner_id'), body.get('description'), listing_id
                 ))
             
             updated_listing = cur.fetchone()
