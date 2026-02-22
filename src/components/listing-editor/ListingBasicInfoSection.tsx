@@ -140,6 +140,9 @@ export default function ListingBasicInfoSection({ formData, onFormChange, listin
                 onChange={(e) => onFormChange('metro_station', e.target.value)}
                 placeholder="Площадь Революции"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Если метро нет — оставьте пустым
+              </p>
             </div>
           </div>
         </CardContent>
