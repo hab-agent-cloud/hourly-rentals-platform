@@ -127,6 +127,9 @@ export default function ListingBasicInfoSection({ formData, onFormChange, listin
                 onChange={(e) => onFormChange('district', e.target.value)}
                 placeholder="Центральный"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Только название района, не адрес. Например: Северный, Хамовники
+              </p>
             </div>
             
             <div>
