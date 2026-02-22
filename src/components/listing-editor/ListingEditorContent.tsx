@@ -59,6 +59,7 @@ export default function ListingEditorContent({
       <ListingNotesSection
         notes={formData.manager_notes || ''}
         onChange={(value) => onFormChange('manager_notes', value)}
+        formData={formData}
       />
 
       <ListingPhotoSection
