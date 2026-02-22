@@ -138,7 +138,7 @@ export default function ListingNotesSection({ notes, onChange, formData }: Listi
             Заметки менеджера
           </CardTitle>
           <div className="flex items-center gap-2">
-            {(!notes || notes.trim() === '') && (
+            {(!notes || notes.trim() === '') ? (
               <Button
                 type="button"
                 size="sm"
@@ -148,6 +148,17 @@ export default function ListingNotesSection({ notes, onChange, formData }: Listi
               >
                 <Icon name="ClipboardList" size={14} className="mr-1.5" />
                 Заполнить бриф
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                onClick={() => onChange(buildBrief(formData))}
+              >
+                <Icon name="RefreshCw" size={14} className="mr-1.5" />
+                Перезаполнить бриф
               </Button>
             )}
             <Button
