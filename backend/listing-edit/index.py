@@ -96,7 +96,7 @@ def handler(event: dict, context) -> dict:
                     l.owner_id, l.square_meters, l.parking_type, 
                     l.parking_price_per_hour, l.short_title, l.trial_activated_at,
                     o.full_name as owner_name, l.image_url, l.logo_url,
-                    l.gold_gift_sent_at
+                    l.gold_gift_sent_at, l.manager_notes
                 FROM {schema}.listings l
                 LEFT JOIN {schema}.owners o ON l.owner_id = o.id
                 WHERE l.id = %s
@@ -163,7 +163,8 @@ def handler(event: dict, context) -> dict:
                 'image_url': row[20],
                 'logo_url': row[21],
                 'rooms': rooms,
-                'gold_gift_sent_at': row[22].isoformat() if row[22] else None
+                'gold_gift_sent_at': row[22].isoformat() if row[22] else None,
+                'manager_notes': row[23]
             }
             
             return {
@@ -236,7 +237,8 @@ def handler(event: dict, context) -> dict:
                 'parking_price_per_hour': 'parking_price_per_hour',
                 'short_title': 'short_title',
                 'image_url': 'image_url',
-                'logo_url': 'logo_url'
+                'logo_url': 'logo_url',
+                'manager_notes': 'manager_notes'
             }
             
             for frontend_field, db_field in field_mapping.items():

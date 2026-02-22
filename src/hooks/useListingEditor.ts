@@ -39,7 +39,8 @@ export function useListingEditor(id: string | undefined) {
     short_title: '',
     image_url: '',
     logo_url: '',
-    rooms: [] as any[]
+    rooms: [] as any[],
+    manager_notes: ''
   });
   
   useEffect(() => {
@@ -77,7 +78,8 @@ export function useListingEditor(id: string | undefined) {
           short_title: data.listing.short_title || '',
           image_url: data.listing.image_url || '',
           logo_url: data.listing.logo_url || '',
-          rooms: data.listing.rooms || []
+          rooms: data.listing.rooms || [],
+          manager_notes: data.listing.manager_notes || ''
         });
       }
     } catch (error) {

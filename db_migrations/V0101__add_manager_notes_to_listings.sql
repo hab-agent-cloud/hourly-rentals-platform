@@ -1,0 +1,1 @@
+ALTER TABLE t_p39732784_hourly_rentals_platf.listings ADD COLUMN IF NOT EXISTS manager_notes TEXT;

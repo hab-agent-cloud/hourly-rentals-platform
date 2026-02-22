@@ -9,6 +9,7 @@ import ListingCategoriesSection from '@/components/listing-editor/ListingCategor
 import ListingGiftsSection from '@/components/listing-editor/ListingGiftsSection';
 import ListingManagerChat from '@/components/listing-editor/ListingManagerChat';
 import ListingAllPhotosSection from '@/components/listing-editor/ListingAllPhotosSection';
+import ListingNotesSection from '@/components/listing-editor/ListingNotesSection';
 
 interface ListingEditorContentProps {
   listing: any;
@@ -55,6 +56,11 @@ export default function ListingEditorContent({
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      <ListingNotesSection
+        notes={formData.manager_notes || ''}
+        onChange={(value) => onFormChange('manager_notes', value)}
+      />
+
       <ListingPhotoSection
         imageUrl={formData.image_url}
         logoUrl={formData.logo_url}
