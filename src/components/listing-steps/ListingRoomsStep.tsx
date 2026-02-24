@@ -9,8 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 
 interface ListingRoomsStepProps {
-  data: any;
-  onUpdate: (data: any) => void;
+  data: Record<string, unknown>;
+  onUpdate: (data: Record<string, unknown>) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -35,9 +35,21 @@ const ROOM_FEATURES = [
   'Односпальная кровать'
 ];
 
+const BUREAU_LIMITS = [
+  { rooms: 5, price: 0, label: 'Базовый' },
+  { rooms: 10, price: 10000, label: 'Расширенный' },
+  { rooms: 20, price: 15000, label: 'Профессиональный' },
+];
+
 export default function ListingRoomsStep({ data, onUpdate, onNext, onBack }: ListingRoomsStepProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [editingRoom, setEditingRoom] = useState<number | null>(null);
+  
+  const isBureau = data.type === 'Квартирное бюро';
+  const rooms = (data.rooms as unknown[]) || [];
+  const roomsCount = rooms.length;
+  const bureauLimit = (data.bureau_room_limit as number) || 5;
+  const isAtLimit = isBureau && roomsCount >= bureauLimit;
   const [currentRoom, setCurrentRoom] = useState<any>({
     type: '',
     price: '',
@@ -319,7 +331,7 @@ export default function ListingRoomsStep({ data, onUpdate, onNext, onBack }: Lis
           </div>
 
           <div className="flex gap-2">
-            <Button onClick={addRoom} className="flex-1">
+            <Button onClick={addRoom} className="flex-1" disabled={isAtLimit && editingRoom === null}>
               <Icon name={editingRoom !== null ? "Check" : "Plus"} size={18} className="mr-2" />
               {editingRoom !== null ? 'Сохранить изменения' : 'Добавить номер'}
             </Button>
@@ -329,6 +341,45 @@ export default function ListingRoomsStep({ data, onUpdate, onNext, onBack }: Lis
               </Button>
             )}
           </div>
+
+          {/* Блок разблокировки лимита для квартирного бюро */}
+          {isBureau && isAtLimit && editingRoom === null && (
+            <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <Icon name="Lock" size={18} className="text-amber-600" />
+                <p className="font-semibold text-amber-800">Достигнут лимит {bureauLimit} квартир</p>
+              </div>
+              <p className="text-sm text-amber-700 mb-3">
+                Разблокируйте возможность добавлять больше квартир — разовая оплата, платить повторно не нужно.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {BUREAU_LIMITS.filter(l => l.rooms > bureauLimit).map(tier => (
+                  <div key={tier.rooms} className="bg-white border border-amber-300 rounded-lg p-3 text-center">
+                    <p className="text-sm text-gray-500 mb-1">{tier.label}</p>
+                    <p className="font-bold text-gray-900">до {tier.rooms} квартир</p>
+                    <p className="text-purple-600 font-semibold mt-1">{tier.price.toLocaleString('ru')} ₽</p>
+                    <p className="text-xs text-gray-400 mt-1">разовая оплата</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-amber-600 mt-3 text-center">
+                Оплата производится в личном кабинете после регистрации объекта
+              </p>
+            </div>
+          )}
+
+          {/* Прогресс бар лимита для бюро */}
+          {isBureau && !isAtLimit && (
+            <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+              <Icon name="Building2" size={14} />
+              <span>Квартир: {roomsCount} / {bureauLimit}</span>
+              {bureauLimit < 20 && (
+                <span className="text-purple-600 ml-auto">
+                  Можно расширить до {bureauLimit === 5 ? 10 : 20} квартир
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Rooms List */}

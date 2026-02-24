@@ -120,6 +120,7 @@ export default function ListingBasicInfoStep({ data, onUpdate, onNext, onBack }:
             <SelectContent>
               <SelectItem value="Отель/Гостиница">Отель/Гостиница</SelectItem>
               <SelectItem value="Апартаменты/Квартира">Апартаменты/Квартира</SelectItem>
+              <SelectItem value="Квартирное бюро">Квартирное бюро</SelectItem>
             </SelectContent>
           </Select>
           {errors.type && (

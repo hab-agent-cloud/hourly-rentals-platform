@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "GET - лимит квартир для владельца",
+      "method": "GET",
+      "path": "/?owner_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "current_limit": 5,
+        "base_limit": 5
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "GET - без owner_id",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400,
+      "expectedBody": {"error": "owner_id required"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

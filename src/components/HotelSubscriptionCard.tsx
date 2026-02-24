@@ -113,7 +113,7 @@ export default function HotelSubscriptionCard({ listing, subscriptionInfo, onExt
           />
         ) : (
           <div className="flex items-center justify-center h-full text-4xl">
-            🏨
+            {listing.type === 'bureau' ? '🏢' : listing.type === 'apartment' ? '🏠' : '🏨'}
           </div>
         )}
         <div className="absolute top-2 right-2 flex gap-1.5">
@@ -150,7 +150,7 @@ export default function HotelSubscriptionCard({ listing, subscriptionInfo, onExt
           </p>
           <div className="flex gap-1.5 mt-2">
             <Badge variant="outline" className="text-[10px] sm:text-xs px-2 py-0.5 font-medium border-purple-300">
-              {listing.type === 'hotel' ? 'Отель' : 'Апартаменты'}
+              {listing.type === 'hotel' ? 'Отель' : listing.type === 'bureau' ? 'Квартирное бюро' : 'Апартаменты'}
             </Badge>
             <Badge className="text-[10px] sm:text-xs px-2 py-0.5 bg-gradient-to-r from-purple-600 to-pink-600 font-medium">
               Позиция #{listing.auction || '—'}

@@ -121,7 +121,8 @@ def handler(event: dict, context) -> dict:
         # Map Russian type to database enum
         type_mapping = {
             'Отель/Гостиница': 'hotel',
-            'Апартаменты/Квартира': 'apartment'
+            'Апартаменты/Квартира': 'apartment',
+            'Квартирное бюро': 'bureau'
         }
         db_type = type_mapping.get(body['type'], 'hotel')
         

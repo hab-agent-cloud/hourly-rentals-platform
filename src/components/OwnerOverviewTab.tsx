@@ -4,6 +4,7 @@ import HotelSubscriptionCard from '@/components/HotelSubscriptionCard';
 import OwnerGiftsSection from '@/components/OwnerGiftsSection';
 import OwnerManagerCard from '@/components/OwnerManagerCard';
 import OwnerGoldPromoCard from '@/components/OwnerGoldPromoCard';
+import BureauUnlockCard from '@/components/BureauUnlockCard';
 
 interface Listing {
   id: number;
@@ -63,6 +64,7 @@ export default function OwnerOverviewTab({
 }: OwnerOverviewTabProps) {
   const activeListings = listings.filter(l => !l.is_archived);
   const archivedListings = listings.filter(l => l.is_archived);
+  const hasBureau = listings.some(l => l.type === 'bureau');
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -76,6 +78,11 @@ export default function OwnerOverviewTab({
             onGiftActivated={onRefreshListings}
           />
         </div>
+      )}
+
+      {/* Блок управления лимитом квартирного бюро */}
+      {ownerId && hasBureau && (
+        <BureauUnlockCard ownerId={ownerId} onUnlockSuccess={onRefreshListings} />
       )}
       
       {/* Active Listings */}

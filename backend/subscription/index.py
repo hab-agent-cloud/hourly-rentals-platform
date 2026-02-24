@@ -6,7 +6,8 @@ from datetime import datetime, timedelta
 
 SUBSCRIPTION_PRICES = {
     'hotel': 2000,  # 2000₽/месяц для отелей
-    'apartment': 1000  # 1000₽/месяц для апартаментов
+    'apartment': 1000,  # 1000₽/месяц для апартаментов
+    'bureau': 2000,  # 2000₽/месяц для квартирного бюро (единая подписка)
 }
 
 CASHBACK_PERCENT = 10  # 10% кэшбэк на бонусный счет
