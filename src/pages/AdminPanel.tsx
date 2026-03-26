@@ -78,6 +78,9 @@ export default function AdminPanel() {
   const {
     listings,
     isLoading,
+    isLoadingMore,
+    totalListings,
+    hasMore,
     selectedCity,
     selectedType,
     showArchived,
@@ -93,6 +96,7 @@ export default function AdminPanel() {
     setShowOnlyUnrated,
     setSearchQuery,
     loadListings,
+    loadMore,
     handleArchive,
     handleDelete,
     handleChangePosition,
@@ -296,6 +300,11 @@ export default function AdminPanel() {
           onChangePosition={handleChangePosition}
           onSetSubscription={(listing) => setSubscriptionDialog({ open: true, listing })}
           onModerate={handleModerate}
+          onLoadMore={loadMore}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          totalListings={totalListings}
+          loadedCount={listings.length}
         />
 
         <SubscriptionDialog

@@ -57,8 +57,10 @@ export default function AdminModerationTab({ token, adminInfo, moderationFilter 
     try {
       console.log('[AdminModerationTab] Loading listings with filter:', moderationFilter);
       const data = await api.getPendingModerationListings(token, moderationFilter);
-      console.log('[AdminModerationTab] Received listings:', data.length);
-      setListings(data);
+      // Support both new paginated format {listings, total, ...} and legacy array format
+      const listingsData = data && typeof data === 'object' && Array.isArray(data.listings) ? data.listings : (Array.isArray(data) ? data : []);
+      console.log('[AdminModerationTab] Received listings:', listingsData.length);
+      setListings(listingsData);
     } catch (error) {
       console.error('[AdminModerationTab] Error loading listings:', error);
       const errorMessage = error instanceof Error ? error.message : 'Не удалось загрузить объекты';

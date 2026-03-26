@@ -17,7 +17,7 @@ def verify_token(token: str) -> dict:
         return None
 
 def handler(event: dict, context) -> dict:
-    '''API для управления объектами (CRUD операции)'''
+    '''API для управления объектами (CRUD операции с пагинацией)'''
     method = event.get('httpMethod', 'GET')
     
     if method == 'OPTIONS':
@@ -131,7 +131,7 @@ def handler(event: dict, context) -> dict:
             # Список объектов (без полных данных images)
             show_archived = params.get('archived') == 'true'
             moderation_filter = params.get('moderation')
-            limit_param = params.get('limit', '10000')
+            limit_param = params.get('limit', '200')
             print(f"[DEBUG] limit_param string value: '{limit_param}'")
             limit = min(int(limit_param), 10000)
             offset = int(params.get('offset', 0))
@@ -150,6 +150,16 @@ def handler(event: dict, context) -> dict:
                     where_clause = "l.moderation_status = 'pending' AND (l.created_by_owner IS NULL OR l.created_by_owner = FALSE)"
                 else:
                     where_clause = f"l.moderation_status = '{moderation_filter}'"
+                
+                # Count query
+                count_query = f"""
+                    SELECT COUNT(*) as cnt
+                    FROM t_p39732784_hourly_rentals_platf.listings l
+                    WHERE {where_clause}
+                """
+                cur.execute(count_query)
+                total_count = cur.fetchone()['cnt']
+                print(f"[DEBUG] Total count for moderation filter '{moderation_filter}': {total_count}")
                 
                 query = f"""
                     SELECT l.id, l.title, l.city, l.district,
@@ -172,6 +182,12 @@ def handler(event: dict, context) -> dict:
                 cur.execute(query)
             elif show_archived:
                 print(f"[DEBUG] Fetching archived listings")
+                
+                # Count query
+                cur.execute("SELECT COUNT(*) as cnt FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = true")
+                total_count = cur.fetchone()['cnt']
+                print(f"[DEBUG] Total count for archived: {total_count}")
+                
                 cur.execute(f"""SELECT id, title, city, district,
                            image_url, logo_url,
                            auction, is_archived, moderation_status, moderation_comment,
@@ -185,6 +201,12 @@ def handler(event: dict, context) -> dict:
                     LIMIT {limit} OFFSET {offset}""")
             else:
                 print(f"[DEBUG] Fetching active listings")
+                
+                # Count query
+                cur.execute("SELECT COUNT(*) as cnt FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = false")
+                total_count = cur.fetchone()['cnt']
+                print(f"[DEBUG] Total count for active: {total_count}")
+                
                 cur.execute(f"""SELECT id, title, city, district,
                            image_url, logo_url,
                            auction, is_archived, moderation_status, moderation_comment,
@@ -217,7 +239,7 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps([]),
+                    'body': json.dumps({"listings": [], "total": total_count, "limit": limit, "offset": offset}),
                     'isBase64Encoded': False
                 }
             
@@ -273,7 +295,8 @@ def handler(event: dict, context) -> dict:
             conn.close()
             
             try:
-                response_body = json.dumps(result, default=str)
+                response_payload = {"listings": result, "total": total_count, "limit": limit, "offset": offset}
+                response_body = json.dumps(response_payload, default=str)
                 print(f"[DEBUG] Serialization successful, body length: {len(response_body)}")
             except Exception as e:
                 print(f"[ERROR] Serialization failed: {str(e)}")

@@ -16,6 +16,11 @@ interface AdminListingsContentProps {
   onSetSubscription: (listing: any) => void;
   onModerate: (listing: any) => void;
   onExpertRate?: (listing: any) => void;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  totalListings?: number;
+  loadedCount?: number;
 }
 
 export default function AdminListingsContent({
@@ -31,6 +36,11 @@ export default function AdminListingsContent({
   onSetSubscription,
   onModerate,
   onExpertRate,
+  onLoadMore,
+  hasMore,
+  isLoadingMore,
+  totalListings,
+  loadedCount,
 }: AdminListingsContentProps) {
   const [expandedCities, setExpandedCities] = useState<Set<string>>(new Set());
   const ITEMS_PER_CITY = 20;
@@ -60,7 +70,7 @@ export default function AdminListingsContent({
       {Object.entries(groupedByCity).sort(([cityA], [cityB]) => cityA.localeCompare(cityB)).map(([city, cityListings]) => {
         const isExpanded = expandedCities.has(city);
         const visibleListings = isExpanded ? cityListings : cityListings.slice(0, ITEMS_PER_CITY);
-        const hasMore = cityListings.length > ITEMS_PER_CITY;
+        const hasCityMore = cityListings.length > ITEMS_PER_CITY;
 
         return (
           <div key={city}>
@@ -95,7 +105,7 @@ export default function AdminListingsContent({
                   ))}
                 </div>
               </div>
-              {hasMore && (
+              {hasCityMore && (
                 <div className="flex justify-center mt-4">
                   <button
                     onClick={() => toggleCity(city)}
@@ -119,6 +129,28 @@ export default function AdminListingsContent({
           </div>
         );
       })}
+      {hasMore && onLoadMore && (
+        <div className="flex justify-center mt-8 mb-4">
+          <button
+            onClick={onLoadMore}
+            disabled={isLoadingMore}
+            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoadingMore ? (
+              <>
+                <Icon name="Loader2" size={18} className="animate-spin" />
+                Загрузка...
+              </>
+            ) : (
+              <>
+                <Icon name="ChevronDown" size={18} />
+                Загрузить ещё
+                {totalListings && loadedCount ? ` (загружено ${loadedCount} из ${totalListings})` : ''}
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

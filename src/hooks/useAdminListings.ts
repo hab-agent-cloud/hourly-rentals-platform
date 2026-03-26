@@ -5,6 +5,10 @@ import { api } from '@/lib/api';
 export function useAdminListings(token: string | null) {
   const [listings, setListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [totalListings, setTotalListings] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [currentOffset, setCurrentOffset] = useState(0);
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [showArchived, setShowArchived] = useState(false);
@@ -12,23 +16,38 @@ export function useAdminListings(token: string | null) {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { toast } = useToast();
 
+  const PAGE_SIZE = 200;
+
   const loadListings = async () => {
     setIsLoading(true);
     try {
-      const limit = 10000;
-      console.log('[useAdminListings] Loading with limit:', limit);
+      console.log('[useAdminListings] Loading with limit:', PAGE_SIZE);
       
-      const activeData = await api.getListings(token!, false, limit, 0);
+      const response = await api.getListings(token!, false, PAGE_SIZE, 0);
       
-      if (activeData.error) {
-        throw new Error(activeData.error);
+      if (response.error) {
+        throw new Error(response.error);
       }
       
-      if (!Array.isArray(activeData)) {
+      // Support both new paginated format and legacy array format
+      let listingsData: any[];
+      if (response && typeof response === 'object' && Array.isArray(response.listings)) {
+        listingsData = response.listings;
+        const total = response.total || 0;
+        setTotalListings(total);
+        setCurrentOffset(listingsData.length);
+        setHasMore(listingsData.length < total);
+        console.log(`[useAdminListings] Paginated: loaded ${listingsData.length} of ${total}`);
+      } else if (Array.isArray(response)) {
+        listingsData = response;
+        setTotalListings(response.length);
+        setCurrentOffset(response.length);
+        setHasMore(false);
+      } else {
         throw new Error('API вернул некорректный формат данных');
       }
       
-      const sortedData = [...activeData].sort((a, b) => b.id - a.id);
+      const sortedData = [...listingsData].sort((a, b) => b.id - a.id);
       setListings(sortedData);
     } catch (error: any) {
       toast({
@@ -37,8 +56,56 @@ export function useAdminListings(token: string | null) {
         variant: 'destructive',
       });
       setListings([]);
+      setTotalListings(0);
+      setHasMore(false);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadMore = async () => {
+    if (isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+    try {
+      console.log(`[useAdminListings] Loading more: offset=${currentOffset}, limit=${PAGE_SIZE}`);
+      
+      const response = await api.getListings(token!, false, PAGE_SIZE, currentOffset);
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      let newListings: any[];
+      if (response && typeof response === 'object' && Array.isArray(response.listings)) {
+        newListings = response.listings;
+        const total = response.total || 0;
+        setTotalListings(total);
+        setCurrentOffset(currentOffset + newListings.length);
+        setHasMore(currentOffset + newListings.length < total);
+        console.log(`[useAdminListings] Loaded more: ${newListings.length} items, total: ${total}`);
+      } else if (Array.isArray(response)) {
+        newListings = response;
+        setHasMore(false);
+      } else {
+        throw new Error('API вернул некорректный формат данных');
+      }
+      
+      if (newListings.length > 0) {
+        setListings(prev => {
+          const existingIds = new Set(prev.map(l => l.id));
+          const uniqueNew = newListings.filter(l => !existingIds.has(l.id));
+          const merged = [...prev, ...uniqueNew];
+          return merged.sort((a, b) => b.id - a.id);
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось загрузить ещё объекты',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -211,6 +278,9 @@ export function useAdminListings(token: string | null) {
   return {
     listings,
     isLoading,
+    isLoadingMore,
+    totalListings,
+    hasMore,
     selectedCity,
     selectedType,
     showArchived,
@@ -226,6 +296,7 @@ export function useAdminListings(token: string | null) {
     setShowOnlyUnrated,
     setSearchQuery,
     loadListings,
+    loadMore,
     handleArchive,
     handleDelete,
     handleChangePosition,

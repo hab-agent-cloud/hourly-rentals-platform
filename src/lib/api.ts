@@ -81,7 +81,7 @@ export const api = {
   },
 
   // Получение списка объектов (для админа)  
-  getListings: async (token: string, showArchived = false, limit = 10000, offset = 0) => {
+  getListings: async (token: string, showArchived = false, limit = 200, offset = 0) => {
     console.log(`[API] getListings called with: token=${!!token}, archived=${showArchived}, limit=${limit}, offset=${offset}`);
     const url = showArchived 
       ? `${API_URLS.adminListings}?archived=true&limit=${limit}&offset=${offset}`
@@ -99,7 +99,12 @@ export const api = {
     }
     
     const data = await response.json();
-    console.log(`[API] Received ${Array.isArray(data) ? data.length : 0} listings`);
+    // Support both new paginated format {listings, total, limit, offset} and legacy array format
+    if (data && typeof data === 'object' && Array.isArray(data.listings)) {
+      console.log(`[API] Received ${data.listings.length} listings (total: ${data.total})`);
+    } else {
+      console.log(`[API] Received ${Array.isArray(data) ? data.length : 0} listings (legacy format)`);
+    }
     
     return data;
   },
