@@ -81,11 +81,14 @@ export const api = {
   },
 
   // Получение списка объектов (для админа)  
-  getListings: async (token: string, showArchived = false, limit = 200, offset = 0) => {
-    console.log(`[API] getListings called with: token=${!!token}, archived=${showArchived}, limit=${limit}, offset=${offset}`);
-    const url = showArchived 
+  getListings: async (token: string, showArchived = false, limit = 200, offset = 0, city?: string) => {
+    console.log(`[API] getListings called with: token=${!!token}, archived=${showArchived}, limit=${limit}, offset=${offset}, city=${city}`);
+    let url = showArchived 
       ? `${API_URLS.adminListings}?archived=true&limit=${limit}&offset=${offset}`
       : `${API_URLS.adminListings}?limit=${limit}&offset=${offset}`;
+    if (city && city !== 'all') {
+      url += `&city=${encodeURIComponent(city)}`;
+    }
     
     console.log(`[API] Fetching listings URL: ${url}`);
     

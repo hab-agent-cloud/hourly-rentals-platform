@@ -135,8 +135,9 @@ def handler(event: dict, context) -> dict:
             print(f"[DEBUG] limit_param string value: '{limit_param}'")
             limit = min(int(limit_param), 10000)
             offset = int(params.get('offset', 0))
+            city_filter = params.get('city')
             
-            print(f"[DEBUG] Params: archived={show_archived}, moderation={moderation_filter}, limit={limit} (requested={limit_param}), offset={offset}")
+            print(f"[DEBUG] Params: archived={show_archived}, moderation={moderation_filter}, city={city_filter}, limit={limit} (requested={limit_param}), offset={offset}")
             
             if moderation_filter in ('pending', 'awaiting_recheck', 'rejected', 'owner_pending', 'admin_pending'):
                 # Фильтр по статусу модерации
@@ -145,11 +146,13 @@ def handler(event: dict, context) -> dict:
                 # owner_pending = объекты от владельцев (через форму добавления объекта) в статусе pending
                 if moderation_filter == 'owner_pending':
                     where_clause = "l.moderation_status = 'pending' AND l.created_by_owner = TRUE"
-                # admin_pending = объекты от копирайтеров (добавлены вручную) в статусе pending
                 elif moderation_filter == 'admin_pending':
                     where_clause = "l.moderation_status = 'pending' AND (l.created_by_owner IS NULL OR l.created_by_owner = FALSE)"
                 else:
                     where_clause = f"l.moderation_status = '{moderation_filter}'"
+                
+                if city_filter:
+                    where_clause += f" AND l.city = '{city_filter}'"
                 
                 # Count query
                 count_query = f"""
@@ -183,8 +186,11 @@ def handler(event: dict, context) -> dict:
             elif show_archived:
                 print(f"[DEBUG] Fetching archived listings")
                 
-                # Count query
-                cur.execute("SELECT COUNT(*) as cnt FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = true")
+                archived_where = "is_archived = true"
+                if city_filter:
+                    archived_where += f" AND city = '{city_filter}'"
+                
+                cur.execute(f"SELECT COUNT(*) as cnt FROM t_p39732784_hourly_rentals_platf.listings WHERE {archived_where}")
                 total_count = cur.fetchone()['cnt']
                 print(f"[DEBUG] Total count for archived: {total_count}")
                 
@@ -196,14 +202,17 @@ def handler(event: dict, context) -> dict:
                            expert_photo_rating, expert_fullness_rating,
                            submitted_for_moderation, created_by_owner
                     FROM t_p39732784_hourly_rentals_platf.listings 
-                    WHERE is_archived = true 
+                    WHERE {archived_where}
                     ORDER BY created_at DESC 
                     LIMIT {limit} OFFSET {offset}""")
             else:
                 print(f"[DEBUG] Fetching active listings")
                 
-                # Count query
-                cur.execute("SELECT COUNT(*) as cnt FROM t_p39732784_hourly_rentals_platf.listings WHERE is_archived = false")
+                active_where = "is_archived = false"
+                if city_filter:
+                    active_where += f" AND city = '{city_filter}'"
+                
+                cur.execute(f"SELECT COUNT(*) as cnt FROM t_p39732784_hourly_rentals_platf.listings WHERE {active_where}")
                 total_count = cur.fetchone()['cnt']
                 print(f"[DEBUG] Total count for active: {total_count}")
                 
@@ -215,7 +224,7 @@ def handler(event: dict, context) -> dict:
                            expert_photo_rating, expert_fullness_rating,
                            submitted_for_moderation, created_by_owner
                     FROM t_p39732784_hourly_rentals_platf.listings 
-                    WHERE is_archived = false 
+                    WHERE {active_where}
                     ORDER BY auction ASC 
                     LIMIT {limit} OFFSET {offset}""")
             

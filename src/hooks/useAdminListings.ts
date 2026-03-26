@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 
@@ -18,19 +18,30 @@ export function useAdminListings(token: string | null) {
   const { toast } = useToast();
 
   const PAGE_SIZE = 200;
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (token) {
+      setCurrentOffset(0);
+      loadListings();
+    }
+  }, [selectedCity]);
 
   const loadListings = async () => {
     setIsLoading(true);
     try {
       console.log('[useAdminListings] Loading with limit:', PAGE_SIZE);
       
-      const response = await api.getListings(token!, false, PAGE_SIZE, 0);
+      const response = await api.getListings(token!, false, PAGE_SIZE, 0, selectedCity);
       
       if (response.error) {
         throw new Error(response.error);
       }
       
-      // Support both new paginated format and legacy array format
       let listingsData: any[];
       if (response && typeof response === 'object' && Array.isArray(response.listings)) {
         listingsData = response.listings;
@@ -41,7 +52,7 @@ export function useAdminListings(token: string | null) {
         if (response.city_totals) {
           setServerCityTotals(response.city_totals);
         }
-        console.log(`[useAdminListings] Paginated: loaded ${listingsData.length} of ${total}`);
+        console.log(`[useAdminListings] Paginated: loaded ${listingsData.length} of ${total}, city=${selectedCity}`);
       } else if (Array.isArray(response)) {
         listingsData = response;
         setTotalListings(response.length);
@@ -73,7 +84,7 @@ export function useAdminListings(token: string | null) {
     try {
       console.log(`[useAdminListings] Loading more: offset=${currentOffset}, limit=${PAGE_SIZE}`);
       
-      const response = await api.getListings(token!, false, PAGE_SIZE, currentOffset);
+      const response = await api.getListings(token!, false, PAGE_SIZE, currentOffset, selectedCity);
       
       if (response.error) {
         throw new Error(response.error);
