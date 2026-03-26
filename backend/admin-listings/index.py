@@ -291,11 +291,23 @@ def handler(event: dict, context) -> dict:
                 result.append(listing_dict)
             
             print(f"[DEBUG] About to serialize {len(result)} listings")
+            
+            city_totals_query = """
+                SELECT city, COUNT(*) as cnt
+                FROM t_p39732784_hourly_rentals_platf.listings
+                WHERE is_archived = false
+                GROUP BY city
+                ORDER BY cnt DESC
+            """
+            cur.execute(city_totals_query)
+            city_totals = {row['city']: row['cnt'] for row in cur.fetchall()}
+            print(f"[DEBUG] City totals: {city_totals}")
+            
             cur.close()
             conn.close()
             
             try:
-                response_payload = {"listings": result, "total": total_count, "limit": limit, "offset": offset}
+                response_payload = {"listings": result, "total": total_count, "limit": limit, "offset": offset, "city_totals": city_totals}
                 response_body = json.dumps(response_payload, default=str)
                 print(f"[DEBUG] Serialization successful, body length: {len(response_body)}")
             except Exception as e:

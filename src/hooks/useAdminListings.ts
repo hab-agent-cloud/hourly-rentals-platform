@@ -14,6 +14,7 @@ export function useAdminListings(token: string | null) {
   const [showArchived, setShowArchived] = useState(false);
   const [showOnlyUnrated, setShowOnlyUnrated] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [serverCityTotals, setServerCityTotals] = useState<Record<string, number>>({});
   const { toast } = useToast();
 
   const PAGE_SIZE = 200;
@@ -37,6 +38,9 @@ export function useAdminListings(token: string | null) {
         setTotalListings(total);
         setCurrentOffset(listingsData.length);
         setHasMore(listingsData.length < total);
+        if (response.city_totals) {
+          setServerCityTotals(response.city_totals);
+        }
         console.log(`[useAdminListings] Paginated: loaded ${listingsData.length} of ${total}`);
       } else if (Array.isArray(response)) {
         listingsData = response;
@@ -208,9 +212,13 @@ export function useAdminListings(token: string | null) {
   };
 
   const cities = useMemo(() => {
+    const serverCities = Object.keys(serverCityTotals);
+    if (serverCities.length > 0) {
+      return serverCities.sort();
+    }
     const uniqueCities = [...new Set(listings.map(l => l.city))].sort();
     return uniqueCities;
-  }, [listings]);
+  }, [listings, serverCityTotals]);
 
   const filteredListings = useMemo(() => {
     return listings.filter(listing => {
@@ -267,13 +275,16 @@ export function useAdminListings(token: string | null) {
   }, [filteredListings]);
 
   const cityTotals = useMemo(() => {
+    if (Object.keys(serverCityTotals).length > 0) {
+      return serverCityTotals;
+    }
     const totals: { [city: string]: number } = {};
     listings.forEach(listing => {
       if (!showArchived && listing.is_archived) return;
       totals[listing.city] = (totals[listing.city] || 0) + 1;
     });
     return totals;
-  }, [listings, showArchived]);
+  }, [listings, showArchived, serverCityTotals]);
 
   return {
     listings,
